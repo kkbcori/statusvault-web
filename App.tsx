@@ -12,6 +12,7 @@ import {
   Inter_700Bold, Inter_800ExtraBold, Inter_900Black,
 } from '@expo-google-fonts/inter';
 import { AppNavigator } from './src/navigation';
+import { fixWebViewport } from './src/utils/webViewport';
 import { configureNotifications } from './src/utils/notifications';
 import { useStore } from './src/store';
 import { colors } from './src/theme';

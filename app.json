@@ -49,8 +49,7 @@
       "bundler": "metro",
       "output": "single",
       "name": "StatusVault \u2014 Immigration Tracker",
-      "description": "Track visas, documents and travel history for immigration. 100% private, AES-256 encrypted sync.",
-      "htmlPath": "./web/index.html"
+      "description": "Track visas, documents and travel history for immigration. 100% private, AES-256 encrypted sync."
     },
     "experiments": {
       "baseUrl": "/statusvault-web"
