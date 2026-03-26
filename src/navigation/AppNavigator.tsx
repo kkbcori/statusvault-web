@@ -160,7 +160,7 @@ const MainTabs: React.FC = () => {
   return (
     <View style={[
       layoutStyles.root,
-      IS_WEB && { backgroundColor: '#E8E7E2' },
+      IS_WEB && { backgroundColor: colors.background },
     ]}>
       {/* Sidebar — web only */}
       {IS_WEB && <WebSidebar />}
@@ -245,9 +245,9 @@ export const AppNavigator: React.FC = () => {
 const layoutStyles = StyleSheet.create({
   root:        { flex: 1, flexDirection: 'row' },
   content:     { flex: 1 },
-  contentWeb:  { flexDirection: 'column', backgroundColor: '#F0EFE9' },
+  contentWeb:  { flexDirection: 'column', backgroundColor: colors.background },
   pageArea:    { flex: 1 },
-  pageAreaWeb: { flex: 1, maxWidth: 1200, width: '100%', alignSelf: 'center' as any },
+  pageAreaWeb: { flex: 1 },
 });
 
 const sidebarStyles = StyleSheet.create({

@@ -491,7 +491,7 @@ export const DashboardScreen: React.FC = () => {
 const styles = StyleSheet.create({
   // ── Layout ──
   container:       { flex: 1, backgroundColor: colors.background },
-  containerWeb:    { backgroundColor: '#F0EFE9' },
+  containerWeb:    { backgroundColor: colors.background },
   content:         { paddingBottom: 20 },
   contentWeb:      { paddingHorizontal: 28, paddingTop: 8, paddingBottom: 40 },
 
