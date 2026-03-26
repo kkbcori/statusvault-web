@@ -77,6 +77,13 @@ export const DocumentsScreen: React.FC = () => {
   };
 
   const handleDelete = (id: string, label: string) => {
+    if (Platform.OS === 'web') {
+      // Alert.alert is a no-op on web — use browser confirm instead
+      if (window.confirm(`Remove "${label}"?\nNotifications will be cancelled.`)) {
+        removeDocument(id);
+      }
+      return;
+    }
     Alert.alert('Remove Document', `Remove "${label}"? Notifications will be cancelled.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Remove', style: 'destructive', onPress: () => removeDocument(id) },

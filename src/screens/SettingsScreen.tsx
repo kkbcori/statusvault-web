@@ -254,10 +254,12 @@ export const SettingsScreen: React.FC = () => {
       {/* ── Danger Zone ── */}
       <SectionLabel iconName="warning-outline" label="DANGER ZONE" />
       <View style={[styles.card, { borderWidth: 1, borderColor: colors.dangerLight }]}>
-        <TouchableOpacity style={styles.sRow} onPress={() => Alert.alert('Reset All Data?', 'This permanently deletes everything.', [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Delete', style: 'destructive', onPress: () => { cancelAllNotifications(); resetAllData(); } },
-        ])}>
+        <TouchableOpacity style={styles.sRow} onPress={() => Platform.OS === 'web'
+              ? (window.confirm('Reset ALL data? This cannot be undone.') && (cancelAllNotifications(), resetAllData()))
+              : Alert.alert('Reset All Data?', 'This permanently deletes everything.', [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Delete', style: 'destructive', onPress: () => { cancelAllNotifications(); resetAllData(); } },
+                ])}>
           <View style={[styles.rowIconBox, { backgroundColor: colors.dangerLight, borderColor: colors.danger + '25' }]}>
             <Ionicons name="trash-outline" size={16} color={colors.danger} />
           </View>

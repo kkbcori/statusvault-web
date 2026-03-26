@@ -138,16 +138,26 @@ export const DashboardScreen: React.FC = () => {
     addCustomChecklistItem(tid, customItemText.trim());
     setCustomItemText(''); setCustomItemTarget(null);
   };
-  const handleRemoveChecklist = (tid: string, label: string) =>
+  const handleRemoveChecklist = (tid: string, label: string) => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(`Remove "${label}"?`)) removeChecklist(tid);
+      return;
+    }
     Alert.alert('Remove Checklist', `Remove "${label}"?`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Remove', style: 'destructive', onPress: () => removeChecklist(tid) },
     ]);
-  const handleRemoveCounter = (tid: string, label: string) =>
+  };
+  const handleRemoveCounter = (tid: string, label: string) => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(`Remove "${label}"? Count will be lost.`)) removeCounter(tid);
+      return;
+    }
     Alert.alert('Remove Counter', `Remove "${label}"? Count will be lost.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Remove', style: 'destructive', onPress: () => removeCounter(tid) },
     ]);
+  };
   const handleAddCustomCounter = () => {
     const name = customCounterName.trim();
     const days = parseInt(customCounterDays, 10);

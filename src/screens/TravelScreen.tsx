@@ -187,6 +187,10 @@ export const TravelScreen: React.FC = () => {
   };
 
   const handleDelete = (id: string, country: string) => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(`Remove trip to ${country}?`)) removeTrip(id);
+      return;
+    }
     Alert.alert('Remove Trip', `Remove trip to ${country}?`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Remove', style: 'destructive', onPress: () => removeTrip(id) },
