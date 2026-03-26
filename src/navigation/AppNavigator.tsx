@@ -17,6 +17,7 @@ import { RootStackParamList, MainTabParamList } from '../types';
 import { OnboardingScreen, DashboardScreen, DocumentsScreen, SettingsScreen } from '../screens';
 import { TravelScreen }  from '../screens/TravelScreen';
 import { AuthScreen }    from '../screens/AuthScreen';
+import { HelpScreen }    from '../screens/HelpScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,6 +35,7 @@ const TAB_ITEMS: Array<{
   { name: 'Documents', label: 'Documents', active: 'document-text', inactive: 'document-text-outline' },
   { name: 'Travel',    label: 'Travel',    active: 'airplane',      inactive: 'airplane-outline' },
   { name: 'Settings',  label: 'Settings',  active: 'settings',      inactive: 'settings-outline' },
+  { name: 'Help',      label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
 ];
 
 // ─── Web Sidebar ─────────────────────────────────────────────
@@ -215,7 +217,8 @@ const MainTabs: React.FC = () => {
                 component={
                   item.name === 'Dashboard' ? DashboardScreen :
                   item.name === 'Documents' ? DocumentsScreen :
-                  item.name === 'Travel'    ? TravelScreen    : SettingsScreen
+                  item.name === 'Travel'    ? TravelScreen    :
+                  item.name === 'Help'      ? HelpScreen      : SettingsScreen
                 }
                 options={{ tabBarLabel: item.label }}
               />
