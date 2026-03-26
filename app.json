@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "StatusVault",
+    "slug": "statusvault-web",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A1628"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.statusvault.app",
+      "infoPlist": {
+        "NSUserNotificationsUsageDescription": "StatusVault needs notifications to alert you before visa deadlines expire."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A1628"
+      },
+      "package": "com.statusvault.app",
+      "permissions": [
+        "NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#0B1F3B",
+          "sounds": [],
+          "defaultChannel": "deadlines"
+        }
+      ],
+      "@react-native-community/datetimepicker"
+    ],
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single",
+      "name": "StatusVault \u2014 Immigration Tracker",
+      "description": "Track visas, documents and travel history for immigration. 100% private, AES-256 encrypted sync."
+    },
+    "experiments": {
+      "baseUrl": "/statusvault-web"
+    },
+    "entryPoint": "./index.ts"
+  }
+}

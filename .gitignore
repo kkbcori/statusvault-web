@@ -1,0 +1,9 @@
+node_modules/
+.expo/
+dist/
+*.apps.googleusercontent.com.json
+client_secret*.json
+GoogleAccount*.json
+*.env
+.env.local
+.DS_Store

@@ -1,0 +1,51 @@
+# ═══════════════════════════════════════════════════════════════
+# StatusVault — GitHub Pages Auto-Deploy
+# Live URL: https://kkbcori.github.io/statusvault-web
+# ═══════════════════════════════════════════════════════════════
+
+name: Deploy Web App
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies (with retry)
+        run: |
+          for i in 1 2 3; do
+            npm install && break
+            echo "npm install failed (attempt $i), retrying in 15s..."
+            sleep 15
+          done
+
+      - name: Build web
+        run: npx expo export --platform web
+        env:
+          NODE_ENV: production
+
+      - name: Add .nojekyll
+        run: touch dist/.nojekyll
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
