@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator,
+  ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator, Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -78,9 +78,11 @@ export const AuthScreen: React.FC = () => {
       <View style={webStyles.outer}>
         <View style={webStyles.card}>
           <View style={webStyles.cardHeader}>
-            <View style={webStyles.logoRing}>
-              <Ionicons name="shield-checkmark" size={28} color={colors.accent} />
-            </View>
+            <Image
+              source={require('../../assets/logo.jpg')}
+              style={webStyles.logo}
+              resizeMode="contain"
+            />
             <Text style={webStyles.title}>Sign in to StatusVault</Text>
             <Text style={webStyles.subtitle}>Sync your immigration data across all devices</Text>
           </View>
@@ -159,11 +161,11 @@ export const AuthScreen: React.FC = () => {
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={22} color="rgba(255,255,255,0.7)" />
           </TouchableOpacity>
-          <View style={styles.logoRing}>
-            <View style={styles.logoInner}>
-              <Ionicons name="shield-checkmark" size={36} color={colors.accent} />
-            </View>
-          </View>
+          <Image
+            source={require('../../assets/logo.jpg')}
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
           <Text style={styles.headerEyebrow}>STATUSVAULT ACCOUNT</Text>
           <Text style={styles.headerTitle}>Sync Across Devices</Text>
           <View style={styles.goldBar} />
@@ -327,8 +329,7 @@ const styles = StyleSheet.create({
   header:        { paddingTop: 56, paddingBottom: 28, paddingHorizontal: spacing.screen, alignItems: 'center' },
   headerTrim:    { position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: colors.accent },
   backBtn:       { position: 'absolute', top: 52, left: spacing.screen, padding: 8 },
-  logoRing:      { width: 80, height: 80, borderRadius: 40, borderWidth: 1.5, borderColor: 'rgba(201,163,81,0.3)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  logoInner:     { width: 60, height: 60, borderRadius: 30, backgroundColor: 'rgba(201,163,81,0.1)', alignItems: 'center', justifyContent: 'center' },
+  headerLogo:    { width: 100, height: 100, borderRadius: 20, marginBottom: 12 } as any,
   headerEyebrow: { fontSize: 10, fontFamily: 'Inter_700Bold', color: colors.accent, letterSpacing: 2.5, marginBottom: 6 },
   headerTitle:   { fontSize: 22, fontFamily: 'Inter_900Black', color: '#fff', letterSpacing: -0.3, marginBottom: 10 },
   goldBar:       { width: 36, height: 3, backgroundColor: colors.accent, borderRadius: 2, marginBottom: 12, opacity: 0.8 },
@@ -384,7 +385,7 @@ const webStyles = StyleSheet.create({
   outer:      { flex: 1, backgroundColor: '#F0EFE9', alignItems: 'center', justifyContent: 'center', padding: 24 },
   card:       { width: '100%', maxWidth: 440, backgroundColor: colors.card, borderRadius: 20, overflow: 'hidden', ...shadows.lg },
   cardHeader: { backgroundColor: colors.primary, padding: 28, alignItems: 'center', borderBottomWidth: 3, borderBottomColor: colors.accent },
-  logoRing:   { width: 60, height: 60, borderRadius: 30, borderWidth: 1.5, borderColor: 'rgba(201,163,81,0.3)', backgroundColor: 'rgba(201,163,81,0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  logo:       { width: 90, height: 90, borderRadius: 16, marginBottom: 10 } as any,
   title:      { fontSize: 20, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: -0.3 },
   subtitle:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.45)', marginTop: 4, textAlign: 'center' },
   cardBody:   { padding: 24 },

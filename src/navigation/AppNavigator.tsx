@@ -5,7 +5,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import React from 'react';
-import { Platform, View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
+import { Platform, View, Text, TouchableOpacity, StyleSheet, useWindowDimensions, Image } from 'react-native';
 import { NavigationContainer, useNavigation, useNavigationState } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -54,13 +54,11 @@ const WebSidebar: React.FC = () => {
 
       {/* Logo */}
       <View style={sidebarStyles.logoRow}>
-        <View style={sidebarStyles.logoIconWrap}>
-          <Ionicons name="shield-checkmark" size={22} color={colors.accent} />
-        </View>
-        <View>
-          <Text style={sidebarStyles.logoName}>StatusVault</Text>
-          <Text style={sidebarStyles.logoTagline}>Immigration Tracker</Text>
-        </View>
+        <Image
+          source={require('../../assets/logo.jpg')}
+          style={sidebarStyles.logoImg}
+          resizeMode="contain"
+        />
       </View>
 
       <View style={sidebarStyles.divider} />
@@ -142,6 +140,11 @@ const WebTopBar: React.FC = () => {
   return (
     <View style={topBarStyles.container}>
       <View style={topBarStyles.trim} />
+      <Image
+        source={require('../../assets/logo.jpg')}
+        style={topBarStyles.logo}
+        resizeMode="contain"
+      />
       <Text style={topBarStyles.title}>{item?.label ?? 'StatusVault'}</Text>
       <View style={topBarStyles.right}>
         <View style={topBarStyles.badge}>
@@ -253,10 +256,8 @@ const layoutStyles = StyleSheet.create({
 const sidebarStyles = StyleSheet.create({
   container:     { width: 240, backgroundColor: colors.primary, paddingBottom: 16, borderRightWidth: 1, borderRightColor: 'rgba(201,163,81,0.1)' },
   trim:          { height: 3, backgroundColor: colors.accent, opacity: 0.8 },
-  logoRow:       { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 20, paddingTop: 24 },
-  logoIconWrap:  { width: 42, height: 42, borderRadius: 12, backgroundColor: 'rgba(201,163,81,0.1)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(201,163,81,0.2)' },
-  logoName:      { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: -0.3 },
-  logoTagline:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.35)', marginTop: 2 },
+  logoRow:       { padding: 16, paddingTop: 20, alignItems: 'center' },
+  logoImg:       { width: 160, height: 56, borderRadius: 12 } as any,
   divider:       { height: 1, backgroundColor: 'rgba(255,255,255,0.07)', marginHorizontal: 16, marginVertical: 10 },
   nav:           { paddingHorizontal: 10, gap: 3 },
   navItem:       { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 12, paddingVertical: 11, borderRadius: radius.lg, position: 'relative' },
@@ -279,7 +280,8 @@ const sidebarStyles = StyleSheet.create({
 });
 
 const topBarStyles = StyleSheet.create({
-  container: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primary, paddingHorizontal: 28, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(201,163,81,0.1)', position: 'relative' },
+  container: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primary, paddingHorizontal: 20, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(201,163,81,0.1)', position: 'relative' },
+  logo:      { width: 36, height: 36, borderRadius: 8, marginRight: 10 } as any,
   trim:      { position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: colors.accent, opacity: 0.6 },
   title:     { fontSize: 18, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: -0.3, flex: 1 },
   right:     { flexDirection: 'row', alignItems: 'center', gap: 10 },
