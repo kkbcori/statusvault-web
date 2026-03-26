@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>StatusVault — Immigration Tracker</title>
+    <meta name="description" content="Track visas, documents and travel history for immigration. 100% private, AES-256 encrypted sync." />
+    <style>
+      /* Force root to fill full browser viewport */
+      *, *::before, *::after { box-sizing: border-box; }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #0A1628;
+      }
+
+      /* React Native Web root div must fill viewport */
+      #root {
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* Remove default button/input browser styles */
+      button { cursor: pointer; border: none; background: none; }
+      input, textarea { outline: none; }
+
+      /* Smooth scrolling in scroll containers */
+      * { -webkit-overflow-scrolling: touch; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

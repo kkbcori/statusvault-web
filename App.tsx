@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useEffect, useState } from 'react';
-import { StatusBar, LogBox, View, Platform } from 'react-native';
+import { StatusBar, LogBox, View, Platform, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
   useFonts,
@@ -68,3 +68,12 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+
+const webRoot = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: '100%' as any,
+    height: '100%' as any,
+    overflow: 'hidden' as any,
+  },
+});
