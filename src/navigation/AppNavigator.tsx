@@ -172,8 +172,6 @@ const WebTopBar: React.FC = () => {
   return (
     <View style={topBarStyles.container}>
       <View style={topBarStyles.left}>
-        <Text style={topBarStyles.breadcrumb}>StatusVault</Text>
-        <Ionicons name="chevron-forward" size={12} color={colors.text3} />
         <Text style={topBarStyles.title}>{item?.label ?? 'Dashboard'}</Text>
       </View>
       <View style={topBarStyles.right}>

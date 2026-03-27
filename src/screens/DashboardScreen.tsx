@@ -89,6 +89,7 @@ const webCardStyle = StyleSheet.create({
     borderRadius: radius.xxl,
     padding: spacing.xxl,
     marginBottom: spacing.xl,
+    flex: 1,
     ...shadows.md,
   },
 });
@@ -195,7 +196,7 @@ export const DashboardScreen: React.FC = () => {
         </View>
       )}
 
-      <StatusCard deadline={mostCritical} totalDocs={documents.length} />
+      <StatusCard deadline={mostCritical} totalDocs={documents.length} deadlines={deadlines} />
       <SeveritySummary deadlines={deadlines} />
 
       {/* Free tier bar */}
@@ -498,7 +499,7 @@ const styles = StyleSheet.create({
   webPageSubtitle: { fontSize: 14, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 4 },
 
   // Web 2-column grid
-  webGrid:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, gap: spacing.xl, marginTop: spacing.md },
+  webGrid:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, gap: spacing.xl, marginTop: spacing.md, alignItems: 'stretch' as any },
 
   // Mobile header
   headerGradient:  { paddingBottom: 8 },
@@ -517,7 +518,7 @@ const styles = StyleSheet.create({
 
   // Sections
   section:         { marginTop: spacing.xxl, paddingHorizontal: spacing.screen },
-  sectionWeb:      { marginTop: 0, paddingHorizontal: 0, flex: 1 as any, minWidth: 300 as any },
+  sectionWeb:      { marginTop: 0, paddingHorizontal: 0, flex: 1 as any, minWidth: 300 as any, flexBasis: '30%' as any },
   seeAll:          { ...typography.captionBold, color: colors.accent },
   addBtnPill:      { backgroundColor: colors.accentDim, paddingHorizontal: 14, paddingVertical: 6, borderRadius: radius.full, borderWidth: 1, borderColor: colors.borderGold },
   addBtnText:      { fontSize: 13, fontFamily: 'Inter_700Bold', color: colors.accent },

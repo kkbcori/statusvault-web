@@ -8,10 +8,10 @@ import {
   Modal, FlatList, TextInput, Alert, Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { IS_WEB } from '../utils/responsive';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
-import { IS_WEB } from '../utils/responsive';
 import { useDialog } from '../components/ConfirmDialog';
 import { useStore, FREE_LIMIT } from '../store';
 import { generateDeadlines } from '../utils/dates';
@@ -41,6 +41,7 @@ export const DocumentsScreen: React.FC = () => {
   const [showDatePicker,  setShowDatePicker]  = useState(false);
   const [notes,           setNotes]           = useState('');
   const [filterCategory,  setFilterCategory]  = useState<DocumentCategory | 'all'>('all');
+  const [editingDoc,      setEditingDoc]      = useState<UserDocument | null>(null);
 
   const templatesByCategory = getTemplatesByCategory();
   const remaining = getRemainingFreeSlots();
@@ -54,6 +55,7 @@ export const DocumentsScreen: React.FC = () => {
   const resetAddFlow = () => {
     setAddStep('type'); setSelectedTemplate(null);
     setExpiryDate(new Date()); setNotes(''); setShowDatePicker(false);
+    setEditingDoc(null);
   };
 
   const openAdd = () => {
@@ -64,10 +66,20 @@ export const DocumentsScreen: React.FC = () => {
   const selectTemplate = (template: DocumentTemplate) => {
     setSelectedTemplate(template); setAddStep('date');
     if (Platform.OS !== 'web') setShowDatePicker(true);
+    // On web, date input is always shown — no need to toggle
   };
 
   const handleSave = async () => {
     if (!selectedTemplate) return;
+    if (editingDoc) {
+      // Edit existing document
+      await updateDocument(editingDoc.id, {
+        expiryDate: expiryDate.toISOString().split('T')[0],
+        notes: notes.trim(),
+      });
+      setShowAddModal(false); setEditingDoc(null); resetAddFlow();
+      return;
+    }
     const doc: UserDocument = {
       id: Date.now().toString(), templateId: selectedTemplate.id, label: selectedTemplate.label,
       category: selectedTemplate.category, expiryDate: expiryDate.toISOString().split('T')[0],
@@ -82,6 +94,19 @@ export const DocumentsScreen: React.FC = () => {
   const handleDelete = (id: string, label: string) => {
     dialog.confirm({ title: 'Remove Document', message: `Remove "${label}"? Notifications will be cancelled.`,
       type: 'danger', confirmLabel: 'Remove', onConfirm: () => removeDocument(id) });
+  };
+
+  const handleEdit = (doc: UserDocument) => {
+    if (!canAddDocument() && !doc) return;
+    resetAddFlow();
+    setEditingDoc(doc);
+    setSelectedTemplate(
+      DOCUMENT_TEMPLATES.find((t) => t.id === doc.templateId) || null
+    );
+    setExpiryDate(new Date(doc.expiryDate + 'T12:00:00'));
+    setNotes(doc.notes || '');
+    setAddStep('date');
+    setShowAddModal(true);
   };
 
   const handleDateChange = (_event: any, selectedDate?: Date) => {
@@ -143,7 +168,7 @@ export const DocumentsScreen: React.FC = () => {
           ) : (
             filteredDocs
               .sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime())
-              .map((doc) => <ExpiryCard key={doc.id} document={doc} onDelete={() => handleDelete(doc.id, doc.label)} />)
+              .map((doc) => <ExpiryCard key={doc.id} document={doc} onDelete={() => handleDelete(doc.id, doc.label)} onEdit={() => handleEdit(doc)} />)
           )}
         </View>
 
@@ -170,7 +195,7 @@ export const DocumentsScreen: React.FC = () => {
               <TouchableOpacity onPress={() => { if (addStep === 'date') setAddStep('type'); else setShowAddModal(false); }}>
                 <Text style={styles.modalBack}>{addStep === 'date' ? '← Back' : 'Cancel'}</Text>
               </TouchableOpacity>
-              <Text style={styles.modalTitle}>{addStep === 'type' ? 'Select Document' : 'Set Expiry Date'}</Text>
+              <Text style={styles.modalTitle}>{editingDoc ? 'Edit Document' : addStep === 'type' ? 'Select Document' : 'Set Expiry Date'}</Text>
               <View style={{ width: 60 }} />
             </View>
 
@@ -224,17 +249,35 @@ export const DocumentsScreen: React.FC = () => {
                   <Text style={styles.dateButtonText}>{expiryDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</Text>
                   <Ionicons name="calendar-outline" size={20} color={colors.accent} />
                 </TouchableOpacity>
-                {showDatePicker && (
+                {showDatePicker && !IS_WEB && (
                   <DateTimePicker
                     value={expiryDate} mode="date"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                     onChange={handleDateChange} minimumDate={new Date()} style={styles.datePicker}
                   />
                 )}
-                {Platform.OS === 'ios' && showDatePicker && (
+                {Platform.OS === 'ios' && showDatePicker && !IS_WEB && (
                   <TouchableOpacity style={styles.datePickerDone} onPress={() => setShowDatePicker(false)}>
                     <Text style={styles.datePickerDoneText}>Done</Text>
                   </TouchableOpacity>
+                )}
+                {IS_WEB && (
+                  <View style={styles.webDateWrap}>
+                    <input
+                      type="date"
+                      value={expiryDate.toISOString().split('T')[0]}
+                      min={new Date().toISOString().split('T')[0]}
+                      onChange={(e: any) => {
+                        if (e.target.value) setExpiryDate(new Date(e.target.value + 'T12:00:00'));
+                      }}
+                      style={{
+                        width: '100%', padding: '12px 14px', fontSize: '15px',
+                        fontFamily: 'Inter_400Regular', color: '#111827',
+                        border: '1.5px solid #E5E7EB', borderRadius: '10px',
+                        backgroundColor: '#fff', outline: 'none', cursor: 'pointer',
+                      } as any}
+                    />
+                  </View>
                 )}
                 <Text style={[styles.fieldLabel, { marginTop: spacing.xl }]}>Notes (optional)</Text>
                 <TextInput
@@ -361,7 +404,7 @@ const styles = StyleSheet.create({
   filterChip:         { paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.full, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
   filterChipActive:   { backgroundColor: colors.accent, borderColor: colors.accent },
   filterChipText:     { ...typography.caption, color: colors.text2, fontSize: 12 },
-  filterChipTextActive:{ color: colors.primary, fontFamily: 'Inter_700Bold' },
+  filterChipTextActive:{ color: '#fff', fontFamily: 'Inter_700Bold' },
   emptyCard:          { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.xxxl, alignItems: 'center', borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
   emptyIconCircle:    { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md, borderWidth: 1, borderColor: colors.borderGold },
   emptyTitle:         { ...typography.bodySemibold, color: colors.text2 },
@@ -396,12 +439,13 @@ const styles = StyleSheet.create({
   dateButton:         { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.card, padding: spacing.lg, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border },
   dateButtonText:     { ...typography.bodySemibold, color: colors.text1 },
   datePicker:         { marginTop: spacing.sm },
+  webDateWrap:        { marginTop: spacing.sm, marginBottom: spacing.sm },
   datePickerDone:     { alignSelf: 'flex-end', paddingVertical: spacing.sm, paddingHorizontal: spacing.lg },
   datePickerDoneText: { ...typography.bodySemibold, color: colors.accent },
   notesInput:         { backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border, padding: spacing.lg, ...typography.body, color: colors.text1, minHeight: 80, textAlignVertical: 'top' },
   saveBtn:            { borderRadius: radius.md, overflow: 'hidden', marginTop: spacing.xxl },
   saveBtnGrad:        { paddingVertical: 16, alignItems: 'center', borderRadius: radius.md },
-  saveBtnText:        { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: colors.primary },
+  saveBtnText:        { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
 
   // ─── Paywall — full-screen dark ─────────────────────────────
   paywallFull:         { flex: 1 },
@@ -430,6 +474,6 @@ const styles = StyleSheet.create({
   paywallPriceNote:    { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.success },
   paywallCTA:          { width: '100%', borderRadius: 14, overflow: 'hidden', marginBottom: 16 },
   paywallCTAGrad:      { paddingVertical: 18, alignItems: 'center', borderRadius: 14 },
-  paywallCTAText:      { fontSize: 17, fontFamily: 'Inter_800ExtraBold', color: colors.primary, letterSpacing: 0.2 },
+  paywallCTAText:      { fontSize: 17, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: 0.2 },
   paywallLegal:        { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.25)', textAlign: 'center' },
 });
