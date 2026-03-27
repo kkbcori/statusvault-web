@@ -582,8 +582,8 @@ const styles = StyleSheet.create({
   disclaimer:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 10, fontStyle: 'italic', lineHeight: 16 },
 
   // Modals
-  modalOverlay:    { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
-  modalSheet:      { backgroundColor: colors.background, borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: '80%', paddingBottom: 40 },
+  modalOverlay:    { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
+  modalSheet:      { backgroundColor: colors.background, borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '65%' as any : '80%', paddingBottom: 40, width: IS_WEB ? 480 : '100%' as any, borderRadius: IS_WEB ? radius.xl : undefined, ...IS_WEB ? { borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl } : {} } as any,
   modalHeader:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   modalBack:       { ...typography.bodySemibold, color: colors.accent, fontSize: 14 },
   modalTitle:      { ...typography.h3, color: colors.text1, fontSize: 16 },

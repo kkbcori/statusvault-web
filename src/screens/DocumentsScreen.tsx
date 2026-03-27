@@ -380,8 +380,8 @@ const styles = StyleSheet.create({
   infoDesc:           { ...typography.caption, color: colors.text3, marginTop: 2, fontSize: 12, lineHeight: 18 },
 
   // Add modal
-  modalOverlay:       { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
-  modalSheet:         { backgroundColor: colors.background, borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: '85%', paddingBottom: 40 },
+  modalOverlay:       { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
+  modalSheet:         { backgroundColor: colors.background, borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '65%' as any : '85%', paddingBottom: 40, width: IS_WEB ? 480 : '100%' as any, borderRadius: IS_WEB ? radius.xl : undefined } as any,
   modalHeader:        { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   modalBack:          { ...typography.bodySemibold, color: colors.accent, fontSize: 14 },
   modalTitle:         { ...typography.h3, color: colors.text1, fontSize: 16 },
