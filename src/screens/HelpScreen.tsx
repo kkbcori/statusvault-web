@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
   headerSub:     { ...typography.caption, color: 'rgba(255,255,255,0.5)', marginTop: 2 },
 
   // Web hero
-  webHero:       { backgroundColor: colors.primary, borderRadius: radius.xxl, padding: 32, marginBottom: spacing.xl, borderWidth: 1, borderColor: 'rgba(201,163,81,0.15)', ...shadows.md },
+  webHero:       { backgroundColor: colors.primary, borderRadius: radius.xxl, padding: 32, marginBottom: spacing.xl, borderWidth: 1, borderColor: 'rgba(0,153,168,0.15)', ...shadows.md },
   webHeroEye:    { fontSize: 10, fontFamily: 'Inter_700Bold', color: colors.accent, letterSpacing: 2.5, marginBottom: 8 },
   webHeroTitle:  { fontSize: 32, fontFamily: 'Inter_900Black', color: '#fff', letterSpacing: -0.5, marginBottom: 8 },
   webHeroSub:    { fontSize: 15, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.5)', lineHeight: 24, maxWidth: 600 },

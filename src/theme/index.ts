@@ -1,116 +1,117 @@
 // ═══════════════════════════════════════════════════════════════
-// StatusVault — Premium Design System v3
-// Deep navy + gold passport palette · Inter typeface
+// StatusVault — Design System v4
+// Light SaaS aesthetic · Teal + cool gray · Syne + Inter
 // ═══════════════════════════════════════════════════════════════
 
 import { Platform } from 'react-native';
 
 export const colors = {
-  // Core brand — passport navy + gold
-  primary: '#0A1628',
-  primaryLight: '#132847',
-  primaryMid: '#1B3A65',
-  accent: '#C9A351',
-  accentLight: '#FBF5E6',
-  accentDim: 'rgba(201,163,81,0.15)',
-  accentBlue: '#3B82F6',
+  // ── Brand — teal primary ──
+  primary:      '#0099A8',
+  primaryLight: '#00B5C8',
+  primaryMid:   '#007A88',
+  accent:       '#0099A8',
+  accentLight:  '#E6F7F8',
+  accentDim:    'rgba(0,153,168,0.10)',
+  accentBlue:   '#2563EB',
 
-  // Severity system
-  success: '#22C55E',
-  successLight: '#DCFCE7',
-  successDark: '#16A34A',
-  warning: '#F59E0B',
+  // ── Severity ──
+  success:      '#059669',
+  successLight: '#D1FAE5',
+  successDark:  '#047857',
+  warning:      '#D97706',
   warningLight: '#FEF3C7',
-  warningDark: '#D97706',
-  danger: '#EF4444',
-  dangerLight: '#FEE2E2',
-  dangerDark: '#DC2626',
+  warningDark:  '#B45309',
+  danger:       '#DC2626',
+  dangerLight:  '#FEE2E2',
+  dangerDark:   '#B91C1C',
 
-  // Surfaces — warm parchment background replaces cold grey
-  background: '#F8F7F2',
-  backgroundDark: '#0A1628',
-  card: '#FFFFFF',
-  cardElevated: '#FFFFFF',
-  cardDark: 'rgba(255,255,255,0.06)',
+  // ── Surfaces ──
+  background:     '#F4F6FA',
+  backgroundDark: '#1A202C',
+  card:           '#FFFFFF',
+  cardElevated:   '#FFFFFF',
+  cardDark:       'rgba(0,0,0,0.04)',
 
-  // Text
-  text1: '#0F172A',
-  text2: '#475569',
-  text3: '#94A3B8',
+  // ── Text ──
+  text1:       '#1A202C',
+  text2:       '#374151',
+  text3:       '#6B7280',
+  text4:       '#9CA3AF',
   textInverse: '#FFFFFF',
-  textGold: '#C9A351',
+  textGold:    '#0099A8',
 
-  // Borders
-  border: '#E2E8F0',
-  borderLight: '#F1F5F9',
-  borderGold: 'rgba(201,163,81,0.25)',
+  // ── Borders ──
+  border:      'rgba(0,0,0,0.08)',
+  borderLight: 'rgba(0,0,0,0.05)',
+  borderGold:  'rgba(0,153,168,0.20)',
 
-  // Misc
-  overlay: 'rgba(10, 22, 40, 0.65)',
-  shimmer: '#F0F0F0',
+  // ── Sidebar (light) ──
+  sidebar:        '#FFFFFF',
+  sidebarBorder:  'rgba(0,0,0,0.08)',
+  sidebarActive:  '#E6F7F8',
+  sidebarActiveText: '#0E7490',
+
+  // ── Misc ──
+  overlay: 'rgba(26,32,44,0.60)',
+  shimmer: '#E4E8F0',
 } as const;
 
 export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
-  huge: 40,
-  screen: 20,
+  xs: 4, sm: 8, md: 12, lg: 16, xl: 20,
+  xxl: 24, xxxl: 32, huge: 40, screen: 24,
 } as const;
 
 export const radius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24,
-  full: 999,
+  sm: 6, md: 10, lg: 12, xl: 16, xxl: 20, full: 999,
 } as const;
 
-// ─── Typography — Inter via expo-google-fonts ─────────────────
+// ── Typography ────────────────────────────────────────────────
+// Syne for display/headings · Inter for body
 const F = {
-  regular:   'Inter_400Regular',
-  medium:    'Inter_500Medium',
-  semibold:  'Inter_600SemiBold',
-  bold:      'Inter_700Bold',
-  extrabold: 'Inter_800ExtraBold',
-  black:     'Inter_900Black',
+  // Syne — display
+  display700: 'Syne_700Bold',
+  display800: 'Syne_800ExtraBold',
+  // Inter — body
+  regular:    'Inter_400Regular',
+  medium:     'Inter_500Medium',
+  semibold:   'Inter_600SemiBold',
+  bold:       'Inter_700Bold',
+  extrabold:  'Inter_800ExtraBold',
+  black:      'Inter_900Black',
 };
 
 export const typography = {
-  display:      { fontSize: 48, fontFamily: F.black,     letterSpacing: -1.5, lineHeight: 52 },
-  h1:           { fontSize: 26, fontFamily: F.extrabold,  letterSpacing: -0.5, lineHeight: 32 },
-  h2:           { fontSize: 18, fontFamily: F.bold,       letterSpacing: -0.3, lineHeight: 24 },
-  h3:           { fontSize: 15, fontFamily: F.bold,       lineHeight: 20 },
-  body:         { fontSize: 15, fontFamily: F.regular,    lineHeight: 22 },
-  bodyMedium:   { fontSize: 15, fontFamily: F.medium,     lineHeight: 22 },
-  bodySemibold: { fontSize: 15, fontFamily: F.semibold,   lineHeight: 22 },
-  caption:      { fontSize: 13, fontFamily: F.medium,     lineHeight: 18 },
-  captionBold:  { fontSize: 13, fontFamily: F.bold,       lineHeight: 18 },
-  micro:        { fontSize: 11, fontFamily: F.bold,       letterSpacing: 0.5, lineHeight: 14 },
-  number:       { fontSize: 32, fontFamily: F.black,      letterSpacing: -1,  lineHeight: 36 },
-  numberLarge:  { fontSize: 40, fontFamily: F.black,      letterSpacing: -1.5,lineHeight: 44 },
+  display:      { fontSize: 36, fontFamily: F.display800, letterSpacing: -1,   lineHeight: 42 },
+  h1:           { fontSize: 24, fontFamily: F.display800, letterSpacing: -0.5, lineHeight: 30 },
+  h2:           { fontSize: 18, fontFamily: F.display700, letterSpacing: -0.3, lineHeight: 24 },
+  h3:           { fontSize: 15, fontFamily: F.display700, lineHeight: 20 },
+  body:         { fontSize: 14, fontFamily: F.regular,    lineHeight: 22 },
+  bodyMedium:   { fontSize: 14, fontFamily: F.medium,     lineHeight: 22 },
+  bodySemibold: { fontSize: 14, fontFamily: F.semibold,   lineHeight: 22 },
+  caption:      { fontSize: 12, fontFamily: F.medium,     lineHeight: 18 },
+  captionBold:  { fontSize: 12, fontFamily: F.bold,       lineHeight: 18 },
+  micro:        { fontSize: 10, fontFamily: F.bold,       letterSpacing: 0.6, lineHeight: 14 },
+  number:       { fontSize: 28, fontFamily: F.display800, letterSpacing: -1,  lineHeight: 32 },
+  numberLarge:  { fontSize: 38, fontFamily: F.display800, letterSpacing: -1.5,lineHeight: 44 },
+  mono:         { fontSize: 13, fontFamily: 'Inter_500Medium', lineHeight: 20 },
 } as const;
 
 export const shadows = {
   sm: Platform.select({
-    ios:     { shadowColor: '#0A1628', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4 },
-    android: { elevation: 2 },
+    ios:     { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
+    android: { elevation: 1 },
   }),
   md: Platform.select({
-    ios:     { shadowColor: '#0A1628', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12 },
-    android: { elevation: 5 },
+    ios:     { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 12 },
+    android: { elevation: 3 },
   }),
   lg: Platform.select({
-    ios:     { shadowColor: '#0A1628', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 24 },
-    android: { elevation: 10 },
+    ios:     { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.12, shadowRadius: 32 },
+    android: { elevation: 8 },
   }),
   gold: Platform.select({
-    ios:     { shadowColor: '#C9A351', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 12 },
-    android: { elevation: 6 },
+    ios:     { shadowColor: '#0099A8', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12 },
+    android: { elevation: 4 },
   }),
 } as const;

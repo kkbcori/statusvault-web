@@ -33,7 +33,8 @@
     "@supabase/supabase-js": "2.45.6",
     "crypto-js": "^4.2.0",
     "react-dom": "19.1.0",
-    "react-native-web": "^0.21.0"
+    "react-native-web": "^0.21.0",
+    "@expo-google-fonts/syne": "^0.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",

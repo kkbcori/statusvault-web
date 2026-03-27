@@ -72,7 +72,7 @@ const shStyles = StyleSheet.create({
   row:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
   left:    { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconBox: { width: 26, height: 26, borderRadius: 8, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold },
-  title:   { ...typography.h2, color: colors.text1, fontSize: IS_WEB ? 18 : 17 },
+  title:   { ...typography.h2, color: colors.text1, fontSize: IS_WEB ? 17 : 16 },
 });
 
 // ─── Web section card wrapper ─────────────────────────────────
@@ -180,7 +180,7 @@ export const DashboardScreen: React.FC = () => {
 
       {/* ─── Header — mobile only ───────────────────────────── */}
       {!IS_WEB && (
-        <LinearGradient colors={[colors.primary, colors.primaryMid, colors.background]} style={styles.headerGradient}>
+        <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
           <View style={styles.header}>
             <View>
               <Text style={styles.greeting}>STATUSVAULT</Text>
@@ -430,8 +430,8 @@ export const DashboardScreen: React.FC = () => {
                 <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Max Days</Text>
                 <TextInput style={styles.fieldInput} value={customCounterDays} onChangeText={setCustomCounterDays} placeholder="e.g., 60" placeholderTextColor={colors.text3} keyboardType="number-pad" />
                 <TouchableOpacity style={styles.saveBtn} onPress={handleAddCustomCounter}>
-                  <LinearGradient colors={[colors.accent, '#D4B56A']} style={styles.saveBtnGrad}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Inter_700Bold', color: colors.primary }}>Create Counter</Text>
+                  <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
+                    <Text style={{ fontSize: 16, fontFamily: 'Inter_700Bold', color: '#fff' }}>Create Counter</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
@@ -501,7 +501,7 @@ export const DashboardScreen: React.FC = () => {
 const styles = StyleSheet.create({
   // ── Layout ──
   container:       { flex: 1, backgroundColor: colors.background },
-  containerWeb:    { backgroundColor: colors.background },
+  containerWeb: { backgroundColor: colors.background },
   content:         { paddingBottom: 20 },
   contentWeb:      { paddingHorizontal: 28, paddingTop: 8, paddingBottom: 40 },
 
@@ -516,9 +516,9 @@ const styles = StyleSheet.create({
   // Mobile header
   headerGradient:  { paddingBottom: 8 },
   header:          { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingHorizontal: spacing.screen, paddingTop: spacing.xxl + 20, paddingBottom: spacing.md },
-  greeting:        { ...typography.micro, color: colors.accent, letterSpacing: 2, marginBottom: 4, fontSize: 10 },
-  title:           { ...typography.h1, color: colors.textInverse, fontSize: 28 },
-  privacyBadge:    { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(201,163,81,0.08)', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(201,163,81,0.15)' },
+  greeting:        { ...typography.micro, color: colors.text3, letterSpacing: 1.5, marginBottom: 3, fontSize: 10 },
+  title:           { ...typography.h1, color: colors.text1, fontSize: 22 },
+  privacyBadge:    { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(0,153,168,0.08)', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(0,153,168,0.15)' },
   privacyText:     { fontSize: 11, fontFamily: 'Inter_700Bold', color: colors.accent, letterSpacing: 0.3 },
   privacySubtext:  { fontSize: 10, fontFamily: 'Inter_500Medium', color: 'rgba(201,163,81,0.6)', marginTop: 1 },
 

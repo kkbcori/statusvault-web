@@ -134,7 +134,7 @@ export const AuthScreen: React.FC = () => {
               </>
             )}
             <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={loading} activeOpacity={0.85}>
-              <LinearGradient colors={[colors.accent, '#D4B56A']} style={styles.submitGrad}>
+              <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.submitGrad}>
                 {loading ? <ActivityIndicator color={colors.primary} /> : <Text style={styles.submitText}>{tab === 'login' ? 'Sign In & Sync' : 'Create Account'}</Text>}
               </LinearGradient>
             </TouchableOpacity>
@@ -281,7 +281,7 @@ export const AuthScreen: React.FC = () => {
 
           {/* Submit */}
           <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={loading} activeOpacity={0.85}>
-            <LinearGradient colors={[colors.accent, '#D4B56A']} style={styles.submitGrad}>
+            <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.submitGrad}>
               {loading
                 ? <ActivityIndicator color={colors.primary} />
                 : <Text style={styles.submitText}>
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   backBtn:       { position: 'absolute', top: 52, left: spacing.screen, padding: 8 },
   headerLogo:    { width: 100, height: 100, borderRadius: 20, marginBottom: 12 } as any,
   headerEyebrow: { fontSize: 10, fontFamily: 'Inter_700Bold', color: colors.accent, letterSpacing: 2.5, marginBottom: 6 },
-  headerTitle:   { fontSize: 22, fontFamily: 'Inter_900Black', color: '#fff', letterSpacing: -0.3, marginBottom: 10 },
+  headerTitle:   { fontSize: 20, fontFamily: 'Syne_800ExtraBold', color: '#fff', letterSpacing: -0.3, marginBottom: 10 },
   goldBar:       { width: 36, height: 3, backgroundColor: colors.accent, borderRadius: 2, marginBottom: 12, opacity: 0.8 },
   headerSub:     { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.45)', textAlign: 'center', lineHeight: 19 },
   body:          { padding: spacing.screen },
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   // Submit
   submitBtn:     { borderRadius: radius.md, overflow: 'hidden', marginTop: 24, marginBottom: 12 },
   submitGrad:    { paddingVertical: 16, alignItems: 'center' },
-  submitText:    { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: colors.primary },
+  submitText:    { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
   skipBtn:       { alignItems: 'center', paddingVertical: 12 },
   skipText:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.text3 },
 
@@ -386,7 +386,7 @@ const webStyles = StyleSheet.create({
   card:       { width: '100%', maxWidth: 440, backgroundColor: colors.card, borderRadius: 20, overflow: 'hidden', ...shadows.lg },
   cardHeader: { backgroundColor: colors.primary, padding: 28, alignItems: 'center', borderBottomWidth: 3, borderBottomColor: colors.accent },
   logo:       { width: 90, height: 90, borderRadius: 16, marginBottom: 10 } as any,
-  title:      { fontSize: 20, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: -0.3 },
+  title:      { fontSize: 20, fontFamily: 'Syne_800ExtraBold', color: '#fff', letterSpacing: -0.3 },
   subtitle:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.45)', marginTop: 4, textAlign: 'center' },
   cardBody:   { padding: 24 },
 });

@@ -91,7 +91,7 @@ export const SettingsScreen: React.FC = () => {
     <ScrollView style={styles.container} contentContainerStyle={styles.cc} showsVerticalScrollIndicator={false}>
 
       {/* Header */}
-      <LinearGradient colors={[colors.primary, colors.primaryMid, colors.background]} style={styles.headerGradient}>
+      <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
         <View style={styles.header}>
           <Text style={styles.headerLabel}>SETTINGS</Text>
           <Text style={styles.title}>Settings</Text>
@@ -226,12 +226,12 @@ export const SettingsScreen: React.FC = () => {
           </View>
         </View>
       ) : (
-        <LinearGradient colors={[colors.primary, '#132847', '#1B3A65']} style={styles.premCard}>
+        <LinearGradient colors={[colors.primary, colors.primaryMid]} style={styles.premCard}>
           {[...Array(3)].map((_, i) => (
             <View key={i} style={{ position: 'absolute', top: 15 + i * 25, left: 0, right: 0, height: 1, backgroundColor: '#fff', opacity: 0.03 }} />
           ))}
           {/* Corner accent */}
-          <View style={{ position: 'absolute', top: 14, right: 14, width: 20, height: 20, borderTopWidth: 1.5, borderRightWidth: 1.5, borderColor: 'rgba(201,163,81,0.2)', borderTopRightRadius: 4 }} />
+          <View style={{ position: 'absolute', top: 14, right: 14, width: 20, height: 20, borderTopWidth: 1.5, borderRightWidth: 1.5, borderColor: 'rgba(0,153,168,0.2)', borderTopRightRadius: 4 }} />
 
           <Ionicons name="shield-checkmark" size={32} color={colors.accent} style={{ marginBottom: 10 }} />
           <Text style={styles.premTitle}>Upgrade to Premium</Text>
@@ -244,7 +244,7 @@ export const SettingsScreen: React.FC = () => {
             { text: 'Cancel', style: 'cancel' },
             { text: 'Unlock for Testing', onPress: () => setPremium(true) },
           ])}>
-            <LinearGradient colors={[colors.accent, '#D4B56A']} style={styles.premBtnGrad}>
+            <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.premBtnGrad}>
               <Text style={styles.premBtnText}>Subscribe — {PRICE_YEAR}</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -306,7 +306,7 @@ export const SettingsScreen: React.FC = () => {
                 <Text style={[styles.importBtnText, { color: colors.text2 }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.importBtn} onPress={handleImportPaste}>
-                <LinearGradient colors={[colors.accent, '#D4B56A']} style={styles.importBtnGrad}>
+                <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.importBtnGrad}>
                   <Text style={[styles.importBtnText, { color: colors.primary }]}>Import</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -323,18 +323,18 @@ const styles = StyleSheet.create({
   cc:              { paddingBottom: 20 },
   headerGradient:  { paddingBottom: 8 },
   header:          { paddingHorizontal: spacing.screen, paddingTop: spacing.xxl + 20, paddingBottom: spacing.lg },
-  headerLabel:     { ...typography.micro, color: colors.accent, letterSpacing: 2, marginBottom: 4, fontSize: 10 },
-  title:           { ...typography.h1, color: colors.textInverse, fontSize: 26 },
+  headerLabel:     { ...typography.micro, color: colors.text3, letterSpacing: 1.5, marginBottom: 3, fontSize: 10 },
+  title:           { ...typography.h1, color: colors.text1, fontSize: 22 },
 
   // Stats strip — replaces hollow profile block
   accountBanner:         { marginHorizontal: spacing.screen, marginTop: spacing.lg, borderRadius: radius.xl, overflow: 'hidden', ...shadows.lg },
   accountBannerGrad:     { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, gap: 14 },
-  accountBannerIcon:     { width: 48, height: 48, borderRadius: 14, backgroundColor: 'rgba(201,163,81,0.12)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(201,163,81,0.25)' },
+  accountBannerIcon:     { width: 48, height: 48, borderRadius: 14, backgroundColor: 'rgba(0,153,168,0.12)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(0,153,168,0.25)' },
   accountBannerBadge:    { backgroundColor: colors.accent, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, alignSelf: 'flex-start', marginBottom: 4 },
   accountBannerBadgeText:{ fontSize: 8, fontFamily: 'Inter_800ExtraBold', color: colors.primary, letterSpacing: 0.8 },
   accountBannerTitle:    { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff', letterSpacing: -0.2 },
   accountBannerSub:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.55)', marginTop: 3, lineHeight: 16 },
-  accountBannerArrow:    { width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(201,163,81,0.1)', alignItems: 'center', justifyContent: 'center' },
+  accountBannerArrow:    { width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(0,153,168,0.1)', alignItems: 'center', justifyContent: 'center' },
   statsStrip:      { flexDirection: 'row', marginHorizontal: spacing.screen, marginTop: spacing.lg, backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.lg, borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
   statItem:        { flex: 1, alignItems: 'center' },
   statNumber:      { fontSize: 22, fontFamily: 'Inter_900Black', color: colors.text1, letterSpacing: -0.5 },

@@ -102,7 +102,7 @@ export const DocumentsScreen: React.FC = () => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <LinearGradient colors={[colors.primary, colors.primaryMid, colors.background]} style={styles.headerGradient}>
+        <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
           <View style={styles.header}>
             <View>
               <Text style={styles.headerLabel}>DOCUMENTS</Text>
@@ -112,7 +112,7 @@ export const DocumentsScreen: React.FC = () => {
               </Text>
             </View>
             <TouchableOpacity style={styles.addBtn} onPress={openAdd} activeOpacity={0.8}>
-              <LinearGradient colors={[colors.accent, '#D4B56A']} style={styles.addBtnGrad}>
+              <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.addBtnGrad}>
                 <Text style={styles.addBtnText}>+ Add</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -249,7 +249,7 @@ export const DocumentsScreen: React.FC = () => {
                   placeholderTextColor={colors.text3} multiline maxLength={200}
                 />
                 <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-                  <LinearGradient colors={[colors.accent, '#D4B56A']} style={styles.saveBtnGrad}>
+                  <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
                     <Text style={styles.saveBtnText}>Add to StatusVault</Text>
                   </LinearGradient>
                 </TouchableOpacity>
@@ -340,7 +340,7 @@ export const DocumentsScreen: React.FC = () => {
               ])}
               activeOpacity={0.85}
             >
-              <LinearGradient colors={[colors.accent, '#D4B56A', colors.accent]} style={styles.paywallCTAGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+              <LinearGradient colors={[colors.primary, colors.primaryLight, colors.primary]} style={styles.paywallCTAGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                 <Text style={styles.paywallCTAText}>Subscribe — {PRICE_LABEL}</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -358,12 +358,12 @@ const styles = StyleSheet.create({
   scrollContent:      { paddingBottom: 20 },
   headerGradient:     { paddingBottom: 8 },
   header:             { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: spacing.screen, paddingTop: spacing.xxl + 20, paddingBottom: spacing.md },
-  headerLabel:        { ...typography.micro, color: colors.accent, letterSpacing: 2, marginBottom: 4, fontSize: 10 },
-  title:              { ...typography.h1, color: colors.textInverse, fontSize: 26 },
-  subtitle:           { ...typography.caption, color: 'rgba(255,255,255,0.5)', marginTop: 2 },
+  headerLabel:        { ...typography.micro, color: colors.text3, letterSpacing: 1.5, marginBottom: 3, fontSize: 10 },
+  title:              { ...typography.h1, color: colors.text1, fontSize: 22 },
+  subtitle:           { ...typography.caption, color: colors.text3, marginTop: 2 },
   addBtn:             { borderRadius: radius.md, overflow: 'hidden' },
   addBtnGrad:         { paddingHorizontal: 20, paddingVertical: 11, borderRadius: radius.md },
-  addBtnText:         { fontSize: 14, fontFamily: 'Inter_800ExtraBold', color: colors.primary },
+  addBtnText:         { fontSize: 14, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
   filterRow:          { paddingHorizontal: spacing.screen, paddingBottom: spacing.lg, gap: spacing.sm },
   filterChip:         { paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.full, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
   filterChipActive:   { backgroundColor: colors.accent, borderColor: colors.accent },
@@ -413,23 +413,23 @@ const styles = StyleSheet.create({
   // ─── Paywall — full-screen dark ─────────────────────────────
   paywallFull:         { flex: 1 },
   paywallTopTrim:      { position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: colors.accent, opacity: 0.8 },
-  paywallCornerTL:     { position: 'absolute', top: 40, left: 24, width: 28, height: 28, borderTopWidth: 2, borderLeftWidth: 2, borderColor: 'rgba(201,163,81,0.2)', borderTopLeftRadius: 4 },
-  paywallCornerBR:     { position: 'absolute', bottom: 60, right: 24, width: 28, height: 28, borderBottomWidth: 2, borderRightWidth: 2, borderColor: 'rgba(201,163,81,0.2)', borderBottomRightRadius: 4 },
+  paywallCornerTL:     { position: 'absolute', top: 40, left: 24, width: 28, height: 28, borderTopWidth: 2, borderLeftWidth: 2, borderColor: 'rgba(0,153,168,0.2)', borderTopLeftRadius: 4 },
+  paywallCornerBR:     { position: 'absolute', bottom: 60, right: 24, width: 28, height: 28, borderBottomWidth: 2, borderRightWidth: 2, borderColor: 'rgba(0,153,168,0.2)', borderBottomRightRadius: 4 },
   paywallScroll:       { paddingHorizontal: 28, paddingTop: 52, paddingBottom: 48, alignItems: 'center' },
   paywallCloseBtn:     { alignSelf: 'flex-end', marginBottom: 16 },
   paywallCloseCircle:  { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
   paywallHero:         { alignItems: 'center', marginBottom: 36 },
-  paywallIconRing:     { width: 96, height: 96, borderRadius: 48, borderWidth: 1.5, borderColor: 'rgba(201,163,81,0.3)', alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
-  paywallIconInner:    { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(201,163,81,0.1)', alignItems: 'center', justifyContent: 'center' },
+  paywallIconRing:     { width: 96, height: 96, borderRadius: 48, borderWidth: 1.5, borderColor: 'rgba(0,153,168,0.3)', alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
+  paywallIconInner:    { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(0,153,168,0.1)', alignItems: 'center', justifyContent: 'center' },
   paywallEyebrow:      { fontSize: 11, fontFamily: 'Inter_700Bold', color: colors.accent, letterSpacing: 2.5, marginBottom: 10 },
   paywallTitle:        { fontSize: 30, fontFamily: 'Inter_900Black', color: '#FFFFFF', textAlign: 'center', letterSpacing: -0.5, lineHeight: 36, marginBottom: 14 },
   paywallGoldBar:      { width: 48, height: 3, backgroundColor: colors.accent, borderRadius: 2, marginBottom: 16, opacity: 0.8 },
   paywallSubtitle:     { fontSize: 15, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 22 },
   paywallFeatures:     { width: '100%', marginBottom: 32 },
   paywallFeatureRow:   { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
-  paywallFeatureIconBox:{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(201,163,81,0.1)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(201,163,81,0.15)' },
+  paywallFeatureIconBox:{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(0,153,168,0.1)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(0,153,168,0.15)' },
   paywallFeatureText:  { fontSize: 14, fontFamily: 'Inter_500Medium', color: 'rgba(255,255,255,0.85)', flex: 1 },
-  paywallPriceBlock:   { width: '100%', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: 20, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(201,163,81,0.15)' },
+  paywallPriceBlock:   { width: '100%', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: 20, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(0,153,168,0.15)' },
   paywallPriceRow:     { flexDirection: 'row', alignItems: 'center', gap: 12 },
   paywallPrice:        { fontSize: 48, fontFamily: 'Inter_900Black', color: colors.accent, letterSpacing: -1 },
   paywallPriceSide:    { gap: 2 },

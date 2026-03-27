@@ -221,7 +221,7 @@ export const TravelScreen: React.FC = () => {
       <ScrollView contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
 
         {/* Header */}
-        <LinearGradient colors={[colors.primary, colors.primaryMid, colors.background]} style={styles.headerGradient}>
+        <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
           <View style={styles.header}>
             <View>
               <Text style={styles.headerLabel}>TRAVEL HISTORY</Text>
@@ -229,7 +229,7 @@ export const TravelScreen: React.FC = () => {
               <Text style={styles.headerSub}>{trips.length} trip{trips.length !== 1 ? 's' : ''} recorded · N-400 ready</Text>
             </View>
             <TouchableOpacity style={styles.addBtn} onPress={openAdd} activeOpacity={0.8}>
-              <LinearGradient colors={[colors.accent, '#D4B56A']} style={styles.addBtnGrad}>
+              <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.addBtnGrad}>
                 <Text style={styles.addBtnText}>+ Trip</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -440,7 +440,7 @@ export const TravelScreen: React.FC = () => {
 
               {/* Save button */}
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-                <LinearGradient colors={[colors.accent, '#D4B56A']} style={styles.saveBtnGrad}>
+                <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
                   <Text style={styles.saveBtnText}>{editingId ? 'Update Trip' : 'Add Trip'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -457,12 +457,12 @@ const styles = StyleSheet.create({
   // Header
   headerGradient:  { paddingBottom: 8 },
   header:          { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: spacing.screen, paddingTop: spacing.xxl + 20, paddingBottom: spacing.md },
-  headerLabel:     { ...typography.micro, color: colors.accent, letterSpacing: 2, marginBottom: 4, fontSize: 10 },
-  headerTitle:     { ...typography.h1, color: colors.textInverse, fontSize: 26 },
-  headerSub:       { ...typography.caption, color: 'rgba(255,255,255,0.5)', marginTop: 2 },
+  headerLabel:     { ...typography.micro, color: colors.text3, letterSpacing: 1.5, marginBottom: 3, fontSize: 10 },
+  headerTitle:     { ...typography.h1, color: colors.text1, fontSize: 22 },
+  headerSub:       { ...typography.caption, color: colors.text3, marginTop: 2 },
   addBtn:          { borderRadius: radius.md, overflow: 'hidden' },
   addBtnGrad:      { paddingHorizontal: 18, paddingVertical: 11, borderRadius: radius.md },
-  addBtnText:      { fontSize: 14, fontFamily: 'Inter_800ExtraBold', color: colors.primary },
+  addBtnText:      { fontSize: 14, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
 
   // Stats
   statsRow:        { flexDirection: 'row', paddingHorizontal: spacing.screen, gap: 8, marginTop: spacing.md, marginBottom: spacing.md },
