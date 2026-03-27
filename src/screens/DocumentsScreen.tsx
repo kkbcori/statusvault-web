@@ -245,23 +245,7 @@ export const DocumentsScreen: React.FC = () => {
                   </View>
                 </View>
                 <Text style={styles.fieldLabel}>Expiry Date</Text>
-                <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-                  <Text style={styles.dateButtonText}>{expiryDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</Text>
-                  <Ionicons name="calendar-outline" size={20} color={colors.accent} />
-                </TouchableOpacity>
-                {showDatePicker && !IS_WEB && (
-                  <DateTimePicker
-                    value={expiryDate} mode="date"
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    onChange={handleDateChange} minimumDate={new Date()} style={styles.datePicker}
-                  />
-                )}
-                {Platform.OS === 'ios' && showDatePicker && !IS_WEB && (
-                  <TouchableOpacity style={styles.datePickerDone} onPress={() => setShowDatePicker(false)}>
-                    <Text style={styles.datePickerDoneText}>Done</Text>
-                  </TouchableOpacity>
-                )}
-                {IS_WEB && (
+                {IS_WEB ? (
                   <View style={styles.webDateWrap}>
                     <input
                       type="date"
@@ -275,9 +259,29 @@ export const DocumentsScreen: React.FC = () => {
                         fontFamily: 'Inter_400Regular', color: '#111827',
                         border: '1.5px solid #E5E7EB', borderRadius: '10px',
                         backgroundColor: '#fff', outline: 'none', cursor: 'pointer',
+                        boxSizing: 'border-box',
                       } as any}
                     />
                   </View>
+                ) : (
+                  <>
+                    <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+                      <Text style={styles.dateButtonText}>{expiryDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</Text>
+                      <Ionicons name="calendar-outline" size={20} color={colors.accent} />
+                    </TouchableOpacity>
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={expiryDate} mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={handleDateChange} minimumDate={new Date()} style={styles.datePicker}
+                      />
+                    )}
+                    {Platform.OS === 'ios' && showDatePicker && (
+                      <TouchableOpacity style={styles.datePickerDone} onPress={() => setShowDatePicker(false)}>
+                        <Text style={styles.datePickerDoneText}>Done</Text>
+                      </TouchableOpacity>
+                    )}
+                  </>
                 )}
                 <Text style={[styles.fieldLabel, { marginTop: spacing.xl }]}>Notes (optional)</Text>
                 <TextInput

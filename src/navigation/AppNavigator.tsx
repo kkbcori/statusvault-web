@@ -3,7 +3,7 @@
 // White sidebar + white topbar · teal accent · Syne headings
 // ═══════════════════════════════════════════════════════════════
 
-import React from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Platform, View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { NavigationContainer, useNavigation, useNavigationState } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -42,11 +42,43 @@ const NAV_GROUPS = [
 ];
 
 // ─── Web Sidebar ─────────────────────────────────────────────
+const MIN_WIDTH = 180;
+const MAX_WIDTH = 320;
+const DEFAULT_WIDTH = 240;
+
 const WebSidebar: React.FC = () => {
   const navigation = useNavigation<any>();
   const authUser   = useStore((s) => s.authUser);
   const isSyncing  = useStore((s) => s.isSyncing);
   const isPremium  = useStore((s) => s.isPremium);
+  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
+  const dragging = useRef(false);
+  const startX   = useRef(0);
+  const startW   = useRef(DEFAULT_WIDTH);
+
+  const onMouseDown = useCallback((e: any) => {
+    if (typeof document === 'undefined') return;
+    dragging.current = true;
+    startX.current   = e.clientX;
+    startW.current   = sidebarWidth;
+    document.body.style.cursor    = 'col-resize';
+    document.body.style.userSelect = 'none';
+    const onMove = (ev: MouseEvent) => {
+      if (!dragging.current) return;
+      const delta = ev.clientX - startX.current;
+      const newW  = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startW.current + delta));
+      setSidebarWidth(newW);
+    };
+    const onUp = () => {
+      dragging.current = false;
+      document.body.style.cursor    = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }, [sidebarWidth]);
 
   const currentRoute = useNavigationState((state) => {
     const mainRoute = state?.routes?.find((r) => r.name === 'Main');
@@ -55,7 +87,7 @@ const WebSidebar: React.FC = () => {
   });
 
   return (
-    <View style={sidebarStyles.container}>
+    <View style={[sidebarStyles.container, { width: sidebarWidth }]}>
       {/* Logo */}
       <View style={sidebarStyles.logoRow}>
         <Image
@@ -151,6 +183,15 @@ const WebSidebar: React.FC = () => {
           </View>
         </View>
       )}
+
+      {/* Drag handle — web only resize */}
+      <View
+        style={sidebarStyles.resizeHandle}
+        onStartShouldSetResponder={() => false}
+        {...(typeof window !== 'undefined' ? { onMouseDown } as any : {})}
+      >
+        <View style={sidebarStyles.resizeBar} />
+      </View>
     </View>
   );
 };
@@ -276,7 +317,9 @@ const layoutStyles = StyleSheet.create({
 });
 
 const sidebarStyles = StyleSheet.create({
-  container:    { width: 240, backgroundColor: colors.sidebar, borderRightWidth: 1, borderRightColor: colors.sidebarBorder, flexDirection: 'column' },
+  container:    { backgroundColor: colors.sidebar, borderRightWidth: 1, borderRightColor: colors.sidebarBorder, flexDirection: 'column', position: 'relative' as any },
+  resizeHandle: { position: 'absolute' as any, top: 0, right: -4, bottom: 0, width: 8, cursor: 'col-resize' as any, alignItems: 'center', justifyContent: 'center', zIndex: 10 } as any,
+  resizeBar:    { width: 2, height: 40, borderRadius: 2, backgroundColor: colors.border } as any,
   logoRow:      { padding: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: colors.border },
   logoImg:      { width: 160, height: 48 } as any,
   profileCard:  { flexDirection: 'row', alignItems: 'center', gap: 10, margin: 10, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, padding: 10 },

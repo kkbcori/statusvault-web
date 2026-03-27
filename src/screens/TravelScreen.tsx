@@ -287,7 +287,7 @@ export const TravelScreen: React.FC = () => {
           activeOpacity={0.8}
           disabled={exporting}
         >
-          <LinearGradient colors={[colors.primary, colors.primaryMid]} style={styles.exportBtnGrad}>
+          <LinearGradient colors={['#0E2137', '#0A1628']} style={styles.exportBtnGrad}>
             <Ionicons name={exporting ? 'hourglass-outline' : 'document-text-outline'} size={18} color={colors.accent} />
             <Text style={styles.exportBtnText}>{exporting ? 'Generating PDF…' : 'Export PDF — N-400 Ready'}</Text>
             {!exporting && <Ionicons name="share-outline" size={16} color={colors.accent} />}
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
   // Export
   exportBtn:       { marginHorizontal: spacing.screen, marginBottom: spacing.lg, borderRadius: radius.lg, overflow: 'hidden', ...shadows.md },
   exportBtnGrad:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 15, paddingHorizontal: 20, borderRadius: radius.lg },
-  exportBtnText:   { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.accent },
+  exportBtnText:   { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
 
   // Section
   section:         { paddingHorizontal: spacing.screen },
