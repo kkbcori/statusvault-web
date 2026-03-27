@@ -65,28 +65,6 @@ const WebSidebar: React.FC = () => {
         />
       </View>
 
-      {/* Profile */}
-      <TouchableOpacity
-        style={sidebarStyles.profileCard}
-        onPress={() => navigation.navigate(authUser ? 'Profile' : 'Auth')}
-        activeOpacity={0.8}
-      >
-        <View style={sidebarStyles.profileAvatar}>
-          <Text style={sidebarStyles.profileInitial}>
-            {authUser ? authUser.email[0].toUpperCase() : '?'}
-          </Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={sidebarStyles.profileName} numberOfLines={1}>
-            {authUser ? authUser.email : 'Guest User'}
-          </Text>
-          <Text style={sidebarStyles.profilePlan}>
-            {isPremium ? '⭐ Premium' : 'Free Plan'}
-          </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={14} color={colors.text3} />
-      </TouchableOpacity>
-
       {/* Nav groups */}
       <View style={sidebarStyles.nav}>
         {NAV_GROUPS.map((group) => (
@@ -120,35 +98,59 @@ const WebSidebar: React.FC = () => {
 
       <View style={{ flex: 1 }} />
 
-      {/* Upgrade card — free users only */}
-      {!isPremium && (
-        <View style={sidebarStyles.upgradeCard}>
-          <Text style={sidebarStyles.upgradeTitle}>Upgrade to Premium</Text>
-          <Text style={sidebarStyles.upgradeDesc}>
-            Unlock unlimited documents, advanced alerts, and cross-device sync.
+      {/* Account / profile card — bottom */}
+      <TouchableOpacity
+        style={sidebarStyles.profileCard}
+        onPress={() => navigation.navigate(authUser ? 'Profile' : 'Auth')}
+        activeOpacity={0.8}
+      >
+        <View style={sidebarStyles.profileAvatar}>
+          <Text style={sidebarStyles.profileInitial}>
+            {authUser ? authUser.email[0].toUpperCase() : '?'}
           </Text>
-          <TouchableOpacity
-            style={sidebarStyles.upgradeBtn}
-            onPress={() => navigation.navigate('Documents', { openPaywall: true })}
-            activeOpacity={0.85}
-          >
-            <Text style={sidebarStyles.upgradeBtnText}>Upgrade — $3.99/yr</Text>
-          </TouchableOpacity>
         </View>
+        <View style={{ flex: 1 }}>
+          <Text style={sidebarStyles.profileName} numberOfLines={1}>
+            {authUser ? authUser.email : 'Guest User'}
+          </Text>
+          <Text style={sidebarStyles.profilePlan}>
+            {isPremium ? '⭐ Premium' : 'Free Plan'}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={14} color={colors.text3} />
+      </TouchableOpacity>
+
+      {/* Compact upgrade row — free users only, same height as profile card */}
+      {!isPremium && (
+        <TouchableOpacity
+          style={sidebarStyles.upgradeRow}
+          onPress={() => navigation.navigate('Documents', { openPaywall: true })}
+          activeOpacity={0.85}
+        >
+          <View style={sidebarStyles.upgradeRowIcon}>
+            <Ionicons name="star-outline" size={14} color={colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={sidebarStyles.upgradeRowTitle}>Upgrade to Premium</Text>
+            <Text style={sidebarStyles.upgradeRowSub}>Unlimited docs · $3.99/yr</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+        </TouchableOpacity>
       )}
 
-      {/* Sync status */}
-      <View style={sidebarStyles.bottom}>
-        <View style={sidebarStyles.syncRow}>
-          <View style={[sidebarStyles.syncDot, {
-            backgroundColor: isSyncing ? colors.warning : authUser ? colors.success : colors.text3
-          }]} />
-          <Text style={sidebarStyles.syncText}>
-            {isSyncing ? 'Syncing…' : authUser ? 'Synced' : 'Local only'}
-          </Text>
+      {/* AES badge — only shown when syncing (encrypted) */}
+      {authUser && (
+        <View style={sidebarStyles.bottom}>
+          <View style={sidebarStyles.syncRow}>
+            <View style={[sidebarStyles.syncDot, {
+              backgroundColor: isSyncing ? colors.warning : colors.success
+            }]} />
+            <Text style={sidebarStyles.syncText}>
+              {isSyncing ? 'Syncing…' : 'Synced · AES-256 encrypted'}
+            </Text>
+          </View>
         </View>
-        <Text style={sidebarStyles.privacyText}>🔒 AES-256 encrypted</Text>
-      </View>
+      )}
     </View>
   );
 };
@@ -291,16 +293,14 @@ const sidebarStyles = StyleSheet.create({
   navIcon:      { marginRight: 9 },
   navLabel:     { fontSize: 13, fontFamily: 'Inter_400Regular', color: colors.text2 },
   navLabelActive:{ color: colors.sidebarActiveText, fontFamily: 'Inter_600SemiBold' },
-  upgradeCard:  { margin: 12, backgroundColor: 'rgba(0,153,168,0.06)', borderWidth: 1, borderColor: 'rgba(0,153,168,0.15)', borderRadius: radius.md, padding: 14 },
-  upgradeTitle: { fontSize: 12, fontFamily: 'Inter_700Bold', color: colors.primary, marginBottom: 4 },
-  upgradeDesc:  { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text2, lineHeight: 16, marginBottom: 10 },
-  upgradeBtn:   { backgroundColor: colors.primary, borderRadius: radius.sm, paddingVertical: 8, alignItems: 'center' },
-  upgradeBtnText:{ fontSize: 11, fontFamily: 'Inter_700Bold', color: '#fff' },
-  bottom:       { borderTopWidth: 1, borderTopColor: colors.border, padding: 12, gap: 4 },
-  syncRow:      { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  syncDot:      { width: 6, height: 6, borderRadius: 3 },
-  syncText:     { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3 },
-  privacyText:  { fontSize: 10, fontFamily: 'Inter_400Regular', color: colors.text4 },
+  upgradeRow:      { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 12, marginBottom: 6, backgroundColor: 'rgba(0,153,168,0.06)', borderWidth: 1, borderColor: 'rgba(0,153,168,0.15)', borderRadius: radius.sm, padding: 10 },
+  upgradeRowIcon:  { width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(0,153,168,0.12)', alignItems: 'center', justifyContent: 'center' },
+  upgradeRowTitle: { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.primary },
+  upgradeRowSub:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 1 },
+  bottom:          { paddingHorizontal: 16, paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.border },
+  syncRow:         { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  syncDot:         { width: 6, height: 6, borderRadius: 3 },
+  syncText:        { fontSize: 10, fontFamily: 'Inter_400Regular', color: colors.text3 },
 });
 
 const topBarStyles = StyleSheet.create({

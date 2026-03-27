@@ -16,6 +16,7 @@ import { configureNotifications } from './src/utils/notifications';
 import { useStore } from './src/store';
 import { colors } from './src/theme';
 import { PinLockScreen } from './src/components/PinLockScreen';
+import { DialogProvider } from './src/components/ConfirmDialog';
 
 LogBox.ignoreLogs(['Setting a timer', 'expo-notifications']);
 
@@ -65,7 +66,9 @@ export default function App() {
       {Platform.OS !== 'web' && (
         <StatusBar barStyle="dark-content" backgroundColor={colors.background} translucent={false} />
       )}
-      <AppNavigator />
+      <DialogProvider>
+        <AppNavigator />
+      </DialogProvider>
     </SafeAreaProvider>
   );
 }

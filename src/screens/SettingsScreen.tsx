@@ -11,6 +11,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
+import { useDialog } from '../components/ConfirmDialog';
+import { IS_WEB } from '../utils/responsive';
 import { useStore } from '../store';
 import { useNavigation } from '@react-navigation/native';
 import { requestPermissions, cancelAllNotifications, sendTestNotification, getScheduledCount } from '../utils/notifications';
@@ -47,6 +49,7 @@ export const SettingsScreen: React.FC = () => {
   } = useStore();
 
   const [showImportModal, setShowImportModal] = useState(false);
+  const dialog = useDialog();
   const [importText,      setImportText]      = useState('');
   const [showPinSetup,    setShowPinSetup]    = useState(false);
 
@@ -54,10 +57,7 @@ export const SettingsScreen: React.FC = () => {
     if (value) {
       const granted = await requestPermissions();
       if (!granted) {
-        Alert.alert('Permissions Required', 'Enable notifications in device settings.', [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Open Settings', onPress: () => Linking.openSettings() },
-        ]);
+        dialog.alert('Permissions Required', 'Enable notifications in device settings. Open your device Settings → Apps → StatusVault → Notifications.');
         return;
       }
     } else { await cancelAllNotifications(); }
@@ -66,25 +66,25 @@ export const SettingsScreen: React.FC = () => {
 
   const handleTestNotification = async () => {
     const granted = await requestPermissions();
-    if (!granted) { Alert.alert('Enable Notifications', 'Please enable notifications first.'); return; }
+    if (!granted) { dialog.alert('Enable Notifications', 'Please enable notifications in device settings first.'); return; }
     await sendTestNotification();
-    Alert.alert('Test Sent!', 'You should see a banner in 3 seconds.');
+    dialog.alert('Test Sent!', 'You should see a notification banner in 3 seconds.');
   };
 
   const handleExport = async () => {
     try {
       const json = exportData();
       await Share.share({ message: json, title: 'StatusVault Backup' });
-    } catch (e) { Alert.alert('Export Failed', 'Could not export data.'); }
+    } catch (e) { dialog.alert('Export Failed', 'Could not export data. Please try again.'); }
   };
 
   const handleImportPaste = () => {
-    if (!importText.trim()) { Alert.alert('Empty', 'Paste your backup data.'); return; }
+    if (!importText.trim()) { dialog.alert('Nothing to import', 'Paste your backup JSON data first.'); return; }
     const success = importData(importText.trim());
     if (success) {
-      Alert.alert('Import Successful!', 'Documents and settings restored.');
+      dialog.alert('Import Successful', 'Documents and settings have been restored.');
       setShowImportModal(false); setImportText('');
-    } else { Alert.alert('Import Failed', 'Not a valid StatusVault backup.'); }
+    } else { dialog.alert('Import Failed', 'Not a valid StatusVault backup. Please check the file and try again.'); }
   };
 
   return (
@@ -144,7 +144,7 @@ export const SettingsScreen: React.FC = () => {
         <View style={styles.div} />
         <TouchableOpacity style={styles.sRow} onPress={async () => {
           const c = await getScheduledCount();
-          Alert.alert('Scheduled', `${c} notification${c !== 1 ? 's' : ''} scheduled.`);
+          dialog.alert('Scheduled Alerts', `${c} notification${c !== 1 ? 's' : ''} currently scheduled.`);
         }}>
           <View style={styles.rowIconBox}><Ionicons name="stats-chart-outline" size={16} color={colors.accent} /></View>
           <Text style={styles.sText}>View Scheduled Alerts</Text>
@@ -240,10 +240,8 @@ export const SettingsScreen: React.FC = () => {
             <Text style={styles.premPrice}>{PRICE}</Text>
             <Text style={styles.premPeriod}>/year</Text>
           </View>
-          <TouchableOpacity style={styles.premBtn} onPress={() => Alert.alert('Coming Soon', 'In-app purchase available soon.', [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Unlock for Testing', onPress: () => setPremium(true) },
-          ])}>
+          <TouchableOpacity style={styles.premBtn} onPress={() => dialog.confirm({ title: 'Coming Soon', message: 'In-app purchase available soon.', type: 'confirm',
+            confirmLabel: 'Unlock for Testing', cancelLabel: 'Cancel', onConfirm: () => setPremium(true) })}>
             <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.premBtnGrad}>
               <Text style={styles.premBtnText}>Subscribe — {PRICE_YEAR}</Text>
             </LinearGradient>
@@ -254,12 +252,8 @@ export const SettingsScreen: React.FC = () => {
       {/* ── Danger Zone ── */}
       <SectionLabel iconName="warning-outline" label="DANGER ZONE" />
       <View style={[styles.card, { borderWidth: 1, borderColor: colors.dangerLight }]}>
-        <TouchableOpacity style={styles.sRow} onPress={() => Platform.OS === 'web'
-              ? (window.confirm('Reset ALL data? This cannot be undone.') && (cancelAllNotifications(), resetAllData()))
-              : Alert.alert('Reset All Data?', 'This permanently deletes everything.', [
-                  { text: 'Cancel', style: 'cancel' },
-                  { text: 'Delete', style: 'destructive', onPress: () => { cancelAllNotifications(); resetAllData(); } },
-                ])}>
+        <TouchableOpacity style={styles.sRow} onPress={() => dialog.confirm({ title: 'Reset All Data?', message: 'This permanently deletes all your documents, counters, checklists, and trips. This cannot be undone.',
+              type: 'danger', confirmLabel: 'Delete Everything', onConfirm: () => { cancelAllNotifications(); resetAllData(); } })}>
           <View style={[styles.rowIconBox, { backgroundColor: colors.dangerLight, borderColor: colors.danger + '25' }]}>
             <Ionicons name="trash-outline" size={16} color={colors.danger} />
           </View>

@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB } from '../utils/responsive';
+import { useDialog } from '../components/ConfirmDialog';
 import { useStore, FREE_LIMIT } from '../store';
 import { generateDeadlines } from '../utils/dates';
 import { ExpiryCard } from '../components';
@@ -30,6 +31,7 @@ export const DocumentsScreen: React.FC = () => {
   const canAddDocument     = useStore((s) => s.canAddDocument);
   const isPremium          = useStore((s) => s.isPremium);
   const getRemainingFreeSlots = useStore((s) => s.getRemainingFreeSlots);
+  const dialog = useDialog();
 
   const [showAddModal,    setShowAddModal]    = useState(false);
   const [showPaywall,     setShowPaywall]     = useState(false);
@@ -78,17 +80,8 @@ export const DocumentsScreen: React.FC = () => {
   };
 
   const handleDelete = (id: string, label: string) => {
-    if (Platform.OS === 'web') {
-      // Alert.alert is a no-op on web — use browser confirm instead
-      if (window.confirm(`Remove "${label}"?\nNotifications will be cancelled.`)) {
-        removeDocument(id);
-      }
-      return;
-    }
-    Alert.alert('Remove Document', `Remove "${label}"? Notifications will be cancelled.`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => removeDocument(id) },
-    ]);
+    dialog.confirm({ title: 'Remove Document', message: `Remove "${label}"? Notifications will be cancelled.`,
+      type: 'danger', confirmLabel: 'Remove', onConfirm: () => removeDocument(id) });
   };
 
   const handleDateChange = (_event: any, selectedDate?: Date) => {
@@ -335,10 +328,9 @@ export const DocumentsScreen: React.FC = () => {
             {/* CTA */}
             <TouchableOpacity
               style={styles.paywallCTA}
-              onPress={() => Alert.alert('Coming Soon', 'In-app purchase will be available in the next update.', [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Unlock for Testing', onPress: () => { useStore.getState().setPremium(true); setShowPaywall(false); } },
-              ])}
+              onPress={() => dialog.confirm({ title: 'Coming Soon', message: 'In-app purchase will be available in the next update.',
+                type: 'confirm', confirmLabel: 'Unlock for Testing', cancelLabel: 'Cancel',
+                onConfirm: () => { useStore.getState().setPremium(true); setShowPaywall(false); } })}
               activeOpacity={0.85}
             >
               <LinearGradient colors={[colors.primary, colors.primaryLight, colors.primary]} style={styles.paywallCTAGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>

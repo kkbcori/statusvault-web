@@ -20,6 +20,7 @@ import { CHECKLIST_TEMPLATES } from '../utils/checklists';
 import { COUNTER_TEMPLATES } from '../utils/counters';
 import { StatusCard, SeveritySummary, TimelineItem, ProgressBar } from '../components';
 import { IS_WEB, useIsWide } from '../utils/responsive';
+import { useDialog } from '../components/ConfirmDialog';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -114,6 +115,7 @@ export const DashboardScreen: React.FC = () => {
   const getRemainingFreeSlots = useStore((s) => s.getRemainingFreeSlots);
   const navigation            = useNavigation<any>();
   const isWide                = useIsWide();
+  const dialog                = useDialog();
 
   const [showAddChecklist,  setShowAddChecklist]  = useState(false);
   const [showAddCounter,    setShowAddCounter]    = useState(false);
@@ -139,30 +141,18 @@ export const DashboardScreen: React.FC = () => {
     setCustomItemText(''); setCustomItemTarget(null);
   };
   const handleRemoveChecklist = (tid: string, label: string) => {
-    if (Platform.OS === 'web') {
-      if (window.confirm(`Remove "${label}"?`)) removeChecklist(tid);
-      return;
-    }
-    Alert.alert('Remove Checklist', `Remove "${label}"?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => removeChecklist(tid) },
-    ]);
+    dialog.confirm({ title: 'Remove Checklist', message: `Remove "${label}"?`, type: 'danger',
+      confirmLabel: 'Remove', onConfirm: () => removeChecklist(tid) });
   };
   const handleRemoveCounter = (tid: string, label: string) => {
-    if (Platform.OS === 'web') {
-      if (window.confirm(`Remove "${label}"? Count will be lost.`)) removeCounter(tid);
-      return;
-    }
-    Alert.alert('Remove Counter', `Remove "${label}"? Count will be lost.`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => removeCounter(tid) },
-    ]);
+    dialog.confirm({ title: 'Remove Counter', message: `Remove "${label}"? Count will be lost.`, type: 'danger',
+      confirmLabel: 'Remove', onConfirm: () => removeCounter(tid) });
   };
   const handleAddCustomCounter = () => {
     const name = customCounterName.trim();
     const days = parseInt(customCounterDays, 10);
-    if (!name) { Alert.alert('Name required'); return; }
-    if (!days || days < 1 || days > 9999) { Alert.alert('Enter valid max days'); return; }
+    if (!name) { dialog.alert('Name required', 'Please enter a counter name.'); return; }
+    if (!days || days < 1 || days > 9999) { dialog.alert('Invalid days', 'Enter a valid number between 1 and 9999.'); return; }
     addCustomCounter(name, days);
     setCustomCounterName(''); setCustomCounterDays('');
     setShowCustomCounter(false); setShowAddCounter(false);
@@ -325,10 +315,7 @@ export const DashboardScreen: React.FC = () => {
                           Auto-track: {c.isTracking ? 'ON' : 'OFF'}
                         </Text>
                       </TouchableOpacity>
-                      <TouchableOpacity onPress={() => Alert.alert('Reset?', `Reset "${c.label}" to 0?`, [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Reset', style: 'destructive', onPress: () => resetCounter(c.templateId) },
-                      ])}>
+                      <TouchableOpacity onPress={() => dialog.confirm({ title: 'Reset Counter', message: `Reset "${c.label}" to 0?`, type: 'danger', confirmLabel: 'Reset', onConfirm: () => resetCounter(c.templateId) })}>
                         <Text style={styles.resetText}>Reset</Text>
                       </TouchableOpacity>
                     </View>

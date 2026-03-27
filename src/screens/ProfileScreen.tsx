@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { colors, spacing, radius, typography, shadows } from '../theme';
+import { useDialog } from '../components/ConfirmDialog';
 import { useStore } from '../store';
 
 export const ProfileScreen: React.FC = () => {
@@ -22,6 +23,7 @@ export const ProfileScreen: React.FC = () => {
   const syncToCloud  = useStore((s) => s.syncToCloud);
   const syncFromCloud= useStore((s) => s.syncFromCloud);
   const signOut      = useStore((s) => s.signOut);
+  const dialog       = useDialog();
   const exportData   = useStore((s) => s.exportData);
   const documents    = useStore((s) => s.documents);
   const trips        = useStore((s) => s.trips);
@@ -35,13 +37,12 @@ export const ProfileScreen: React.FC = () => {
   };
 
   const handleSignOut = () => {
-    Alert.alert('Sign Out', 'Your data will remain on this device. Sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: async () => {
+    dialog.confirm({ title: 'Sign Out', message: 'Your data will remain on this device. Sign out?',
+      type: 'danger', confirmLabel: 'Sign Out', onConfirm: async () => {
         await signOut();
         navigation.goBack();
-      }},
-    ]);
+      }
+    });
   };
 
   const handleExport = async () => {

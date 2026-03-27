@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB } from '../utils/responsive';
+import { useDialog } from '../components/ConfirmDialog';
 import { useStore } from '../store';
 import { TravelTrip, TripPurpose } from '../types';
 import {
@@ -136,6 +137,7 @@ export const TravelScreen: React.FC = () => {
   const [activePicker,   setActivePicker]   = useState<'departure' | 'return' | null>(null);
   const [showAll,        setShowAll]        = useState(false);
   const [exporting,      setExporting]      = useState(false);
+  const dialog = useDialog();
 
   const sorted    = sortByDateDesc(trips);
   const last5     = filterLast5Years(trips);
@@ -166,8 +168,8 @@ export const TravelScreen: React.FC = () => {
   };
 
   const handleSave = () => {
-    if (!country.trim()) { Alert.alert('Country required', 'Please enter the destination country.'); return; }
-    if (returnDate < departure) { Alert.alert('Invalid dates', 'Return date must be on or after departure date.'); return; }
+    if (!country.trim()) { dialog.alert('Country required', 'Please enter the destination country.'); return; }
+    if (returnDate < departure) { dialog.alert('Invalid dates', 'Return date must be on or after departure date.'); return; }
 
     const entry = {
       country:       country.trim(),
@@ -188,23 +190,17 @@ export const TravelScreen: React.FC = () => {
   };
 
   const handleDelete = (id: string, country: string) => {
-    if (Platform.OS === 'web') {
-      if (window.confirm(`Remove trip to ${country}?`)) removeTrip(id);
-      return;
-    }
-    Alert.alert('Remove Trip', `Remove trip to ${country}?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => removeTrip(id) },
-    ]);
+    dialog.confirm({ title: 'Remove Trip', message: `Remove trip to ${country}?`,
+      type: 'danger', confirmLabel: 'Remove', onConfirm: () => removeTrip(id) });
   };
 
   const handleExport = async () => {
-    if (trips.length === 0) { Alert.alert('No trips', 'Add at least one trip before exporting.'); return; }
+    if (trips.length === 0) { dialog.alert('No trips', 'Add at least one trip before exporting.'); return; }
     setExporting(true);
     try {
       await exportTravelPdf(trips);
     } catch (e) {
-      Alert.alert('Export Failed', 'Could not generate PDF. Please try again.');
+      dialog.alert('Export Failed', 'Could not generate PDF. Please try again.');
     } finally {
       setExporting(false);
     }
