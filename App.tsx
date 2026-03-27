@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
-// StatusVault — App Entry Point (v12)
-// Syne + Inter fonts · Light SaaS theme
+// StatusVault — App Entry Point (v13)
+// Inter only — clean, professional, no Syne
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useEffect, useState } from 'react';
@@ -11,10 +11,6 @@ import {
   Inter_400Regular, Inter_500Medium, Inter_600SemiBold,
   Inter_700Bold, Inter_800ExtraBold, Inter_900Black,
 } from '@expo-google-fonts/inter';
-import {
-  Syne_700Bold,
-  Syne_800ExtraBold,
-} from '@expo-google-fonts/syne';
 import { AppNavigator } from './src/navigation';
 import { configureNotifications } from './src/utils/notifications';
 import { useStore } from './src/store';
@@ -23,7 +19,6 @@ import { PinLockScreen } from './src/components/PinLockScreen';
 
 LogBox.ignoreLogs(['Setting a timer', 'expo-notifications']);
 
-// Force full-viewport on web
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
   const s = document.createElement('style');
   s.textContent = `
@@ -44,7 +39,6 @@ export default function App() {
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular, Inter_500Medium, Inter_600SemiBold,
     Inter_700Bold, Inter_800ExtraBold, Inter_900Black,
-    Syne_700Bold, Syne_800ExtraBold,
   });
 
   useEffect(() => {

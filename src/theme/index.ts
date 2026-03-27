@@ -1,12 +1,11 @@
 // ═══════════════════════════════════════════════════════════════
-// StatusVault — Design System v4
-// Light SaaS aesthetic · Teal + cool gray · Syne + Inter
+// StatusVault — Design System v5
+// Inter-only typography · clean, professional SaaS aesthetic
 // ═══════════════════════════════════════════════════════════════
 
 import { Platform } from 'react-native';
 
 export const colors = {
-  // ── Brand — teal primary ──
   primary:      '#0099A8',
   primaryLight: '#00B5C8',
   primaryMid:   '#007A88',
@@ -15,7 +14,6 @@ export const colors = {
   accentDim:    'rgba(0,153,168,0.10)',
   accentBlue:   '#2563EB',
 
-  // ── Severity ──
   success:      '#059669',
   successLight: '#D1FAE5',
   successDark:  '#047857',
@@ -26,34 +24,29 @@ export const colors = {
   dangerLight:  '#FEE2E2',
   dangerDark:   '#B91C1C',
 
-  // ── Surfaces ──
   background:     '#F4F6FA',
   backgroundDark: '#1A202C',
   card:           '#FFFFFF',
   cardElevated:   '#FFFFFF',
   cardDark:       'rgba(0,0,0,0.04)',
 
-  // ── Text ──
-  text1:       '#1A202C',
+  text1:       '#111827',
   text2:       '#374151',
   text3:       '#6B7280',
   text4:       '#9CA3AF',
   textInverse: '#FFFFFF',
   textGold:    '#0099A8',
 
-  // ── Borders ──
   border:      'rgba(0,0,0,0.08)',
   borderLight: 'rgba(0,0,0,0.05)',
   borderGold:  'rgba(0,153,168,0.20)',
 
-  // ── Sidebar (light) ──
-  sidebar:        '#FFFFFF',
-  sidebarBorder:  'rgba(0,0,0,0.08)',
-  sidebarActive:  '#E6F7F8',
-  sidebarActiveText: '#0E7490',
+  sidebar:          '#FFFFFF',
+  sidebarBorder:    'rgba(0,0,0,0.08)',
+  sidebarActive:    '#E6F7F8',
+  sidebarActiveText:'#0E7490',
 
-  // ── Misc ──
-  overlay: 'rgba(26,32,44,0.60)',
+  overlay: 'rgba(17,24,39,0.55)',
   shimmer: '#E4E8F0',
 } as const;
 
@@ -66,35 +59,23 @@ export const radius = {
   sm: 6, md: 10, lg: 12, xl: 16, xxl: 20, full: 999,
 } as const;
 
-// ── Typography ────────────────────────────────────────────────
-// Syne for display/headings · Inter for body
-const F = {
-  // Syne — display
-  display700: 'Syne_700Bold',
-  display800: 'Syne_800ExtraBold',
-  // Inter — body
-  regular:    'Inter_400Regular',
-  medium:     'Inter_500Medium',
-  semibold:   'Inter_600SemiBold',
-  bold:       'Inter_700Bold',
-  extrabold:  'Inter_800ExtraBold',
-  black:      'Inter_900Black',
-};
-
+// ── Typography — Inter only ───────────────────────────────────
+// Weight scale: 400 body · 500 medium · 600 semibold ·
+//               700 bold (headings) · 800 extrabold (display)
 export const typography = {
-  display:      { fontSize: 36, fontFamily: F.display800, letterSpacing: -1,   lineHeight: 42 },
-  h1:           { fontSize: 24, fontFamily: F.display800, letterSpacing: -0.5, lineHeight: 30 },
-  h2:           { fontSize: 18, fontFamily: F.display700, letterSpacing: -0.3, lineHeight: 24 },
-  h3:           { fontSize: 15, fontFamily: F.display700, lineHeight: 20 },
-  body:         { fontSize: 14, fontFamily: F.regular,    lineHeight: 22 },
-  bodyMedium:   { fontSize: 14, fontFamily: F.medium,     lineHeight: 22 },
-  bodySemibold: { fontSize: 14, fontFamily: F.semibold,   lineHeight: 22 },
-  caption:      { fontSize: 12, fontFamily: F.medium,     lineHeight: 18 },
-  captionBold:  { fontSize: 12, fontFamily: F.bold,       lineHeight: 18 },
-  micro:        { fontSize: 10, fontFamily: F.bold,       letterSpacing: 0.6, lineHeight: 14 },
-  number:       { fontSize: 28, fontFamily: F.display800, letterSpacing: -1,  lineHeight: 32 },
-  numberLarge:  { fontSize: 38, fontFamily: F.display800, letterSpacing: -1.5,lineHeight: 44 },
-  mono:         { fontSize: 13, fontFamily: 'Inter_500Medium', lineHeight: 20 },
+  display:      { fontSize: 32, fontFamily: 'Inter_800ExtraBold', letterSpacing: -0.8, lineHeight: 38 },
+  h1:           { fontSize: 22, fontFamily: 'Inter_800ExtraBold', letterSpacing: -0.4, lineHeight: 28 },
+  h2:           { fontSize: 17, fontFamily: 'Inter_700Bold',      letterSpacing: -0.2, lineHeight: 24 },
+  h3:           { fontSize: 14, fontFamily: 'Inter_600SemiBold',  lineHeight: 20 },
+  body:         { fontSize: 14, fontFamily: 'Inter_400Regular',   lineHeight: 22 },
+  bodyMedium:   { fontSize: 14, fontFamily: 'Inter_500Medium',    lineHeight: 22 },
+  bodySemibold: { fontSize: 14, fontFamily: 'Inter_600SemiBold',  lineHeight: 22 },
+  caption:      { fontSize: 12, fontFamily: 'Inter_400Regular',   lineHeight: 18 },
+  captionBold:  { fontSize: 12, fontFamily: 'Inter_600SemiBold',  lineHeight: 18 },
+  micro:        { fontSize: 10, fontFamily: 'Inter_600SemiBold',  letterSpacing: 0.4, lineHeight: 14 },
+  number:       { fontSize: 28, fontFamily: 'Inter_800ExtraBold', letterSpacing: -1,  lineHeight: 32 },
+  numberLarge:  { fontSize: 38, fontFamily: 'Inter_800ExtraBold', letterSpacing: -1.5,lineHeight: 44 },
+  mono:         { fontSize: 13, fontFamily: 'Inter_500Medium',    lineHeight: 20 },
 } as const;
 
 export const shadows = {

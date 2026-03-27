@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   chipDot:    { width: 5, height: 5, borderRadius: 3 },
   chipText:   { fontSize: 10, fontFamily: 'Inter_600SemiBold', letterSpacing: 0.3 },
   tileBody:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
-  tileNumber: { fontSize: 48, fontFamily: 'Syne_800ExtraBold', letterSpacing: -2, lineHeight: 52 },
+  tileNumber: { fontSize: 48, fontFamily: 'Inter_800ExtraBold', letterSpacing: -2, lineHeight: 52 },
   tileUnit:   { ...typography.bodyMedium, color: colors.text2, marginTop: 2 },
   tileDate:   { ...typography.caption, color: colors.text3, marginTop: 2 },
   tileRight:  { flex: 1, alignItems: 'flex-end', gap: spacing.sm },
