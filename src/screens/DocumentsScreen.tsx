@@ -28,6 +28,7 @@ export const DocumentsScreen: React.FC = () => {
   const documents          = useStore((s) => s.documents);
   const addDocument        = useStore((s) => s.addDocument);
   const removeDocument     = useStore((s) => s.removeDocument);
+  const updateDocument     = useStore((s) => s.updateDocument);
   const canAddDocument     = useStore((s) => s.canAddDocument);
   const isPremium          = useStore((s) => s.isPremium);
   const getRemainingFreeSlots = useStore((s) => s.getRemainingFreeSlots);
