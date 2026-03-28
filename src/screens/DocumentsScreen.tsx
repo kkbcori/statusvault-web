@@ -70,9 +70,8 @@ export const DocumentsScreen: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!selectedTemplate) return;
     if (editingDoc) {
-      // Edit existing document
+      // Editing — selectedTemplate not required
       await updateDocument(editingDoc.id, {
         expiryDate: expiryDate.toISOString().split('T')[0],
         notes: notes.trim(),
@@ -80,6 +79,7 @@ export const DocumentsScreen: React.FC = () => {
       setShowAddModal(false); setEditingDoc(null); resetAddFlow();
       return;
     }
+    if (!selectedTemplate) return;
     const doc: UserDocument = {
       id: Date.now().toString(), templateId: selectedTemplate.id, label: selectedTemplate.label,
       category: selectedTemplate.category, expiryDate: expiryDate.toISOString().split('T')[0],
