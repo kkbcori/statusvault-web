@@ -29,16 +29,34 @@ interface DateFieldProps {
   label: string;
   value: Date;
   onPress: () => void;
+  onChange?: (date: Date) => void;
 }
-const DateField: React.FC<DateFieldProps> = ({ label, value, onPress }) => (
+const DateField: React.FC<DateFieldProps> = ({ label, value, onPress, onChange }) => (
   <View style={{ marginBottom: 16 }}>
     <Text style={styles.fieldLabel}>{label}</Text>
-    <TouchableOpacity style={styles.dateButton} onPress={onPress}>
-      <Text style={styles.dateButtonText}>
-        {value.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-      </Text>
-      <Ionicons name="calendar-outline" size={18} color={colors.accent} />
-    </TouchableOpacity>
+    {IS_WEB ? (
+      <input
+        type="date"
+        value={value.toISOString().split('T')[0]}
+        onChange={(e: any) => {
+          if (e.target.value && onChange) onChange(new Date(e.target.value + 'T12:00:00'));
+        }}
+        style={{
+          width: '100%', padding: '12px 14px', fontSize: '15px',
+          fontFamily: 'Inter_400Regular', color: '#111827',
+          border: '1.5px solid #E5E7EB', borderRadius: '10px',
+          backgroundColor: '#fff', outline: 'none', cursor: 'pointer',
+          boxSizing: 'border-box',
+        } as any}
+      />
+    ) : (
+      <TouchableOpacity style={styles.dateButton} onPress={onPress}>
+        <Text style={styles.dateButtonText}>
+          {value.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        </Text>
+        <Ionicons name="calendar-outline" size={18} color={colors.accent} />
+      </TouchableOpacity>
+    )}
   </View>
 );
 
@@ -354,10 +372,10 @@ export const TravelScreen: React.FC = () => {
             <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.modalBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
               {/* Dates */}
-              <DateField label="Departure Date" value={departure} onPress={() => setActivePicker('departure')} />
-              <DateField label="Return Date"    value={returnDate} onPress={() => setActivePicker('return')} />
+              <DateField label="Departure Date" value={departure} onPress={() => setActivePicker('departure')} onChange={setDeparture} />
+              <DateField label="Return Date"    value={returnDate} onPress={() => setActivePicker('return')} onChange={setReturnDate} />
 
-              {activePicker && (
+              {!IS_WEB && activePicker && (
                 <DateTimePicker
                   value={activePicker === 'departure' ? departure : returnDate}
                   mode="date"
