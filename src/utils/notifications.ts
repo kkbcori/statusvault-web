@@ -105,6 +105,7 @@ const getChannel = (alertDay: number): string => {
 export const scheduleDocumentNotifications = async (
   doc: UserDocument
 ): Promise<string[]> => {
+  if (Platform.OS === 'web') return [];
   const notificationIds: string[] = [];
   const now = dayjs();
   const expiry = dayjs(doc.expiryDate);
@@ -157,6 +158,7 @@ export const scheduleDocumentNotifications = async (
 export const cancelDocumentNotifications = async (
   notificationIds: string[]
 ): Promise<void> => {
+  if (Platform.OS === 'web') return;
   for (const id of notificationIds) {
     try {
       await Notifications.cancelScheduledNotificationAsync(id);

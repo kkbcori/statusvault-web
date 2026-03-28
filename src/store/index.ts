@@ -180,7 +180,9 @@ export const useStore = create<AppStore>()(
       },
       updateDocument: async (id, updates) => {
         const doc = get().documents.find((d) => d.id === id);
-        if (doc?.notificationIds?.length) await cancelDocumentNotifications(doc.notificationIds);
+        if (doc?.notificationIds?.length) {
+          try { await cancelDocumentNotifications(doc.notificationIds); } catch {}
+        }
         let notificationIds: string[] = [];
         if (get().notificationsEnabled) {
           try { notificationIds = await scheduleDocumentNotifications({ ...doc!, ...updates } as UserDocument); } catch {}
