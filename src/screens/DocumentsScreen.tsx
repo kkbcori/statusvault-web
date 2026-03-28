@@ -250,7 +250,7 @@ export const DocumentsScreen: React.FC = () => {
                     <input
                       type="date"
                       value={expiryDate.toISOString().split('T')[0]}
-                      min={new Date().toISOString().split('T')[0]}
+                      min={editingDoc ? undefined : new Date().toISOString().split('T')[0]}
                       onChange={(e: any) => {
                         if (e.target.value) setExpiryDate(new Date(e.target.value + 'T12:00:00'));
                       }}
@@ -291,7 +291,7 @@ export const DocumentsScreen: React.FC = () => {
                 />
                 <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
                   <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
-                    <Text style={styles.saveBtnText}>Add to StatusVault</Text>
+                    <Text style={styles.saveBtnText}>{editingDoc ? 'Update Document' : 'Add to StatusVault'}</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </ScrollView>
