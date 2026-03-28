@@ -371,6 +371,8 @@ export const useStore = create<AppStore>()(
       },
 
       initAuth: async () => {
+        let initialSyncDone = false;
+
         // Listen for ALL auth changes — covers OAuth redirects, sign in, sign out
         supabase.auth.onAuthStateChange(async (event, session) => {
           if (session?.user) {
@@ -381,7 +383,7 @@ export const useStore = create<AppStore>()(
                 createdAt: session.user.created_at,
               },
             });
-            // On OAuth callback, redirect to clean URL (remove the token hash)
+            // Clean URL after OAuth redirect
             if (
               event === 'SIGNED_IN' &&
               typeof window !== 'undefined' &&
@@ -389,24 +391,31 @@ export const useStore = create<AppStore>()(
             ) {
               window.history.replaceState(null, '', window.location.pathname);
             }
-            await get().syncFromCloud();
+            // Only sync from auth listener if getSession didn't already do it
+            if (!initialSyncDone) {
+              initialSyncDone = true;
+              try { await get().syncFromCloud(); } catch {}
+            }
           } else if (event === 'SIGNED_OUT') {
             set({ authUser: null, lastSyncedAt: null, syncError: null });
           }
         });
 
-        // Also check existing session on startup (for page refresh)
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          set({
-            authUser: {
-              id: session.user.id,
-              email: session.user.email!,
-              createdAt: session.user.created_at,
-            },
-          });
-          await get().syncFromCloud();
-        }
+        // Check existing session on startup (page refresh)
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            initialSyncDone = true;
+            set({
+              authUser: {
+                id: session.user.id,
+                email: session.user.email!,
+                createdAt: session.user.created_at,
+              },
+            });
+            try { await get().syncFromCloud(); } catch {}
+          }
+        } catch {}
       },
 
       // ─── Sync ──────────────────────────────────────────────
