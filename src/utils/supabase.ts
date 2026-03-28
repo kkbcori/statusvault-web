@@ -8,7 +8,7 @@ import { Platform } from 'react-native';
 import { platformStorage } from './storage';
 
 const SUPABASE_URL = 'https://gekhrdqkaadqeeebzvlu.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_ek3nTZ0Aj-wh6dQqhav9_A_yhKXWqb0';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdla2hyZHFrYWFkcWVlZWJ6dmx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MzcxMTIsImV4cCI6MjA5MDExMzExMn0.fgzagDt9ZNQnwP3bQR6pDZ6MZ2UWFomBuKd3xsPHkUk';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
