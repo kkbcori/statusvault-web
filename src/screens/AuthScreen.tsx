@@ -59,7 +59,7 @@ export const AuthScreen: React.FC = () => {
     setGoogleLoad(true); setMessage(null);
     try {
       const redirectTo = Platform.OS === 'web'
-        ? window.location.origin
+        ? window.location.origin + window.location.pathname.replace(/\/$/, '')
         : 'statusvault://auth/callback';
 
       const { error } = await supabase.auth.signInWithOAuth({

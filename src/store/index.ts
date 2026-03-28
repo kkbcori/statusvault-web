@@ -371,6 +371,31 @@ export const useStore = create<AppStore>()(
       },
 
       initAuth: async () => {
+        // Listen for ALL auth changes — covers OAuth redirects, sign in, sign out
+        supabase.auth.onAuthStateChange(async (event, session) => {
+          if (session?.user) {
+            set({
+              authUser: {
+                id: session.user.id,
+                email: session.user.email!,
+                createdAt: session.user.created_at,
+              },
+            });
+            // On OAuth callback, redirect to clean URL (remove the token hash)
+            if (
+              event === 'SIGNED_IN' &&
+              typeof window !== 'undefined' &&
+              window.location.hash.includes('access_token')
+            ) {
+              window.history.replaceState(null, '', window.location.pathname);
+            }
+            await get().syncFromCloud();
+          } else if (event === 'SIGNED_OUT') {
+            set({ authUser: null, lastSyncedAt: null, syncError: null });
+          }
+        });
+
+        // Also check existing session on startup (for page refresh)
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           set({
@@ -380,7 +405,6 @@ export const useStore = create<AppStore>()(
               createdAt: session.user.created_at,
             },
           });
-          // Pull latest from cloud on app open
           await get().syncFromCloud();
         }
       },
