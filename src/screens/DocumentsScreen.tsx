@@ -235,13 +235,17 @@ export const DocumentsScreen: React.FC = () => {
               />
             )}
 
-            {addStep === 'date' && selectedTemplate && (
+            {(addStep === 'date' && selectedTemplate) || (editingDoc && addStep === 'date') ? (
               <ScrollView style={styles.dateStep} showsVerticalScrollIndicator={false}>
                 <View style={styles.selectedSummary}>
-                  <Text style={styles.selectedIcon}>{selectedTemplate.icon}</Text>
+                  <Text style={styles.selectedIcon}>{selectedTemplate?.icon ?? editingDoc?.icon ?? '📄'}</Text>
                   <View>
-                    <Text style={styles.selectedLabel}>{selectedTemplate.label}</Text>
-                    <Text style={styles.selectedDesc}>Alerts at: {selectedTemplate.alertDays.map((d) => `${d}d`).join(', ')}</Text>
+                    <Text style={styles.selectedLabel}>{selectedTemplate?.label ?? editingDoc?.label ?? 'Document'}</Text>
+                    <Text style={styles.selectedDesc}>
+                      {selectedTemplate
+                        ? `Alerts at: ${selectedTemplate.alertDays.map((d) => `${d}d`).join(', ')}`
+                        : editingDoc ? `Expires ${editingDoc.expiryDate}` : ''}
+                    </Text>
                   </View>
                 </View>
                 <Text style={styles.fieldLabel}>Expiry Date</Text>
@@ -295,7 +299,7 @@ export const DocumentsScreen: React.FC = () => {
                   </LinearGradient>
                 </TouchableOpacity>
               </ScrollView>
-            )}
+            ) : null}
           </View>
         </View>
       </Modal>
