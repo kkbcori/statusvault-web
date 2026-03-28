@@ -59,7 +59,9 @@ export const AuthScreen: React.FC = () => {
     setGoogleLoad(true); setMessage(null);
     try {
       const redirectTo = Platform.OS === 'web'
-        ? window.location.origin + window.location.pathname.replace(/\/$/, '')
+        ? (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+            ? window.location.origin
+            : 'https://kkbcori.github.io/statusvault-web')
         : 'statusvault://auth/callback';
 
       const { error } = await supabase.auth.signInWithOAuth({
