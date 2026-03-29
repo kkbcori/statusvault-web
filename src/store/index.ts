@@ -70,6 +70,7 @@ interface AppStore {
   removeDocument: (id: string) => Promise<void>;
   updateDocument: (id: string, updates: Partial<UserDocument>) => Promise<void>;
   canAddDocument: () => boolean;
+  forceAddDocument: (doc: UserDocument) => void; // bypasses free limit — for profile setup
   getRemainingFreeSlots: () => number;
   setPremium: (v: boolean) => void;
 
@@ -159,7 +160,11 @@ export const useStore = create<AppStore>()(
       verifyPin: (pin) => get().pinCode === pin,
 
       // ─── Paywall ───────────────────────────────────────────
-      canAddDocument: () => {
+      forceAddDocument: (doc) => {
+        // Bypasses free limit — used by profile setup wizard
+        set((s) => ({ documents: [...s.documents, doc] }));
+        scheduleSync();
+      },
         const { documents, isPremium } = get();
         return isPremium || documents.length < FREE_DOCUMENT_LIMIT;
       },

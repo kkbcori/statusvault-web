@@ -190,27 +190,33 @@ export const DashboardScreen: React.FC = () => {
 
   const handleSaveProfile = async () => {
     setSavingProfile(true);
-    const oneYearFromNow = new Date();
-    oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
-    const defaultExpiry = oneYearFromNow.toISOString().split('T')[0];
-    for (const docId of selectedDocIds) {
-      const template = DOCUMENT_TEMPLATES.find((t) => t.id === docId);
-      if (!template) continue;
-      // Skip if already tracked
-      if (documents.some((d) => d.templateId === docId)) continue;
-      const doc: UserDocument = {
-        id: Date.now().toString() + Math.random().toString(36).slice(2),
-        templateId: template.id, label: template.label,
-        category: template.category, expiryDate: defaultExpiry,
-        alertDays: template.alertDays, icon: template.icon,
-        notes: '⚠️ Update with real expiry date',
-        notificationIds: [], createdAt: new Date().toISOString(),
-      };
-      await addDocument(doc);
+    try {
+      const oneYearFromNow = new Date();
+      oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+      const defaultExpiry = oneYearFromNow.toISOString().split('T')[0];
+      for (const docId of selectedDocIds) {
+        const template = DOCUMENT_TEMPLATES.find((t) => t.id === docId);
+        if (!template) continue;
+        if (documents.some((d) => d.templateId === docId)) continue;
+        const doc: UserDocument = {
+          id: Date.now().toString() + Math.random().toString(36).slice(2),
+          templateId: template.id, label: template.label,
+          category: template.category, expiryDate: defaultExpiry,
+          alertDays: template.alertDays, icon: template.icon,
+          notes: '⚠️ Update with real expiry date',
+          notificationIds: [], createdAt: new Date().toISOString(),
+        };
+        // forceAddDocument bypasses free limit — profile setup is a guided flow
+        useStore.getState().forceAddDocument(doc);
+      }
+      setVisaProfile(selectedVisa);
+    } catch {}
+    finally {
+      setSavingProfile(false);
+      setShowProfileSetup(false);
+      setProfileStep('select');
+      setSelectedVisa('');
     }
-    setVisaProfile(selectedVisa);
-    setShowProfileSetup(false);
-    setProfileStep('select');
   };
 
   const toggleDocId = (id: string) =>
