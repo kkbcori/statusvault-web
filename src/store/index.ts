@@ -43,6 +43,7 @@ export interface ImmiCounter {
 // ─── State ───────────────────────────────────────────────────
 interface AppStore {
   hasOnboarded: boolean;
+  visaProfile: string | null;  // e.g. 'f1-opt', 'h1b', etc
   documents: UserDocument[];
   checklists: ChecklistInstance[];
   counters: ImmiCounter[];
@@ -111,6 +112,7 @@ interface AppStore {
   // Settings
   setNotificationsEnabled: (v: boolean) => void;
   setOnboarded: () => void;
+  setVisaProfile: (profile: string) => void;
   resetAllData: () => void;
   exportData: () => string;
   importData: (json: string) => boolean;
@@ -134,6 +136,7 @@ export const useStore = create<AppStore>()(
   persist(
     (set, get) => ({
       hasOnboarded: false,
+      visaProfile: null,
       documents: [],
       checklists: [],
       counters: [],
@@ -451,8 +454,8 @@ export const useStore = create<AppStore>()(
         set({ isSyncing: true, syncError: null });
         try {
           const key  = deriveKey(user.id, email);
-          const { familyMembers } = get();
-          const blob = { documents, checklists, counters, trips, familyMembers, isPremium, syncedAt: new Date().toISOString() };
+          const { familyMembers, visaProfile } = get();
+          const blob = { documents, checklists, counters, trips, familyMembers, visaProfile, isPremium, syncedAt: new Date().toISOString() };
           const data_encrypted = encryptData(blob, key);
           const { error } = await supabase
             .from('user_data')
@@ -494,6 +497,7 @@ export const useStore = create<AppStore>()(
             counters:   decoded.counters   ?? get().counters,
             trips:      decoded.trips      ?? get().trips,
             familyMembers: decoded.familyMembers ?? get().familyMembers,
+            visaProfile: decoded.visaProfile ?? get().visaProfile,
             isPremium:  decoded.isPremium  ?? get().isPremium,
             lastSyncedAt: data.updated_at,
             isSyncing: false,
@@ -506,8 +510,10 @@ export const useStore = create<AppStore>()(
       // ─── Settings ──────────────────────────────────────────
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
       setOnboarded: () => set({ hasOnboarded: true }),
+      setVisaProfile: (profile) => set({ visaProfile: profile }),
+
       resetAllData: () => set({
-        hasOnboarded: false, documents: [], checklists: [], counters: [], trips: [],
+        hasOnboarded: false, visaProfile: null, documents: [], checklists: [], counters: [], trips: [],
         notificationsEnabled: true, isPremium: false, pinEnabled: false, pinCode: null, familyMembers: [],
       }),
       exportData: () => {

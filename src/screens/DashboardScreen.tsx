@@ -20,6 +20,8 @@ import { CHECKLIST_TEMPLATES } from '../utils/checklists';
 import { COUNTER_TEMPLATES } from '../utils/counters';
 import { StatusCard, SeveritySummary, TimelineItem, ProgressBar } from '../components';
 import { IS_WEB, useIsWide } from '../utils/responsive';
+import { DOCUMENT_TEMPLATES } from '../utils/templates';
+import { UserDocument } from '../types';
 import { useDialog } from '../components/ConfirmDialog';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -114,10 +116,18 @@ export const DashboardScreen: React.FC = () => {
   const setCounterTracking    = useStore((s) => s.setCounterTracking);
   const autoIncrementCounters = useStore((s) => s.autoIncrementCounters);
   const getRemainingFreeSlots = useStore((s) => s.getRemainingFreeSlots);
+  const visaProfile           = useStore((s) => s.visaProfile);
+  const setVisaProfile        = useStore((s) => s.setVisaProfile);
+  const addDocument           = useStore((s) => s.addDocument);
   const navigation            = useNavigation<any>();
   const isWide                = useIsWide();
   const dialog                = useDialog();
 
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [profileStep,      setProfileStep]      = useState<'select' | 'docs'>('select');
+  const [selectedVisa,     setSelectedVisa]     = useState('');
+  const [selectedDocIds,   setSelectedDocIds]   = useState<string[]>([]);
+  const [savingProfile,    setSavingProfile]    = useState(false);
   const [showAddChecklist,  setShowAddChecklist]  = useState(false);
   const [showAddCounter,    setShowAddCounter]    = useState(false);
   const [showCustomCounter, setShowCustomCounter] = useState(false);
@@ -161,7 +171,52 @@ export const DashboardScreen: React.FC = () => {
   const getCounterColor = (c: { daysUsed: number; warnAt: number; critAt: number }) =>
     c.daysUsed >= c.critAt ? colors.danger : c.daysUsed >= c.warnAt ? colors.warning : colors.success;
 
-  return (
+  const VISA_PROFILES = [
+    { id: 'f1-opt',     icon: '🎓', label: 'F-1 Student / OPT',   docs: ['f1-visa','i20','sevis','passport','opt-ead'] },
+    { id: 'f1-stem',    icon: '🔬', label: 'F-1 STEM OPT',        docs: ['f1-visa','i20','sevis','passport','stem-opt'] },
+    { id: 'h1b',        icon: '💼', label: 'H-1B Worker',          docs: ['h1b-visa','h1b-approval','passport','i94'] },
+    { id: 'h4',         icon: '👨‍👩‍👧', label: 'H-4 Dependent',        docs: ['h4-visa','h4-ead','passport','i94'] },
+    { id: 'green-card', icon: '🏛️', label: 'Green Card Holder',    docs: ['green-card','passport','i94'] },
+    { id: 'l1',         icon: '🌐', label: 'L-1 / L-2',            docs: ['l1-visa','l2-ead','passport','i94'] },
+    { id: 'j1',         icon: '🔄', label: 'J-1 Exchange Visitor', docs: ['j1-visa','ds2019','passport','i94'] },
+    { id: 'b1b2',       icon: '✈️', label: 'B-1/B-2 Visitor',      docs: ['b1b2-visa','passport','i94'] },
+  ];
+
+  const handleVisaSelect = (profileId: string, docs: string[]) => {
+    setSelectedVisa(profileId);
+    setSelectedDocIds(docs);
+    setProfileStep('docs');
+  };
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    const oneYearFromNow = new Date();
+    oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+    const defaultExpiry = oneYearFromNow.toISOString().split('T')[0];
+    for (const docId of selectedDocIds) {
+      const template = DOCUMENT_TEMPLATES.find((t) => t.id === docId);
+      if (!template) continue;
+      // Skip if already tracked
+      if (documents.some((d) => d.templateId === docId)) continue;
+      const doc: UserDocument = {
+        id: Date.now().toString() + Math.random().toString(36).slice(2),
+        templateId: template.id, label: template.label,
+        category: template.category, expiryDate: defaultExpiry,
+        alertDays: template.alertDays, icon: template.icon,
+        notes: '⚠️ Update with real expiry date',
+        notificationIds: [], createdAt: new Date().toISOString(),
+      };
+      await addDocument(doc);
+    }
+    setVisaProfile(selectedVisa);
+    setShowProfileSetup(false);
+    setProfileStep('select');
+  };
+
+  const toggleDocId = (id: string) =>
+    setSelectedDocIds((prev) => prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]);
+
+    return (
     <ScrollView
       style={[styles.container, IS_WEB && styles.containerWeb]}
       contentContainerStyle={[styles.content, IS_WEB && styles.contentWeb]}
@@ -198,6 +253,62 @@ export const DashboardScreen: React.FC = () => {
 
       <StatusCard deadline={mostCritical} totalDocs={documents.length} deadlines={deadlines} />
       <SeveritySummary deadlines={deadlines} />
+
+      {/* ─── Profile Setup CTA ─────────────────────────────── */}
+      {!visaProfile && (
+        <TouchableOpacity
+          style={styles.profileCTA}
+          onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
+          activeOpacity={0.85}
+        >
+          <LinearGradient
+            colors={[colors.primary, colors.primaryMid]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            style={styles.profileCTAGrad}
+          >
+            <View style={styles.profileCTALeft}>
+              <View style={styles.profileCTAIcon}>
+                <Ionicons name="person-circle-outline" size={26} color="rgba(255,255,255,0.9)" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.profileCTATitle}>Set up your visa profile</Text>
+                <Text style={styles.profileCTASub}>Tell us your visa status → we'll add the right documents automatically</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.6)" />
+          </LinearGradient>
+        </TouchableOpacity>
+      )}
+
+      {/* Profile badge when set */}
+      {visaProfile && (
+        <TouchableOpacity
+          style={styles.profileBadge}
+          onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
+          activeOpacity={0.8}
+        >
+          {(() => {
+            const VISA_PROFILES_STATIC = [
+              { id: 'f1-opt','icon':'🎓',label:'F-1 Student / OPT'},
+              { id: 'f1-stem','icon':'🔬',label:'F-1 STEM OPT'},
+              { id: 'h1b','icon':'💼',label:'H-1B Worker'},
+              { id: 'h4','icon':'👨‍👩‍👧',label:'H-4 Dependent'},
+              { id: 'green-card','icon':'🏛️',label:'Green Card Holder'},
+              { id: 'l1','icon':'🌐',label:'L-1 / L-2'},
+              { id: 'j1','icon':'🔄',label:'J-1 Exchange Visitor'},
+              { id: 'b1b2','icon':'✈️',label:'B-1/B-2 Visitor'},
+            ];
+            const profile = VISA_PROFILES_STATIC.find((p) => p.id === visaProfile);
+            return (
+              <>
+                <Text style={styles.profileBadgeIcon}>{profile?.icon ?? '👤'}</Text>
+                <Text style={styles.profileBadgeLabel}>{profile?.label ?? visaProfile}</Text>
+                <Text style={styles.profileBadgeEdit}>Edit profile →</Text>
+              </>
+            );
+          })()}
+        </TouchableOpacity>
+      )}
 
       {/* Free tier bar */}
       {!isPremium && (
@@ -400,6 +511,122 @@ export const DashboardScreen: React.FC = () => {
 
       <View style={{ height: 30 }} />
 
+      {/* ═══ PROFILE SETUP MODAL ═══ */}
+      <Modal visible={showProfileSetup} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalSheet, { maxHeight: IS_WEB ? '80%' as any : '90%', borderRadius: radius.xl }]}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => {
+                if (profileStep === 'docs') setProfileStep('select');
+                else setShowProfileSetup(false);
+              }}>
+                <Text style={styles.modalBack}>{profileStep === 'docs' ? '← Back' : 'Cancel'}</Text>
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>
+                {profileStep === 'select' ? 'Your Visa Status' : 'Confirm Documents'}
+              </Text>
+              <View style={{ width: 60 }} />
+            </View>
+
+            {profileStep === 'select' ? (
+              <FlatList
+                data={VISA_PROFILES}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[styles.templateRow, selectedVisa === item.id && { backgroundColor: colors.accentDim }]}
+                    onPress={() => handleVisaSelect(item.id, item.docs)}
+                    activeOpacity={0.75}
+                  >
+                    <View style={[styles.tIconBox, { backgroundColor: colors.accentDim }]}>
+                      <Text style={{ fontSize: 22 }}>{item.icon}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.tLabel}>{item.label}</Text>
+                      <Text style={styles.tDesc}>{item.docs.length} standard documents</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color={colors.text3} />
+                  </TouchableOpacity>
+                )}
+              />
+            ) : (
+              <FlatList
+                data={[
+                  ...DOCUMENT_TEMPLATES.filter((t) => selectedDocIds.includes(t.id)),
+                  { id: '__add__', label: '+ Add another document', icon: '➕', category: 'other', alertDays: [], description: '' } as any,
+                ]}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                ListHeaderComponent={
+                  <View style={{ padding: spacing.lg, backgroundColor: colors.warningLight, margin: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.warning + '30' }}>
+                    <Text style={{ fontSize: 12, fontFamily: 'Inter_500Medium', color: '#78350F', lineHeight: 18 }}>
+                      ✅ These documents will be added with a 1-year placeholder date.{'
+'}
+                      Go to Documents tab to update each with your real expiry date.
+                    </Text>
+                  </View>
+                }
+                ListFooterComponent={
+                  <View style={{ padding: spacing.screen }}>
+                    <TouchableOpacity
+                      style={[styles.saveBtn, savingProfile && { opacity: 0.6 }]}
+                      onPress={handleSaveProfile}
+                      disabled={savingProfile}
+                    >
+                      <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
+                        <Text style={{ fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' }}>
+                          {savingProfile ? 'Setting up...' : 'Save Profile & Add Documents'}
+                        </Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </View>
+                }
+                renderItem={({ item }) => {
+                  if (item.id === '__add__') {
+                    return (
+                      <TouchableOpacity
+                        style={[styles.templateRow, { borderStyle: 'dashed' }]}
+                        onPress={() => { setShowProfileSetup(false); navigation.navigate('Main', { screen: 'Documents' }); }}
+                        activeOpacity={0.75}
+                      >
+                        <View style={[styles.tIconBox, { backgroundColor: colors.background }]}>
+                          <Ionicons name="add" size={22} color={colors.accent} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.tLabel, { color: colors.accent }]}>Add another document</Text>
+                          <Text style={styles.tDesc}>Open Documents tab to add more</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  }
+                  const isSelected = selectedDocIds.includes(item.id);
+                  const alreadyAdded = documents.some((d) => d.templateId === item.id);
+                  return (
+                    <TouchableOpacity
+                      style={[styles.templateRow, !isSelected && { opacity: 0.45 }]}
+                      onPress={() => toggleDocId(item.id)}
+                      activeOpacity={0.75}
+                    >
+                      <View style={styles.tIconBox}>
+                        <Text style={{ fontSize: 22 }}>{item.icon}</Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.tLabel}>{item.label}</Text>
+                        <Text style={styles.tDesc}>{alreadyAdded ? '✓ Already tracked' : `Alerts: ${item.alertDays?.map((d: number) => d + 'd').join(', ')}`}</Text>
+                      </View>
+                      <View style={[styles.checkbox2, isSelected && styles.checkbox2Active]}>
+                        {isSelected && <Ionicons name="checkmark" size={13} color="#fff" />}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
+
       {/* ═══ ADD COUNTER MODAL ═══ */}
       <Modal visible={showAddCounter} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
@@ -568,6 +795,22 @@ const styles = StyleSheet.create({
   customAddBtn:    { backgroundColor: colors.accent, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
   addCustomText:   { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: colors.accent },
   disclaimer:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 10, fontStyle: 'italic', lineHeight: 16 },
+
+  // Profile setup
+  profileCTA:      { marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: spacing.md, borderRadius: radius.xl, overflow: 'hidden', ...shadows.md },
+  profileCTAGrad:  { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, gap: 12 },
+  profileCTALeft:  { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  profileCTAIcon:  { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
+  profileCTATitle: { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff', marginBottom: 3 },
+  profileCTASub:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.6)', lineHeight: 16 },
+  profileBadge:    { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: spacing.sm, backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: colors.borderLight },
+  profileBadgeIcon:{ fontSize: 18 },
+  profileBadgeLabel:{ flex: 1, fontSize: 13, fontFamily: 'Inter_600SemiBold', color: colors.text1 },
+  profileBadgeEdit: { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.accent },
+  checkbox2:       { width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  checkbox2Active: { backgroundColor: colors.accent, borderColor: colors.accent },
+  saveBtn:         { borderRadius: radius.lg, overflow: 'hidden' },
+  saveBtnGrad:     { paddingVertical: 15, alignItems: 'center' },
 
   // Modals
   modalOverlay:    { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
