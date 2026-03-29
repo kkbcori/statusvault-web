@@ -561,9 +561,7 @@ export const DashboardScreen: React.FC = () => {
                 ListHeaderComponent={
                   <View style={{ padding: spacing.lg, backgroundColor: colors.warningLight, margin: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.warning + '30' }}>
                     <Text style={{ fontSize: 12, fontFamily: 'Inter_500Medium', color: '#78350F', lineHeight: 18 }}>
-                      ✅ These documents will be added with a 1-year placeholder date.{'
-'}
-                      Go to Documents tab to update each with your real expiry date.
+                      {'✅ These documents will be added with a 1-year placeholder date.\nGo to Documents tab to update each with your real expiry date.'}
                     </Text>
                   </View>
                 }
