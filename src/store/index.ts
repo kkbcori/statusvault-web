@@ -420,16 +420,20 @@ export const useStore = create<AppStore>()(
 
       // ─── Sync ──────────────────────────────────────────────
       syncToCloud: async () => {
-        const { authUser, documents, checklists, counters, trips, isPremium } = get();
-        if (!authUser) return;
+        // Use getSession() — reads from local storage, no network call needed
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
+        if (!user) return;
+        const { authUser: storeAuth, documents, checklists, counters, trips, isPremium } = get();
+        const email = storeAuth?.email ?? user.email ?? '';
         set({ isSyncing: true, syncError: null });
         try {
-          const key  = deriveKey(authUser.id, authUser.email);
+          const key  = deriveKey(user.id, email);
           const blob = { documents, checklists, counters, trips, isPremium, syncedAt: new Date().toISOString() };
           const data_encrypted = encryptData(blob, key);
           const { error } = await supabase
             .from('user_data')
-            .upsert({ user_id: authUser.id, data_encrypted }, { onConflict: 'user_id' });
+            .upsert({ user_id: user.id, data_encrypted }, { onConflict: 'user_id' });
           if (error) throw new Error(error.message);
           set({ lastSyncedAt: new Date().toISOString(), isSyncing: false });
         } catch (e: any) {
@@ -438,22 +442,26 @@ export const useStore = create<AppStore>()(
       },
 
       syncFromCloud: async () => {
-        const { authUser } = get();
-        if (!authUser) return;
+        // Use getSession() — reads from local storage, no network call needed
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
+        if (!user) return;
+        const { authUser: storeAuth } = get();
+        const email = storeAuth?.email ?? user.email ?? '';
         set({ isSyncing: true, syncError: null });
         try {
           const { data, error } = await supabase
             .from('user_data')
             .select('data_encrypted, updated_at')
-            .eq('user_id', authUser.id)
+            .eq('user_id', user.id)
             .single();
-          if (error && error.code !== 'PGRST116') throw new Error(error.message); // PGRST116 = no rows
+          if (error && error.code !== 'PGRST116') throw new Error(error.message);
           if (!data) {
             // No cloud data yet — upload local data
             await get().syncToCloud();
             return;
           }
-          const key     = deriveKey(authUser.id, authUser.email);
+          const key     = deriveKey(user.id, email);
           const decoded = decryptData(data.data_encrypted, key) as any;
           if (!decoded) throw new Error('Decryption failed — wrong account?');
           // Cloud wins: merge by taking cloud data as source of truth
