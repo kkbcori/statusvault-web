@@ -189,15 +189,40 @@ export const DashboardScreen: React.FC = () => {
   };
 
   const handleSaveProfile = async () => {
+    // Check free limit — if not premium and trying to add > FREE_LIMIT docs, show paywall
+    const currentDocs = useStore.getState().documents;
+    const newDocs = selectedDocIds.filter((id) => !currentDocs.some((d) => d.templateId === id));
+    const totalAfter = currentDocs.length + newDocs.length;
+
+    if (!isPremium && totalAfter > FREE_LIMIT) {
+      // Show upgrade prompt
+      setShowProfileSetup(false);
+      setTimeout(() => {
+        dialog.confirm({
+          title: 'Free Plan Limit',
+          message: `You selected ${selectedDocIds.length} documents but the free plan allows ${FREE_LIMIT} total. Upgrade to Premium to track unlimited documents, or select only ${FREE_LIMIT - currentDocs.length} document${FREE_LIMIT - currentDocs.length !== 1 ? 's' : ''}.`,
+          type: 'confirm',
+          confirmLabel: 'Upgrade to Premium',
+          cancelLabel: 'Go Back',
+          onConfirm: () => navigation.navigate('Main', { screen: 'Documents', params: { openPaywall: true } }),
+          onCancel: () => setShowProfileSetup(true),
+        });
+      }, 300);
+      return;
+    }
+
     setSavingProfile(true);
     try {
       const oneYearFromNow = new Date();
       oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
       const defaultExpiry = oneYearFromNow.toISOString().split('T')[0];
+
       for (const docId of selectedDocIds) {
         const template = DOCUMENT_TEMPLATES.find((t) => t.id === docId);
         if (!template) continue;
-        if (documents.some((d) => d.templateId === docId)) continue;
+        // Always read fresh from store — closure docs go stale mid-loop
+        const freshDocs = useStore.getState().documents;
+        if (freshDocs.some((d) => d.templateId === docId)) continue;
         const doc: UserDocument = {
           id: Date.now().toString() + Math.random().toString(36).slice(2),
           templateId: template.id, label: template.label,
@@ -206,7 +231,6 @@ export const DashboardScreen: React.FC = () => {
           notes: '⚠️ Update with real expiry date',
           notificationIds: [], createdAt: new Date().toISOString(),
         };
-        // forceAddDocument bypasses free limit — profile setup is a guided flow
         useStore.getState().forceAddDocument(doc);
       }
       setVisaProfile(selectedVisa);
@@ -566,9 +590,22 @@ export const DashboardScreen: React.FC = () => {
                 showsVerticalScrollIndicator={false}
                 ListHeaderComponent={
                   <View style={{ padding: spacing.lg, backgroundColor: colors.warningLight, margin: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.warning + '30' }}>
-                    <Text style={{ fontSize: 12, fontFamily: 'Inter_500Medium', color: '#78350F', lineHeight: 18 }}>
-                      {'✅ These documents will be added with a 1-year placeholder date.\nGo to Documents tab to update each with your real expiry date.'}
+                    <Text style={{ fontSize: 12, fontFamily: 'Inter_700Bold', color: '#78350F', lineHeight: 18, marginBottom: 4 }}>
+                      {'✅ Documents will be added with a 1-year placeholder date.'}
                     </Text>
+                    <Text style={{ fontSize: 12, fontFamily: 'Inter_500Medium', color: '#78350F', lineHeight: 18 }}>
+                      {'Go to Documents tab to set the real expiry dates.'}
+                    </Text>
+                    {!isPremium && (
+                      <View style={{ marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: colors.warning + '40' }}>
+                        <Text style={{ fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#B45309' }}>
+                          {`Free plan: ${FREE_LIMIT} documents max. You have ${documents.length} tracked.`}
+                          {selectedDocIds.filter((id) => !documents.some((d) => d.templateId === id)).length + documents.length > FREE_LIMIT
+                            ? ` Select max ${Math.max(0, FREE_LIMIT - documents.length)} more or upgrade.`
+                            : ` ${Math.max(0, FREE_LIMIT - documents.length - selectedDocIds.filter((id) => !documents.some((d) => d.templateId === id)).length)} slot(s) remaining.`}
+                        </Text>
+                      </View>
+                    )}
                   </View>
                 }
                 ListFooterComponent={

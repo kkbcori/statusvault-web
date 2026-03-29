@@ -165,6 +165,7 @@ export const useStore = create<AppStore>()(
         set((s) => ({ documents: [...s.documents, doc] }));
         scheduleSync();
       },
+      canAddDocument: () => {
         const { documents, isPremium } = get();
         return isPremium || documents.length < FREE_DOCUMENT_LIMIT;
       },
