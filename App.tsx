@@ -30,9 +30,14 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
   // Viewport CSS
   const s = document.createElement('style');
   s.textContent = `
-    html,body{width:100%!important;height:100%!important;margin:0!important;padding:0!important;overflow:hidden!important;background:${colors.background}!important}
-    #root{width:100vw!important;height:100vh!important;display:flex!important;flex-direction:row!important;overflow:hidden!important}
-    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#F0F2F7}::-webkit-scrollbar-thumb{background:#D1D5DB;border-radius:3px}
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:${colors.background}}
+    #root{width:100vw;height:100vh;display:flex;flex-direction:row;overflow:hidden}
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-track{background:#F0F2F7}
+    ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+    ::-webkit-scrollbar-thumb:hover{background:#94A3B8}
+    *{scrollbar-width:thin;scrollbar-color:#CBD5E1 #F0F2F7}
   `;
   document.head.appendChild(s);
 

@@ -118,8 +118,20 @@ export type MainTabParamList = {
   Dashboard: undefined;
   Documents: undefined;
   Travel: undefined;
+  Processing: undefined;
+  Scanner: undefined;
   Settings: undefined;
+  Help: undefined;
 };
+
+export interface FamilyMember {
+  id: string;
+  name: string;
+  relation: string; // spouse, child, parent, self
+  visaType: string;
+  documentIds: string[]; // references to UserDocument ids
+  createdAt: string;
+}
 
 /** Authenticated user profile */
 export interface AuthUser {

@@ -17,7 +17,9 @@ import { OnboardingScreen, DashboardScreen, DocumentsScreen, SettingsScreen } fr
 import { TravelScreen }  from '../screens/TravelScreen';
 import { AuthScreen }    from '../screens/AuthScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
-import { HelpScreen }    from '../screens/HelpScreen';
+import { HelpScreen }       from '../screens/HelpScreen';
+import { ProcessingScreen } from '../screens/ProcessingScreen';
+import { ScannerScreen }    from '../screens/ScannerScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab   = createBottomTabNavigator<MainTabParamList>();
@@ -33,11 +35,14 @@ const TAB_ITEMS: Array<{
   { name: 'Documents', label: 'Documents', active: 'document-text', inactive: 'document-text-outline' },
   { name: 'Travel',    label: 'Travel',    active: 'airplane',      inactive: 'airplane-outline' },
   { name: 'Settings',  label: 'Settings',  active: 'settings',      inactive: 'settings-outline' },
-  { name: 'Help',      label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
+  { name: 'Processing', label: 'USCIS',     active: 'time',          inactive: 'time-outline' },
+  { name: 'Scanner',    label: 'Scan',      active: 'scan',          inactive: 'scan-outline' },
+  { name: 'Help',       label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
 ];
 
 const NAV_GROUPS = [
   { label: 'MAIN', items: ['Dashboard', 'Documents', 'Travel'] },
+  { label: 'TOOLS',   items: ['Processing', 'Scanner'] },
   { label: 'ACCOUNT', items: ['Settings', 'Help'] },
 ];
 
