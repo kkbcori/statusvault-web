@@ -387,6 +387,7 @@ export const DocumentsScreen: React.FC = () => {
             <Text style={styles.paywallLegal}>Cancel anytime · Secure payment via App Store</Text>
           </ScrollView>
         </LinearGradient>
+        </View>
       </Modal>
     </View>
   );
