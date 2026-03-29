@@ -34,9 +34,18 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     html{width:100%;height:100%;margin:0;padding:0;background:${colors.background}}
     body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:${colors.background}}
     #root{width:100vw;height:100vh;display:flex;flex-direction:row;overflow:hidden}
-    /* Allow scroll containers inside React Native Web to scroll */
-    [data-focusable]{outline:none}
-    div[style*="overflow"]{-webkit-overflow-scrolling:touch}
+    /* React Native Web ScrollView — allow inner scroll */
+    #root [style*="overflow-y: scroll"],
+    #root [style*="overflow: scroll"],
+    #root [style*="overflowY: scroll"],
+    #root div[style*="overflow-y"],
+    #root div[style*="overflow: auto"] {
+      -webkit-overflow-scrolling: touch !important;
+    }
+    /* Tab content area must scroll */
+    #root > div > div > div > div > div > div {
+      overflow-y: auto;
+    }
     ::-webkit-scrollbar{width:5px;height:5px}
     ::-webkit-scrollbar-track{background:transparent}
     ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}

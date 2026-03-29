@@ -237,7 +237,7 @@ export const ProcessingScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container:      { flex: 1, backgroundColor: colors.background },
+  container:      { flex: 1, backgroundColor: colors.background, overflowY: IS_WEB ? 'auto' as any : undefined },
   content:        { paddingBottom: 40 },
   contentWeb:     { paddingHorizontal: 28, paddingTop: 8 },
   header:         { backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border, padding: spacing.xl, paddingTop: spacing.xxl + 16 },

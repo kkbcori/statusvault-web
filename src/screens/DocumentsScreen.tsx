@@ -305,27 +305,21 @@ export const DocumentsScreen: React.FC = () => {
         </View>
       </Modal>
 
-      {/* ═══ PAYWALL — FULL-SCREEN DARK EXPERIENCE ═══ */}
+      {/* ═══ PAYWALL — CENTERED DIALOG ═══ */}
       <Modal visible={showPaywall} animationType="fade" transparent>
-        <LinearGradient
-          colors={['#060E1A', '#0A1628', '#0F2040']}
-          style={styles.paywallFull}
-        >
-          {/* Passport-style decorative lines */}
-          {[...Array(6)].map((_, i) => (
-            <View key={i} style={{
-              position: 'absolute', top: 80 + i * 120, left: 0, right: 0,
-              height: 1, backgroundColor: colors.accent, opacity: 0.04,
-            }} />
-          ))}
-          {/* Corner stamp accents */}
-          <View style={styles.paywallCornerTL} />
-          <View style={styles.paywallCornerBR} />
-
+        <View style={styles.paywallOverlay}>
+          <LinearGradient
+            colors={['#060E1A', '#0A1628', '#0F2040']}
+            style={styles.paywallCard}
+          >
           {/* Gold top trim */}
           <View style={styles.paywallTopTrim} />
 
-          <ScrollView contentContainerStyle={styles.paywallScroll} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.paywallScroll}
+            showsVerticalScrollIndicator={false}
+          >
             {/* Close */}
             <TouchableOpacity style={styles.paywallCloseBtn} onPress={() => setShowPaywall(false)}>
               <View style={styles.paywallCloseCircle}>
@@ -456,7 +450,9 @@ const styles = StyleSheet.create({
   saveBtnGrad:        { paddingVertical: 16, alignItems: 'center', borderRadius: radius.md },
   saveBtnText:        { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
 
-  // ─── Paywall — full-screen dark ─────────────────────────────
+  // ─── Paywall — centered card ────────────────────────────────
+  paywallOverlay:      { flex: 1, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'center', alignItems: 'center', padding: IS_WEB ? 24 : 0 },
+  paywallCard:         { width: IS_WEB ? '100%' as any : '100%', maxWidth: IS_WEB ? 520 : undefined, maxHeight: IS_WEB ? '88vh' as any : '100%', height: IS_WEB ? undefined : '100%', borderRadius: IS_WEB ? radius.xxl : 0, overflow: 'hidden', flexShrink: 1 } as any,
   paywallFull:         { flex: 1 },
   paywallTopTrim:      { position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: colors.accent, opacity: 0.8 },
   paywallCornerTL:     { position: 'absolute', top: 40, left: 24, width: 28, height: 28, borderTopWidth: 2, borderLeftWidth: 2, borderColor: 'rgba(0,153,168,0.2)', borderTopLeftRadius: 4 },
