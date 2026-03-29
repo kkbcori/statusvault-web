@@ -43,8 +43,8 @@ const TAB_ITEMS: Array<{
 ];
 
 const NAV_GROUPS = [
-  { label: 'MAIN', items: ['Dashboard', 'Documents', 'Travel'] },
-  { label: 'TOOLS',   items: ['Family', 'Processing', 'Scanner'] },
+  { label: 'MAIN', items: ['Dashboard', 'Documents', 'Travel', 'Family'] },
+  { label: 'TOOLS',   items: ['Processing', 'Scanner'] },
   { label: 'ACCOUNT', items: ['Settings', 'Help'] },
 ];
 
@@ -288,6 +288,7 @@ const MainTabs: React.FC = () => (
                 item.name === 'Dashboard'  ? DashboardScreen  :
                 item.name === 'Documents'  ? DocumentsScreen  :
                 item.name === 'Travel'     ? TravelScreen     :
+                item.name === 'Family'     ? FamilyScreen     :
                 item.name === 'Processing' ? ProcessingScreen :
                 item.name === 'Scanner'    ? ScannerScreen    :
                 item.name === 'Help'       ? HelpScreen       : SettingsScreen
