@@ -47,6 +47,7 @@ interface AppStore {
   checklists: ChecklistInstance[];
   counters: ImmiCounter[];
   trips: TravelTrip[];
+  familyMembers: FamilyMember[];
   notificationsEnabled: boolean;
   isPremium: boolean;
 
@@ -92,6 +93,9 @@ interface AppStore {
   // Travel / I-94
   addTrip: (trip: TravelTrip) => void;
   removeTrip: (id: string) => void;
+  addFamilyMember: (member: FamilyMember) => void;
+  removeFamilyMember: (id: string) => void;
+  updateFamilyMember: (id: string, updates: Partial<FamilyMember>) => void;
   updateTrip: (id: string, updates: Partial<TravelTrip>) => void;
 
   // Auth actions
@@ -134,6 +138,7 @@ export const useStore = create<AppStore>()(
       checklists: [],
       counters: [],
       trips: [],
+      familyMembers: [],
       notificationsEnabled: true,
       isPremium: false,
 
@@ -316,6 +321,23 @@ export const useStore = create<AppStore>()(
         set((s) => ({ trips: [...s.trips, trip] }));
         scheduleSync();
       },
+      addFamilyMember: (member) => {
+        set((s) => ({ familyMembers: [...s.familyMembers, member] }));
+        scheduleSync();
+      },
+
+      removeFamilyMember: (id) => {
+        set((s) => ({ familyMembers: s.familyMembers.filter((m) => m.id !== id) }));
+        scheduleSync();
+      },
+
+      updateFamilyMember: (id, updates) => {
+        set((s) => ({
+          familyMembers: s.familyMembers.map((m) => m.id === id ? { ...m, ...updates } : m),
+        }));
+        scheduleSync();
+      },
+
       removeTrip: (id) => {
         set((s) => ({ trips: s.trips.filter((t) => t.id !== id) }));
         scheduleSync();
@@ -429,7 +451,8 @@ export const useStore = create<AppStore>()(
         set({ isSyncing: true, syncError: null });
         try {
           const key  = deriveKey(user.id, email);
-          const blob = { documents, checklists, counters, trips, isPremium, syncedAt: new Date().toISOString() };
+          const { familyMembers } = get();
+          const blob = { documents, checklists, counters, trips, familyMembers, isPremium, syncedAt: new Date().toISOString() };
           const data_encrypted = encryptData(blob, key);
           const { error } = await supabase
             .from('user_data')
@@ -470,6 +493,7 @@ export const useStore = create<AppStore>()(
             checklists: decoded.checklists ?? get().checklists,
             counters:   decoded.counters   ?? get().counters,
             trips:      decoded.trips      ?? get().trips,
+            familyMembers: decoded.familyMembers ?? get().familyMembers,
             isPremium:  decoded.isPremium  ?? get().isPremium,
             lastSyncedAt: data.updated_at,
             isSyncing: false,
@@ -484,7 +508,7 @@ export const useStore = create<AppStore>()(
       setOnboarded: () => set({ hasOnboarded: true }),
       resetAllData: () => set({
         hasOnboarded: false, documents: [], checklists: [], counters: [], trips: [],
-        notificationsEnabled: true, isPremium: false, pinEnabled: false, pinCode: null,
+        notificationsEnabled: true, isPremium: false, pinEnabled: false, pinCode: null, familyMembers: [],
       }),
       exportData: () => {
         const { documents, checklists, counters, trips, isPremium } = get();

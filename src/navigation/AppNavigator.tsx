@@ -19,6 +19,7 @@ import { AuthScreen }    from '../screens/AuthScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { HelpScreen }       from '../screens/HelpScreen';
 import { ProcessingScreen } from '../screens/ProcessingScreen';
+import { FamilyScreen }     from '../screens/FamilyScreen';
 import { ScannerScreen }    from '../screens/ScannerScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -35,6 +36,7 @@ const TAB_ITEMS: Array<{
   { name: 'Documents', label: 'Documents', active: 'document-text', inactive: 'document-text-outline' },
   { name: 'Travel',    label: 'Travel',    active: 'airplane',      inactive: 'airplane-outline' },
   { name: 'Settings',  label: 'Settings',  active: 'settings',      inactive: 'settings-outline' },
+  { name: 'Family',     label: 'Family',    active: 'people',        inactive: 'people-outline' },
   { name: 'Processing', label: 'USCIS',     active: 'time',          inactive: 'time-outline' },
   { name: 'Scanner',    label: 'Scan',      active: 'scan',          inactive: 'scan-outline' },
   { name: 'Help',       label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
@@ -42,7 +44,7 @@ const TAB_ITEMS: Array<{
 
 const NAV_GROUPS = [
   { label: 'MAIN', items: ['Dashboard', 'Documents', 'Travel'] },
-  { label: 'TOOLS',   items: ['Processing', 'Scanner'] },
+  { label: 'TOOLS',   items: ['Family', 'Processing', 'Scanner'] },
   { label: 'ACCOUNT', items: ['Settings', 'Help'] },
 ];
 
@@ -283,10 +285,12 @@ const MainTabs: React.FC = () => (
               key={item.name}
               name={item.name}
               component={
-                item.name === 'Dashboard' ? DashboardScreen :
-                item.name === 'Documents' ? DocumentsScreen :
-                item.name === 'Travel'    ? TravelScreen    :
-                item.name === 'Help'      ? HelpScreen      : SettingsScreen
+                item.name === 'Dashboard'  ? DashboardScreen  :
+                item.name === 'Documents'  ? DocumentsScreen  :
+                item.name === 'Travel'     ? TravelScreen     :
+                item.name === 'Processing' ? ProcessingScreen :
+                item.name === 'Scanner'    ? ScannerScreen    :
+                item.name === 'Help'       ? HelpScreen       : SettingsScreen
               }
               options={{ tabBarLabel: item.label }}
             />
