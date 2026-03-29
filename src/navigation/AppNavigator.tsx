@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Platform, View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { Platform, View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
 import { NavigationContainer, useNavigation, useNavigationState } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -105,7 +105,7 @@ const WebSidebar: React.FC = () => {
       </View>
 
       {/* Nav groups */}
-      <View style={sidebarStyles.nav}>
+      <ScrollView style={sidebarStyles.nav} showsVerticalScrollIndicator={false}>
         {NAV_GROUPS.map((group) => (
           <View key={group.label}>
             <Text style={sidebarStyles.groupLabel}>{group.label}</Text>
@@ -133,7 +133,7 @@ const WebSidebar: React.FC = () => {
             })}
           </View>
         ))}
-      </View>
+      </ScrollView>
 
       <View style={{ flex: 1 }} />
 
@@ -337,7 +337,7 @@ const sidebarStyles = StyleSheet.create({
   profileInitial:{ fontSize: 13, fontFamily: 'Inter_700Bold', color: '#fff' },
   profileName:  { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.text1 },
   profilePlan:  { fontSize: 10, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 1 },
-  nav:          { flex: 1, paddingHorizontal: 8, paddingTop: 4 },
+  nav:          { flex: 1, paddingHorizontal: 8, paddingTop: 4, overflowY: 'auto' as any },
   groupLabel:   { fontSize: 9, fontFamily: 'Inter_700Bold', color: colors.text4, letterSpacing: 0.8, paddingLeft: 12, paddingTop: 14, paddingBottom: 4 },
   navItem:      { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.sm, marginBottom: 1 },
   navItemActive:{ backgroundColor: colors.sidebarActive },

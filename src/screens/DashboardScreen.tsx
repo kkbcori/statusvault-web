@@ -514,7 +514,7 @@ export const DashboardScreen: React.FC = () => {
       {/* ═══ PROFILE SETUP MODAL ═══ */}
       <Modal visible={showProfileSetup} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalSheet, { maxHeight: IS_WEB ? '80%' as any : '90%', borderRadius: radius.xl }]}>
+          <View style={[styles.modalSheet, { maxHeight: IS_WEB ? '85%' as any : '90%', borderRadius: radius.xl, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column', overflow: 'hidden' }]}>
             <View style={styles.modalHeader}>
               <TouchableOpacity onPress={() => {
                 if (profileStep === 'docs') setProfileStep('select');
@@ -529,7 +529,7 @@ export const DashboardScreen: React.FC = () => {
             </View>
 
             {profileStep === 'select' ? (
-              <FlatList
+              <FlatList style={{ flex: 1 }}
                 data={VISA_PROFILES}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
@@ -551,7 +551,7 @@ export const DashboardScreen: React.FC = () => {
                 )}
               />
             ) : (
-              <FlatList
+              <FlatList style={{ flex: 1 }}
                 data={[
                   ...DOCUMENT_TEMPLATES.filter((t) => selectedDocIds.includes(t.id)),
                   { id: '__add__', label: '+ Add another document', icon: '➕', category: 'other', alertDays: [], description: '' } as any,
@@ -649,7 +649,7 @@ export const DashboardScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
             ) : (
-              <FlatList
+              <FlatList style={{ flex: 1 }}
                 data={[...COUNTER_TEMPLATES, { id: '__custom__', label: 'Custom Counter', icon: '🔢', maxDays: 0, description: 'Create your own counter', warnAt: 0, critAt: 0 }]}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
@@ -690,7 +690,7 @@ export const DashboardScreen: React.FC = () => {
               <Text style={styles.modalTitle}>Add Checklist</Text>
               <View style={{ width: 60 }} />
             </View>
-            <FlatList
+            <FlatList style={{ flex: 1 }}
               data={CHECKLIST_TEMPLATES} keyExtractor={(i) => i.id} showsVerticalScrollIndicator={false}
               renderItem={({ item }) => {
                 const added = hasChecklist(item.id);
@@ -812,7 +812,7 @@ const styles = StyleSheet.create({
 
   // Modals
   modalOverlay:    { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
-  modalSheet:      { backgroundColor: colors.background, borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '65%' as any : '80%', paddingBottom: 40, width: IS_WEB ? 480 : '100%' as any, borderRadius: IS_WEB ? radius.xl : undefined, ...IS_WEB ? { borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl } : {} } as any,
+  modalSheet:      { backgroundColor: colors.background, borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '80%' as any : '80%', paddingBottom: 40, width: IS_WEB ? 480 : '100%' as any, borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column', overflow: 'hidden' } as any,
   modalHeader:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   modalBack:       { ...typography.bodySemibold, color: colors.accent, fontSize: 14 },
   modalTitle:      { ...typography.h3, color: colors.text1, fontSize: 16 },

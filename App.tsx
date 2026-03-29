@@ -30,14 +30,18 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
   // Viewport CSS
   const s = document.createElement('style');
   s.textContent = `
-    *{box-sizing:border-box}
-    html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:${colors.background}}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{width:100%;height:100%;margin:0;padding:0;background:${colors.background}}
+    body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:${colors.background}}
     #root{width:100vw;height:100vh;display:flex;flex-direction:row;overflow:hidden}
-    ::-webkit-scrollbar{width:6px;height:6px}
-    ::-webkit-scrollbar-track{background:#F0F2F7}
+    /* Allow scroll containers inside React Native Web to scroll */
+    [data-focusable]{outline:none}
+    div[style*="overflow"]{-webkit-overflow-scrolling:touch}
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-track{background:transparent}
     ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
     ::-webkit-scrollbar-thumb:hover{background:#94A3B8}
-    *{scrollbar-width:thin;scrollbar-color:#CBD5E1 #F0F2F7}
+    *{scrollbar-width:thin;scrollbar-color:#CBD5E1 transparent}
   `;
   document.head.appendChild(s);
 

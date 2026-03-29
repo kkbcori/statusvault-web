@@ -201,7 +201,7 @@ export const DocumentsScreen: React.FC = () => {
             </View>
 
             {addStep === 'type' && (
-              <FlatList
+              <FlatList style={{ flex: 1 }}
                 data={Object.entries(templatesByCategory)}
                 keyExtractor={([c]) => c}
                 showsVerticalScrollIndicator={false}
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
 
   // Add modal
   modalOverlay:       { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
-  modalSheet:         { backgroundColor: colors.background, borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '65%' as any : '85%', paddingBottom: 40, width: IS_WEB ? 480 : '100%' as any, borderRadius: IS_WEB ? radius.xl : undefined } as any,
+  modalSheet:         { backgroundColor: colors.background, borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '80%' as any : '85%', paddingBottom: 40, width: IS_WEB ? 480 : '100%' as any, borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column', overflow: 'hidden' } as any,
   modalHeader:        { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   modalBack:          { ...typography.bodySemibold, color: colors.accent, fontSize: 14 },
   modalTitle:         { ...typography.h3, color: colors.text1, fontSize: 16 },
