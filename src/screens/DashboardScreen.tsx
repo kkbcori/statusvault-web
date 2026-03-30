@@ -23,6 +23,7 @@ import { IS_WEB, useIsWide } from '../utils/responsive';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
 import { UserDocument } from '../types';
 import { useDialog } from '../components/ConfirmDialog';
+import { AppIcon } from '../utils/icons';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -63,9 +64,15 @@ interface SectionHeaderProps {
 const SectionHeader: React.FC<SectionHeaderProps> = ({ iconName, title, right }) => (
   <View style={shStyles.row}>
     <View style={shStyles.left}>
-      <View style={shStyles.iconBox}>
-        <Ionicons name={iconName} size={15} color={colors.accent} />
-      </View>
+      <AppIcon
+        name={
+          title.includes('Deadline') ? 'calendar' :
+          title.includes('Counter') ? 'timer' :
+          title.includes('Checklist') ? 'checklist' : undefined as any
+        }
+        size={30}
+        style={{ marginRight: 8 }}
+      />
       <Text style={shStyles.title}>{title}</Text>
     </View>
     {right}
@@ -172,14 +179,14 @@ export const DashboardScreen: React.FC = () => {
     c.daysUsed >= c.critAt ? colors.danger : c.daysUsed >= c.warnAt ? colors.warning : colors.success;
 
   const VISA_PROFILES = [
-    { id: 'f1-opt',     icon: '🎓', label: 'F-1 Student / OPT',   docs: ['f1-visa','i20','sevis','passport','opt-ead'] },
-    { id: 'f1-stem',    icon: '🔬', label: 'F-1 STEM OPT',        docs: ['f1-visa','i20','sevis','passport','stem-opt'] },
-    { id: 'h1b',        icon: '💼', label: 'H-1B Worker',          docs: ['h1b-visa','h1b-approval','passport','i94'] },
-    { id: 'h4',         icon: '👨‍👩‍👧', label: 'H-4 Dependent',        docs: ['h4-visa','h4-ead','passport','i94'] },
-    { id: 'green-card', icon: '🏛️', label: 'Green Card Holder',    docs: ['green-card','passport','i94'] },
-    { id: 'l1',         icon: '🌐', label: 'L-1 / L-2',            docs: ['l1-visa','l2-ead','passport','i94'] },
-    { id: 'j1',         icon: '🔄', label: 'J-1 Exchange Visitor', docs: ['j1-visa','ds2019','passport','i94'] },
-    { id: 'b1b2',       icon: '✈️', label: 'B-1/B-2 Visitor',      docs: ['b1b2-visa','passport','i94'] },
+    { id: 'f1-opt',     icon: 'visa_approved', label: 'F-1 Student / OPT',   docs: ['f1-visa','i20','sevis','passport','opt-ead'] },
+    { id: 'f1-stem',    icon: 'application', label: 'F-1 STEM OPT',        docs: ['f1-visa','i20','sevis','passport','stem-opt'] },
+    { id: 'h1b',        icon: 'visa', label: 'H-1B Worker',          docs: ['h1b-visa','h1b-approval','passport','i94'] },
+    { id: 'h4',         icon: 'visa2', label: 'H-4 Dependent',        docs: ['h4-visa','h4-ead','passport','i94'] },
+    { id: 'green-card', icon: 'passport_card', label: 'Green Card Holder',    docs: ['green-card','passport','i94'] },
+    { id: 'l1',         icon: 'travel_plane', label: 'L-1 / L-2',            docs: ['l1-visa','l2-ead','passport','i94'] },
+    { id: 'j1',         icon: 'biometrics', label: 'J-1 Exchange Visitor', docs: ['j1-visa','ds2019','passport','i94'] },
+    { id: 'b1b2',       icon: 'travel2', label: 'B-1/B-2 Visitor',      docs: ['b1b2-visa','passport','i94'] },
   ];
 
   const handleVisaSelect = (profileId: string, docs: string[]) => {
@@ -298,7 +305,7 @@ export const DashboardScreen: React.FC = () => {
           >
             <View style={styles.profileCTALeft}>
               <View style={styles.profileCTAIcon}>
-                <Ionicons name="person-circle-outline" size={26} color="rgba(255,255,255,0.9)" />
+                <AppIcon name="visa_approved" size={36} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.profileCTATitle}>Set up your visa profile</Text>
@@ -319,19 +326,22 @@ export const DashboardScreen: React.FC = () => {
         >
           {(() => {
             const VISA_PROFILES_STATIC = [
-              { id: 'f1-opt','icon':'🎓',label:'F-1 Student / OPT'},
-              { id: 'f1-stem','icon':'🔬',label:'F-1 STEM OPT'},
-              { id: 'h1b','icon':'💼',label:'H-1B Worker'},
-              { id: 'h4','icon':'👨‍👩‍👧',label:'H-4 Dependent'},
-              { id: 'green-card','icon':'🏛️',label:'Green Card Holder'},
-              { id: 'l1','icon':'🌐',label:'L-1 / L-2'},
-              { id: 'j1','icon':'🔄',label:'J-1 Exchange Visitor'},
-              { id: 'b1b2','icon':'✈️',label:'B-1/B-2 Visitor'},
+              { id: 'f1-opt','icon':'visa_approved',label:'F-1 Student / OPT'},
+              { id: 'f1-stem','icon':'application',label:'F-1 STEM OPT'},
+              { id: 'h1b','icon':'visa',label:'H-1B Worker'},
+              { id: 'h4','icon':'visa2',label:'H-4 Dependent'},
+              { id: 'green-card','icon':'passport_card',label:'Green Card Holder'},
+              { id: 'l1','icon':'travel_plane',label:'L-1 / L-2'},
+              { id: 'j1','icon':'biometrics',label:'J-1 Exchange Visitor'},
+              { id: 'b1b2','icon':'travel2',label:'B-1/B-2 Visitor'},
             ];
             const profile = VISA_PROFILES_STATIC.find((p) => p.id === visaProfile);
             return (
               <>
-                <Text style={styles.profileBadgeIcon}>{profile?.icon ?? '👤'}</Text>
+                {profile?.icon && profile.icon.length > 2
+                  ? <AppIcon name={profile.icon as any} size={24} style={{ marginRight: 4 }} />
+                  : <Text style={styles.profileBadgeIcon}>{profile?.icon ?? '👤'}</Text>
+                }
                 <Text style={styles.profileBadgeLabel}>{profile?.label ?? visaProfile}</Text>
                 <Text style={styles.profileBadgeEdit}>Edit profile →</Text>
               </>
@@ -570,7 +580,10 @@ export const DashboardScreen: React.FC = () => {
                     activeOpacity={0.75}
                   >
                     <View style={[styles.tIconBox, { backgroundColor: colors.accentDim }]}>
-                      <Text style={{ fontSize: 22 }}>{item.icon}</Text>
+                      {item.icon.length > 2
+                        ? <AppIcon name={item.icon as any} size={32} />
+                        : <Text style={{ fontSize: 22 }}>{item.icon}</Text>
+                      }
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.tLabel}>{item.label}</Text>

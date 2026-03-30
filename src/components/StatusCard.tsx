@@ -5,6 +5,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '../utils/icons';
 import { useNavigation } from '@react-navigation/native';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { DeadlineItem } from '../types';
@@ -77,7 +78,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({ deadline, totalDocs, dea
       >
         <View style={styles.emptyTop}>
           <View style={styles.emptyIconBox}>
-            <Text style={{ fontSize: 26 }}>🌍</Text>
+            <AppIcon name="travel" size={40} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.emptyTitle}>Welcome to StatusVault</Text>

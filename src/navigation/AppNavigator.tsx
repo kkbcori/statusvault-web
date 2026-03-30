@@ -249,7 +249,7 @@ const MainTabs: React.FC = () => (
     {IS_WEB && <WebSidebar />}
     <View style={[layoutStyles.content, IS_WEB && layoutStyles.contentWeb]}>
       {IS_WEB && <WebTopBar />}
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, overflow: IS_WEB ? 'hidden' as any : undefined }}>
         <Tab.Navigator
           initialRouteName="Dashboard"
           screenOptions={({ route }) => ({
@@ -321,9 +321,9 @@ export const AppNavigator: React.FC = () => {
 // ── Styles ───────────────────────────────────────────────────
 const layoutStyles = StyleSheet.create({
   root:       { flex: 1, backgroundColor: colors.background },
-  rootWeb:    { flexDirection: 'row' },
+  rootWeb:    { flexDirection: 'row', width: '100%' as any, height: '100%' as any },
   content:    { flex: 1 },
-  contentWeb: { flexDirection: 'column', backgroundColor: colors.background },
+  contentWeb: { flexDirection: 'column', backgroundColor: colors.background, flex: 1, minWidth: 0, overflow: 'hidden' as any },
 });
 
 const sidebarStyles = StyleSheet.create({

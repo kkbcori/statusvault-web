@@ -14,6 +14,7 @@ import { colors, spacing, radius, typography } from '../theme';
 import { useStore } from '../store';
 import { IS_WEB } from '../utils/responsive';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
+import { AppIcon } from '../utils/icons';
 import { UserDocument } from '../types';
 
 // ─── Visa profile options ─────────────────────────────────────
@@ -139,7 +140,7 @@ export const OnboardingScreen: React.FC = () => {
         </View>
         <View style={styles.card}>
           <View style={styles.iconRing}>
-            <Text style={{ fontSize: 52 }}>🌍</Text>
+            <AppIcon name="travel" size={72} />
           </View>
           <Text style={styles.title}>Welcome to StatusVault</Text>
           <View style={styles.goldBar} />
@@ -148,13 +149,13 @@ export const OnboardingScreen: React.FC = () => {
           </Text>
           <View style={styles.featureList}>
             {[
-              { icon: '📄', text: '25+ immigration document types' },
-              { icon: '🔔', text: 'Smart deadline alerts' },
-              { icon: '✈️', text: 'I-94 travel history & N-400 export' },
-              { icon: '🔒', text: 'AES-256 encrypted, 100% private' },
+              { icon: 'visa_approved' as const, text: '25+ immigration document types' },
+              { icon: 'timer'         as const, text: 'Smart deadline alerts' },
+              { icon: 'travel_plane'  as const, text: 'I-94 travel history & N-400 export' },
+              { icon: 'checklist'     as const, text: 'AES-256 encrypted, 100% private' },
             ].map((f, i) => (
               <View key={i} style={styles.featureRow}>
-                <Text style={styles.featureIcon}>{f.icon}</Text>
+                <AppIcon name={f.icon} size={36} style={{ marginRight: 4 }} />
                 <Text style={styles.featureText}>{f.text}</Text>
               </View>
             ))}
@@ -200,7 +201,10 @@ export const OnboardingScreen: React.FC = () => {
                 onPress={() => handleProfileSelect(profile)}
                 activeOpacity={0.8}
               >
-                <Text style={styles.profileIcon}>{profile.icon}</Text>
+                {typeof profile.icon === 'string' && profile.icon.length > 2
+                  ? <AppIcon name={profile.icon as any} size={36} />
+                  : <Text style={styles.profileIcon}>{profile.icon}</Text>
+                }
                 <View style={{ flex: 1 }}>
                   <Text style={styles.profileLabel}>{profile.label}</Text>
                   <Text style={styles.profileDesc}>{profile.desc}</Text>

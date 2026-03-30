@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// StatusVault — App Entry Point (v14)
+// StatusVault — App Entry Point v15
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useEffect, useState } from 'react';
@@ -17,57 +17,58 @@ import { colors } from './src/theme';
 import { PinLockScreen } from './src/components/PinLockScreen';
 import { DialogProvider } from './src/components/ConfirmDialog';
 
-// Suppress harmless warnings everywhere
-LogBox.ignoreLogs([
-  'Setting a timer',
-  'expo-notifications',
-  'Cannot record touch end',
-  'Listening to push token',
-]);
+LogBox.ignoreLogs(['Setting a timer', 'expo-notifications', 'Cannot record touch', 'Listening to push token']);
 
-// Web: force full viewport + suppress console noise
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
-  // Viewport CSS
   const s = document.createElement('style');
   s.textContent = `
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html{width:100%;height:100%;margin:0;padding:0;background:${colors.background}}
-    body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:${colors.background}}
-    #root{width:100vw;height:100vh;display:flex;flex-direction:row;overflow:hidden}
-    /* React Native Web ScrollView — allow inner scroll */
-    #root [style*="overflow-y: scroll"],
-    #root [style*="overflow: scroll"],
-    #root [style*="overflowY: scroll"],
-    #root div[style*="overflow-y"],
-    #root div[style*="overflow: auto"] {
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      margin: 0; padding: 0;
+      overflow: hidden;
+      background: ${colors.background};
+    }
+    #root {
+      width: 100vw; height: 100vh;
+      display: flex; flex-direction: row;
+      overflow: hidden;
+    }
+    /* Sidebar fixed width */
+    #root > div > div > div:first-child {
+      flex-shrink: 0;
+    }
+    /* Main content area — must scroll */
+    #root > div > div > div:last-child {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Tab content — each screen's ScrollView scrolls here */
+    #root > div > div > div:last-child > div:last-child {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    /* React Native Web ScrollView — make it actually scroll */
+    [data-focusable="true"] { outline: none; }
+    div[style*="overflow-y: scroll"],
+    div[style*="overflow: scroll"] {
       -webkit-overflow-scrolling: touch !important;
+      overflow-y: auto !important;
     }
-    /* Tab content area must scroll */
-    #root > div > div > div > div > div > div {
-      overflow-y: auto;
-    }
-    ::-webkit-scrollbar{width:5px;height:5px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
-    ::-webkit-scrollbar-thumb:hover{background:#94A3B8}
-    *{scrollbar-width:thin;scrollbar-color:#CBD5E1 transparent}
+    /* Scrollbars — visible on right side */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F0F2F7; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748B; }
+    * { scrollbar-width: thin; scrollbar-color: #94A3B8 #F0F2F7; }
   `;
   document.head.appendChild(s);
-
-  // Suppress known harmless console warnings on web
-  const _warn = console.warn.bind(console);
-  console.warn = (...args: any[]) => {
-    const msg = args[0]?.toString() ?? '';
-    if (
-      msg.includes('expo-notifications') ||
-      msg.includes('push token') ||
-      msg.includes('Cannot record touch')
-    ) return;
-    _warn(...args);
-  };
 }
 
-// ─── Error Boundary ──────────────────────────────────────────
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { error: string | null }
@@ -77,17 +78,10 @@ class ErrorBoundary extends React.Component<
   render() {
     if (this.state.error) {
       return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center',
-          backgroundColor: colors.background, padding: 32 }}>
-          <Text style={{ fontSize: 18, fontFamily: 'Inter_700Bold',
-            color: colors.text1, marginBottom: 12 }}>Something went wrong</Text>
-          <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular',
-            color: colors.text3, textAlign: 'center', lineHeight: 20 }}>
-            {this.state.error}
-          </Text>
-          <Text style={{ fontSize: 12, color: colors.text4, marginTop: 16 }}>
-            Try refreshing the page
-          </Text>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background, padding: 32 }}>
+          <Text style={{ fontSize: 18, fontFamily: 'Inter_700Bold', color: colors.text1, marginBottom: 12 }}>Something went wrong</Text>
+          <Text style={{ fontSize: 13, color: colors.text3, textAlign: 'center' }}>{this.state.error}</Text>
+          <Text style={{ fontSize: 12, color: colors.text4, marginTop: 16 }}>Try refreshing the page</Text>
         </View>
       );
     }
@@ -95,7 +89,6 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-// ─── Main App ────────────────────────────────────────────────
 export default function App() {
   const pinEnabled = useStore((s) => s.pinEnabled);
   const verifyPin  = useStore((s) => s.verifyPin);
@@ -121,7 +114,7 @@ export default function App() {
   if (pinEnabled && isLocked && Platform.OS !== 'web') {
     return (
       <SafeAreaProvider>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.background} translucent={false} />
+        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
         <PinLockScreen onUnlock={() => setIsLocked(false)} verifyPin={verifyPin} />
       </SafeAreaProvider>
     );
@@ -131,7 +124,7 @@ export default function App() {
     <ErrorBoundary>
       <SafeAreaProvider>
         {Platform.OS !== 'web' && (
-          <StatusBar barStyle="dark-content" backgroundColor={colors.background} translucent={false} />
+          <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
         )}
         <DialogProvider>
           <AppNavigator />

@@ -9,6 +9,7 @@ import {
   ActivityIndicator, Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '../utils/icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB } from '../utils/responsive';
 
@@ -25,7 +26,7 @@ interface ProcessingEntry {
 // Users can click "Check Live" to open the official USCIS page
 const PROCESSING_DATA: ProcessingEntry[] = [
   {
-    form: 'I-765', title: 'Employment Authorization (EAD)', icon: '💼',
+    form: 'I-765', title: 'Employment Authorization (EAD)', icon: 'visa',
     category: 'Work Authorization',
     officialUrl: 'https://egov.uscis.gov/processing-times/',
     times: [
@@ -36,7 +37,7 @@ const PROCESSING_DATA: ProcessingEntry[] = [
     ],
   },
   {
-    form: 'I-140', title: 'Immigrant Petition (Green Card)', icon: '🏛️',
+    form: 'I-140', title: 'Immigrant Petition (Green Card)', icon: 'passport_card',
     category: 'Green Card',
     officialUrl: 'https://egov.uscis.gov/processing-times/',
     times: [
@@ -47,7 +48,7 @@ const PROCESSING_DATA: ProcessingEntry[] = [
     ],
   },
   {
-    form: 'I-485', title: 'Adjustment of Status', icon: '📋',
+    form: 'I-485', title: 'Adjustment of Status', icon: 'checklist',
     category: 'Green Card',
     officialUrl: 'https://egov.uscis.gov/processing-times/',
     times: [
@@ -57,7 +58,7 @@ const PROCESSING_DATA: ProcessingEntry[] = [
     ],
   },
   {
-    form: 'I-130', title: 'Petition for Alien Relative', icon: '👨‍👩‍👧',
+    form: 'I-130', title: 'Petition for Alien Relative', icon: 'interview',
     category: 'Family',
     officialUrl: 'https://egov.uscis.gov/processing-times/',
     times: [
@@ -67,7 +68,7 @@ const PROCESSING_DATA: ProcessingEntry[] = [
     ],
   },
   {
-    form: 'I-539', title: 'Change / Extend Status', icon: '🔄',
+    form: 'I-539', title: 'Change / Extend Status', icon: 'application',
     category: 'Status Change',
     officialUrl: 'https://egov.uscis.gov/processing-times/',
     times: [
@@ -76,7 +77,7 @@ const PROCESSING_DATA: ProcessingEntry[] = [
     ],
   },
   {
-    form: 'I-129', title: 'H-1B / L-1 Petition', icon: '🏢',
+    form: 'I-129', title: 'H-1B / L-1 Petition', icon: 'visa_approved',
     category: 'Work Visa',
     officialUrl: 'https://egov.uscis.gov/processing-times/',
     times: [
@@ -87,7 +88,7 @@ const PROCESSING_DATA: ProcessingEntry[] = [
     ],
   },
   {
-    form: 'N-400', title: 'Naturalization Application', icon: '🇺🇸',
+    form: 'N-400', title: 'Naturalization Application', icon: 'passport2',
     category: 'Citizenship',
     officialUrl: 'https://egov.uscis.gov/processing-times/',
     times: [
@@ -96,7 +97,7 @@ const PROCESSING_DATA: ProcessingEntry[] = [
     ],
   },
   {
-    form: 'I-90', title: 'Green Card Renewal', icon: '💳',
+    form: 'I-90', title: 'Green Card Renewal', icon: 'expiry',
     category: 'Green Card',
     officialUrl: 'https://egov.uscis.gov/processing-times/',
     times: [
