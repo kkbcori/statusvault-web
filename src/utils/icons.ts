@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════════
-// StatusVault — Custom Icon Assets
-// Maps icon keys to local require() paths
-// Use <AppIcon name="passport" size={48} /> in any screen
-// ═══════════════════════════════════════════════════════════════
-
 import React from 'react';
 import { Image, ImageStyle, StyleProp } from 'react-native';
 
@@ -14,9 +8,7 @@ export type IconName =
   | 'checklist' | 'checklist2'
   | 'timer' | 'timer2'
   | 'calendar' | 'expiry'
-  | 'biometrics' | 'application' | 'interview'
-  | 'passport_alt' | 'visa_alt' | 'travel_alt'
-  | 'checklist_alt' | 'timer_alt';
+  | 'biometrics' | 'application' | 'interview';
 
 export const ICON_MAP: Record<IconName, any> = {
   passport:      require('../../assets/icons/passport.png'),
@@ -37,11 +29,6 @@ export const ICON_MAP: Record<IconName, any> = {
   biometrics:    require('../../assets/icons/biometrics.png'),
   application:   require('../../assets/icons/application.png'),
   interview:     require('../../assets/icons/interview.png'),
-  passport_alt:  require('../../assets/icons/passport_alt.png'),
-  visa_alt:      require('../../assets/icons/visa_alt.png'),
-  travel_alt:    require('../../assets/icons/travel_alt.png'),
-  checklist_alt: require('../../assets/icons/checklist_alt.png'),
-  timer_alt:     require('../../assets/icons/timer_alt.png'),
 };
 
 interface AppIconProps {
