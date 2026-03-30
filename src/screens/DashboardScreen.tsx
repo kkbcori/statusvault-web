@@ -123,6 +123,7 @@ export const DashboardScreen: React.FC = () => {
   const setCounterTracking    = useStore((s) => s.setCounterTracking);
   const autoIncrementCounters = useStore((s) => s.autoIncrementCounters);
   const getRemainingFreeSlots = useStore((s) => s.getRemainingFreeSlots);
+  const authUser              = useStore((s) => s.authUser);
   const visaProfile           = useStore((s) => s.visaProfile);
   const setVisaProfile        = useStore((s) => s.setVisaProfile);
   const addDocument           = useStore((s) => s.addDocument);
@@ -131,6 +132,7 @@ export const DashboardScreen: React.FC = () => {
   const dialog                = useDialog();
 
   const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [showAuthPrompt,   setShowAuthPrompt]   = useState(false);
   const [profileStep,      setProfileStep]      = useState<'select' | 'docs'>('select');
   const [selectedVisa,     setSelectedVisa]     = useState('');
   const [selectedDocIds,   setSelectedDocIds]   = useState<string[]>([]);
@@ -144,6 +146,14 @@ export const DashboardScreen: React.FC = () => {
   const [customItemTarget,  setCustomItemTarget]  = useState<string | null>(null);
 
   React.useEffect(() => { autoIncrementCounters(); }, []);
+
+  // Show sign-in prompt after 3s if user has data but no account
+  React.useEffect(() => {
+    if (!authUser && documents.length > 0) {
+      const t = setTimeout(() => setShowAuthPrompt(true), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [authUser, documents.length]);
 
   const deadlines    = generateDeadlines(documents);
   const mostCritical = getMostCritical(deadlines);
@@ -250,8 +260,28 @@ export const DashboardScreen: React.FC = () => {
     }
   };
 
-  const toggleDocId = (id: string) =>
-    setSelectedDocIds((prev) => prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]);
+  const toggleDocId = (id: string) => {
+    setSelectedDocIds((prev) => {
+      if (prev.includes(id)) return prev.filter((d) => d !== id);
+      // For free users, count how many NEW docs this would add
+      const currentDocs = useStore.getState().documents;
+      const alreadyTracked = currentDocs.filter((d) => prev.includes(d.templateId)).length;
+      const newCount = prev.filter((id2) => !currentDocs.some((d) => d.templateId === id2)).length;
+      if (!useStore.getState().isPremium && newCount >= FREE_LIMIT - currentDocs.length) {
+        // Don't add — show inline message (handled in UI)
+        return prev;
+      }
+      return [...prev, id];
+    });
+  };
+
+  // Count new docs being added (not already tracked)
+  const newDocCount = selectedDocIds.filter(
+    (id) => !documents.some((d) => d.templateId === id)
+  ).length;
+  const slotsUsed = documents.length;
+  const slotsLeft = Math.max(0, FREE_LIMIT - slotsUsed);
+  const overLimit = !isPremium && newDocCount > slotsLeft;
 
     return (
     <ScrollView
@@ -551,6 +581,37 @@ export const DashboardScreen: React.FC = () => {
 
       <View style={{ height: 30 }} />
 
+      {/* ═══ AUTH PROMPT MODAL ═══ */}
+      <Modal visible={showAuthPrompt} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.authPromptCard]}>
+            <TouchableOpacity style={styles.authPromptClose} onPress={() => setShowAuthPrompt(false)}>
+              <Ionicons name="close" size={20} color={colors.text3} />
+            </TouchableOpacity>
+            <View style={styles.authPromptIcon}>
+              <Ionicons name="shield-checkmark" size={32} color={colors.accent} />
+            </View>
+            <Text style={styles.authPromptTitle}>Sync Across Devices</Text>
+            <Text style={styles.authPromptDesc}>
+              Sign in to access your documents from any device and receive expiry alerts by email.
+            </Text>
+            <TouchableOpacity
+              style={styles.authPromptBtn}
+              onPress={() => { setShowAuthPrompt(false); navigation.navigate('Auth'); }}
+              activeOpacity={0.85}
+            >
+              <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.authPromptBtnGrad}>
+                <Ionicons name="log-in-outline" size={18} color="#fff" />
+                <Text style={styles.authPromptBtnText}>Sign In or Create Account</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowAuthPrompt(false)} style={{ paddingVertical: 10 }}>
+              <Text style={styles.authPromptSkip}>Continue without account</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {/* ═══ PROFILE SETUP MODAL ═══ */}
       <Modal visible={showProfileSetup} transparent animationType="fade">
         <View style={styles.modalOverlay}>
@@ -611,22 +672,43 @@ export const DashboardScreen: React.FC = () => {
                     </Text>
                     {!isPremium && (
                       <View style={{ marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: colors.warning + '40' }}>
-                        <Text style={{ fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#B45309' }}>
-                          {`Free plan: ${FREE_LIMIT} documents max. You have ${documents.length} tracked.`}
-                          {selectedDocIds.filter((id) => !documents.some((d) => d.templateId === id)).length + documents.length > FREE_LIMIT
-                            ? ` Select max ${Math.max(0, FREE_LIMIT - documents.length)} more or upgrade.`
-                            : ` ${Math.max(0, FREE_LIMIT - documents.length - selectedDocIds.filter((id) => !documents.some((d) => d.templateId === id)).length)} slot(s) remaining.`}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Text style={{ fontSize: 11, fontFamily: 'Inter_600SemiBold', color: overLimit ? colors.danger : '#B45309' }}>
+                            {overLimit
+                              ? `⚠️ Limit reached — deselect ${newDocCount - slotsLeft} doc${newDocCount - slotsLeft !== 1 ? 's' : ''} or upgrade`
+                              : `Free plan: ${slotsLeft} slot${slotsLeft !== 1 ? 's' : ''} remaining`}
+                          </Text>
+                          <View style={{ flexDirection: 'row', gap: 2 }}>
+                            {Array.from({ length: FREE_LIMIT }).map((_, i) => (
+                              <View key={i} style={{ width: 10, height: 10, borderRadius: 5,
+                                backgroundColor: i < slotsUsed + newDocCount
+                                  ? i < slotsUsed ? colors.text3
+                                  : overLimit ? colors.danger : colors.success
+                                  : colors.borderLight }} />
+                            ))}
+                          </View>
+                        </View>
                       </View>
                     )}
                   </View>
                 }
                 ListFooterComponent={
                   <View style={{ padding: spacing.screen }}>
+                    {overLimit && !isPremium && (
+                      <TouchableOpacity
+                        style={[styles.saveBtn, { marginBottom: spacing.sm }]}
+                        onPress={() => { setShowProfileSetup(false); setTimeout(() => navigation.navigate('Main', { screen: 'Documents', params: { openPaywall: true } }), 300); }}
+                        activeOpacity={0.85}
+                      >
+                        <View style={{ backgroundColor: colors.warning, borderRadius: radius.lg, paddingVertical: 12, alignItems: 'center' }}>
+                          <Text style={{ fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff' }}>⭐ Upgrade to add all documents</Text>
+                        </View>
+                      </TouchableOpacity>
+                    )}
                     <TouchableOpacity
-                      style={[styles.saveBtn, savingProfile && { opacity: 0.6 }]}
+                      style={[styles.saveBtn, (savingProfile || overLimit) && { opacity: 0.6 }]}
                       onPress={handleSaveProfile}
-                      disabled={savingProfile}
+                      disabled={savingProfile || overLimit}
                     >
                       <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
                         <Text style={{ fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' }}>
@@ -849,6 +931,17 @@ const styles = StyleSheet.create({
   customAddBtn:    { backgroundColor: colors.accent, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
   addCustomText:   { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: colors.accent },
   disclaimer:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 10, fontStyle: 'italic', lineHeight: 16 },
+
+  // Auth prompt
+  authPromptCard:    { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.xxl, width: IS_WEB ? 380 : '88%', alignItems: 'center', ...shadows.lg, position: 'relative' },
+  authPromptClose:   { position: 'absolute', top: spacing.md, right: spacing.md, padding: 4 },
+  authPromptIcon:    { width: 64, height: 64, borderRadius: 20, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.lg, borderWidth: 1, borderColor: colors.borderGold },
+  authPromptTitle:   { fontSize: 18, fontFamily: 'Inter_700Bold', color: colors.text1, marginBottom: spacing.sm, textAlign: 'center' },
+  authPromptDesc:    { fontSize: 13, fontFamily: 'Inter_400Regular', color: colors.text3, textAlign: 'center', lineHeight: 20, marginBottom: spacing.xl },
+  authPromptBtn:     { width: '100%', borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.sm },
+  authPromptBtnGrad: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14 },
+  authPromptBtnText: { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
+  authPromptSkip:    { fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.text3 },
 
   // Profile setup
   profileCTA:      { marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: spacing.md, borderRadius: radius.xl, overflow: 'hidden', ...shadows.md },

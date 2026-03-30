@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
+import { IS_WEB } from '../utils/responsive';
 import { useDialog } from '../components/ConfirmDialog';
 import { IS_WEB } from '../utils/responsive';
 import { useStore } from '../store';
@@ -43,12 +44,17 @@ export const SettingsScreen: React.FC = () => {
   const isSyncing   = useStore((s) => s.isSyncing);
   const { 
     documents, counters, notificationsEnabled, isPremium,
-    setNotificationsEnabled, resetAllData, setPremium,
+    notificationEmail, whatsappPhone,
+    setNotificationsEnabled, setNotificationEmail, setWhatsappPhone, resetAllData, setPremium,
     exportData, importData,
     pinEnabled, setPin, removePin, verifyPin,
   } = useStore();
 
-  const [showImportModal, setShowImportModal] = useState(false);
+  const [showImportModal,    setShowImportModal]    = useState(false);
+  const [editingEmail,       setEditingEmail]       = useState(false);
+  const [editingPhone,       setEditingPhone]       = useState(false);
+  const [emailInput,         setEmailInput]         = useState('');
+  const [phoneInput,         setPhoneInput]         = useState('');
   const dialog = useDialog();
   const [importText,      setImportText]      = useState('');
   const [showPinSetup,    setShowPinSetup]    = useState(false);

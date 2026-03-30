@@ -50,6 +50,8 @@ interface AppStore {
   trips: TravelTrip[];
   familyMembers: FamilyMember[];
   notificationsEnabled: boolean;
+  notificationEmail: string | null;   // for email expiry alerts
+  whatsappPhone: string | null;        // for WhatsApp alerts
   isPremium: boolean;
 
   // Auth
@@ -73,6 +75,9 @@ interface AppStore {
   forceAddDocument: (doc: UserDocument) => void; // bypasses free limit — for profile setup
   getRemainingFreeSlots: () => number;
   setPremium: (v: boolean) => void;
+  setNotificationEmail: (email: string | null) => void;
+  setWhatsappPhone: (phone: string | null) => void;
+  syncAlerts: () => Promise<void>;
 
   // Checklists
   addChecklist: (templateId: string) => void;
@@ -144,6 +149,8 @@ export const useStore = create<AppStore>()(
       trips: [],
       familyMembers: [],
       notificationsEnabled: true,
+      notificationEmail: null,
+      whatsappPhone: null,
       isPremium: false,
 
       // Auth
@@ -174,6 +181,8 @@ export const useStore = create<AppStore>()(
         return isPremium ? 999 : Math.max(0, FREE_DOCUMENT_LIMIT - documents.length);
       },
       setPremium: (v) => set({ isPremium: v }),
+      setNotificationEmail: (email) => { set({ notificationEmail: email }); scheduleSync(); setTimeout(() => get().syncAlerts(), 500); },
+      setWhatsappPhone: (phone) => { set({ whatsappPhone: phone }); scheduleSync(); setTimeout(() => get().syncAlerts(), 500); },
 
       // ─── Documents ─────────────────────────────────────────
       addDocument: async (doc) => {
@@ -461,7 +470,8 @@ export const useStore = create<AppStore>()(
         try {
           const key  = deriveKey(user.id, email);
           const { familyMembers, visaProfile } = get();
-          const blob = { documents, checklists, counters, trips, familyMembers, visaProfile, isPremium, syncedAt: new Date().toISOString() };
+          const { notificationEmail, whatsappPhone } = get();
+          const blob = { documents, checklists, counters, trips, familyMembers, visaProfile, isPremium, notificationEmail, whatsappPhone, syncedAt: new Date().toISOString() };
           const data_encrypted = encryptData(blob, key);
           const { error } = await supabase
             .from('user_data')
@@ -504,6 +514,8 @@ export const useStore = create<AppStore>()(
             trips:      decoded.trips      ?? get().trips,
             familyMembers: decoded.familyMembers ?? get().familyMembers,
             visaProfile: decoded.visaProfile ?? get().visaProfile,
+            notificationEmail: decoded.notificationEmail ?? get().notificationEmail,
+            whatsappPhone: decoded.whatsappPhone ?? get().whatsappPhone,
             isPremium:  decoded.isPremium  ?? get().isPremium,
             lastSyncedAt: data.updated_at,
             isSyncing: false,
@@ -513,6 +525,33 @@ export const useStore = create<AppStore>()(
         }
       },
 
+      // ─── Alert sync ────────────────────────────────────────
+      // Writes contact info + expiring docs to user_alerts table
+      // (unencrypted — needed so edge function can send alerts)
+      syncAlerts: async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return;
+        const { documents, notificationEmail, whatsappPhone } = get();
+        if (!notificationEmail && !whatsappPhone) return;
+
+        // Find docs expiring within 180 days
+        const today = new Date();
+        const expiringDocs = documents
+          .map(d => {
+            const expiry = new Date(d.expiryDate);
+            const days = Math.floor((expiry.getTime() - today.getTime()) / 86400000);
+            return { id: d.id, label: d.label, icon: d.icon, expiryDate: d.expiryDate, days };
+          })
+          .filter(d => d.days <= 180);
+
+        await supabase.from('user_alerts').upsert({
+          user_id: session.user.id,
+          notification_email: notificationEmail,
+          whatsapp_phone: whatsappPhone,
+          expiring_docs: expiringDocs,
+        }, { onConflict: 'user_id' });
+      },
+
       // ─── Settings ──────────────────────────────────────────
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
       setOnboarded: () => set({ hasOnboarded: true }),
@@ -520,7 +559,7 @@ export const useStore = create<AppStore>()(
 
       resetAllData: () => set({
         hasOnboarded: false, visaProfile: null, documents: [], checklists: [], counters: [], trips: [],
-        notificationsEnabled: true, isPremium: false, pinEnabled: false, pinCode: null, familyMembers: [],
+        notificationsEnabled: true, notificationEmail: null, whatsappPhone: null, isPremium: false, pinEnabled: false, pinCode: null, familyMembers: [],
       }),
       exportData: () => {
         const { documents, checklists, counters, trips, isPremium } = get();
