@@ -13,7 +13,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB } from '../utils/responsive';
 import { useDialog } from '../components/ConfirmDialog';
-import { IS_WEB } from '../utils/responsive';
 import { useStore } from '../store';
 import { useNavigation } from '@react-navigation/native';
 import { requestPermissions, cancelAllNotifications, sendTestNotification, getScheduledCount } from '../utils/notifications';
