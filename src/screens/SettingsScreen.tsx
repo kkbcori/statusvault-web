@@ -318,7 +318,7 @@ export const SettingsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container:       { flex: 1, backgroundColor: colors.background },
+  container:       { flex: 1, backgroundColor: '#F8FAFC' },
   cc:              { paddingBottom: 20 },
   headerGradient:  { paddingBottom: 8 },
   header:          { paddingHorizontal: spacing.screen, paddingTop: spacing.xxl + 20, paddingBottom: spacing.lg },
@@ -334,13 +334,13 @@ const styles = StyleSheet.create({
   accountBannerTitle:    { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff', letterSpacing: -0.2 },
   accountBannerSub:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.55)', marginTop: 3, lineHeight: 16 },
   accountBannerArrow:    { width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(0,153,168,0.1)', alignItems: 'center', justifyContent: 'center' },
-  statsStrip:      { flexDirection: 'row', marginHorizontal: spacing.screen, marginTop: spacing.lg, backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.lg, borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  statsStrip:      { flexDirection: 'row', marginHorizontal: spacing.screen, marginTop: spacing.lg, backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, ...shadows.sm },
   statItem:        { flex: 1, alignItems: 'center' },
   statNumber:      { fontSize: 22, fontFamily: 'Inter_900Black', color: colors.text1, letterSpacing: -0.5 },
   statLabel:       { fontSize: 11, fontFamily: 'Inter_500Medium', color: colors.text3, marginTop: 2 },
   statDivider:     { width: 1, backgroundColor: colors.borderLight, marginVertical: 4 },
 
-  card:            { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  card:            { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, ...shadows.sm },
   row:             { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   rowIconBox:      { width: 34, height: 34, borderRadius: 10, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold },
   rTitle:          { ...typography.bodySemibold, color: colors.text1, fontSize: 14 },

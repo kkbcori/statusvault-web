@@ -138,14 +138,14 @@ export const StatusCard: React.FC<StatusCardProps> = ({ deadline, totalDocs, dea
 };
 
 const styles = StyleSheet.create({
-  emptyTile:     { backgroundColor: colors.card, borderRadius: radius.lg, marginHorizontal: spacing.screen, marginTop: spacing.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.xl, ...shadows.sm },
+  emptyTile:     { backgroundColor: '#FFFFFF', borderRadius: 12, marginHorizontal: spacing.screen, marginTop: spacing.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.xl, ...shadows.sm },
   emptyTop:      { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: spacing.md },
   emptyIconBox:  { width: 48, height: 48, borderRadius: 12, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold, flexShrink: 0 },
   emptyTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
   emptySubtitle: { ...typography.caption, color: colors.text3, marginTop: 3 },
   emptyHintRow:  { flexDirection: 'row', alignItems: 'center', gap: 7, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.borderLight },
   emptyHint:     { flex: 1, ...typography.caption, color: colors.accent },
-  darkTile:      { borderRadius: radius.lg, marginHorizontal: spacing.screen, marginTop: spacing.lg, overflow: 'hidden', padding: spacing.xl, ...shadows.lg },
+  darkTile:      { borderRadius: radius.xl, marginHorizontal: spacing.screen, marginTop: spacing.lg, overflow: 'hidden', padding: spacing.xl, ...shadows.lg },
   topTrim:       { position: 'absolute', top: 0, left: 0, right: 0, height: 3 },
   darkHeader:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.lg, marginTop: 4 },
   darkEye:       { fontSize: 9, fontFamily: 'Inter_600SemiBold', color: 'rgba(255,255,255,0.35)', letterSpacing: 1, marginBottom: 4 },

@@ -1,53 +1,59 @@
 // ═══════════════════════════════════════════════════════════════
-// StatusVault — Design System v5
-// Inter-only typography · clean, professional SaaS aesthetic
+// StatusVault — Design System v6 — Premium
+// Dark sidebar · layered surfaces · tight typography
+// Inspired by Linear, Stripe, Vercel
 // ═══════════════════════════════════════════════════════════════
 
 import { Platform } from 'react-native';
 
 export const colors = {
-  primary:      '#0099A8',
-  primaryLight: '#00B5C8',
-  primaryMid:   '#007A88',
-  accent:       '#0099A8',
-  accentLight:  '#E6F7F8',
-  accentDim:    'rgba(0,153,168,0.10)',
-  accentBlue:   '#2563EB',
+  // ── Brand ──
+  primary:      '#0EA5E9',   // sky-500 — sharper, more premium than teal
+  primaryLight: '#38BDF8',
+  primaryMid:   '#0284C7',
+  primaryDark:  '#0369A1',
+  accent:       '#0EA5E9',
+  accentDim:    'rgba(14,165,233,0.10)',
+  accentLight:  '#E0F2FE',
 
-  success:      '#059669',
+  // ── Severity ──
+  success:      '#10B981',
   successLight: '#D1FAE5',
-  successDark:  '#047857',
-  warning:      '#D97706',
+  warning:      '#F59E0B',
   warningLight: '#FEF3C7',
-  warningDark:  '#B45309',
-  danger:       '#DC2626',
+  danger:       '#EF4444',
   dangerLight:  '#FEE2E2',
-  dangerDark:   '#B91C1C',
 
-  background:     '#F4F6FA',
-  backgroundDark: '#1A202C',
-  card:           '#FFFFFF',
-  cardElevated:   '#FFFFFF',
-  cardDark:       'rgba(0,0,0,0.04)',
+  // ── Page surfaces ──
+  background:   '#F8FAFC',   // nearly white — clean slate
+  card:         '#FFFFFF',
+  cardHover:    '#FAFAFA',
 
-  text1:       '#111827',
-  text2:       '#374151',
-  text3:       '#6B7280',
-  text4:       '#9CA3AF',
+  // ── Sidebar — dark ──
+  sidebar:         '#0F172A',   // slate-900
+  sidebarHover:    'rgba(255,255,255,0.05)',
+  sidebarActive:   'rgba(14,165,233,0.15)',
+  sidebarBorder:   'rgba(255,255,255,0.06)',
+  sidebarText:     'rgba(255,255,255,0.55)',
+  sidebarTextActive: '#FFFFFF',
+  sidebarActiveText: '#38BDF8',
+
+  // ── Text ──
+  text1:       '#0F172A',   // slate-900
+  text2:       '#334155',   // slate-700
+  text3:       '#64748B',   // slate-500
+  text4:       '#94A3B8',   // slate-400
   textInverse: '#FFFFFF',
-  textGold:    '#0099A8',
 
-  border:      'rgba(0,0,0,0.08)',
-  borderLight: 'rgba(0,0,0,0.05)',
-  borderGold:  'rgba(0,153,168,0.20)',
+  // ── Borders ──
+  border:      '#E2E8F0',   // slate-200 — visible but soft
+  borderLight: '#F1F5F9',   // slate-100
+  borderGold:  'rgba(14,165,233,0.25)',
 
-  sidebar:          '#FFFFFF',
-  sidebarBorder:    'rgba(0,0,0,0.08)',
-  sidebarActive:    '#E6F7F8',
-  sidebarActiveText:'#0E7490',
-
-  overlay: 'rgba(17,24,39,0.55)',
-  shimmer: '#E4E8F0',
+  // ── Misc ──
+  overlay: 'rgba(15,23,42,0.60)',
+  shimmer: '#E2E8F0',
+  backgroundDark: '#0F172A',
 } as const;
 
 export const spacing = {
@@ -56,43 +62,55 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 6, md: 10, lg: 12, xl: 16, xxl: 20, full: 999,
+  sm: 6, md: 8, lg: 10, xl: 14, xxl: 18, full: 999,
 } as const;
 
-// ── Typography — Inter only ───────────────────────────────────
-// Weight scale: 400 body · 500 medium · 600 semibold ·
-//               700 bold (headings) · 800 extrabold (display)
 export const typography = {
-  display:      { fontSize: 32, fontFamily: 'Inter_800ExtraBold', letterSpacing: -0.8, lineHeight: 38 },
-  h1:           { fontSize: 22, fontFamily: 'Inter_800ExtraBold', letterSpacing: -0.4, lineHeight: 28 },
-  h2:           { fontSize: 17, fontFamily: 'Inter_700Bold',      letterSpacing: -0.2, lineHeight: 24 },
+  display:      { fontSize: 32, fontFamily: 'Inter_800ExtraBold', letterSpacing: -1,   lineHeight: 38 },
+  h1:           { fontSize: 22, fontFamily: 'Inter_700Bold',      letterSpacing: -0.5, lineHeight: 28 },
+  h2:           { fontSize: 16, fontFamily: 'Inter_600SemiBold',  letterSpacing: -0.2, lineHeight: 22 },
   h3:           { fontSize: 14, fontFamily: 'Inter_600SemiBold',  lineHeight: 20 },
   body:         { fontSize: 14, fontFamily: 'Inter_400Regular',   lineHeight: 22 },
   bodyMedium:   { fontSize: 14, fontFamily: 'Inter_500Medium',    lineHeight: 22 },
   bodySemibold: { fontSize: 14, fontFamily: 'Inter_600SemiBold',  lineHeight: 22 },
   caption:      { fontSize: 12, fontFamily: 'Inter_400Regular',   lineHeight: 18 },
   captionBold:  { fontSize: 12, fontFamily: 'Inter_600SemiBold',  lineHeight: 18 },
-  micro:        { fontSize: 10, fontFamily: 'Inter_600SemiBold',  letterSpacing: 0.4, lineHeight: 14 },
-  number:       { fontSize: 28, fontFamily: 'Inter_800ExtraBold', letterSpacing: -1,  lineHeight: 32 },
-  numberLarge:  { fontSize: 38, fontFamily: 'Inter_800ExtraBold', letterSpacing: -1.5,lineHeight: 44 },
-  mono:         { fontSize: 13, fontFamily: 'Inter_500Medium',    lineHeight: 20 },
+  micro:        { fontSize: 10, fontFamily: 'Inter_500Medium',    letterSpacing: 0.6, lineHeight: 14 },
+  label:        { fontSize: 11, fontFamily: 'Inter_600SemiBold',  letterSpacing: 0.4, lineHeight: 16 },
+  number:       { fontSize: 28, fontFamily: 'Inter_800ExtraBold', letterSpacing: -1,   lineHeight: 32 },
+  numberLarge:  { fontSize: 40, fontFamily: 'Inter_800ExtraBold', letterSpacing: -1.5, lineHeight: 46 },
+  mono:         { fontSize: 12, fontFamily: 'Inter_500Medium',    lineHeight: 18 },
 } as const;
 
 export const shadows = {
-  sm: Platform.select({
-    ios:     { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
+  xs: Platform.select({
+    ios:     { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 2 },
     android: { elevation: 1 },
+    web:     { boxShadow: '0 1px 2px rgba(15,23,42,0.04)' } as any,
+  }),
+  sm: Platform.select({
+    ios:     { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4 },
+    android: { elevation: 2 },
+    web:     { boxShadow: '0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)' } as any,
   }),
   md: Platform.select({
-    ios:     { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 12 },
-    android: { elevation: 3 },
+    ios:     { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.07, shadowRadius: 12 },
+    android: { elevation: 4 },
+    web:     { boxShadow: '0 4px 6px -1px rgba(15,23,42,0.07), 0 2px 4px -1px rgba(15,23,42,0.04)' } as any,
   }),
   lg: Platform.select({
-    ios:     { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.12, shadowRadius: 32 },
+    ios:     { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.10, shadowRadius: 24 },
     android: { elevation: 8 },
+    web:     { boxShadow: '0 10px 15px -3px rgba(15,23,42,0.08), 0 4px 6px -2px rgba(15,23,42,0.04)' } as any,
+  }),
+  xl: Platform.select({
+    ios:     { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.15, shadowRadius: 40 },
+    android: { elevation: 12 },
+    web:     { boxShadow: '0 20px 25px -5px rgba(15,23,42,0.10), 0 10px 10px -5px rgba(15,23,42,0.04)' } as any,
   }),
   gold: Platform.select({
-    ios:     { shadowColor: '#0099A8', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12 },
+    ios:     { shadowColor: '#0EA5E9', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.20, shadowRadius: 12 },
     android: { elevation: 4 },
+    web:     { boxShadow: '0 4px 14px rgba(14,165,233,0.20)' } as any,
   }),
 } as const;

@@ -229,7 +229,7 @@ const SectionCard: React.FC<{ section: Section }> = ({ section }) => {
 };
 
 const sectionStyles = StyleSheet.create({
-  card:       { backgroundColor: colors.card, borderRadius: radius.xl, marginBottom: spacing.md, overflow: 'hidden', borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  card:       { backgroundColor: colors.card, borderRadius: radius.xl, marginBottom: spacing.md, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, ...shadows.sm },
   header:     { flexDirection: 'row', alignItems: 'center', gap: 12, padding: spacing.lg },
   iconBox:    { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold },
   title:      { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
@@ -397,14 +397,14 @@ const styles = StyleSheet.create({
   headerSub:     { ...typography.caption, color: 'rgba(255,255,255,0.5)', marginTop: 2 },
 
   // Web hero
-  webHero:       { backgroundColor: colors.primary, borderRadius: radius.xxl, padding: 32, marginBottom: spacing.xl, borderWidth: 1, borderColor: 'rgba(0,153,168,0.15)', ...shadows.md },
+  webHero:       { backgroundColor: colors.primary, borderRadius: radius.xxl, padding: 32, marginBottom: spacing.xl, borderWidth: 1, borderColor: 'rgba(0,153,168,0.15)', ...shadows.sm },
   webHeroEye:    { fontSize: 10, fontFamily: 'Inter_700Bold', color: colors.accent, letterSpacing: 2.5, marginBottom: 8 },
   webHeroTitle:  { fontSize: 32, fontFamily: 'Inter_900Black', color: '#fff', letterSpacing: -0.5, marginBottom: 8 },
   webHeroSub:    { fontSize: 15, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.5)', lineHeight: 24, maxWidth: 600 },
 
   // Stats
   statsRow:      { flexDirection: 'row', paddingHorizontal: IS_WEB ? 0 : spacing.screen, gap: 10, marginVertical: spacing.lg },
-  statCard:      { flex: 1, backgroundColor: colors.card, borderRadius: radius.lg, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  statCard:      { flex: 1, backgroundColor: colors.card, borderRadius: radius.lg, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.border, ...shadows.sm },
   statNum:       { fontSize: 20, fontFamily: 'Inter_900Black', color: colors.accent, letterSpacing: -0.5 },
   statLabel:     { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: colors.text3, marginTop: 2, textAlign: 'center' },
 
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
   noResultsText: { fontSize: 14, fontFamily: 'Inter_500Medium', color: colors.text3 },
 
   // Official links
-  linksCard:     { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: IS_WEB ? 0 : spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm, marginBottom: spacing.lg },
+  linksCard:     { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: IS_WEB ? 0 : spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, ...shadows.sm, marginBottom: spacing.lg },
   linksHeader:   { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.md, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   linksTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
   linkRow:       { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.borderLight },

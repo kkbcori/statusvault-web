@@ -284,15 +284,15 @@ Do not include any PII warnings or disclaimers — just the JSON.`,
 };
 
 const styles = StyleSheet.create({
-  container:       { flex: 1, backgroundColor: colors.background },
+  container:       { flex: 1, backgroundColor: '#F8FAFC' },
   content:         { paddingBottom: 40 },
-  contentWeb:      { paddingHorizontal: 28, paddingTop: 8 },
+  contentWeb:      { paddingHorizontal: 28, paddingTop: 24 },
   header:          { backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border, padding: spacing.xl, paddingTop: spacing.xxl + 16 },
   headerEye:       { ...typography.micro, color: colors.text3, letterSpacing: 1.5, marginBottom: 3 },
   headerTitle:     { ...typography.h1, color: colors.text1, fontSize: 22 },
   headerSub:       { ...typography.caption, color: colors.text3, marginTop: 3 },
   webHero:         { marginBottom: spacing.lg },
-  webTitle:        { fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: colors.text1, letterSpacing: -0.4 },
+  webTitle:        { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#0F172A', letterSpacing: -0.5 },
   webSub:          { ...typography.caption, color: colors.text3, marginTop: 4, maxWidth: 500 },
   privacyNote:     { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: colors.successLight, borderRadius: radius.md, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginVertical: spacing.md, padding: spacing.md, borderWidth: 1, borderColor: colors.success + '30' },
   privacyText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#065F46', lineHeight: 18 },

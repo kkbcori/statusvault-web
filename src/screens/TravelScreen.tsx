@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
 
   // Stats
   statsRow:        { flexDirection: 'row', paddingHorizontal: spacing.screen, gap: 8, marginTop: spacing.md, marginBottom: spacing.md },
-  statCard:        { flex: 1, backgroundColor: colors.card, borderRadius: radius.lg, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  statCard:        { flex: 1, backgroundColor: colors.card, borderRadius: radius.lg, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: colors.border, ...shadows.sm },
   statNum:         { fontSize: 18, fontFamily: 'Inter_900Black', color: colors.text1, letterSpacing: -0.5 },
   statLbl:         { fontSize: 9,  fontFamily: 'Inter_700Bold',  color: colors.text3, marginTop: 1, textAlign: 'center' },
   statSub:         { fontSize: 8,  fontFamily: 'Inter_500Medium',color: colors.text3, marginTop: 1, textAlign: 'center' },
@@ -489,13 +489,13 @@ const styles = StyleSheet.create({
   // Banners
   warningBanner:   { flexDirection: 'row', gap: 10, alignItems: 'flex-start', backgroundColor: '#FEF3C7', borderRadius: radius.lg, marginHorizontal: spacing.screen, marginBottom: spacing.md, padding: spacing.lg, borderWidth: 1, borderColor: '#F59E0B' },
   warningText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: '#78350F', lineHeight: 18 },
-  infoBanner:      { flexDirection: 'row', gap: 10, backgroundColor: colors.card, borderRadius: radius.lg, marginHorizontal: spacing.screen, marginBottom: spacing.md, padding: spacing.lg, borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  infoBanner:      { flexDirection: 'row', gap: 10, backgroundColor: colors.card, borderRadius: radius.lg, marginHorizontal: spacing.screen, marginBottom: spacing.md, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, ...shadows.sm },
   infoBannerIcon:  { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold },
   infoBannerTitle: { ...typography.captionBold, color: colors.text1, marginBottom: 3 },
   infoBannerDesc:  { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, lineHeight: 17 },
 
   // Export
-  exportBtn:       { marginHorizontal: spacing.screen, marginBottom: spacing.lg, borderRadius: radius.lg, overflow: 'hidden', ...shadows.md },
+  exportBtn:       { marginHorizontal: spacing.screen, marginBottom: spacing.lg, borderRadius: radius.lg, overflow: 'hidden', ...shadows.sm },
   exportBtnGrad:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 15, paddingHorizontal: 20, borderRadius: radius.lg },
   exportBtnText:   { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
 
@@ -509,13 +509,13 @@ const styles = StyleSheet.create({
   toggleChipText:  { fontSize: 12, fontFamily: 'Inter_700Bold', color: colors.accent },
 
   // Empty
-  emptyCard:       { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.xxxl, alignItems: 'center', borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  emptyCard:       { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.xxxl, alignItems: 'center', borderWidth: 1, borderColor: colors.border, ...shadows.sm },
   emptyIconCircle: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md, borderWidth: 1, borderColor: colors.borderGold },
   emptyTitle:      { ...typography.bodySemibold, color: colors.text2 },
   emptySubtitle:   { ...typography.caption, color: colors.text3, textAlign: 'center', marginTop: 4, maxWidth: 260 },
 
   // Trip card
-  tripCard:        { backgroundColor: colors.card, borderRadius: radius.xl, marginBottom: spacing.md, overflow: 'hidden', flexDirection: 'row', borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  tripCard:        { backgroundColor: colors.card, borderRadius: radius.xl, marginBottom: spacing.md, overflow: 'hidden', flexDirection: 'row', borderWidth: 1, borderColor: colors.border, ...shadows.sm },
   tripStrip:       { width: 4 },
   tripContent:     { flex: 1, padding: spacing.lg },
   tripTopRow:      { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 12 },

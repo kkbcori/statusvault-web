@@ -6,6 +6,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState } from 'react';
+import { Platform } from 'react-native';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   LayoutAnimation, Platform, UIManager, Modal, FlatList, TextInput, Alert,
@@ -64,15 +65,9 @@ interface SectionHeaderProps {
 const SectionHeader: React.FC<SectionHeaderProps> = ({ iconName, title, right }) => (
   <View style={shStyles.row}>
     <View style={shStyles.left}>
-      <AppIcon
-        name={
-          title.includes('Deadline') ? 'calendar' :
-          title.includes('Counter') ? 'timer' :
-          title.includes('Checklist') ? 'checklist' : undefined as any
-        }
-        size={30}
-        style={{ marginRight: 8 }}
-      />
+      <View style={shStyles.iconPill}>
+        <Ionicons name={iconName} size={13} color={colors.primary} />
+      </View>
       <Text style={shStyles.title}>{title}</Text>
     </View>
     {right}
@@ -82,7 +77,7 @@ const shStyles = StyleSheet.create({
   row:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
   left:    { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconBox: { width: 26, height: 26, borderRadius: 8, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold },
-  title:   { ...typography.h2, color: colors.text1, fontSize: IS_WEB ? 17 : 16 },
+  title:   { ...typography.h2, color: colors.text1, fontSize: 15 },
 });
 
 // ─── Web section card wrapper ─────────────────────────────────
@@ -94,13 +89,15 @@ const WebCard: React.FC<{ children: React.ReactNode; style?: any }> = ({ childre
 );
 const webCardStyle = StyleSheet.create({
   card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.xxl,
-    padding: spacing.xxl,
-    marginBottom: spacing.xl,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
     flex: 1,
-    ...shadows.md,
-  },
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    ...(Platform.OS === 'web' ? { boxShadow: '0 1px 3px rgba(15,23,42,0.05), 0 1px 2px rgba(15,23,42,0.03)' } : shadows.sm),
+  } as any,
 });
 
 export const DashboardScreen: React.FC = () => {
@@ -854,7 +851,7 @@ const styles = StyleSheet.create({
   container:       { flex: 1, backgroundColor: colors.background },
   containerWeb: { backgroundColor: colors.background },
   content:         { paddingBottom: 20 },
-  contentWeb:      { paddingHorizontal: 28, paddingTop: 8, paddingBottom: 40 },
+  contentWeb:      { paddingHorizontal: 28, paddingTop: 24, paddingBottom: 48 },
 
   // Web page title
   webPageTitle:    { marginBottom: spacing.xl },
@@ -862,7 +859,7 @@ const styles = StyleSheet.create({
   webPageSubtitle: { fontSize: 14, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 4 },
 
   // Web 2-column grid
-  webGrid:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, gap: spacing.xl, marginTop: spacing.md, alignItems: 'stretch' as any },
+  webGrid:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, gap: 16, marginTop: 20, alignItems: 'stretch' as any },
 
   // Mobile header
   headerGradient:  { paddingBottom: 8 },
@@ -874,14 +871,14 @@ const styles = StyleSheet.create({
   privacySubtext:  { fontSize: 10, fontFamily: 'Inter_500Medium', color: 'rgba(201,163,81,0.6)', marginTop: 1 },
 
   // Free bar
-  freeBar:         { marginHorizontal: spacing.screen, marginTop: spacing.md, backgroundColor: colors.card, borderRadius: radius.lg, padding: 14, gap: 8, borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  freeBar:         { marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: spacing.md, backgroundColor: colors.card, borderRadius: 10, padding: 14, gap: 8, borderWidth: 1, borderColor: colors.border } as any,
   freeBarWeb:      { marginHorizontal: 0, borderRadius: radius.xl, marginBottom: spacing.xl },
   freeBarInner:    { flexDirection: 'row', alignItems: 'center', gap: 8 },
   freeText:        { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.text2, flex: 1 },
 
   // Sections
   section:         { marginTop: spacing.xxl, paddingHorizontal: spacing.screen },
-  sectionWeb:      { marginTop: 0, paddingHorizontal: 0, flex: 1 as any, minWidth: 300 as any, flexBasis: '30%' as any },
+  sectionWeb:      { marginTop: 0, paddingHorizontal: 0, flex: 1 as any, minWidth: 280 as any, flexBasis: '30%' as any },
   seeAll:          { ...typography.captionBold, color: colors.accent },
   addBtnPill:      { backgroundColor: colors.accentDim, paddingHorizontal: 14, paddingVertical: 6, borderRadius: radius.full, borderWidth: 1, borderColor: colors.borderGold },
   addBtnText:      { fontSize: 13, fontFamily: 'Inter_700Bold', color: colors.accent },
@@ -893,7 +890,7 @@ const styles = StyleSheet.create({
   emptySubtitle:   { ...typography.caption, color: colors.text3, textAlign: 'center', marginTop: 4, maxWidth: 260 },
 
   // Counter
-  counterCard:     { backgroundColor: colors.card, borderRadius: radius.xl, marginBottom: spacing.md, overflow: 'hidden', flexDirection: 'row', borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  counterCard:     { backgroundColor: '#FFFFFF', borderRadius: 10, marginBottom: 8, overflow: 'hidden', flexDirection: 'row', borderWidth: 1, borderColor: '#E2E8F0' },
   counterCardWeb:  { borderWidth: 0, borderRadius: radius.lg, backgroundColor: colors.background },
   counterAccent:   { width: 4 },
   counterContent:  { flex: 1, padding: spacing.lg },
@@ -915,7 +912,7 @@ const styles = StyleSheet.create({
   resetText:       { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.text3 },
 
   // Checklist
-  checklistCard:   { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.lg, marginBottom: spacing.md, borderWidth: 1, borderColor: colors.borderLight, ...shadows.sm },
+  checklistCard:   { backgroundColor: '#FFFFFF', borderRadius: 10, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E2E8F0' },
   checklistCardWeb:{ backgroundColor: colors.background, borderWidth: 0, borderRadius: radius.lg, ...shadows.sm },
   checklistHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
   clIconBox:       { width: 38, height: 38, borderRadius: 10, backgroundColor: colors.successLight, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.success + '25' },

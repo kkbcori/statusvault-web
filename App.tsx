@@ -22,49 +22,29 @@ LogBox.ignoreLogs(['Setting a timer', 'expo-notifications', 'Cannot record touch
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
   const s = document.createElement('style');
   s.textContent = `
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body {
-      width: 100%; height: 100%;
-      margin: 0; padding: 0;
-      overflow: hidden;
-      background: ${colors.background};
+    *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { height: 100%; }
+    body {
+      height: 100%; margin: 0; padding: 0; overflow: hidden;
+      background: #0F172A;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
-    #root {
-      width: 100vw; height: 100vh;
-      display: flex; flex-direction: row;
-      overflow: hidden;
-    }
-    /* Sidebar fixed width */
-    #root > div > div > div:first-child {
-      flex-shrink: 0;
-    }
-    /* Main content area — must scroll */
-    #root > div > div > div:last-child {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    /* Tab content — each screen's ScrollView scrolls here */
-    #root > div > div > div:last-child > div:last-child {
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-    }
-    /* React Native Web ScrollView — make it actually scroll */
-    [data-focusable="true"] { outline: none; }
-    div[style*="overflow-y: scroll"],
-    div[style*="overflow: scroll"] {
+    #root { width: 100vw; height: 100vh; display: flex; flex-direction: row; overflow: hidden; }
+    /* Allow RNW ScrollViews to scroll */
+    div[style*="overflow-y: scroll"], div[style*="overflow: scroll"], div[style*="overflow: auto"] {
       -webkit-overflow-scrolling: touch !important;
-      overflow-y: auto !important;
     }
-    /* Scrollbars — visible on right side */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #F0F2F7; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #64748B; }
-    * { scrollbar-width: thin; scrollbar-color: #94A3B8 #F0F2F7; }
+    /* Thin elegant scrollbars */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.5); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.7); }
+    * { scrollbar-width: thin; scrollbar-color: rgba(148,163,184,0.5) transparent; }
+    /* Remove outline on focus for mouse users */
+    :focus:not(:focus-visible) { outline: none; }
   `;
   document.head.appendChild(s);
 }
