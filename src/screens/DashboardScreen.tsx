@@ -6,7 +6,6 @@
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState } from 'react';
-import { Platform } from 'react-native';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   LayoutAnimation, Platform, UIManager, Modal, FlatList, TextInput, Alert,
