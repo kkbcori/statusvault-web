@@ -223,14 +223,16 @@ const WebTopBar: React.FC = () => {
         <Text style={topBarStyles.title}>{item?.label ?? 'Dashboard'}</Text>
       </View>
       <View style={topBarStyles.right}>
-        <View style={topBarStyles.pulsePill}>
-          <View style={[topBarStyles.pulseDot, {
-            backgroundColor: isSyncing ? colors.warning : authUser ? colors.success : colors.text3
-          }]} />
-          <Text style={topBarStyles.pulseText}>
-            {isSyncing ? 'Syncing' : authUser ? 'Synced' : 'Offline'}
-          </Text>
-        </View>
+        {authUser && (
+          <View style={topBarStyles.pulsePill}>
+            <View style={[topBarStyles.pulseDot, {
+              backgroundColor: isSyncing ? colors.warning : colors.success
+            }]} />
+            <Text style={topBarStyles.pulseText}>
+              {isSyncing ? 'Syncing' : 'Synced'}
+            </Text>
+          </View>
+        )}
         <TouchableOpacity
           style={topBarStyles.avatarBtn}
           onPress={() => navigation.navigate(authUser ? 'Profile' : 'Auth')}

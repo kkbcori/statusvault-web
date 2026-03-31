@@ -338,7 +338,7 @@ export const DashboardScreen: React.FC = () => {
                 <AppIcon name="visa_approved" size={36} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.profileCTATitle}>Set up your visa profile</Text>
+                <Text style={styles.profileCTATitle}>Set up your profile</Text>
                 <Text style={styles.profileCTASub}>Tell us your visa status → we'll add the right documents automatically</Text>
               </View>
             </View>
