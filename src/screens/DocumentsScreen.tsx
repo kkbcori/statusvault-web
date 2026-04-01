@@ -322,7 +322,7 @@ export const DocumentsScreen: React.FC = () => {
             showsVerticalScrollIndicator={false}
           >
             {/* Close */}
-            <TouchableOpacity style={styles.paywallCloseBtn} onPress={() => setShowPaywall(false); setAnyModalOpen(false)}>
+            <TouchableOpacity style={styles.paywallCloseBtn} onPress={() => { setShowPaywall(false); setAnyModalOpen(false); }}>
               <View style={styles.paywallCloseCircle}>
                 <Ionicons name="close" size={20} color="rgba(255,255,255,0.6)" />
               </View>
