@@ -237,26 +237,38 @@ export const DashboardScreen: React.FC = () => {
         </LinearGradient>
       )}
 
-      {/* ── Web page header ── */}
+      {/* ── Web top banner — profile setup or profile chip ── */}
       {IS_WEB && (
-        <View style={styles.pageHeader}>
-          <View>
-            <Text style={styles.pageTitle}>Dashboard</Text>
-            <View style={styles.breadcrumb}>
-              <Text style={styles.breadcrumbText}>StatusVault</Text>
-              <Ionicons name="chevron-forward" size={12} color="#ACAEC5" style={{ marginHorizontal: 4 }} />
-              <Text style={[styles.breadcrumbText, { color: '#7367F0' }]}>Dashboard</Text>
-            </View>
-          </View>
-          {visaProfile && (
+        <View style={styles.topBanner}>
+          {!visaProfile ? (
             <TouchableOpacity
-              style={styles.profileChip}
+              style={styles.topBannerSetup}
               onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
+              activeOpacity={0.85}
             >
-              <Ionicons name="shield-checkmark-outline" size={14} color="#7367F0" />
-              <Text style={styles.profileChipText}>{profileLabel}</Text>
-              <Ionicons name="create-outline" size={12} color="#8588A5" />
+              <View style={styles.topBannerIcon}>
+                <Ionicons name="person-circle-outline" size={18} color="#7367F0" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.topBannerTitle}>Set up your profile</Text>
+                <Text style={styles.topBannerSub}>Select your visa status to auto-populate your documents</Text>
+              </View>
+              <View style={styles.topBannerBtn}>
+                <Text style={styles.topBannerBtnText}>Get Started</Text>
+              </View>
             </TouchableOpacity>
+          ) : (
+            <View style={styles.topBannerProfile}>
+              <Ionicons name="shield-checkmark" size={16} color="#28C76F" />
+              <Text style={styles.topBannerProfileLabel}>{profileLabel}</Text>
+              <TouchableOpacity
+                onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
+                style={styles.topBannerEditBtn}
+              >
+                <Ionicons name="create-outline" size={13} color="#8588A5" />
+                <Text style={styles.topBannerEditText}>Edit</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
       )}
@@ -513,29 +525,6 @@ export const DashboardScreen: React.FC = () => {
 
       </View>
 
-      {/* Profile CTA below grid if not set */}
-      {!visaProfile && (
-        <View style={{ marginHorizontal: IS_WEB ? 0 : 16, marginTop: 16 }}>
-          <Card>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-              <View style={styles.profileSetupIconWrap}>
-                <Ionicons name="person-circle-outline" size={28} color="#7367F0" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.profileEditLabel}>Set Up Your Profile</Text>
-                <Text style={styles.profileEditSub}>Select your visa status to auto-populate documents</Text>
-              </View>
-              <TouchableOpacity
-                style={{ backgroundColor: '#7367F0', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8 }}
-                onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
-              >
-                <Text style={{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#fff' }}>Set Up →</Text>
-              </TouchableOpacity>
-            </View>
-          </Card>
-        </View>
-      )}
-
       {/* ═══ PROFILE SETUP MODAL ═══ */}
       <Modal visible={showProfileSetup} transparent animationType="fade">
         <View style={styles.overlay}>
@@ -675,20 +664,25 @@ export const DashboardScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container:     { flex: 1, backgroundColor: '#F4F5FA' },
   content:       { paddingBottom: 32 },
-  contentWeb:    { paddingHorizontal: 24, paddingTop: 0, paddingBottom: 48 },
+  contentWeb:    { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 48 },
 
   // Mobile header
   mobileHeader:  { padding: 24, paddingTop: 48 },
   mobileTitle:   { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#fff' },
   mobileSub:     { fontSize: 14, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.75)', marginTop: 4 },
 
-  // Web page header
-  pageHeader:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingTop: 24, paddingBottom: 20 },
-  pageTitle:     { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#2F3349', letterSpacing: -0.3 },
-  breadcrumb:    { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-  breadcrumbText:{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5' },
-  profileChip:   { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: '#DBDADE', ...(Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(47,43,61,0.06)' } : {}) } as any,
-  profileChipText:{ fontSize: 13, fontFamily: 'Inter_500Medium', color: '#2F3349' },
+  // Top banner (replaces page header)
+  topBanner:           { marginBottom: 16 },
+  topBannerSetup:      { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#DBDADE', borderLeftWidth: 3, borderLeftColor: '#7367F0' } as any,
+  topBannerIcon:       { width: 34, height: 34, borderRadius: 8, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center' },
+  topBannerTitle:      { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
+  topBannerSub:        { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#8588A5', marginTop: 1 },
+  topBannerBtn:        { backgroundColor: '#7367F0', borderRadius: 7, paddingHorizontal: 14, paddingVertical: 7 },
+  topBannerBtnText:    { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#fff' },
+  topBannerProfile:    { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: '#DBDADE', borderLeftWidth: 3, borderLeftColor: '#28C76F' } as any,
+  topBannerProfileLabel:{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#2F3349', flex: 1 },
+  topBannerEditBtn:    { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA' },
+  topBannerEditText:   { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#8588A5' },
 
   // Stat cards
   statRow:       { flexDirection: IS_WEB ? 'row' as any : 'column' as any, gap: 16, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : 16, marginTop: IS_WEB ? 0 : 16 },
