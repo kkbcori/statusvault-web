@@ -411,7 +411,7 @@ setShowAddMember(false); setAnyModalOpen(false);
           <View style={styles.modal}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Add Document for {selectedMember?.name}</Text>
-              <TouchableOpacity onPress={() => setShowAddDoc(false); setAnyModalOpen(false)}>
+              <TouchableOpacity onPress={() => { setShowAddDoc(false); setAnyModalOpen(false); }}>
                 <Ionicons name="close" size={22} color={colors.text2} />
               </TouchableOpacity>
             </View>
@@ -475,7 +475,7 @@ setShowAddMember(false); setAnyModalOpen(false);
           <View style={styles.modal}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Edit {editingMember?.name}</Text>
-              <TouchableOpacity onPress={() => setEditingMember(null); setAnyModalOpen(false)}>
+              <TouchableOpacity onPress={() => { setEditingMember(null); setAnyModalOpen(false); }}>
                 <Ionicons name="close" size={22} color={colors.text2} />
               </TouchableOpacity>
             </View>
