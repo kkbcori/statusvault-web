@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   webHero:        { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.lg },
   webTitle:       { fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: colors.text1, letterSpacing: -0.4 },
   webSub:         { ...typography.caption, color: colors.text3, marginTop: 3 },
-  liveBtn:        { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F0EEFF', paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.full, borderWidth: 1, borderColor: '#DBDADE'Gold },
+  liveBtn:        { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F0EEFF', paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   liveBtnText:    { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
   disclaimer:     { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: colors.warningLight, borderRadius: radius.md, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginVertical: spacing.md, padding: spacing.md, borderWidth: 1, borderColor: colors.warning + '30' },
   disclaimerText: { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#78350F', lineHeight: 18 },

@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
   addMemberBtn:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#7367F0', paddingHorizontal: 18, paddingVertical: 10, borderRadius: radius.lg },
   addMemberBtnText: { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#fff' },
   emptyState:       { alignItems: 'center', padding: 40, gap: 14 },
-  emptyIcon:        { width: 80, height: 80, borderRadius: 20, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE'Gold },
+  emptyIcon:        { width: 80, height: 80, borderRadius: 20, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   emptyTitle:       { ...typography.h2, color: colors.text1 },
   emptyDesc:        { ...typography.body, color: colors.text3, textAlign: 'center', maxWidth: 300, lineHeight: 22 },
   emptyBtn:         { width: '100%', maxWidth: 320, borderRadius: radius.lg, overflow: 'hidden' },

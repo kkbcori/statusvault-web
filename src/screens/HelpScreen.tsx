@@ -231,10 +231,10 @@ const SectionCard: React.FC<{ section: Section }> = ({ section }) => {
 const sectionStyles = StyleSheet.create({
   card:       { backgroundColor: colors.card, borderRadius: radius.xl, marginBottom: spacing.md, overflow: 'hidden', borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
   header:     { flexDirection: 'row', alignItems: 'center', gap: 12, padding: spacing.lg },
-  iconBox:    { width: 40, height: 40, borderRadius: 12, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE'Gold },
+  iconBox:    { width: 40, height: 40, borderRadius: 12, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   title:      { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
   subtitle:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 2 },
-  countBadge: { backgroundColor: '#F0EEFF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.full, borderWidth: 1, borderColor: '#DBDADE'Gold },
+  countBadge: { backgroundColor: '#F0EEFF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   countText:  { fontSize: 11, fontFamily: 'Inter_700Bold', color: '#7367F0' },
   faqs:       { paddingHorizontal: spacing.lg, paddingBottom: 4 },
 });

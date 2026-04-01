@@ -224,7 +224,7 @@ export const SettingsScreen: React.FC = () => {
       {isPremium ? (
         <View style={[styles.card, { borderWidth: 2, borderColor: '#7367F0' }]}>
           <View style={styles.row}>
-            <View style={[styles.rowIconBox, { backgroundColor: '#F0EEFF', borderColor: '#DBDADE'Gold }]}>
+            <View style={[styles.rowIconBox, { backgroundColor: '#F0EEFF', borderColor: 'rgba(115,103,240,0.25)' }]}>
               <Ionicons name="star" size={16} color={'#7367F0'} />
             </View>
             <Text style={[styles.rTitle, { color: '#7367F0' }]}>Premium Active — Unlimited tracking</Text>
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
 
   card:            { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
   row:             { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  rowIconBox:      { width: 34, height: 34, borderRadius: 10, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE'Gold },
+  rowIconBox:      { width: 34, height: 34, borderRadius: 10, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   rTitle:          { ...typography.bodySemibold, color: colors.text1, fontSize: 14 },
   rDesc:           { ...typography.caption, color: colors.text3, fontSize: 12, marginTop: 1 },
   sRow:            { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, gap: spacing.md },
