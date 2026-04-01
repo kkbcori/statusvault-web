@@ -84,6 +84,13 @@ export const FamilyScreen: React.FC = () => {
 
   const handleAddMember = () => {
     if (!name.trim()) { setNameError(true); return; }
+    if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
+      setNameError(false);
+      setShowAddMember(false);
+      setAnyModalOpen(false);
+      dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
+      return;
+    }
     setNameError(false);
     addFamilyMember({
       id: Date.now().toString(),
@@ -187,7 +194,13 @@ setShowAddMember(false); setAnyModalOpen(false);
             <Text style={styles.webTitle}>Family Mode</Text>
             <Text style={styles.webSub}>Track immigration documents for your spouse, children, and dependents in one place</Text>
           </View>
-          <TouchableOpacity style={styles.addMemberBtn} onPress={() => setShowAddMember(true)} activeOpacity={0.85}>
+          <TouchableOpacity style={styles.addMemberBtn} onPress={() => {
+              if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
+                dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
+                return;
+              }
+              setShowAddMember(true); setAnyModalOpen(true);
+            }} activeOpacity={0.85}>
             <Ionicons name="person-add-outline" size={16} color="#fff" />
             <Text style={styles.addMemberBtnText}>Add Member</Text>
           </TouchableOpacity>
@@ -202,7 +215,13 @@ setShowAddMember(false); setAnyModalOpen(false);
           <Text style={styles.emptyDesc}>
             Add family members to track their visas, work permits, and travel documents alongside yours.
           </Text>
-          <TouchableOpacity style={styles.emptyBtn} onPress={() => setShowAddMember(true)} activeOpacity={0.85}>
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => {
+              if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
+                dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
+                return;
+              }
+              setShowAddMember(true); setAnyModalOpen(true);
+            }} activeOpacity={0.85}>
             <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.emptyBtnGrad}>
               <Ionicons name="person-add-outline" size={16} color="#fff" />
               <Text style={styles.emptyBtnText}>Add First Family Member</Text>
