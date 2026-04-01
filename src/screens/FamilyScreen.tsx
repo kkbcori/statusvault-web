@@ -133,9 +133,9 @@ setShowAddMember(false); setAnyModalOpen(false);
       createdAt: new Date().toISOString(),
     };
 
-    await addDocument(doc);
-    updateFamilyMember(selectedMember.id, {
-      documentIds: [...selectedMember.documentIds, doc.id],
+    useStore.getState().forceAddDocument(doc);
+    updateFamilyMember(selectedMember!.id, {
+      documentIds: [...selectedMember!.documentIds, doc.id],
     });
     setDocTemplateId(''); setDocExpiry(''); setDocNotes('');
     setShowAddDoc(false); setAnyModalOpen(false);
