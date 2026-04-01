@@ -49,6 +49,7 @@ export const FamilyScreen: React.FC = () => {
 
   // Add member form
   const [name,      setName]      = useState('');
+  const [nameError, setNameError] = useState(false);
   const [relation,  setRelation]  = useState(RELATIONS[1].id);
   const [visaType,  setVisaType]  = useState(VISA_TYPES[0]);
 
@@ -58,7 +59,8 @@ export const FamilyScreen: React.FC = () => {
   const [docNotes,      setDocNotes]      = useState('');
 
   const handleAddMember = () => {
-    if (!name.trim()) { dialog.alert('Name required', 'Please enter a name.'); return; }
+    if (!name.trim()) { setNameError(true); return; }
+    setNameError(false);
     addFamilyMember({
       id: Date.now().toString(),
       name: name.trim(),
@@ -67,7 +69,7 @@ export const FamilyScreen: React.FC = () => {
       documentIds: [],
       createdAt: new Date().toISOString(),
     });
-    setName(''); setRelation(RELATIONS[1].id); setVisaType(VISA_TYPES[0]);
+    setName(''); setRelation(RELATIONS[1].id); setVisaType(VISA_TYPES[0]); setNameError(false);
     setShowAddMember(false);
   };
 
@@ -291,12 +293,24 @@ export const FamilyScreen: React.FC = () => {
             </View>
 
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} contentContainerStyle={{ padding: spacing.xl }}>
-              <Text style={styles.fieldLabel}>Name</Text>
+              <View style={styles.fieldLabelRow}>
+                <Text style={styles.fieldLabel}>Name</Text>
+                <Text style={styles.fieldRequired}>*</Text>
+              </View>
               <TextInput
-                style={styles.fieldInput} value={name} onChangeText={setName}
-                placeholder="e.g., Sarah Johnson" placeholderTextColor={colors.text3}
+                style={[styles.fieldInput, nameError && styles.fieldInputError]}
+                value={name}
+                onChangeText={(v) => { setName(v); if (v.trim()) setNameError(false); }}
+                placeholder="e.g., Sarah Johnson"
+                placeholderTextColor={colors.text3}
                 autoFocus
               />
+              {nameError && (
+                <View style={styles.inlineError}>
+                  <Ionicons name="alert-circle" size={13} color="#EA5455" />
+                  <Text style={styles.inlineErrorText}>Name is required</Text>
+                </View>
+              )}
 
               <Text style={styles.fieldLabel}>Relationship</Text>
               <View style={styles.chipRow}>
@@ -449,6 +463,11 @@ const styles = StyleSheet.create({
   modalHeader:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.xl, paddingBottom: 0 },
   modalTitle:       { fontSize: 16, fontFamily: 'Inter_700Bold', color: colors.text1 },
   fieldLabel:       { ...typography.captionBold, color: colors.text2, marginBottom: 6, marginTop: 4 },
+  fieldLabelRow:    { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: 6, marginTop: 4 },
+  fieldRequired:    { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#EA5455' },
+  fieldInputError:  { borderColor: '#EA5455', borderWidth: 1.5 },
+  inlineError:      { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4, marginBottom: 4 },
+  inlineErrorText:  { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#EA5455' },
   fieldInput:       { backgroundColor: '#F4F5FA', borderRadius: radius.md, borderWidth: 1.5, borderColor: '#DBDADE', padding: 12, fontSize: 14, fontFamily: 'Inter_400Regular', color: colors.text1, marginBottom: spacing.md },
   chipRow:          { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: spacing.md },
   relChip:          { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE' },
