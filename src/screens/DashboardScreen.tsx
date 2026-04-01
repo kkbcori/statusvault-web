@@ -306,16 +306,37 @@ export const DashboardScreen: React.FC = () => {
         </LinearGradient>
       )}
 
-      {/* ─── Web page title ──────────────────────────────────── */}
-      {IS_WEB && (
-        <View style={styles.webPageTitle}>
-          <Text style={styles.webPageTitleText}>Dashboard</Text>
-          <Text style={styles.webPageSubtitle}>Your immigration status at a glance</Text>
-        </View>
-      )}
-
       <StatusCard deadline={mostCritical} totalDocs={documents.length} deadlines={deadlines} />
       <SeveritySummary deadlines={deadlines} />
+
+      {/* ─── Free tier thin strip ────────────────────────────── */}
+      {!isPremium && (
+        <TouchableOpacity
+          style={styles.freeThinStrip}
+          onPress={() => navigation.navigate('Documents', remaining > 0 ? {} : { openPaywall: true })}
+          activeOpacity={0.75}
+        >
+          {/* Slot dots */}
+          <View style={styles.freeSlotDots}>
+            {Array.from({ length: FREE_LIMIT }).map((_, i) => (
+              <View key={i} style={[styles.freeSlotDot, {
+                backgroundColor: i < documents.length
+                  ? (remaining === 0 ? colors.danger : colors.primary)
+                  : '#E2E8F0'
+              }]} />
+            ))}
+          </View>
+          <Text style={styles.freeThinText}>
+            {remaining > 0
+              ? `Free plan · ${documents.length}/${FREE_LIMIT} docs used · ${remaining} slot${remaining !== 1 ? 's' : ''} left`
+              : `Free limit reached · Upgrade for unlimited docs`}
+          </Text>
+          {remaining === 0
+            ? <View style={styles.freeUpgradeChip}><Text style={styles.freeUpgradeText}>Upgrade ↗</Text></View>
+            : <Ionicons name="chevron-forward" size={12} color={colors.text4} />
+          }
+        </TouchableOpacity>
+      )}
 
       {/* ─── Profile Setup CTA ─────────────────────────────── */}
       {!visaProfile && (
@@ -324,22 +345,25 @@ export const DashboardScreen: React.FC = () => {
           onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
           activeOpacity={0.85}
         >
-          <LinearGradient
-            colors={[colors.primary, colors.primaryMid]}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-            style={styles.profileCTAGrad}
-          >
-            <View style={styles.profileCTALeft}>
-              <View style={styles.profileCTAIcon}>
-                <AppIcon name="visa_approved" size={36} />
+          <View style={styles.profileCTAInner}>
+            {/* Radio step indicator */}
+            <View style={styles.profileRadioWrap}>
+              <View style={styles.profileRadioOuter}>
+                <View style={styles.profileRadioInner} />
               </View>
+              <View style={styles.profileRadioLine} />
+            </View>
+            <View style={styles.profileCTALeft}>
               <View style={{ flex: 1 }}>
+                <Text style={styles.profileCTAEye}>RECOMMENDED NEXT STEP</Text>
                 <Text style={styles.profileCTATitle}>Set up your profile</Text>
-                <Text style={styles.profileCTASub}>Tell us your visa status → we'll add the right documents automatically</Text>
+                <Text style={styles.profileCTASub}>Select your visa type and we'll pre-load the right documents</Text>
+              </View>
+              <View style={styles.profileCTAArrow}>
+                <Ionicons name="arrow-forward" size={16} color={colors.primary} />
               </View>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.6)" />
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       )}
 
@@ -376,32 +400,7 @@ export const DashboardScreen: React.FC = () => {
         </TouchableOpacity>
       )}
 
-      {/* Free tier bar */}
-      {!isPremium && (
-        <TouchableOpacity
-          onPress={() => remaining > 0
-            ? navigation.navigate('Documents')
-            : navigation.navigate('Documents', { openPaywall: true })}
-          activeOpacity={0.7}
-        >
-          <View style={[styles.freeBar, IS_WEB && styles.freeBarWeb]}>
-            <View style={styles.freeBarInner}>
-              <Ionicons name="document-text-outline" size={16} color={colors.text3} />
-              <Text style={styles.freeText}>
-                {remaining > 0
-                  ? `${remaining} free slot${remaining !== 1 ? 's' : ''} left · Tap to add`
-                  : 'Free limit reached · Tap to upgrade'}
-              </Text>
-              <Ionicons name="chevron-forward" size={14} color={colors.text3} />
-            </View>
-            <ProgressBar
-              value={documents.length} max={FREE_LIMIT}
-              color={remaining > 1 ? colors.accent : remaining > 0 ? colors.warning : colors.danger}
-              height={3}
-            />
-          </View>
-        </TouchableOpacity>
-      )}
+
 
       {/* ─── Web: 2-column grid wrapper ──────────────────────── */}
       <View style={IS_WEB && isWide ? styles.webGrid : undefined}>
@@ -939,13 +938,26 @@ const styles = StyleSheet.create({
   authPromptBtnText: { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
   authPromptSkip:    { fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.text3 },
 
+  // Free thin strip
+  freeThinStrip:    { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: 8, backgroundColor: '#FFFFFF', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: colors.border } as any,
+  freeSlotDots:     { flexDirection: 'row', gap: 3, alignItems: 'center' },
+  freeSlotDot:      { width: 8, height: 8, borderRadius: 4 },
+  freeThinText:     { flex: 1, fontSize: 11, fontFamily: 'Inter_500Medium', color: colors.text3 },
+  freeUpgradeChip:  { backgroundColor: '#FEF9C3', borderRadius: 4, paddingHorizontal: 7, paddingVertical: 3, borderWidth: 1, borderColor: '#FDE047' },
+  freeUpgradeText:  { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#854D0E' },
+
   // Profile setup
-  profileCTA:      { marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: spacing.md, borderRadius: radius.xl, overflow: 'hidden', ...shadows.md },
-  profileCTAGrad:  { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, gap: 12 },
-  profileCTALeft:  { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  profileCTAIcon:  { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
-  profileCTATitle: { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff', marginBottom: 3 },
-  profileCTASub:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.6)', lineHeight: 16 },
+  profileCTA:       { marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: 10, borderRadius: 10, overflow: 'hidden', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: colors.border } as any,
+  profileCTAInner:  { flexDirection: 'row', alignItems: 'stretch' },
+  profileRadioWrap: { alignItems: 'center', paddingTop: 16, paddingLeft: 14, paddingRight: 4 },
+  profileRadioOuter:{ width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  profileRadioInner:{ width: 7, height: 7, borderRadius: 4, backgroundColor: colors.primary },
+  profileRadioLine: { width: 2, flex: 1, backgroundColor: '#E2E8F0', marginTop: 3, borderRadius: 1 },
+  profileCTALeft:   { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
+  profileCTAEye:    { fontSize: 9, fontFamily: 'Inter_600SemiBold', color: colors.primary, letterSpacing: 0.8, marginBottom: 3 },
+  profileCTATitle:  { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: colors.text1, marginBottom: 2 },
+  profileCTASub:    { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, lineHeight: 17 },
+  profileCTAArrow:  { width: 30, height: 30, borderRadius: 8, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold },
   profileBadge:    { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: spacing.sm, backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: colors.borderLight },
   profileBadgeIcon:{ fontSize: 18 },
   profileBadgeLabel:{ flex: 1, fontSize: 13, fontFamily: 'Inter_600SemiBold', color: colors.text1 },
