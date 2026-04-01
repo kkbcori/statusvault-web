@@ -259,7 +259,7 @@ export const HelpScreen: React.FC = () => {
     <ScrollView
       style={styles.container}
       contentContainerStyle={[styles.content, IS_WEB && styles.contentWeb]}
-      showsVerticalScrollIndicator={false}
+      showsVerticalScrollIndicator={true}
     >
       {/* Header */}
       {!IS_WEB && (

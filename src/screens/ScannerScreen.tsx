@@ -145,7 +145,7 @@ Do not include any PII warnings or disclaimers — just the JSON.`,
     <ScrollView
       style={styles.container}
       contentContainerStyle={[styles.content, IS_WEB && styles.contentWeb]}
-      showsVerticalScrollIndicator={false}
+      showsVerticalScrollIndicator={true}
     >
       {!IS_WEB && (
         <View style={styles.header}>

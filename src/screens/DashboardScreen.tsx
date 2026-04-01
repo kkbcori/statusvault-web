@@ -119,6 +119,8 @@ export const DashboardScreen: React.FC = () => {
   const isPremium            = useStore((s) => s.isPremium);
   const authUser             = useStore((s) => s.authUser);
   const familyMembers        = useStore((s) => s.familyMembers);
+  const checklists           = useStore((s) => s.checklists);
+  const counters             = useStore((s) => s.counters);
   const visaProfile          = useStore((s) => s.visaProfile);
   const setVisaProfile       = useStore((s) => s.setVisaProfile);
   const getRemainingFreeSlots= useStore((s) => s.getRemainingFreeSlots);
@@ -225,7 +227,7 @@ export const DashboardScreen: React.FC = () => {
     <ScrollView
       style={styles.container}
       contentContainerStyle={[styles.content, IS_WEB && styles.contentWeb]}
-      showsVerticalScrollIndicator={false}
+      showsVerticalScrollIndicator={true}
     >
       {/* ── Mobile header ── */}
       {!IS_WEB && (
@@ -333,134 +335,206 @@ export const DashboardScreen: React.FC = () => {
         </TouchableOpacity>
       )}
 
-      {/* ═══ MAIN GRID ═══ */}
-      <View style={[styles.grid, IS_WEB && styles.gridWeb]}>
+      {/* ═══ 4-CARD GRID ═══ */}
+      <View style={[styles.cardGrid, IS_WEB && styles.cardGridWeb]}>
 
-        {/* ── Left column: Deadlines ── */}
-        <View style={[styles.col, IS_WEB && styles.colLeft]}>
-          <Card>
-            <CardHeader
-              title="Upcoming Deadlines"
-              subtitle={`${deadlines.length} document${deadlines.length !== 1 ? 's' : ''} tracked`}
-              right={
-                <TouchableOpacity
-                  style={styles.viewAllBtn}
-                  onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
-                >
-                  <Text style={styles.viewAllText}>View all</Text>
-                  <Ionicons name="arrow-forward" size={13} color="#7367F0" />
-                </TouchableOpacity>
-              }
-            />
-            {deadlines.length === 0 ? (
-              <View style={styles.emptyState}>
-                <View style={styles.emptyIconWrap}>
-                  <Ionicons name="document-text-outline" size={32} color="#ACAEC5" />
-                </View>
-                <Text style={styles.emptyTitle}>No documents yet</Text>
-                <Text style={styles.emptyDesc}>Add your first visa or immigration document to start tracking expiry dates</Text>
-                <TouchableOpacity
-                  style={styles.emptyBtn}
-                  onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
-                >
-                  <Text style={styles.emptyBtnText}>Add Document</Text>
-                </TouchableOpacity>
+        {/* Card 1: Document Status */}
+        <Card style={styles.gridCard}>
+          <CardHeader
+            title="Document Status"
+            subtitle="Urgency breakdown"
+            right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />}
+          />
+          {[
+            { label: 'Expired',       count: expired.length,                                                                 color: '#EA5455', bg: '#FFEEEE' },
+            { label: 'Critical ≤30d', count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining <= 30).length,  color: '#FF9F43', bg: '#FFF4E6' },
+            { label: 'Upcoming ≤90d', count: deadlines.filter((d) => d.daysRemaining > 30 && d.daysRemaining <= 90).length,  color: '#7367F0', bg: '#F0EEFF' },
+            { label: 'Safe',          count: deadlines.filter((d) => d.daysRemaining > 90).length,                            color: '#28C76F', bg: '#EAFFF4' },
+          ].map((row) => (
+            <View key={row.label} style={styles.statusRow}>
+              <View style={[styles.statusDot, { backgroundColor: row.color }]} />
+              <Text style={styles.statusLabel}>{row.label}</Text>
+              <View style={styles.statusBar}>
+                <View style={[styles.statusBarFill, {
+                  width: deadlines.length > 0 ? `${(row.count / deadlines.length) * 100}%` as any : '0%',
+                  backgroundColor: row.color,
+                }]} />
               </View>
-            ) : (
-              <View style={styles.deadlineList}>
-                {deadlines.slice(0, 6).map((dl) => {
-                  const isExpired = dl.daysRemaining < 0;
-                  const isCritical = dl.daysRemaining >= 0 && dl.daysRemaining <= 30;
-                  const isUpcoming = dl.daysRemaining > 30 && dl.daysRemaining <= 90;
-                  const badgeColor = isExpired ? '#EA5455' : isCritical ? '#FF9F43' : isUpcoming ? '#7367F0' : '#28C76F';
-                  const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFF4E6' : isUpcoming ? '#F0EEFF' : '#EAFFF4';
-                  const badgeLabel = isExpired ? 'Expired' : isCritical ? `${dl.daysRemaining}d` : isUpcoming ? `${dl.daysRemaining}d` : 'Safe';
-                  return (
-                    <View key={dl.documentId} style={styles.deadlineRow}>
-                      <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
-                      <Text style={styles.deadlineIcon}>{dl.icon}</Text>
-                      <View style={styles.deadlineInfo}>
-                        <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
-                        <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
-                      </View>
-                      <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
-                    </View>
-                  );
-                })}
+              <View style={[styles.statusCount, { backgroundColor: row.bg }]}>
+                <Text style={[styles.statusCountText, { color: row.color }]}>{row.count}</Text>
               </View>
-            )}
-          </Card>
-        </View>
+            </View>
+          ))}
+          <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+            <Text style={styles.cardFooterText}>View Documents</Text>
+            <Ionicons name="arrow-forward" size={13} color="#7367F0" />
+          </TouchableOpacity>
+        </Card>
 
-        {/* ── Right column ── */}
-        <View style={[styles.col, IS_WEB && styles.colRight]}>
-
-          {/* Profile setup card */}
-          {!visaProfile ? (
-            <Card style={{ marginBottom: 16 }}>
-              <CardHeader title="Set Up Your Profile" subtitle="Personalize your document tracking" />
-              <View style={styles.profileSetupBody}>
-                <View style={styles.profileSetupIconWrap}>
-                  <Ionicons name="person-circle-outline" size={40} color="#7367F0" />
-                </View>
-                <Text style={styles.profileSetupDesc}>
-                  Tell us your visa status and we'll pre-populate the right documents for you automatically.
-                </Text>
-                <TouchableOpacity
-                  style={styles.profileSetupBtn}
-                  onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
-                  activeOpacity={0.85}
-                >
-                  <Text style={styles.profileSetupBtnText}>Get Started →</Text>
-                </TouchableOpacity>
-              </View>
-            </Card>
-          ) : (
-            <Card style={{ marginBottom: 16 }}>
-              <CardHeader title="Your Profile" />
-              <TouchableOpacity
-                style={styles.profileEditRow}
-                onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
-                activeOpacity={0.8}
-              >
-                <View style={styles.profileEditIcon}>
-                  <Ionicons name="shield-checkmark" size={22} color="#7367F0" />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.profileEditLabel}>{profileLabel}</Text>
-                  <Text style={styles.profileEditSub}>{documents.length} document{documents.length !== 1 ? 's' : ''} tracked</Text>
-                </View>
-                <Ionicons name="create-outline" size={16} color="#8588A5" />
+        {/* Card 2: Upcoming Deadlines */}
+        <Card style={styles.gridCard}>
+          <CardHeader
+            title="Upcoming Deadlines"
+            subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
+            right={
+              <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+                <Text style={styles.viewAllText}>All</Text>
+                <Ionicons name="arrow-forward" size={12} color="#7367F0" />
               </TouchableOpacity>
-            </Card>
+            }
+          />
+          {deadlines.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="document-text-outline" size={32} color="#ACAEC5" />
+              <Text style={styles.emptyTitle}>No documents yet</Text>
+              <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+                <Text style={styles.emptyBtnText}>Add Document</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.deadlineList}>
+              {deadlines.slice(0, 5).map((dl) => {
+                const isExpired  = dl.daysRemaining < 0;
+                const isCritical = !isExpired && dl.daysRemaining <= 30;
+                const isUpcoming = !isExpired && dl.daysRemaining <= 90;
+                const badgeColor = isExpired ? '#EA5455' : isCritical ? '#FF9F43' : isUpcoming ? '#7367F0' : '#28C76F';
+                const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFF4E6' : isUpcoming ? '#F0EEFF' : '#EAFFF4';
+                const badgeLabel = isExpired ? 'Expired' : `${dl.daysRemaining}d`;
+                return (
+                  <View key={dl.documentId} style={styles.deadlineRow}>
+                    <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
+                    <Text style={styles.deadlineIcon}>{dl.icon}</Text>
+                    <View style={styles.deadlineInfo}>
+                      <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
+                      <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
+                    </View>
+                    <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
+                  </View>
+                );
+              })}
+            </View>
           )}
+        </Card>
 
-          {/* Quick stats card */}
+        {/* Card 3: Immi Checklist */}
+        <Card style={styles.gridCard}>
+          <CardHeader
+            title="Immi Checklist"
+            subtitle={checklists.length > 0 ? `${checklists.length} active checklist${checklists.length !== 1 ? 's' : ''}` : 'Track your immigration steps'}
+          />
+          {checklists.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="checkbox-outline" size={32} color="#ACAEC5" />
+              <Text style={styles.emptyTitle}>No checklists yet</Text>
+              <Text style={styles.emptyDesc}>Add checklists to track OPT, H-1B, and green card steps</Text>
+              <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+                <Text style={styles.emptyBtnText}>Browse Checklists</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.checklistList}>
+              {checklists.slice(0, 3).map((cl) => {
+                const done  = cl.items.filter((it) => it.done).length;
+                const total = cl.items.length;
+                const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+                return (
+                  <View key={cl.templateId} style={styles.checklistRow}>
+                    <Text style={styles.checklistIcon}>{cl.icon}</Text>
+                    <View style={styles.checklistInfo}>
+                      <Text style={styles.checklistLabel} numberOfLines={1}>{cl.label}</Text>
+                      <View style={styles.checklistProgressWrap}>
+                        <View style={styles.checklistProgressBar}>
+                          <View style={[styles.checklistProgressFill, { width: `${pct}%` as any, backgroundColor: pct === 100 ? '#28C76F' : '#7367F0' }]} />
+                        </View>
+                        <Text style={styles.checklistPct}>{done}/{total}</Text>
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+              {checklists.length > 3 && (
+                <Text style={styles.moreText}>+{checklists.length - 3} more checklists</Text>
+              )}
+            </View>
+          )}
+          <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+            <Text style={styles.cardFooterText}>Manage Checklists</Text>
+            <Ionicons name="arrow-forward" size={13} color="#7367F0" />
+          </TouchableOpacity>
+        </Card>
+
+        {/* Card 4: Immi Timers */}
+        <Card style={styles.gridCard}>
+          <CardHeader
+            title="Immi Timers"
+            subtitle={counters.length > 0 ? `${counters.length} timer${counters.length !== 1 ? 's' : ''} active` : 'Track unemployment & stay days'}
+          />
+          {counters.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="timer-outline" size={32} color="#ACAEC5" />
+              <Text style={styles.emptyTitle}>No timers yet</Text>
+              <Text style={styles.emptyDesc}>Track OPT unemployment days, 60-day grace period, and more</Text>
+              <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+                <Text style={styles.emptyBtnText}>Add Timer</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.timerList}>
+              {counters.slice(0, 3).map((ct) => {
+                const pct = Math.min(100, Math.round((ct.daysUsed / ct.maxDays) * 100));
+                const isCrit = ct.daysUsed >= ct.critAt;
+                const isWarn = !isCrit && ct.daysUsed >= ct.warnAt;
+                const barColor = isCrit ? '#EA5455' : isWarn ? '#FF9F43' : '#7367F0';
+                return (
+                  <View key={ct.templateId} style={styles.timerRow}>
+                    <Text style={styles.timerIcon}>{ct.icon}</Text>
+                    <View style={styles.timerInfo}>
+                      <View style={styles.timerTopRow}>
+                        <Text style={styles.timerLabel} numberOfLines={1}>{ct.label}</Text>
+                        <Text style={[styles.timerCount, { color: barColor }]}>{ct.daysUsed}/{ct.maxDays}d</Text>
+                      </View>
+                      <View style={styles.timerBarWrap}>
+                        <View style={[styles.timerBarFill, { width: `${pct}%` as any, backgroundColor: barColor }]} />
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+              {counters.length > 3 && (
+                <Text style={styles.moreText}>+{counters.length - 3} more timers</Text>
+              )}
+            </View>
+          )}
+          <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+            <Text style={styles.cardFooterText}>Manage Timers</Text>
+            <Ionicons name="arrow-forward" size={13} color="#7367F0" />
+          </TouchableOpacity>
+        </Card>
+
+      </View>
+
+      {/* Profile CTA below grid if not set */}
+      {!visaProfile && (
+        <View style={{ marginHorizontal: IS_WEB ? 0 : 16, marginTop: 16 }}>
           <Card>
-            <CardHeader title="Document Status" subtitle="Overview by urgency" />
-            {[
-              { label: 'Expired',      count: expired.length,                                    color: '#EA5455', bg: '#FFEEEE' },
-              { label: 'Critical (≤30d)', count: deadlines.filter(d => d.daysRemaining >= 0 && d.daysRemaining <= 30).length, color: '#FF9F43', bg: '#FFF4E6' },
-              { label: 'Upcoming (≤90d)', count: deadlines.filter(d => d.daysRemaining > 30 && d.daysRemaining <= 90).length, color: '#7367F0', bg: '#F0EEFF' },
-              { label: 'Safe',           count: deadlines.filter(d => d.daysRemaining > 90).length,   color: '#28C76F', bg: '#EAFFF4' },
-            ].map((row) => (
-              <View key={row.label} style={styles.statusRow}>
-                <View style={[styles.statusDot, { backgroundColor: row.color }]} />
-                <Text style={styles.statusLabel}>{row.label}</Text>
-                <View style={styles.statusBar}>
-                  <View style={[styles.statusBarFill, {
-                    width: deadlines.length > 0 ? `${(row.count / deadlines.length) * 100}%` as any : '0%',
-                    backgroundColor: row.color,
-                  }]} />
-                </View>
-                <View style={[styles.statusCount, { backgroundColor: row.bg }]}>
-                  <Text style={[styles.statusCountText, { color: row.color }]}>{row.count}</Text>
-                </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+              <View style={styles.profileSetupIconWrap}>
+                <Ionicons name="person-circle-outline" size={28} color="#7367F0" />
               </View>
-            ))}
+              <View style={{ flex: 1 }}>
+                <Text style={styles.profileEditLabel}>Set Up Your Profile</Text>
+                <Text style={styles.profileEditSub}>Select your visa status to auto-populate documents</Text>
+              </View>
+              <TouchableOpacity
+                style={{ backgroundColor: '#7367F0', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8 }}
+                onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
+              >
+                <Text style={{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#fff' }}>Set Up →</Text>
+              </TouchableOpacity>
+            </View>
           </Card>
         </View>
-      </View>
+      )}
 
       {/* ═══ PROFILE SETUP MODAL ═══ */}
       <Modal visible={showProfileSetup} transparent animationType="fade">
@@ -676,6 +750,36 @@ const styles = StyleSheet.create({
   statusBarFill:  { height: '100%', borderRadius: 3 },
   statusCount:    { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 },
   statusCountText:{ fontSize: 11, fontFamily: 'Inter_700Bold' },
+
+  // 4-card grid
+  cardGrid:            { gap: 16, marginHorizontal: IS_WEB ? 0 : 16 },
+  cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'flex-start' as any },
+  gridCard:            { flex: IS_WEB ? '0 0 calc(50% - 8px)' as any : 1, minWidth: IS_WEB ? 280 : undefined } as any,
+  cardFooterBtn:       { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
+  cardFooterText:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#7367F0', flex: 1 },
+
+  // Checklist
+  checklistList:       { gap: 12 },
+  checklistRow:        { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  checklistIcon:       { fontSize: 20 },
+  checklistInfo:       { flex: 1 },
+  checklistLabel:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#2F3349', marginBottom: 5 },
+  checklistProgressWrap: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  checklistProgressBar:{ flex: 1, height: 5, backgroundColor: '#F4F5FA', borderRadius: 3, overflow: 'hidden' },
+  checklistProgressFill:{ height: '100%', borderRadius: 3 },
+  checklistPct:        { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#8588A5', width: 32, textAlign: 'right' },
+
+  // Timer
+  timerList:           { gap: 12 },
+  timerRow:            { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  timerIcon:           { fontSize: 20 },
+  timerInfo:           { flex: 1 },
+  timerTopRow:         { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
+  timerLabel:          { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#2F3349', flex: 1 },
+  timerCount:          { fontSize: 12, fontFamily: 'Inter_700Bold' },
+  timerBarWrap:        { height: 5, backgroundColor: '#F4F5FA', borderRadius: 3, overflow: 'hidden' },
+  timerBarFill:        { height: '100%', borderRadius: 3 },
+  moreText:            { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5', marginTop: 4, textAlign: 'center' },
 
   // Modal
   overlay:        { flex: 1, backgroundColor: 'rgba(47,51,73,0.60)', alignItems: 'center', justifyContent: 'center', padding: 20 },

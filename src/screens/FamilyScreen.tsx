@@ -130,7 +130,7 @@ export const FamilyScreen: React.FC = () => {
     <ScrollView
       style={styles.container}
       contentContainerStyle={[styles.content, IS_WEB && styles.contentWeb]}
-      showsVerticalScrollIndicator={false}
+      showsVerticalScrollIndicator={true}
     >
       {/* Header */}
       {!IS_WEB && (
@@ -290,47 +290,48 @@ export const FamilyScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.fieldLabel}>Name</Text>
-            <TextInput
-              style={styles.fieldInput} value={name} onChangeText={setName}
-              placeholder="e.g., Sarah Johnson" placeholderTextColor={colors.text3}
-              autoFocus
-            />
+            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} contentContainerStyle={{ padding: spacing.xl }}>
+              <Text style={styles.fieldLabel}>Name</Text>
+              <TextInput
+                style={styles.fieldInput} value={name} onChangeText={setName}
+                placeholder="e.g., Sarah Johnson" placeholderTextColor={colors.text3}
+                autoFocus
+              />
 
-            <Text style={styles.fieldLabel}>Relationship</Text>
-            <View style={styles.chipRow}>
-              {RELATIONS.map((r) => (
-                <TouchableOpacity
-                  key={r.id}
-                  style={[styles.relChip, relation === r.id && styles.relChipActive]}
-                  onPress={() => setRelation(r.id)}
-                >
-                  <Text style={styles.relChipIcon}>{r.icon}</Text>
-                  <Text style={[styles.relChipText, relation === r.id && styles.relChipTextActive]}>{r.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <Text style={styles.fieldLabel}>Visa / Status</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.lg }}>
+              <Text style={styles.fieldLabel}>Relationship</Text>
               <View style={styles.chipRow}>
+                {RELATIONS.map((r) => (
+                  <TouchableOpacity
+                    key={r.id}
+                    style={[styles.relChip, relation === r.id && styles.relChipActive]}
+                    onPress={() => setRelation(r.id)}
+                  >
+                    <Text style={styles.relChipIcon}>{r.icon}</Text>
+                    <Text style={[styles.relChipText, relation === r.id && styles.relChipTextActive]}>{r.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.fieldLabel}>Visa / Immigration Status</Text>
+              <View style={styles.visaGrid}>
                 {VISA_TYPES.map((v) => (
                   <TouchableOpacity
                     key={v}
-                    style={[styles.visaChip, visaType === v && styles.relChipActive]}
+                    style={[styles.visaGridChip, visaType === v && styles.relChipActive]}
                     onPress={() => setVisaType(v)}
                   >
                     <Text style={[styles.relChipText, visaType === v && styles.relChipTextActive]}>{v}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
-            </ScrollView>
 
-            <TouchableOpacity style={styles.saveBtn} onPress={handleAddMember} activeOpacity={0.85}>
-              <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
-                <Text style={styles.saveBtnText}>Add Member</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+              <TouchableOpacity style={[styles.saveBtn, { marginTop: spacing.lg }]} onPress={handleAddMember} activeOpacity={0.85}>
+                <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
+                  <Text style={styles.saveBtnText}>Add Member</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <View style={{ height: 20 }} />
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -444,8 +445,8 @@ const styles = StyleSheet.create({
   addDocBtnText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
   removeText:       { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.danger },
   overlay:          { flex: 1, backgroundColor: 'rgba(17,24,39,0.55)', alignItems: 'center', justifyContent: 'center', padding: 20 },
-  modal:            { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.xl, width: '100%', maxWidth: 480, ...shadows.lg },
-  modalHeader:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
+  modal:            { backgroundColor: colors.card, borderRadius: radius.xl, width: '100%', maxWidth: 480, maxHeight: '85%' as any, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', ...shadows.lg } as any,
+  modalHeader:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.xl, paddingBottom: 0 },
   modalTitle:       { fontSize: 16, fontFamily: 'Inter_700Bold', color: colors.text1 },
   fieldLabel:       { ...typography.captionBold, color: colors.text2, marginBottom: 6, marginTop: 4 },
   fieldInput:       { backgroundColor: '#F4F5FA', borderRadius: radius.md, borderWidth: 1.5, borderColor: '#DBDADE', padding: 12, fontSize: 14, fontFamily: 'Inter_400Regular', color: colors.text1, marginBottom: spacing.md },

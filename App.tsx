@@ -31,14 +31,16 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     }
     #root { width: 100vw; height: 100vh; display: flex; flex-direction: row; overflow: hidden; }
+    /* Allow RNW ScrollViews to scroll */
     div[style*="overflow-y: scroll"], div[style*="overflow: scroll"], div[style*="overflow: auto"] {
       -webkit-overflow-scrolling: touch !important;
     }
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(133,136,165,0.4); border-radius: 2px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(133,136,165,0.7); }
-    * { scrollbar-width: thin; scrollbar-color: rgba(133,136,165,0.4) transparent; }
+    /* ── Scrollbars — always visible on right side ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #EBEBEB; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: #ACAEC5; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #8588A5; }
+    * { scrollbar-width: thin; scrollbar-color: #ACAEC5 #EBEBEB; }
     :focus:not(:focus-visible) { outline: none; }
   `;
   document.head.appendChild(s);
