@@ -46,6 +46,11 @@ export const FamilyScreen: React.FC = () => {
   const [showAddDoc,       setShowAddDoc]       = useState(false);
   const [selectedMember,   setSelectedMember]   = useState<FamilyMember | null>(null);
   const [expandedMember,   setExpandedMember]   = useState<string | null>(null);
+  const [editingMember,    setEditingMember]    = useState<FamilyMember | null>(null);
+  const [editName,         setEditName]         = useState('');
+  const [editRelation,     setEditRelation]     = useState('');
+  const [editVisaType,     setEditVisaType]     = useState('');
+  const [editNameError,    setEditNameError]    = useState(false);
 
   // Add member form
   const [name,      setName]      = useState('');
@@ -57,6 +62,17 @@ export const FamilyScreen: React.FC = () => {
   const [docTemplateId, setDocTemplateId] = useState('');
   const [docExpiry,     setDocExpiry]     = useState('');
   const [docNotes,      setDocNotes]      = useState('');
+
+  const handleEditMember = () => {
+    if (!editName.trim()) { setEditNameError(true); return; }
+    setEditNameError(false);
+    updateFamilyMember(editingMember!.id, {
+      name: editName.trim(),
+      relation: editRelation,
+      visaType: editVisaType,
+    });
+    setEditingMember(null);
+  };
 
   const handleAddMember = () => {
     if (!name.trim()) { setNameError(true); return; }
@@ -266,8 +282,21 @@ export const FamilyScreen: React.FC = () => {
                           <Ionicons name="add-circle-outline" size={15} color={'#7367F0'} />
                           <Text style={styles.addDocBtnText}>Add document</Text>
                         </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setEditingMember(member);
+                            setEditName(member.name);
+                            setEditRelation(member.relation);
+                            setEditVisaType(member.visaType);
+                            setEditNameError(false);
+                          }}
+                          style={styles.editMemberBtn}
+                        >
+                          <Ionicons name="create-outline" size={13} color="#7367F0" />
+                          <Text style={styles.editMemberText}>Edit</Text>
+                        </TouchableOpacity>
                         <TouchableOpacity onPress={() => handleRemoveMember(member)}>
-                          <Text style={styles.removeText}>Remove member</Text>
+                          <Text style={styles.removeText}>Remove</Text>
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -361,49 +390,119 @@ export const FamilyScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.fieldLabel}>Document Type</Text>
-            <ScrollView style={{ maxHeight: 180, marginBottom: spacing.md }} showsVerticalScrollIndicator={false}>
-              {DOCUMENT_TEMPLATES.map((t) => (
-                <TouchableOpacity
-                  key={t.id}
-                  style={[styles.templateRow, docTemplateId === t.id && styles.templateRowActive]}
-                  onPress={() => setDocTemplateId(t.id)}
-                >
-                  <Text style={{ fontSize: 18, marginRight: 10 }}>{t.icon}</Text>
-                  <Text style={[styles.templateLabel, docTemplateId === t.id && { color: '#7367F0' }]}>{t.label}</Text>
-                  {docTemplateId === t.id && <Ionicons name="checkmark-circle" size={16} color={'#7367F0'} style={{ marginLeft: 'auto' as any }} />}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} contentContainerStyle={{ padding: spacing.xl }}>
+              <Text style={styles.fieldLabel}>Document Type</Text>
+              <View style={styles.docTypeList}>
+                {DOCUMENT_TEMPLATES.map((t) => (
+                  <TouchableOpacity
+                    key={t.id}
+                    style={[styles.templateRow, docTemplateId === t.id && styles.templateRowActive]}
+                    onPress={() => setDocTemplateId(t.id)}
+                  >
+                    <Text style={{ fontSize: 18, marginRight: 10 }}>{t.icon}</Text>
+                    <Text style={[styles.templateLabel, docTemplateId === t.id && { color: '#7367F0' }]}>{t.label}</Text>
+                    {docTemplateId === t.id && <Ionicons name="checkmark-circle" size={16} color={'#7367F0'} style={{ marginLeft: 'auto' as any }} />}
+                  </TouchableOpacity>
+                ))}
+              </View>
 
-            <Text style={styles.fieldLabel}>Expiry Date</Text>
-            {IS_WEB ? (
-              <input
-                type="date"
-                value={docExpiry}
-                onChange={(e: any) => setDocExpiry(e.target.value)}
-                style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: '1.5px solid #E5E7EB', borderRadius: '10px', backgroundColor: '#fff', outline: 'none', marginBottom: '16px', boxSizing: 'border-box' } as any}
-              />
-            ) : (
+              <Text style={styles.fieldLabel}>Expiry Date</Text>
+              {IS_WEB ? (
+                <input
+                  type="date"
+                  value={docExpiry}
+                  onChange={(e: any) => setDocExpiry(e.target.value)}
+                  style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: '1.5px solid #DBDADE', borderRadius: '8px', backgroundColor: '#F4F5FA', outline: 'none', marginBottom: '16px', boxSizing: 'border-box', fontFamily: 'Inter' } as any}
+                />
+              ) : (
+                <TextInput
+                  style={[styles.fieldInput, { marginBottom: spacing.md }]}
+                  value={docExpiry} onChangeText={setDocExpiry}
+                  placeholder="YYYY-MM-DD" placeholderTextColor={colors.text3}
+                />
+              )}
+
+              <Text style={styles.fieldLabel}>Notes (optional)</Text>
               <TextInput
-                style={[styles.fieldInput, { marginBottom: spacing.md }]}
-                value={docExpiry} onChangeText={setDocExpiry}
-                placeholder="YYYY-MM-DD" placeholderTextColor={colors.text3}
+                style={[styles.fieldInput, { marginBottom: spacing.xl }]}
+                value={docNotes} onChangeText={setDocNotes}
+                placeholder="e.g., Receipt #EAC-123" placeholderTextColor={colors.text3}
               />
-            )}
 
-            <Text style={styles.fieldLabel}>Notes (optional)</Text>
-            <TextInput
-              style={[styles.fieldInput, { marginBottom: spacing.xl }]}
-              value={docNotes} onChangeText={setDocNotes}
-              placeholder="e.g., Receipt #EAC-123" placeholderTextColor={colors.text3}
-            />
+              <TouchableOpacity style={styles.saveBtn} onPress={handleAddDoc} activeOpacity={0.85}>
+                <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
+                  <Text style={styles.saveBtnText}>Save Document</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <View style={{ height: 20 }} />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    {/* ═══ EDIT MEMBER MODAL ═══ */}
+      <Modal visible={!!editingMember} transparent animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.modal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit {editingMember?.name}</Text>
+              <TouchableOpacity onPress={() => setEditingMember(null)}>
+                <Ionicons name="close" size={22} color={colors.text2} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} contentContainerStyle={{ padding: spacing.xl }}>
+              <View style={styles.fieldLabelRow}>
+                <Text style={styles.fieldLabel}>Name</Text>
+                <Text style={styles.fieldRequired}>*</Text>
+              </View>
+              <TextInput
+                style={[styles.fieldInput, editNameError && styles.fieldInputError]}
+                value={editName}
+                onChangeText={(v) => { setEditName(v); if (v.trim()) setEditNameError(false); }}
+                placeholder="e.g., Sarah Johnson"
+                placeholderTextColor={colors.text3}
+                autoFocus
+              />
+              {editNameError && (
+                <View style={styles.inlineError}>
+                  <Ionicons name="alert-circle" size={13} color="#EA5455" />
+                  <Text style={styles.inlineErrorText}>Name is required</Text>
+                </View>
+              )}
 
-            <TouchableOpacity style={styles.saveBtn} onPress={handleAddDoc} activeOpacity={0.85}>
-              <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
-                <Text style={styles.saveBtnText}>Save Document</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+              <Text style={styles.fieldLabel}>Relationship</Text>
+              <View style={styles.chipRow}>
+                {RELATIONS.map((r) => (
+                  <TouchableOpacity
+                    key={r.id}
+                    style={[styles.relChip, editRelation === r.id && styles.relChipActive]}
+                    onPress={() => setEditRelation(r.id)}
+                  >
+                    <Text style={styles.relChipIcon}>{r.icon}</Text>
+                    <Text style={[styles.relChipText, editRelation === r.id && styles.relChipTextActive]}>{r.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.fieldLabel}>Visa / Immigration Status</Text>
+              <View style={styles.visaGrid}>
+                {VISA_TYPES.map((v) => (
+                  <TouchableOpacity
+                    key={v}
+                    style={[styles.visaGridChip, editVisaType === v && styles.relChipActive]}
+                    onPress={() => setEditVisaType(v)}
+                  >
+                    <Text style={[styles.relChipText, editVisaType === v && styles.relChipTextActive]}>{v}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <TouchableOpacity style={[styles.saveBtn, { marginTop: spacing.lg }]} onPress={handleEditMember} activeOpacity={0.85}>
+                <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
+                  <Text style={styles.saveBtnText}>Save Changes</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <View style={{ height: 20 }} />
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -458,8 +557,10 @@ const styles = StyleSheet.create({
   addDocBtn:        { flexDirection: 'row', alignItems: 'center', gap: 6 },
   addDocBtnText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
   removeText:       { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.danger },
+  editMemberBtn:    { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  editMemberText:   { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#7367F0' },
   overlay:          { flex: 1, backgroundColor: 'rgba(17,24,39,0.55)', alignItems: 'center', justifyContent: 'center', padding: 20 },
-  modal:            { backgroundColor: colors.card, borderRadius: radius.xl, width: '100%', maxWidth: 480, maxHeight: '85%' as any, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', ...shadows.lg } as any,
+  modal:            { backgroundColor: colors.card, borderRadius: 16, width: '100%', maxWidth: 480, maxHeight: '88%' as any, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', ...shadows.lg } as any,
   modalHeader:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.xl, paddingBottom: 0 },
   modalTitle:       { fontSize: 16, fontFamily: 'Inter_700Bold', color: colors.text1 },
   fieldLabel:       { ...typography.captionBold, color: colors.text2, marginBottom: 6, marginTop: 4 },
@@ -478,7 +579,8 @@ const styles = StyleSheet.create({
   visaChip:         { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE' },
   visaGrid:         { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: spacing.md } as any,
   visaGridChip:     { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE' },
-  templateRow:      { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
+  docTypeList:      { borderRadius: 8, borderWidth: 1, borderColor: '#DBDADE', overflow: 'hidden', marginBottom: spacing.md },
+  templateRow:      { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
   templateRowActive:{ backgroundColor: '#F0EEFF' },
   templateLabel:    { fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.text1, flex: 1 },
   saveBtn:          { borderRadius: radius.lg, overflow: 'hidden' },
