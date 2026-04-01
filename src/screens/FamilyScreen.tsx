@@ -296,19 +296,17 @@ setShowAddMember(false); setAnyModalOpen(false);
                                 </Text>
                               </View>
                               <TouchableOpacity
-                                onPress={() => dialog.confirm({
-                                  title: 'Remove document?', message: `Remove "${doc.label}"?`,
-                                  type: 'danger', confirmLabel: 'Remove',
-                                  onConfirm: () => {
-                                    removeDocument(doc.id);
-                                    updateFamilyMember(member.id, {
-                                      documentIds: member.documentIds.filter((id) => id !== doc.id),
-                                    });
-                                  },
-                                })}
+                                onPress={() => {
+                                  // Direct delete — dialog.confirm appears behind modal
+                                  removeDocument(doc.id);
+                                  updateFamilyMember(member.id, {
+                                    documentIds: member.documentIds.filter((id) => id !== doc.id),
+                                  });
+                                }}
                                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                style={{ padding: 4 }}
                               >
-                                <Ionicons name="close" size={16} color={colors.text3} />
+                                <Ionicons name="trash-outline" size={15} color="#EA5455" />
                               </TouchableOpacity>
                             </View>
                           );

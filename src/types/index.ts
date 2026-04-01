@@ -119,6 +119,8 @@ export type MainTabParamList = {
   Documents: undefined;
   Travel: undefined;
   Family: undefined;
+  Checklist: undefined;
+  Timers: undefined;
   Processing: undefined;
   Scanner: undefined;
   Settings: undefined;

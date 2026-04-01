@@ -455,7 +455,7 @@ export const DashboardScreen: React.FC = () => {
               <Ionicons name="checkbox-outline" size={32} color="#ACAEC5" />
               <Text style={styles.emptyTitle}>No checklists yet</Text>
               <Text style={styles.emptyDesc}>Add checklists to track OPT, H-1B, and green card steps</Text>
-              <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+              <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Checklist' })}>
                 <Text style={styles.emptyBtnText}>Browse Checklists</Text>
               </TouchableOpacity>
             </View>
@@ -485,7 +485,7 @@ export const DashboardScreen: React.FC = () => {
               )}
             </View>
           )}
-          <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+          <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Checklist' })}>
             <Text style={styles.cardFooterText}>Manage Checklists</Text>
             <Ionicons name="arrow-forward" size={13} color="#7367F0" />
           </TouchableOpacity>
@@ -502,7 +502,7 @@ export const DashboardScreen: React.FC = () => {
               <Ionicons name="timer-outline" size={32} color="#ACAEC5" />
               <Text style={styles.emptyTitle}>No timers yet</Text>
               <Text style={styles.emptyDesc}>Track OPT unemployment days, 60-day grace period, and more</Text>
-              <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+              <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Timers' })}>
                 <Text style={styles.emptyBtnText}>Add Timer</Text>
               </TouchableOpacity>
             </View>
@@ -533,7 +533,7 @@ export const DashboardScreen: React.FC = () => {
               )}
             </View>
           )}
-          <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+          <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Timers' })}>
             <Text style={styles.cardFooterText}>Manage Timers</Text>
             <Ionicons name="arrow-forward" size={13} color="#7367F0" />
           </TouchableOpacity>
