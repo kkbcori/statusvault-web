@@ -392,7 +392,11 @@ export const FamilyScreen: React.FC = () => {
 
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} contentContainerStyle={{ padding: spacing.xl }}>
               <Text style={styles.fieldLabel}>Document Type</Text>
-              <View style={styles.docTypeList}>
+              <ScrollView
+                style={styles.docTypeList}
+                showsVerticalScrollIndicator={true}
+                nestedScrollEnabled={true}
+              >
                 {DOCUMENT_TEMPLATES.map((t) => (
                   <TouchableOpacity
                     key={t.id}
@@ -404,7 +408,7 @@ export const FamilyScreen: React.FC = () => {
                     {docTemplateId === t.id && <Ionicons name="checkmark-circle" size={16} color={'#7367F0'} style={{ marginLeft: 'auto' as any }} />}
                   </TouchableOpacity>
                 ))}
-              </View>
+              </ScrollView>
 
               <Text style={styles.fieldLabel}>Expiry Date</Text>
               {IS_WEB ? (
@@ -579,7 +583,7 @@ const styles = StyleSheet.create({
   visaChip:         { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE' },
   visaGrid:         { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: spacing.md } as any,
   visaGridChip:     { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE' },
-  docTypeList:      { borderRadius: 8, borderWidth: 1, borderColor: '#DBDADE', overflow: 'hidden', marginBottom: spacing.md },
+  docTypeList:      { borderRadius: 8, borderWidth: 1, borderColor: '#DBDADE', height: 260, marginBottom: spacing.md },
   templateRow:      { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
   templateRowActive:{ backgroundColor: '#F0EEFF' },
   templateLabel:    { fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.text1, flex: 1 },
