@@ -41,6 +41,7 @@ export const FamilyScreen: React.FC = () => {
   const removeDocument   = useStore((s) => s.removeDocument);
   const documents        = useStore((s) => s.documents);
   const dialog           = useDialog();
+  const setAnyModalOpen  = useStore((s) => s.setAnyModalOpen);
 
   const [showAddMember,    setShowAddMember]    = useState(false);
   const [showAddDoc,       setShowAddDoc]       = useState(false);
@@ -71,7 +72,7 @@ export const FamilyScreen: React.FC = () => {
       relation: editRelation,
       visaType: editVisaType,
     });
-    setEditingMember(null);
+    setEditingMember(null); setAnyModalOpen(false);
   };
 
   const handleAddMember = () => {
@@ -86,7 +87,7 @@ export const FamilyScreen: React.FC = () => {
       createdAt: new Date().toISOString(),
     });
     setName(''); setRelation(RELATIONS[1].id); setVisaType(VISA_TYPES[0]); setNameError(false);
-    setShowAddMember(false);
+setShowAddMember(false); setAnyModalOpen(false);
   };
 
   const handleAddDoc = async () => {
@@ -115,7 +116,7 @@ export const FamilyScreen: React.FC = () => {
       documentIds: [...selectedMember.documentIds, doc.id],
     });
     setDocTemplateId(''); setDocExpiry(''); setDocNotes('');
-    setShowAddDoc(false);
+    setShowAddDoc(false); setAnyModalOpen(false);
   };
 
   const handleRemoveMember = (member: FamilyMember) => {
@@ -284,7 +285,7 @@ export const FamilyScreen: React.FC = () => {
                         </TouchableOpacity>
                         <TouchableOpacity
                           onPress={() => {
-                            setEditingMember(member);
+                            setEditingMember(member); setAnyModalOpen(true);
                             setEditName(member.name);
                             setEditRelation(member.relation);
                             setEditVisaType(member.visaType);
@@ -385,7 +386,7 @@ export const FamilyScreen: React.FC = () => {
           <View style={styles.modal}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Add Document for {selectedMember?.name}</Text>
-              <TouchableOpacity onPress={() => setShowAddDoc(false)}>
+              <TouchableOpacity onPress={() => setShowAddDoc(false); setAnyModalOpen(false)}>
                 <Ionicons name="close" size={22} color={colors.text2} />
               </TouchableOpacity>
             </View>
@@ -449,7 +450,7 @@ export const FamilyScreen: React.FC = () => {
           <View style={styles.modal}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Edit {editingMember?.name}</Text>
-              <TouchableOpacity onPress={() => setEditingMember(null)}>
+              <TouchableOpacity onPress={() => setEditingMember(null); setAnyModalOpen(false)}>
                 <Ionicons name="close" size={22} color={colors.text2} />
               </TouchableOpacity>
             </View>

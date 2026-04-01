@@ -31,6 +31,7 @@ export const DocumentsScreen: React.FC = () => {
   const updateDocument     = useStore((s) => s.updateDocument);
   const canAddDocument     = useStore((s) => s.canAddDocument);
   const isPremium          = useStore((s) => s.isPremium);
+  const setAnyModalOpen    = useStore((s) => s.setAnyModalOpen);
   const getRemainingFreeSlots = useStore((s) => s.getRemainingFreeSlots);
   const dialog = useDialog();
 
@@ -48,7 +49,7 @@ export const DocumentsScreen: React.FC = () => {
   const remaining = getRemainingFreeSlots();
 
   React.useEffect(() => {
-    if (route.params?.openPaywall && !canAddDocument()) setShowPaywall(true);
+    if (route.params?.openPaywall && !canAddDocument()) setShowPaywall(true); setAnyModalOpen(true);
   }, [route.params]);
 
   const filteredDocs = filterCategory === 'all' ? documents : documents.filter((d) => d.category === filterCategory);
@@ -60,8 +61,8 @@ export const DocumentsScreen: React.FC = () => {
   };
 
   const openAdd = () => {
-    if (!canAddDocument()) { setShowPaywall(true); return; }
-    resetAddFlow(); setShowAddModal(true);
+    if (!canAddDocument()) { setShowPaywall(true); setAnyModalOpen(true); return; }
+    resetAddFlow(); setShowAddModal(true); setAnyModalOpen(true);
   };
 
   const selectTemplate = (template: DocumentTemplate) => {
@@ -77,7 +78,7 @@ export const DocumentsScreen: React.FC = () => {
         expiryDate: expiryDate.toISOString().split('T')[0],
         notes: notes.trim(),
       });
-      setShowAddModal(false); setEditingDoc(null); resetAddFlow();
+      setShowAddModal(false); setAnyModalOpen(false); setEditingDoc(null); resetAddFlow();
       return;
     }
     if (!selectedTemplate) return;
@@ -88,8 +89,8 @@ export const DocumentsScreen: React.FC = () => {
       notes: notes.trim(), notificationIds: [], createdAt: new Date().toISOString(),
     };
     const success = await addDocument(doc);
-    if (success) { setShowAddModal(false); resetAddFlow(); }
-    else { setShowAddModal(false); resetAddFlow(); setShowPaywall(true); }
+    if (success) { setShowAddModal(false); setAnyModalOpen(false); resetAddFlow(); }
+    else { setShowAddModal(false); setAnyModalOpen(false); resetAddFlow(); setShowPaywall(true); setAnyModalOpen(true); }
   };
 
   const handleDelete = (id: string, label: string) => {
@@ -107,7 +108,7 @@ export const DocumentsScreen: React.FC = () => {
     setExpiryDate(new Date(doc.expiryDate + 'T12:00:00'));
     setNotes(doc.notes || '');
     setAddStep('date');
-    setShowAddModal(true);
+    setShowAddModal(true); setAnyModalOpen(true);
   };
 
   const handleDateChange = (_event: any, selectedDate?: Date) => {
@@ -193,7 +194,7 @@ export const DocumentsScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <View style={styles.modalHeader}>
-              <TouchableOpacity onPress={() => { if (addStep === 'date') setAddStep('type'); else setShowAddModal(false); }}>
+              <TouchableOpacity onPress={() => { if (addStep === 'date') setAddStep('type'); else setShowAddModal(false); setAnyModalOpen(false); }}>
                 <Text style={styles.modalBack}>{addStep === 'date' ? '← Back' : 'Cancel'}</Text>
               </TouchableOpacity>
               <Text style={styles.modalTitle}>{editingDoc ? 'Edit Document' : addStep === 'type' ? 'Select Document' : 'Set Expiry Date'}</Text>
@@ -321,7 +322,7 @@ export const DocumentsScreen: React.FC = () => {
             showsVerticalScrollIndicator={false}
           >
             {/* Close */}
-            <TouchableOpacity style={styles.paywallCloseBtn} onPress={() => setShowPaywall(false)}>
+            <TouchableOpacity style={styles.paywallCloseBtn} onPress={() => setShowPaywall(false); setAnyModalOpen(false)}>
               <View style={styles.paywallCloseCircle}>
                 <Ionicons name="close" size={20} color="rgba(255,255,255,0.6)" />
               </View>
@@ -376,7 +377,7 @@ export const DocumentsScreen: React.FC = () => {
               style={styles.paywallCTA}
               onPress={() => dialog.confirm({ title: 'Coming Soon', message: 'In-app purchase will be available in the next update.',
                 type: 'confirm', confirmLabel: 'Unlock for Testing', cancelLabel: 'Cancel',
-                onConfirm: () => { useStore.getState().setPremium(true); setShowPaywall(false); } })}
+                onConfirm: () => { useStore.getState().setPremium(true); setShowPaywall(false); setAnyModalOpen(false); } })}
               activeOpacity={0.85}
             >
               <LinearGradient colors={[colors.primary, colors.primaryLight, colors.primary]} style={styles.paywallCTAGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>

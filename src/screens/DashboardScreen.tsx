@@ -118,6 +118,8 @@ export const DashboardScreen: React.FC = () => {
   const documents            = useStore((s) => s.documents);
   const isPremium            = useStore((s) => s.isPremium);
   const authUser             = useStore((s) => s.authUser);
+  const anyModalOpen         = useStore((s) => s.anyModalOpen);
+  const setAnyModalOpen      = useStore((s) => s.setAnyModalOpen);
   const familyMembers        = useStore((s) => s.familyMembers);
   const checklists           = useStore((s) => s.checklists);
   const counters             = useStore((s) => s.counters);
@@ -128,14 +130,8 @@ export const DashboardScreen: React.FC = () => {
 
   React.useEffect(() => { autoIncrementCounters(); }, []);
 
-  // Show auth prompt after 3s if has docs but no account
+  // Show auth prompt after 5s — but only when no other modal is open
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
-  React.useEffect(() => {
-    if (!authUser && documents.length > 0) {
-      const t = setTimeout(() => setShowAuthPrompt(true), 3000);
-      return () => clearTimeout(t);
-    }
-  }, [authUser, documents.length]);
 
   // Profile setup modal
   const [showProfileSetup, setShowProfileSetup] = useState(false);
@@ -150,6 +146,21 @@ export const DashboardScreen: React.FC = () => {
   const remaining    = getRemainingFreeSlots();
   const expiringSoon = deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining <= 90);
   const expired      = deadlines.filter((d) => d.daysRemaining < 0);
+
+  // Show auth prompt after 5s — only when completely idle
+  React.useEffect(() => {
+    if (authUser || documents.length === 0) return;
+    const t = setTimeout(() => {
+      if (!useStore.getState().anyModalOpen) setShowAuthPrompt(true);
+    }, 5000);
+    return () => clearTimeout(t);
+  }, [authUser]);
+
+  // Track profile modal open/close in global flag
+  React.useEffect(() => {
+    setAnyModalOpen(showProfileSetup);
+    if (showProfileSetup) setShowAuthPrompt(false);
+  }, [showProfileSetup]);
 
   const VISA_PROFILES = [
     { id: 'f1-opt',     icon: 'visa_approved', label: 'F-1 Student / OPT',   docs: ['f1-visa','i20','sevis','passport','opt-ead'] },

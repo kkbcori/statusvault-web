@@ -118,6 +118,8 @@ interface AppStore {
   // Settings
   setNotificationsEnabled: (v: boolean) => void;
   setOnboarded: () => void;
+  anyModalOpen: boolean;
+  setAnyModalOpen: (v: boolean) => void;
   setVisaProfile: (profile: string) => void;
   resetAllData: () => void;
   exportData: () => string;
@@ -148,6 +150,7 @@ export const useStore = create<AppStore>()(
       counters: [],
       trips: [],
       familyMembers: [],
+      anyModalOpen: false,
       notificationsEnabled: true,
       notificationEmail: null,
       whatsappPhone: null,
@@ -554,12 +557,14 @@ export const useStore = create<AppStore>()(
 
       // ─── Settings ──────────────────────────────────────────
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
+      setAnyModalOpen: (v) => set({ anyModalOpen: v }),
       setOnboarded: () => set({ hasOnboarded: true }),
       setVisaProfile: (profile) => set({ visaProfile: profile }),
 
       resetAllData: () => set({
         hasOnboarded: false, visaProfile: null, documents: [], checklists: [], counters: [], trips: [],
-        notificationsEnabled: true, notificationEmail: null, whatsappPhone: null, isPremium: false, pinEnabled: false, pinCode: null, familyMembers: [],
+        anyModalOpen: false,
+      notificationsEnabled: true, notificationEmail: null, whatsappPhone: null, isPremium: false, pinEnabled: false, pinCode: null, familyMembers: [],
       }),
       exportData: () => {
         const { documents, checklists, counters, trips, isPremium } = get();
