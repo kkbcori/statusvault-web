@@ -596,6 +596,10 @@ export const useStore = create<AppStore>()(
         counters: s.counters, trips: s.trips, notificationsEnabled: s.notificationsEnabled,
         isPremium: s.isPremium, pinEnabled: s.pinEnabled, pinCode: s.pinCode,
         lastSyncedAt: s.lastSyncedAt,
+        familyMembers: s.familyMembers,
+        visaProfile: s.visaProfile,
+        notificationEmail: s.notificationEmail,
+        whatsappPhone: s.whatsappPhone,
       }),
     }
   )
