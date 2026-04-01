@@ -147,7 +147,7 @@ export const DashboardScreen: React.FC = () => {
   const expiringSoon = deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining <= 90);
   const expired      = deadlines.filter((d) => d.daysRemaining < 0);
 
-  // Show auth prompt after 5s — only when completely idle
+  // Show auth prompt after 5s — only when completely idle, only once per session
   React.useEffect(() => {
     if (authUser || documents.length === 0) return;
     const t = setTimeout(() => {
@@ -156,10 +156,15 @@ export const DashboardScreen: React.FC = () => {
     return () => clearTimeout(t);
   }, [authUser]);
 
-  // Track profile modal open/close in global flag
+  // Hide auth prompt the moment ANY modal opens anywhere in the app
   React.useEffect(() => {
-    setAnyModalOpen(showProfileSetup);
-    if (showProfileSetup) setShowAuthPrompt(false);
+    if (anyModalOpen) setShowAuthPrompt(false);
+  }, [anyModalOpen]);
+
+  // Hide when profile setup opens
+  React.useEffect(() => {
+    if (showProfileSetup) { setShowAuthPrompt(false); setAnyModalOpen(true); }
+    else setAnyModalOpen(false);
   }, [showProfileSetup]);
 
   const VISA_PROFILES = [
