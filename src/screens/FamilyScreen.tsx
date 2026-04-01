@@ -40,8 +40,12 @@ export const FamilyScreen: React.FC = () => {
   const addDocument      = useStore((s) => s.addDocument);
   const removeDocument   = useStore((s) => s.removeDocument);
   const documents        = useStore((s) => s.documents);
+  const isPremium        = useStore((s) => s.isPremium);
   const dialog           = useDialog();
   const setAnyModalOpen  = useStore((s) => s.setAnyModalOpen);
+
+  const FREE_FAMILY_LIMIT = 1;   // free: 1 member
+  const FREE_DOC_LIMIT    = 2;   // free: 2 docs per member
 
   const [showAddMember,    setShowAddMember]    = useState(false);
   const [showAddDoc,       setShowAddDoc]       = useState(false);
@@ -193,12 +197,27 @@ setShowAddMember(false); setAnyModalOpen(false);
       {familyMembers.length > 0 && (
         <>
           {!IS_WEB && (
-            <TouchableOpacity style={styles.addBtnRow} onPress={() => setShowAddMember(true)}>
+            <TouchableOpacity style={styles.addBtnRow} onPress={() => {
+              if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
+                dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
+                return;
+              }
+              setShowAddMember(true); setAnyModalOpen(true);
+            }}>
               <Ionicons name="person-add-outline" size={16} color={'#7367F0'} />
               <Text style={styles.addBtnRowText}>Add family member</Text>
             </TouchableOpacity>
           )}
 
+          {!isPremium && (
+            <View style={styles.freePlanBanner}>
+              <Ionicons name="information-circle-outline" size={14} color="#7367F0" />
+              <Text style={styles.freePlanBannerText}>
+                Free plan: <Text style={{ fontFamily: 'Inter_700Bold' }}>1 family member</Text> · <Text style={{ fontFamily: 'Inter_700Bold' }}>2 docs</Text> per member
+              </Text>
+              <Text style={styles.freePlanUpgrade}>Upgrade →</Text>
+            </View>
+          )}
           <View style={[styles.memberGrid, IS_WEB && styles.memberGridWeb]}>
             {familyMembers.map((member) => {
               const memberDocs = getMemberDocs(member);
@@ -282,6 +301,12 @@ setShowAddMember(false); setAnyModalOpen(false);
                         >
                           <Ionicons name="add-circle-outline" size={15} color={'#7367F0'} />
                           <Text style={styles.addDocBtnText}>Add document</Text>
+                          {!isPremium && getMemberDocs(member).length >= FREE_DOC_LIMIT && (
+                            <View style={styles.lockBadge}>
+                              <Ionicons name="lock-closed" size={10} color="#FF9F43" />
+                              <Text style={styles.lockBadgeText}>Premium</Text>
+                            </View>
+                          )}
                         </TouchableOpacity>
                         <TouchableOpacity
                           onPress={() => {
@@ -537,9 +562,14 @@ const styles = StyleSheet.create({
   emptyBtnText:     { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
   addBtnRow:        { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.screen, paddingVertical: spacing.md },
   addBtnRowText:    { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  freePlanBanner:   { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#F0EEFF', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, marginBottom: 10, borderWidth: 1, borderColor: '#E0DBFF' },
+  freePlanBannerText:{ flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#4B4C6A' },
+  freePlanUpgrade:  { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  lockBadge:        { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#FFF4E6', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: '#FFD59E' },
+  lockBadgeText:    { fontSize: 9, fontFamily: 'Inter_600SemiBold', color: '#CC7A28' },
   memberGrid:       { paddingHorizontal: spacing.screen, gap: spacing.md },
   memberGridWeb:    { paddingHorizontal: 0 },
-  memberCard:       { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 0, overflow: 'hidden', ...shadows.sm },
+  memberCard:       { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#DBDADE' },
   memberCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: spacing.lg },
   memberAvatar:     { width: 46, height: 46, borderRadius: 12, backgroundColor: '#F4F5FA', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE' },
   memberName:       { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
