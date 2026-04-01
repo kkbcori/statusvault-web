@@ -64,9 +64,12 @@ export const FamilyScreen: React.FC = () => {
   const [visaType,  setVisaType]  = useState(VISA_TYPES[0]);
 
   // Add doc for member
-  const [docTemplateId, setDocTemplateId] = useState('');
-  const [docExpiry,     setDocExpiry]     = useState('');
-  const [docNotes,      setDocNotes]      = useState('');
+  const [docTemplateId,    setDocTemplateId]    = useState('');
+  const [docExpiry,        setDocExpiry]        = useState('');
+  const [docNotes,         setDocNotes]         = useState('');
+  const [docTemplateError, setDocTemplateError] = useState(false);
+  const [docExpiryError,   setDocExpiryError]   = useState(false);
+  const [docLimitError,    setDocLimitError]    = useState(false);
 
   const handleEditMember = () => {
     if (!editName.trim()) { setEditNameError(true); return; }
@@ -95,9 +98,24 @@ setShowAddMember(false); setAnyModalOpen(false);
   };
 
   const handleAddDoc = async () => {
-    if (!selectedMember || !docTemplateId || !docExpiry) {
-      dialog.alert('Missing info', 'Please select a document type and expiry date.');
-      return;
+    // Reset errors
+    setDocTemplateError(false);
+    setDocExpiryError(false);
+    setDocLimitError(false);
+
+    // Inline validation — no dialog.alert (would appear behind modal)
+    let hasError = false;
+    if (!docTemplateId) { setDocTemplateError(true); hasError = true; }
+    if (!docExpiry)      { setDocExpiryError(true);   hasError = true; }
+    if (hasError) return;
+
+    // Enforce free tier limit inside the handler too (not just on button)
+    if (!isPremium && selectedMember) {
+      const currentDocs = getMemberDocs(selectedMember);
+      if (currentDocs.length >= FREE_DOC_LIMIT) {
+        setDocLimitError(true);
+        return;
+      }
     }
     const template = DOCUMENT_TEMPLATES.find((t) => t.id === docTemplateId);
     if (!template) return;
@@ -256,7 +274,12 @@ setShowAddMember(false); setAnyModalOpen(false);
                       {memberDocs.length === 0 ? (
                         <Text style={styles.noDocsText}>No documents yet — add one below</Text>
                       ) : (
-                        memberDocs.map((doc) => {
+                        <ScrollView
+                          style={{ maxHeight: 240 }}
+                          showsVerticalScrollIndicator={true}
+                          nestedScrollEnabled={true}
+                        >
+                        {memberDocs.map((doc) => {
                           const days     = calculateDaysRemaining(doc.expiryDate);
                           const urgColor = getUrgencyColor(days);
                           return (
@@ -289,7 +312,8 @@ setShowAddMember(false); setAnyModalOpen(false);
                               </TouchableOpacity>
                             </View>
                           );
-                        })
+                        })}
+                        </ScrollView>
                       )}
 
                       {/* Add doc / Remove member actions */}
@@ -417,9 +441,24 @@ setShowAddMember(false); setAnyModalOpen(false);
             </View>
 
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} contentContainerStyle={{ padding: spacing.xl }}>
-              <Text style={styles.fieldLabel}>Document Type</Text>
+              <View style={styles.fieldLabelRow}>
+                <Text style={styles.fieldLabel}>Document Type</Text>
+                <Text style={styles.fieldRequired}>*</Text>
+              </View>
+              {docLimitError && (
+                <View style={[styles.inlineError, { marginBottom: 8 }]}>
+                  <Ionicons name="lock-closed" size={13} color="#FF9F43" />
+                  <Text style={[styles.inlineErrorText, { color: '#FF9F43' }]}>Free plan: max {FREE_DOC_LIMIT} docs per member. Upgrade for more.</Text>
+                </View>
+              )}
+              {docTemplateError && (
+                <View style={[styles.inlineError, { marginBottom: 8 }]}>
+                  <Ionicons name="alert-circle" size={13} color="#EA5455" />
+                  <Text style={styles.inlineErrorText}>Please select a document type</Text>
+                </View>
+              )}
               <ScrollView
-                style={styles.docTypeList}
+                style={[styles.docTypeList, docTemplateError && { borderColor: '#EA5455' }]}
                 showsVerticalScrollIndicator={true}
                 nestedScrollEnabled={true}
               >
@@ -427,7 +466,7 @@ setShowAddMember(false); setAnyModalOpen(false);
                   <TouchableOpacity
                     key={t.id}
                     style={[styles.templateRow, docTemplateId === t.id && styles.templateRowActive]}
-                    onPress={() => setDocTemplateId(t.id)}
+                    onPress={() => { setDocTemplateId(t.id); setDocTemplateError(false); }}
                   >
                     <Text style={{ fontSize: 18, marginRight: 10 }}>{t.icon}</Text>
                     <Text style={[styles.templateLabel, docTemplateId === t.id && { color: '#7367F0' }]}>{t.label}</Text>
@@ -436,13 +475,22 @@ setShowAddMember(false); setAnyModalOpen(false);
                 ))}
               </ScrollView>
 
-              <Text style={styles.fieldLabel}>Expiry Date</Text>
+              <View style={styles.fieldLabelRow}>
+                <Text style={styles.fieldLabel}>Expiry Date</Text>
+                <Text style={styles.fieldRequired}>*</Text>
+              </View>
+              {docExpiryError && (
+                <View style={[styles.inlineError, { marginBottom: 6 }]}>
+                  <Ionicons name="alert-circle" size={13} color="#EA5455" />
+                  <Text style={styles.inlineErrorText}>Please select an expiry date</Text>
+                </View>
+              )}
               {IS_WEB ? (
                 <input
                   type="date"
                   value={docExpiry}
-                  onChange={(e: any) => setDocExpiry(e.target.value)}
-                  style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: '1.5px solid #DBDADE', borderRadius: '8px', backgroundColor: '#F4F5FA', outline: 'none', marginBottom: '16px', boxSizing: 'border-box', fontFamily: 'Inter' } as any}
+                  onChange={(e: any) => { setDocExpiry(e.target.value); setDocExpiryError(false); }}
+                  style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: `1.5px solid ${docExpiryError ? '#EA5455' : '#DBDADE'}`, borderRadius: '8px', backgroundColor: '#F4F5FA', outline: 'none', marginBottom: '16px', boxSizing: 'border-box', fontFamily: 'Inter' } as any}
                 />
               ) : (
                 <TextInput
