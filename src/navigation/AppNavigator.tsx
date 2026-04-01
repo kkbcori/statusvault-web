@@ -122,7 +122,7 @@ const WebSidebar: React.FC = () => {
                   <Ionicons
                     name={active ? item.active : item.inactive}
                     size={16}
-                    color={active ? colors.sidebarActiveText : colors.text3}
+                    color={active ? '#7367F0' : 'rgba(225,222,245,0.55)'}
                     style={sidebarStyles.navIcon}
                   />
                   <Text style={[sidebarStyles.navLabel, active && sidebarStyles.navLabelActive]}>
@@ -326,66 +326,50 @@ const layoutStyles = StyleSheet.create({
   rootBg:     { backgroundColor: colors.sidebar },
   rootWeb:    { flexDirection: 'row', width: '100%' as any, height: '100%' as any },
   content:    { flex: 1 },
-  contentWeb: { flexDirection: 'column', backgroundColor: '#F8FAFC', flex: 1, minWidth: 0, overflow: 'hidden' as any },
+  contentWeb: { flexDirection: 'column', backgroundColor: '#F4F5FA', flex: 1, minWidth: 0, overflow: 'hidden' as any },
 });
 
-const SB = {
-  bg:         '#0F172A',
-  bgHover:    'rgba(255,255,255,0.05)',
-  bgActive:   'rgba(14,165,233,0.12)',
-  border:     'rgba(255,255,255,0.07)',
-  text:       'rgba(255,255,255,0.50)',
-  textActive: '#FFFFFF',
-  textAccent: '#38BDF8',
-  label:      'rgba(255,255,255,0.22)',
-};
-
 const sidebarStyles = StyleSheet.create({
-  container:     { backgroundColor: SB.bg, borderRightWidth: 1, borderRightColor: SB.border, flexDirection: 'column', position: 'relative' as any },
+  container:     { backgroundColor: '#2F3349', borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.06)', flexDirection: 'column', position: 'relative' as any },
   resizeHandle:  { position: 'absolute' as any, top: 0, right: -4, bottom: 0, width: 8, cursor: 'col-resize' as any, alignItems: 'center', justifyContent: 'center', zIndex: 10 } as any,
-  resizeBar:     { width: 1, height: 32, borderRadius: 1, backgroundColor: SB.border } as any,
-  // ── Logo ──
-  logoRow:       { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: SB.border },
-  logoImg:       { width: 152, height: 44 } as any,
-  // ── Nav ──
-  nav:           { flex: 1, paddingHorizontal: 10, paddingTop: 8, overflowY: 'auto' as any },
-  groupLabel:    { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: SB.label, letterSpacing: 0.8, paddingLeft: 10, paddingTop: 18, paddingBottom: 4, textTransform: 'uppercase' as any },
-  navItem:       { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 8, marginBottom: 1 },
-  navItemActive: { backgroundColor: SB.bgActive },
+  resizeBar:     { width: 1, height: 32, borderRadius: 1, backgroundColor: 'rgba(255,255,255,0.08)' } as any,
+  logoRow:       { paddingHorizontal: 22, paddingTop: 22, paddingBottom: 22, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
+  logoImg:       { width: 148, height: 42 } as any,
+  nav:           { flex: 1, paddingHorizontal: 12, paddingTop: 10, overflowY: 'auto' as any },
+  groupLabel:    { fontSize: 10, fontFamily: 'Inter_500Medium', color: 'rgba(225,222,245,0.30)', letterSpacing: 1.2, paddingLeft: 8, paddingTop: 20, paddingBottom: 6, textTransform: 'uppercase' as any },
+  navItem:       { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 9, borderRadius: 8, marginBottom: 2 },
+  navItemActive: { backgroundColor: 'rgba(115,103,240,0.16)' },
   navIcon:       { marginRight: 10 },
-  navLabel:      { fontSize: 13, fontFamily: 'Inter_400Regular', color: SB.text, lineHeight: 20 },
-  navLabelActive:{ color: SB.textActive, fontFamily: 'Inter_500Medium' },
-  // ── Upgrade pill ──
-  upgradeRow:      { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 10, marginBottom: 8, backgroundColor: 'rgba(14,165,233,0.10)', borderWidth: 1, borderColor: 'rgba(14,165,233,0.18)', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
-  upgradeRowIcon:  { width: 26, height: 26, borderRadius: 7, backgroundColor: 'rgba(14,165,233,0.18)', alignItems: 'center', justifyContent: 'center' },
-  upgradeRowTitle: { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#38BDF8' },
-  upgradeRowSub:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.35)', marginTop: 1 },
-  // ── Profile card (bottom) ──
-  profileCard:   { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 10, marginBottom: 10, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: SB.border, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
-  profileAvatar: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  navLabel:      { fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(225,222,245,0.55)', lineHeight: 20 },
+  navLabelActive:{ color: '#7367F0', fontFamily: 'Inter_600SemiBold' },
+  upgradeRow:    { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 10, marginBottom: 8, backgroundColor: 'rgba(115,103,240,0.14)', borderWidth: 1, borderColor: 'rgba(115,103,240,0.22)', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
+  upgradeRowIcon:{ width: 26, height: 26, borderRadius: 7, backgroundColor: 'rgba(115,103,240,0.22)', alignItems: 'center', justifyContent: 'center' },
+  upgradeRowTitle:{ fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#9E95F5' },
+  upgradeRowSub: { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(225,222,245,0.40)', marginTop: 1 },
+  profileCard:   { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 10, marginBottom: 10, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
+  profileAvatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#7367F0', alignItems: 'center', justifyContent: 'center' },
   profileInitial:{ fontSize: 12, fontFamily: 'Inter_700Bold', color: '#fff' },
-  profileName:   { fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(255,255,255,0.80)' },
-  profilePlan:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: SB.text, marginTop: 1 },
-  // ── Bottom ──
-  bottom:        { paddingHorizontal: 10, paddingBottom: 8, borderTopWidth: 1, borderTopColor: SB.border },
+  profileName:   { fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(225,222,245,0.87)' },
+  profilePlan:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(225,222,245,0.45)', marginTop: 1 },
+  bottom:        { paddingHorizontal: 10, paddingBottom: 8, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' },
   syncRow:       { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 8, paddingLeft: 2 },
   syncDot:       { width: 5, height: 5, borderRadius: 3 },
-  syncText:      { fontSize: 10, fontFamily: 'Inter_400Regular', color: SB.label },
+  syncText:      { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(225,222,245,0.30)' },
 });
 
 const topBarStyles = StyleSheet.create({
-  container: { height: 52, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F1F5F9', paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' } as any,
-  left:      { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  breadcrumb:{ fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text4 },
-  sep:       { fontSize: 12, color: colors.text4, marginHorizontal: 2 },
-  title:     { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: colors.text1, letterSpacing: -0.1 },
+  container: { height: 56, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#DBDADE', paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' } as any,
+  left:      { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  breadcrumb:{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5' },
+  sep:       { fontSize: 12, color: '#ACAEC5', marginHorizontal: 4 },
+  title:     { fontSize: 15, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
   right:     { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  pulsePill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#BBF7D0', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
-  pulsePillSyncing: { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' },
-  pulseDot:  { width: 5, height: 5, borderRadius: 3 },
-  pulseText: { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#15803D' },
-  pulseTextSyncing: { color: '#92400E' },
-  avatarBtn: { width: 30, height: 30, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  pulsePill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#EAFFF4', borderWidth: 1, borderColor: '#A3F0C4', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
+  pulsePillSyncing: { backgroundColor: '#FFF4E6', borderColor: '#FFD59E' },
+  pulseDot:  { width: 6, height: 6, borderRadius: 3 },
+  pulseText: { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#1E9954' },
+  pulseTextSyncing: { color: '#CC7A28' },
+  avatarBtn: { width: 34, height: 34, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE', borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
 });
 
 const mobileStyles = StyleSheet.create({

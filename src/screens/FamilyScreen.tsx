@@ -175,7 +175,7 @@ export const FamilyScreen: React.FC = () => {
         <>
           {!IS_WEB && (
             <TouchableOpacity style={styles.addBtnRow} onPress={() => setShowAddMember(true)}>
-              <Ionicons name="person-add-outline" size={16} color={colors.accent} />
+              <Ionicons name="person-add-outline" size={16} color={'#7367F0'} />
               <Text style={styles.addBtnRowText}>Add family member</Text>
             </TouchableOpacity>
           )}
@@ -261,7 +261,7 @@ export const FamilyScreen: React.FC = () => {
                           onPress={() => { setSelectedMember(member); setShowAddDoc(true); }}
                           activeOpacity={0.8}
                         >
-                          <Ionicons name="add-circle-outline" size={15} color={colors.accent} />
+                          <Ionicons name="add-circle-outline" size={15} color={'#7367F0'} />
                           <Text style={styles.addDocBtnText}>Add document</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => handleRemoveMember(member)}>
@@ -355,8 +355,8 @@ export const FamilyScreen: React.FC = () => {
                   onPress={() => setDocTemplateId(t.id)}
                 >
                   <Text style={{ fontSize: 18, marginRight: 10 }}>{t.icon}</Text>
-                  <Text style={[styles.templateLabel, docTemplateId === t.id && { color: colors.accent }]}>{t.label}</Text>
-                  {docTemplateId === t.id && <Ionicons name="checkmark-circle" size={16} color={colors.accent} style={{ marginLeft: 'auto' as any }} />}
+                  <Text style={[styles.templateLabel, docTemplateId === t.id && { color: '#7367F0' }]}>{t.label}</Text>
+                  {docTemplateId === t.id && <Ionicons name="checkmark-circle" size={16} color={'#7367F0'} style={{ marginLeft: 'auto' as any }} />}
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -397,7 +397,7 @@ export const FamilyScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container:        { flex: 1, backgroundColor: colors.background },
+  container:        { flex: 1, backgroundColor: '#F4F5FA' },
   content:          { paddingBottom: 40 },
   contentWeb:       { paddingHorizontal: 28, paddingTop: 24 },
   header:           { backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border, padding: spacing.xl, paddingTop: spacing.xxl + 16 },
@@ -407,22 +407,22 @@ const styles = StyleSheet.create({
   webHero:          { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xl },
   webTitle:         { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#0F172A', letterSpacing: -0.5 },
   webSub:           { ...typography.caption, color: colors.text3, marginTop: 4, maxWidth: 500 },
-  addMemberBtn:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.primary, paddingHorizontal: 18, paddingVertical: 10, borderRadius: radius.lg },
+  addMemberBtn:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#7367F0', paddingHorizontal: 18, paddingVertical: 10, borderRadius: radius.lg },
   addMemberBtnText: { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#fff' },
   emptyState:       { alignItems: 'center', padding: 40, gap: 14 },
-  emptyIcon:        { width: 80, height: 80, borderRadius: 20, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold },
+  emptyIcon:        { width: 80, height: 80, borderRadius: 20, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE'Gold },
   emptyTitle:       { ...typography.h2, color: colors.text1 },
   emptyDesc:        { ...typography.body, color: colors.text3, textAlign: 'center', maxWidth: 300, lineHeight: 22 },
   emptyBtn:         { width: '100%', maxWidth: 320, borderRadius: radius.lg, overflow: 'hidden' },
   emptyBtnGrad:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16 },
   emptyBtnText:     { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
   addBtnRow:        { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.screen, paddingVertical: spacing.md },
-  addBtnRowText:    { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: colors.accent },
+  addBtnRowText:    { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
   memberGrid:       { paddingHorizontal: spacing.screen, gap: spacing.md },
   memberGridWeb:    { paddingHorizontal: 0 },
-  memberCard:       { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden', ...shadows.sm },
+  memberCard:       { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 0, overflow: 'hidden', ...shadows.sm },
   memberCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: spacing.lg },
-  memberAvatar:     { width: 46, height: 46, borderRadius: 12, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
+  memberAvatar:     { width: 46, height: 46, borderRadius: 12, backgroundColor: '#F4F5FA', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE' },
   memberName:       { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
   memberMeta:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 2 },
   memberRight:      { alignItems: 'flex-end', gap: 4 },
@@ -441,23 +441,23 @@ const styles = StyleSheet.create({
   daysText:         { fontSize: 11, fontFamily: 'Inter_700Bold' },
   memberActions:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: colors.borderLight },
   addDocBtn:        { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  addDocBtnText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: colors.accent },
+  addDocBtnText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
   removeText:       { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.danger },
   overlay:          { flex: 1, backgroundColor: 'rgba(17,24,39,0.55)', alignItems: 'center', justifyContent: 'center', padding: 20 },
   modal:            { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.xl, width: '100%', maxWidth: 480, ...shadows.lg },
   modalHeader:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
   modalTitle:       { fontSize: 16, fontFamily: 'Inter_700Bold', color: colors.text1 },
   fieldLabel:       { ...typography.captionBold, color: colors.text2, marginBottom: 6, marginTop: 4 },
-  fieldInput:       { backgroundColor: colors.background, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border, padding: 12, fontSize: 14, fontFamily: 'Inter_400Regular', color: colors.text1, marginBottom: spacing.md },
+  fieldInput:       { backgroundColor: '#F4F5FA', borderRadius: radius.md, borderWidth: 1.5, borderColor: '#DBDADE', padding: 12, fontSize: 14, fontFamily: 'Inter_400Regular', color: colors.text1, marginBottom: spacing.md },
   chipRow:          { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: spacing.md },
-  relChip:          { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.full, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border },
-  relChipActive:    { backgroundColor: colors.accentDim, borderColor: colors.accent },
+  relChip:          { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.full, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE' },
+  relChipActive:    { backgroundColor: '#F0EEFF', borderColor: '#7367F0' },
   relChipIcon:      { fontSize: 14 },
   relChipText:      { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.text2 },
-  relChipTextActive:{ color: colors.accent, fontFamily: 'Inter_700Bold' },
-  visaChip:         { paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.full, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border },
+  relChipTextActive:{ color: '#7367F0', fontFamily: 'Inter_700Bold' },
+  visaChip:         { paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.full, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE' },
   templateRow:      { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
-  templateRowActive:{ backgroundColor: colors.accentDim },
+  templateRowActive:{ backgroundColor: '#F0EEFF' },
   templateLabel:    { fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.text1, flex: 1 },
   saveBtn:          { borderRadius: radius.lg, overflow: 'hidden' },
   saveBtnGrad:      { paddingVertical: 14, alignItems: 'center' },

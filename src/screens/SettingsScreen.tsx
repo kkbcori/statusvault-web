@@ -116,7 +116,7 @@ export const SettingsScreen: React.FC = () => {
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
-          <Text style={[styles.statNumber, { color: isPremium ? colors.accent : colors.text3 }]}>
+          <Text style={[styles.statNumber, { color: isPremium ? '#7367F0' : colors.text3 }]}>
             {isPremium ? 'PRO' : 'FREE'}
           </Text>
           <Text style={styles.statLabel}>Plan</Text>
@@ -128,7 +128,7 @@ export const SettingsScreen: React.FC = () => {
       <View style={styles.card}>
         <View style={styles.row}>
           <View style={styles.rowIconBox}>
-            <Ionicons name="notifications-outline" size={16} color={colors.accent} />
+            <Ionicons name="notifications-outline" size={16} color={'#7367F0'} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.rTitle}>Push Notifications</Text>
@@ -136,13 +136,13 @@ export const SettingsScreen: React.FC = () => {
           </View>
           <Switch
             value={notificationsEnabled} onValueChange={handleNotificationToggle}
-            trackColor={{ false: colors.border, true: colors.accent + '55' }}
-            thumbColor={notificationsEnabled ? colors.accent : '#f4f4f4'}
+            trackColor={{ false: colors.border, true: '#7367F0' + '55' }}
+            thumbColor={notificationsEnabled ? '#7367F0' : '#f4f4f4'}
           />
         </View>
         <View style={styles.div} />
         <TouchableOpacity style={styles.sRow} onPress={handleTestNotification}>
-          <View style={styles.rowIconBox}><Ionicons name="phone-portrait-outline" size={16} color={colors.accent} /></View>
+          <View style={styles.rowIconBox}><Ionicons name="phone-portrait-outline" size={16} color={'#7367F0'} /></View>
           <Text style={styles.sText}>Send Test Notification</Text>
           <Ionicons name="chevron-forward" size={18} color={colors.text3} />
         </TouchableOpacity>
@@ -151,7 +151,7 @@ export const SettingsScreen: React.FC = () => {
           const c = await getScheduledCount();
           dialog.alert('Scheduled Alerts', `${c} notification${c !== 1 ? 's' : ''} currently scheduled.`);
         }}>
-          <View style={styles.rowIconBox}><Ionicons name="stats-chart-outline" size={16} color={colors.accent} /></View>
+          <View style={styles.rowIconBox}><Ionicons name="stats-chart-outline" size={16} color={'#7367F0'} /></View>
           <Text style={styles.sText}>View Scheduled Alerts</Text>
           <Ionicons name="chevron-forward" size={18} color={colors.text3} />
         </TouchableOpacity>
@@ -161,22 +161,22 @@ export const SettingsScreen: React.FC = () => {
       <SectionLabel iconName="lock-closed-outline" label="APP LOCK" />
       <View style={styles.card}>
         <View style={styles.row}>
-          <View style={styles.rowIconBox}><Ionicons name="keypad-outline" size={16} color={colors.accent} /></View>
+          <View style={styles.rowIconBox}><Ionicons name="keypad-outline" size={16} color={'#7367F0'} /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.rTitle}>PIN Lock</Text>
             <Text style={styles.rDesc}>{pinEnabled ? 'PIN is enabled — app is locked on launch' : 'Protect your data with a 4-digit PIN'}</Text>
           </View>
           <Switch
             value={pinEnabled} onValueChange={() => setShowPinSetup(true)}
-            trackColor={{ false: colors.border, true: colors.accent + '55' }}
-            thumbColor={pinEnabled ? colors.accent : '#f4f4f4'}
+            trackColor={{ false: colors.border, true: '#7367F0' + '55' }}
+            thumbColor={pinEnabled ? '#7367F0' : '#f4f4f4'}
           />
         </View>
         {pinEnabled && (
           <>
             <View style={styles.div} />
             <TouchableOpacity style={styles.sRow} onPress={() => setShowPinSetup(true)}>
-              <View style={styles.rowIconBox}><Ionicons name="refresh-outline" size={16} color={colors.accent} /></View>
+              <View style={styles.rowIconBox}><Ionicons name="refresh-outline" size={16} color={'#7367F0'} /></View>
               <Text style={styles.sText}>Change PIN</Text>
               <Ionicons name="chevron-forward" size={18} color={colors.text3} />
             </TouchableOpacity>
@@ -188,7 +188,7 @@ export const SettingsScreen: React.FC = () => {
       <SectionLabel iconName="timer-outline" label="IMMI COUNTERS" />
       <View style={styles.card}>
         <View style={styles.row}>
-          <View style={styles.rowIconBox}><Ionicons name="timer-outline" size={16} color={colors.accent} /></View>
+          <View style={styles.rowIconBox}><Ionicons name="timer-outline" size={16} color={'#7367F0'} /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.rTitle}>{counters.length} counter{counters.length !== 1 ? 's' : ''} active</Text>
             <Text style={styles.rDesc}>Manage counters from the Dashboard</Text>
@@ -200,7 +200,7 @@ export const SettingsScreen: React.FC = () => {
       <SectionLabel iconName="archive-outline" label="DATA BACKUP" />
       <View style={styles.card}>
         <TouchableOpacity style={styles.sRow} onPress={handleExport}>
-          <View style={styles.rowIconBox}><Ionicons name="share-outline" size={16} color={colors.accent} /></View>
+          <View style={styles.rowIconBox}><Ionicons name="share-outline" size={16} color={'#7367F0'} /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.sText}>Export Backup</Text>
             <Text style={styles.rDesc}>Share as JSON · portable to any device</Text>
@@ -209,7 +209,7 @@ export const SettingsScreen: React.FC = () => {
         </TouchableOpacity>
         <View style={styles.div} />
         <TouchableOpacity style={styles.sRow} onPress={() => setShowImportModal(true)}>
-          <View style={styles.rowIconBox}><Ionicons name="download-outline" size={16} color={colors.accent} /></View>
+          <View style={styles.rowIconBox}><Ionicons name="download-outline" size={16} color={'#7367F0'} /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.sText}>Import Backup</Text>
             <Text style={styles.rDesc}>Paste JSON backup from another device</Text>
@@ -222,12 +222,12 @@ export const SettingsScreen: React.FC = () => {
       {/* ── Premium ── */}
       <SectionLabel iconName="star-outline" label="PREMIUM" />
       {isPremium ? (
-        <View style={[styles.card, { borderWidth: 2, borderColor: colors.accent }]}>
+        <View style={[styles.card, { borderWidth: 2, borderColor: '#7367F0' }]}>
           <View style={styles.row}>
-            <View style={[styles.rowIconBox, { backgroundColor: colors.accentDim, borderColor: colors.borderGold }]}>
-              <Ionicons name="star" size={16} color={colors.accent} />
+            <View style={[styles.rowIconBox, { backgroundColor: '#F0EEFF', borderColor: '#DBDADE'Gold }]}>
+              <Ionicons name="star" size={16} color={'#7367F0'} />
             </View>
-            <Text style={[styles.rTitle, { color: colors.accent }]}>Premium Active — Unlimited tracking</Text>
+            <Text style={[styles.rTitle, { color: '#7367F0' }]}>Premium Active — Unlimited tracking</Text>
           </View>
         </View>
       ) : (
@@ -238,7 +238,7 @@ export const SettingsScreen: React.FC = () => {
           {/* Corner accent */}
           <View style={{ position: 'absolute', top: 14, right: 14, width: 20, height: 20, borderTopWidth: 1.5, borderRightWidth: 1.5, borderColor: 'rgba(0,153,168,0.2)', borderTopRightRadius: 4 }} />
 
-          <Ionicons name="shield-checkmark" size={32} color={colors.accent} style={{ marginBottom: 10 }} />
+          <Ionicons name="shield-checkmark" size={32} color={'#7367F0'} style={{ marginBottom: 10 }} />
           <Text style={styles.premTitle}>Upgrade to Premium</Text>
           <Text style={styles.premDesc}>Unlimited tracking, advanced alerts, data export, priority support.</Text>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', marginBottom: 20 }}>
@@ -306,7 +306,7 @@ export const SettingsScreen: React.FC = () => {
               </TouchableOpacity>
               <TouchableOpacity style={styles.importBtn} onPress={handleImportPaste}>
                 <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.importBtnGrad}>
-                  <Text style={[styles.importBtnText, { color: colors.primary }]}>Import</Text>
+                  <Text style={[styles.importBtnText, { color: '#7367F0' }]}>Import</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -318,7 +318,7 @@ export const SettingsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container:       { flex: 1, backgroundColor: '#F8FAFC' },
+  container:       { flex: 1, backgroundColor: '#F4F5FA' },
   cc:              { paddingBottom: 20 },
   headerGradient:  { paddingBottom: 8 },
   header:          { paddingHorizontal: spacing.screen, paddingTop: spacing.xxl + 20, paddingBottom: spacing.lg },
@@ -329,20 +329,20 @@ const styles = StyleSheet.create({
   accountBanner:         { marginHorizontal: spacing.screen, marginTop: spacing.lg, borderRadius: radius.xl, overflow: 'hidden', ...shadows.lg },
   accountBannerGrad:     { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, gap: 14 },
   accountBannerIcon:     { width: 48, height: 48, borderRadius: 14, backgroundColor: 'rgba(0,153,168,0.12)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(0,153,168,0.25)' },
-  accountBannerBadge:    { backgroundColor: colors.accent, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, alignSelf: 'flex-start', marginBottom: 4 },
-  accountBannerBadgeText:{ fontSize: 8, fontFamily: 'Inter_800ExtraBold', color: colors.primary, letterSpacing: 0.8 },
+  accountBannerBadge:    { backgroundColor: '#7367F0', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, alignSelf: 'flex-start', marginBottom: 4 },
+  accountBannerBadgeText:{ fontSize: 8, fontFamily: 'Inter_800ExtraBold', color: '#7367F0', letterSpacing: 0.8 },
   accountBannerTitle:    { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff', letterSpacing: -0.2 },
   accountBannerSub:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.55)', marginTop: 3, lineHeight: 16 },
   accountBannerArrow:    { width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(0,153,168,0.1)', alignItems: 'center', justifyContent: 'center' },
-  statsStrip:      { flexDirection: 'row', marginHorizontal: spacing.screen, marginTop: spacing.lg, backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, ...shadows.sm },
+  statsStrip:      { flexDirection: 'row', marginHorizontal: spacing.screen, marginTop: spacing.lg, backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.lg, borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
   statItem:        { flex: 1, alignItems: 'center' },
   statNumber:      { fontSize: 22, fontFamily: 'Inter_900Black', color: colors.text1, letterSpacing: -0.5 },
   statLabel:       { fontSize: 11, fontFamily: 'Inter_500Medium', color: colors.text3, marginTop: 2 },
   statDivider:     { width: 1, backgroundColor: colors.borderLight, marginVertical: 4 },
 
-  card:            { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, ...shadows.sm },
+  card:            { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
   row:             { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  rowIconBox:      { width: 34, height: 34, borderRadius: 10, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold },
+  rowIconBox:      { width: 34, height: 34, borderRadius: 10, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE'Gold },
   rTitle:          { ...typography.bodySemibold, color: colors.text1, fontSize: 14 },
   rDesc:           { ...typography.caption, color: colors.text3, fontSize: 12, marginTop: 1 },
   sRow:            { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, gap: spacing.md },
@@ -352,19 +352,19 @@ const styles = StyleSheet.create({
   premCard:        { borderRadius: radius.xl, marginHorizontal: spacing.screen, padding: spacing.xl, alignItems: 'center', overflow: 'hidden' },
   premTitle:       { ...typography.h2, color: colors.textInverse, marginBottom: spacing.sm },
   premDesc:        { ...typography.caption, color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 20, marginBottom: spacing.lg },
-  premPrice:       { fontSize: 32, fontFamily: 'Inter_900Black', color: colors.accent },
+  premPrice:       { fontSize: 32, fontFamily: 'Inter_900Black', color: '#7367F0' },
   premPeriod:      { fontSize: 16, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.4)', marginLeft: 4 },
   premBtn:         { width: '100%', borderRadius: radius.md, overflow: 'hidden' },
   premBtnGrad:     { paddingVertical: 14, alignItems: 'center', borderRadius: radius.md },
-  premBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: colors.primary },
+  premBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#7367F0' },
   legalText:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, lineHeight: 20 },
   version:         { ...typography.caption, color: colors.text3, textAlign: 'center', marginTop: spacing.xxl, lineHeight: 20, fontSize: 12 },
   importOverlay:   { flex: 1, backgroundColor: colors.overlay, justifyContent: 'center', alignItems: 'center', padding: 24 },
   importSheet:     { backgroundColor: '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 380, overflow: 'hidden' },
-  importTrim:      { position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: colors.accent },
+  importTrim:      { position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: '#7367F0' },
   importTitle:     { fontSize: 20, fontFamily: 'Inter_700Bold', color: colors.text1, marginBottom: 8, marginTop: 4 },
   importDesc:      { fontSize: 13, fontFamily: 'Inter_400Regular', color: colors.text2, marginBottom: 16 },
-  importInput:     { backgroundColor: colors.background, borderRadius: 12, borderWidth: 1.5, borderColor: colors.border, padding: 14, fontSize: 13, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace', color: colors.text1, minHeight: 120, textAlignVertical: 'top' },
+  importInput:     { backgroundColor: '#F4F5FA', borderRadius: 12, borderWidth: 1.5, borderColor: '#DBDADE', padding: 14, fontSize: 13, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace', color: colors.text1, minHeight: 120, textAlignVertical: 'top' },
   importBtn:       { flex: 1, borderRadius: 12, overflow: 'hidden' },
   importBtnGrad:   { paddingVertical: 14, alignItems: 'center', borderRadius: 12 },
   importBtnText:   { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },

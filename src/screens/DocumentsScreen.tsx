@@ -177,7 +177,7 @@ export const DocumentsScreen: React.FC = () => {
         {documents.length > 0 && (
           <View style={styles.infoCard}>
             <View style={styles.infoIconBox}>
-              <Ionicons name="notifications-outline" size={18} color={colors.accent} />
+              <Ionicons name="notifications-outline" size={18} color={'#7367F0'} />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoTitle}>Smart Alerts Active</Text>
@@ -272,7 +272,7 @@ export const DocumentsScreen: React.FC = () => {
                   <>
                     <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
                       <Text style={styles.dateButtonText}>{expiryDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</Text>
-                      <Ionicons name="calendar-outline" size={20} color={colors.accent} />
+                      <Ionicons name="calendar-outline" size={20} color={'#7367F0'} />
                     </TouchableOpacity>
                     {showDatePicker && (
                       <DateTimePicker
@@ -331,7 +331,7 @@ export const DocumentsScreen: React.FC = () => {
             <View style={styles.paywallHero}>
               <View style={styles.paywallIconRing}>
                 <View style={styles.paywallIconInner}>
-                  <Ionicons name="shield-checkmark" size={40} color={colors.accent} />
+                  <Ionicons name="shield-checkmark" size={40} color={'#7367F0'} />
                 </View>
               </View>
               <Text style={styles.paywallEyebrow}>STATUSVAULT PREMIUM</Text>
@@ -353,7 +353,7 @@ export const DocumentsScreen: React.FC = () => {
               ].map(({ icon, text }, i) => (
                 <View key={i} style={styles.paywallFeatureRow}>
                   <View style={styles.paywallFeatureIconBox}>
-                    <Ionicons name={icon} size={16} color={colors.accent} />
+                    <Ionicons name={icon} size={16} color={'#7367F0'} />
                   </View>
                   <Text style={styles.paywallFeatureText}>{text}</Text>
                 </View>
@@ -394,7 +394,7 @@ export const DocumentsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container:          { flex: 1, backgroundColor: colors.background },
+  container:          { flex: 1, backgroundColor: '#F4F5FA' },
   scrollContent:      { paddingBottom: 20 },
   headerGradient:     { paddingBottom: 8 },
   header:             { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: spacing.screen, paddingTop: spacing.xxl + 20, paddingBottom: spacing.md },
@@ -405,48 +405,48 @@ const styles = StyleSheet.create({
   addBtnGrad:         { paddingHorizontal: 20, paddingVertical: 11, borderRadius: radius.md },
   addBtnText:         { fontSize: 14, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
   filterRow:          { paddingHorizontal: spacing.screen, paddingBottom: spacing.lg, gap: spacing.sm },
-  filterChip:         { paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.full, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
-  filterChipActive:   { backgroundColor: colors.accent, borderColor: colors.accent },
+  filterChip:         { paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.full, backgroundColor: colors.card, borderWidth: 1, borderColor: '#DBDADE' },
+  filterChipActive:   { backgroundColor: '#7367F0', borderColor: '#7367F0' },
   filterChipText:     { ...typography.caption, color: colors.text2, fontSize: 12 },
   filterChipTextActive:{ color: '#fff', fontFamily: 'Inter_700Bold' },
-  emptyCard:          { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.xxxl, alignItems: 'center', borderWidth: 1, borderColor: colors.border, ...shadows.sm },
-  emptyIconCircle:    { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md, borderWidth: 1, borderColor: colors.borderGold },
+  emptyCard:          { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.xxxl, alignItems: 'center', borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
+  emptyIconCircle:    { width: 56, height: 56, borderRadius: 28, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md, borderWidth: 1, borderColor: '#DBDADE'Gold },
   emptyTitle:         { ...typography.bodySemibold, color: colors.text2 },
   emptySubtitle:      { ...typography.caption, color: colors.text3, textAlign: 'center', marginTop: 4 },
-  infoCard:           { flexDirection: 'row', gap: spacing.md, backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.lg, marginHorizontal: spacing.screen, marginTop: spacing.md, borderWidth: 1, borderColor: colors.border, ...shadows.sm },
-  infoIconBox:        { width: 36, height: 36, borderRadius: 10, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold },
+  infoCard:           { flexDirection: 'row', gap: spacing.md, backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.lg, marginHorizontal: spacing.screen, marginTop: spacing.md, borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
+  infoIconBox:        { width: 36, height: 36, borderRadius: 10, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE'Gold },
   infoContent:        { flex: 1 },
   infoTitle:          { ...typography.captionBold, color: colors.text1 },
   infoDesc:           { ...typography.caption, color: colors.text3, marginTop: 2, fontSize: 12, lineHeight: 18 },
 
   // Add modal
   modalOverlay:       { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
-  modalSheet:         { backgroundColor: colors.background, borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '80%' as any : '85%', paddingBottom: 40, width: IS_WEB ? 480 : '100%' as any, borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column', overflow: 'hidden' } as any,
+  modalSheet:         { backgroundColor: '#F4F5FA', borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '80%' as any : '85%', paddingBottom: 40, width: IS_WEB ? 480 : '100%' as any, borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column', overflow: 'hidden' } as any,
   modalHeader:        { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
-  modalBack:          { ...typography.bodySemibold, color: colors.accent, fontSize: 14 },
+  modalBack:          { ...typography.bodySemibold, color: '#7367F0', fontSize: 14 },
   modalTitle:         { ...typography.h3, color: colors.text1, fontSize: 16 },
   templateSection:    { paddingTop: spacing.lg },
   templateSectionTitle:{ ...typography.micro, color: colors.text3, letterSpacing: 1, paddingHorizontal: spacing.screen, marginBottom: spacing.sm },
   templateRow:        { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: spacing.screen, borderBottomWidth: 1, borderBottomColor: colors.borderLight, gap: spacing.md },
   templateRowDisabled:{ opacity: 0.4 },
-  tIconBox:           { width: 42, height: 42, borderRadius: 12, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold },
+  tIconBox:           { width: 42, height: 42, borderRadius: 12, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE'Gold },
   templateInfo:       { flex: 1 },
   templateLabel:      { ...typography.bodySemibold, color: colors.text1, fontSize: 14 },
   templateDesc:       { ...typography.caption, color: colors.text3, fontSize: 12, marginTop: 1 },
   addedBadge:         { ...typography.caption, color: colors.success, fontFamily: 'Inter_600SemiBold', fontSize: 12 },
   dateStep:           { padding: spacing.screen },
-  selectedSummary:    { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.accentDim, padding: spacing.lg, borderRadius: radius.lg, marginBottom: spacing.xxl, borderWidth: 1, borderColor: colors.borderGold },
+  selectedSummary:    { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: '#F0EEFF', padding: spacing.lg, borderRadius: radius.lg, marginBottom: spacing.xxl, borderWidth: 1, borderColor: '#DBDADE'Gold },
   selectedIcon:       { fontSize: 32 },
-  selectedLabel:      { ...typography.bodySemibold, color: colors.primary },
-  selectedDesc:       { ...typography.caption, color: colors.accent, fontSize: 12, marginTop: 2 },
+  selectedLabel:      { ...typography.bodySemibold, color: '#7367F0' },
+  selectedDesc:       { ...typography.caption, color: '#7367F0', fontSize: 12, marginTop: 2 },
   fieldLabel:         { ...typography.captionBold, color: colors.text2, marginBottom: spacing.sm, letterSpacing: 0.3 },
-  dateButton:         { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.card, padding: spacing.lg, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border },
+  dateButton:         { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.card, padding: spacing.lg, borderRadius: radius.md, borderWidth: 1.5, borderColor: '#DBDADE' },
   dateButtonText:     { ...typography.bodySemibold, color: colors.text1 },
   datePicker:         { marginTop: spacing.sm },
   webDateWrap:        { marginTop: spacing.sm, marginBottom: spacing.sm },
   datePickerDone:     { alignSelf: 'flex-end', paddingVertical: spacing.sm, paddingHorizontal: spacing.lg },
-  datePickerDoneText: { ...typography.bodySemibold, color: colors.accent },
-  notesInput:         { backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border, padding: spacing.lg, ...typography.body, color: colors.text1, minHeight: 80, textAlignVertical: 'top' },
+  datePickerDoneText: { ...typography.bodySemibold, color: '#7367F0' },
+  notesInput:         { backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1.5, borderColor: '#DBDADE', padding: spacing.lg, ...typography.body, color: colors.text1, minHeight: 80, textAlignVertical: 'top' },
   saveBtn:            { borderRadius: radius.md, overflow: 'hidden', marginTop: spacing.xxl },
   saveBtnGrad:        { paddingVertical: 16, alignItems: 'center', borderRadius: radius.md },
   saveBtnText:        { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   paywallOverlay:      { flex: 1, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'center', alignItems: 'center', padding: IS_WEB ? 24 : 0 },
   paywallCard:         { width: IS_WEB ? '100%' as any : '100%', maxWidth: IS_WEB ? 520 : undefined, maxHeight: IS_WEB ? '88vh' as any : '100%', height: IS_WEB ? undefined : '100%', borderRadius: IS_WEB ? radius.xxl : 0, overflow: 'hidden', flexShrink: 1 } as any,
   paywallFull:         { flex: 1 },
-  paywallTopTrim:      { position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: colors.accent, opacity: 0.8 },
+  paywallTopTrim:      { position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: '#7367F0', opacity: 0.8 },
   paywallCornerTL:     { position: 'absolute', top: 40, left: 24, width: 28, height: 28, borderTopWidth: 2, borderLeftWidth: 2, borderColor: 'rgba(0,153,168,0.2)', borderTopLeftRadius: 4 },
   paywallCornerBR:     { position: 'absolute', bottom: 60, right: 24, width: 28, height: 28, borderBottomWidth: 2, borderRightWidth: 2, borderColor: 'rgba(0,153,168,0.2)', borderBottomRightRadius: 4 },
   paywallScroll:       { paddingHorizontal: 28, paddingTop: 52, paddingBottom: 48, alignItems: 'center' },
@@ -464,9 +464,9 @@ const styles = StyleSheet.create({
   paywallHero:         { alignItems: 'center', marginBottom: 36 },
   paywallIconRing:     { width: 96, height: 96, borderRadius: 48, borderWidth: 1.5, borderColor: 'rgba(0,153,168,0.3)', alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
   paywallIconInner:    { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(0,153,168,0.1)', alignItems: 'center', justifyContent: 'center' },
-  paywallEyebrow:      { fontSize: 11, fontFamily: 'Inter_700Bold', color: colors.accent, letterSpacing: 2.5, marginBottom: 10 },
+  paywallEyebrow:      { fontSize: 11, fontFamily: 'Inter_700Bold', color: '#7367F0', letterSpacing: 2.5, marginBottom: 10 },
   paywallTitle:        { fontSize: 30, fontFamily: 'Inter_900Black', color: '#FFFFFF', textAlign: 'center', letterSpacing: -0.5, lineHeight: 36, marginBottom: 14 },
-  paywallGoldBar:      { width: 48, height: 3, backgroundColor: colors.accent, borderRadius: 2, marginBottom: 16, opacity: 0.8 },
+  paywallGoldBar:      { width: 48, height: 3, backgroundColor: '#7367F0', borderRadius: 2, marginBottom: 16, opacity: 0.8 },
   paywallSubtitle:     { fontSize: 15, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 22 },
   paywallFeatures:     { width: '100%', marginBottom: 32 },
   paywallFeatureRow:   { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
   paywallFeatureText:  { fontSize: 14, fontFamily: 'Inter_500Medium', color: 'rgba(255,255,255,0.85)', flex: 1 },
   paywallPriceBlock:   { width: '100%', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: 20, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(0,153,168,0.15)' },
   paywallPriceRow:     { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  paywallPrice:        { fontSize: 48, fontFamily: 'Inter_900Black', color: colors.accent, letterSpacing: -1 },
+  paywallPrice:        { fontSize: 48, fontFamily: 'Inter_900Black', color: '#7367F0', letterSpacing: -1 },
   paywallPriceSide:    { gap: 2 },
   paywallPeriod:       { fontSize: 18, fontFamily: 'Inter_500Medium', color: 'rgba(255,255,255,0.5)' },
   paywallPriceNote:    { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.success },

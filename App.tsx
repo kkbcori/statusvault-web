@@ -26,24 +26,19 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     html { height: 100%; }
     body {
       height: 100%; margin: 0; padding: 0; overflow: hidden;
-      background: #0F172A;
+      background: #2F3349;
       font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     }
     #root { width: 100vw; height: 100vh; display: flex; flex-direction: row; overflow: hidden; }
-    /* Allow RNW ScrollViews to scroll */
     div[style*="overflow-y: scroll"], div[style*="overflow: scroll"], div[style*="overflow: auto"] {
       -webkit-overflow-scrolling: touch !important;
     }
-    /* Thin elegant scrollbars */
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.5); border-radius: 2px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.7); }
-    * { scrollbar-width: thin; scrollbar-color: rgba(148,163,184,0.5) transparent; }
-    /* Remove outline on focus for mouse users */
+    ::-webkit-scrollbar-thumb { background: rgba(133,136,165,0.4); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(133,136,165,0.7); }
+    * { scrollbar-width: thin; scrollbar-color: rgba(133,136,165,0.4) transparent; }
     :focus:not(:focus-visible) { outline: none; }
   `;
   document.head.appendChild(s);
