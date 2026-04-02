@@ -489,30 +489,28 @@ setShowAddMember(false); setAnyModalOpen(false);
                 showsVerticalScrollIndicator={true}
                 nestedScrollEnabled={true}
               >
-                {DOCUMENT_TEMPLATES.map((t) => (
-                  {(() => {
-                    const alreadyAdded = selectedMember
-                      ? getMemberDocs(selectedMember).some((d) => d.templateId === t.id)
-                      : false;
-                    const isSelected = docTemplateId === t.id;
-                    return (
-                      <TouchableOpacity
-                        key={t.id}
-                        style={[styles.templateRow, isSelected && styles.templateRowActive, alreadyAdded && styles.templateRowAdded]}
-                        onPress={() => { if (!alreadyAdded) { setDocTemplateId(t.id); setDocTemplateError(false); } }}
-                        activeOpacity={alreadyAdded ? 1 : 0.75}
-                      >
-                        <Text style={{ fontSize: 18, marginRight: 10, opacity: alreadyAdded ? 0.4 : 1 }}>{t.icon}</Text>
-                        <View style={{ flex: 1 }}>
-                          <Text style={[styles.templateLabel, isSelected && { color: '#7367F0' }, alreadyAdded && { color: '#ACAEC5', textDecorationLine: 'line-through' }]}>{t.label}</Text>
-                          {alreadyAdded && <Text style={styles.alreadyAddedText}>✓ Already added</Text>}
-                        </View>
-                        {isSelected && <Ionicons name="checkmark-circle" size={16} color={'#7367F0'} style={{ marginLeft: 'auto' as any }} />}
-                        {alreadyAdded && <Ionicons name="checkmark-circle" size={16} color={'#ACAEC5'} style={{ marginLeft: 'auto' as any }} />}
-                      </TouchableOpacity>
-                    );
-                  })()}
-                ))}
+                {DOCUMENT_TEMPLATES.map((t) => {
+                  const alreadyAdded = selectedMember
+                    ? getMemberDocs(selectedMember).some((d) => d.templateId === t.id)
+                    : false;
+                  const isSelected = docTemplateId === t.id;
+                  return (
+                    <TouchableOpacity
+                      key={t.id}
+                      style={[styles.templateRow, isSelected && styles.templateRowActive, alreadyAdded && styles.templateRowAdded]}
+                      onPress={() => { if (!alreadyAdded) { setDocTemplateId(t.id); setDocTemplateError(false); } }}
+                      activeOpacity={alreadyAdded ? 1 : 0.75}
+                    >
+                      <Text style={{ fontSize: 18, marginRight: 10, opacity: alreadyAdded ? 0.4 : 1 }}>{t.icon}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.templateLabel, isSelected && { color: '#7367F0' }, alreadyAdded && { color: '#ACAEC5', textDecorationLine: 'line-through' as any }]}>{t.label}</Text>
+                        {alreadyAdded && <Text style={styles.alreadyAddedText}>✓ Already added</Text>}
+                      </View>
+                      {isSelected && <Ionicons name="checkmark-circle" size={16} color={'#7367F0'} style={{ marginLeft: 'auto' as any }} />}
+                      {alreadyAdded && !isSelected && <Ionicons name="checkmark-circle" size={16} color={'#ACAEC5'} style={{ marginLeft: 'auto' as any }} />}
+                    </TouchableOpacity>
+                  );
+                })}
               </ScrollView>
 
               <View style={styles.fieldLabelRow}>
