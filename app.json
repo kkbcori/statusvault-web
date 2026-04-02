@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "StatusVault",
+    "name": "Visa & Passport Expiry Tracker Dashboard",
     "slug": "statusvault-web",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -48,8 +48,9 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
       "output": "single",
-      "name": "StatusVault \u2014 Immigration Tracker",
-      "description": "Track visas, documents and travel history for immigration. 100% private, AES-256 encrypted sync."
+      "name": "Visa & Passport Expiry Tracker Dashboard",
+      "description": "Track visas, documents and travel history for immigration. 100% private, AES-256 encrypted sync.",
+      "shortName": "StatusVault"
     },
     "experiments": {
       "baseUrl": "/statusvault-web"

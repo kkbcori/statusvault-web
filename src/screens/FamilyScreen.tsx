@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB } from '../utils/responsive';
+import { useNavigation } from '@react-navigation/native';
 import { useStore } from '../store';
 import { useDialog } from '../components/ConfirmDialog';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
@@ -33,6 +34,7 @@ const VISA_TYPES = [
 ];
 
 export const FamilyScreen: React.FC = () => {
+  const navigation       = useNavigation<any>();
   const familyMembers    = useStore((s) => s.familyMembers);
   const addFamilyMember  = useStore((s) => s.addFamilyMember);
   const removeFamilyMember = useStore((s) => s.removeFamilyMember);
@@ -337,7 +339,15 @@ setShowAddMember(false); setAnyModalOpen(false);
                       <View style={styles.memberActions}>
                         <TouchableOpacity
                           style={styles.addDocBtn}
-                          onPress={() => { setSelectedMember(member); setShowAddDoc(true); }}
+                          onPress={() => {
+                            const mDocs = getMemberDocs(member);
+                            if (!isPremium && mDocs.length >= FREE_DOC_LIMIT) {
+                              // Open paywall directly — don't open the doc card
+                              navigation.navigate('Main', { screen: 'Documents', params: { openPaywall: true } });
+                              return;
+                            }
+                            setSelectedMember(member); setShowAddDoc(true); setAnyModalOpen(true);
+                          }}
                           activeOpacity={0.8}
                         >
                           <Ionicons name="add-circle-outline" size={15} color={'#7367F0'} />
@@ -345,7 +355,7 @@ setShowAddMember(false); setAnyModalOpen(false);
                           {!isPremium && getMemberDocs(member).length >= FREE_DOC_LIMIT && (
                             <View style={styles.lockBadge}>
                               <Ionicons name="lock-closed" size={10} color="#FF9F43" />
-                              <Text style={styles.lockBadgeText}>Premium</Text>
+                              <Text style={styles.lockBadgeText}>Upgrade</Text>
                             </View>
                           )}
                         </TouchableOpacity>
@@ -480,15 +490,28 @@ setShowAddMember(false); setAnyModalOpen(false);
                 nestedScrollEnabled={true}
               >
                 {DOCUMENT_TEMPLATES.map((t) => (
-                  <TouchableOpacity
-                    key={t.id}
-                    style={[styles.templateRow, docTemplateId === t.id && styles.templateRowActive]}
-                    onPress={() => { setDocTemplateId(t.id); setDocTemplateError(false); }}
-                  >
-                    <Text style={{ fontSize: 18, marginRight: 10 }}>{t.icon}</Text>
-                    <Text style={[styles.templateLabel, docTemplateId === t.id && { color: '#7367F0' }]}>{t.label}</Text>
-                    {docTemplateId === t.id && <Ionicons name="checkmark-circle" size={16} color={'#7367F0'} style={{ marginLeft: 'auto' as any }} />}
-                  </TouchableOpacity>
+                  {(() => {
+                    const alreadyAdded = selectedMember
+                      ? getMemberDocs(selectedMember).some((d) => d.templateId === t.id)
+                      : false;
+                    const isSelected = docTemplateId === t.id;
+                    return (
+                      <TouchableOpacity
+                        key={t.id}
+                        style={[styles.templateRow, isSelected && styles.templateRowActive, alreadyAdded && styles.templateRowAdded]}
+                        onPress={() => { if (!alreadyAdded) { setDocTemplateId(t.id); setDocTemplateError(false); } }}
+                        activeOpacity={alreadyAdded ? 1 : 0.75}
+                      >
+                        <Text style={{ fontSize: 18, marginRight: 10, opacity: alreadyAdded ? 0.4 : 1 }}>{t.icon}</Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.templateLabel, isSelected && { color: '#7367F0' }, alreadyAdded && { color: '#ACAEC5', textDecorationLine: 'line-through' }]}>{t.label}</Text>
+                          {alreadyAdded && <Text style={styles.alreadyAddedText}>✓ Already added</Text>}
+                        </View>
+                        {isSelected && <Ionicons name="checkmark-circle" size={16} color={'#7367F0'} style={{ marginLeft: 'auto' as any }} />}
+                        {alreadyAdded && <Ionicons name="checkmark-circle" size={16} color={'#ACAEC5'} style={{ marginLeft: 'auto' as any }} />}
+                      </TouchableOpacity>
+                    );
+                  })()}
                 ))}
               </ScrollView>
 
@@ -682,6 +705,8 @@ const styles = StyleSheet.create({
   docTypeList:      { borderRadius: 8, borderWidth: 1, borderColor: '#DBDADE', height: 260, marginBottom: spacing.md },
   templateRow:      { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
   templateRowActive:{ backgroundColor: '#F0EEFF' },
+  templateRowAdded: { backgroundColor: '#F9FAFB', opacity: 0.7 },
+  alreadyAddedText: { fontSize: 10, fontFamily: 'Inter_400Regular', color: '#28C76F', marginTop: 1 },
   templateLabel:    { fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.text1, flex: 1 },
   saveBtn:          { borderRadius: radius.lg, overflow: 'hidden' },
   saveBtnGrad:      { paddingVertical: 14, alignItems: 'center' },
