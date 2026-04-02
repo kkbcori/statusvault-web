@@ -120,6 +120,7 @@ export type MainTabParamList = {
   Travel: undefined;
   Family: undefined;
   Checklist: undefined;
+  VisaTools: undefined;
   Timers: undefined;
   Processing: undefined;
   Scanner: undefined;

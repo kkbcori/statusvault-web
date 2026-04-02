@@ -23,6 +23,7 @@ import { FamilyScreen }     from '../screens/FamilyScreen';
 import { ScannerScreen }     from '../screens/ScannerScreen';
 import { ChecklistScreen }  from '../screens/ChecklistScreen';
 import { CounterScreen }    from '../screens/CounterScreen';
+import { VisaToolsScreen }  from '../screens/VisaToolsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab   = createBottomTabNavigator<MainTabParamList>();
@@ -41,6 +42,7 @@ const TAB_ITEMS: Array<{
   { name: 'Family',     label: 'Family',    active: 'people',        inactive: 'people-outline' },
   { name: 'Checklist',  label: 'Checklist', active: 'checkbox',      inactive: 'checkbox-outline' },
   { name: 'Timers',     label: 'Timers',    active: 'timer',         inactive: 'timer-outline' },
+  { name: 'VisaTools',  label: 'Visa Tools', active: 'briefcase',    inactive: 'briefcase-outline' },
   { name: 'Processing', label: 'USCIS',     active: 'time',          inactive: 'time-outline' },
   { name: 'Scanner',    label: 'Scan',      active: 'scan',          inactive: 'scan-outline' },
   { name: 'Help',       label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
@@ -48,7 +50,7 @@ const TAB_ITEMS: Array<{
 
 const NAV_GROUPS = [
   { label: 'MAIN', items: ['Dashboard', 'Documents', 'Travel', 'Family'] },
-  { label: 'TOOLS',   items: ['Checklist', 'Timers', 'Processing', 'Scanner'] },
+  { label: 'TOOLS',   items: ['Checklist', 'Timers', 'VisaTools', 'Processing', 'Scanner'] },
   { label: 'ACCOUNT', items: ['Settings', 'Help'] },
 ];
 
@@ -296,6 +298,7 @@ const MainTabs: React.FC = () => (
                 item.name === 'Travel'     ? TravelScreen     :
                 item.name === 'Family'     ? FamilyScreen     :
                 item.name === 'Checklist'  ? ChecklistScreen  :
+                item.name === 'VisaTools'  ? VisaToolsScreen  :
                 item.name === 'Timers'     ? CounterScreen    :
                 item.name === 'Processing' ? ProcessingScreen :
                 item.name === 'Scanner'    ? ScannerScreen    :
