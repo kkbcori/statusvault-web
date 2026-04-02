@@ -233,7 +233,7 @@ export const TravelScreen: React.FC = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4F5FA' }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={true}>
 
         {/* Header */}
         <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>

@@ -157,6 +157,97 @@ export const SettingsScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
+      {/* ── Expiry Alert Contacts (Premium only) ── */}
+      <SectionLabel iconName="mail-outline" label="EXPIRY ALERTS — EMAIL & WHATSAPP" />
+      {!isPremium ? (
+        <View style={styles.card}>
+          <View style={styles.premiumAlertBanner}>
+            <Ionicons name="lock-closed" size={18} color="#FF9F43" />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.premiumAlertTitle}>Premium Feature</Text>
+              <Text style={styles.premiumAlertDesc}>
+                Email and WhatsApp expiry alerts are available for Premium subscribers. Upgrade to receive alerts 180, 90, 60, 30, 14, and 7 days before your documents expire.
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity style={styles.upgradeBtn} onPress={() => setPremium(true)}>
+            <Text style={styles.upgradeBtnText}>⭐ Upgrade to Premium</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.card}>
+          {/* Email */}
+          <View style={styles.row}>
+            <View style={styles.rowIconBox}><Ionicons name="mail-outline" size={16} color="#7367F0" /></View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rTitle}>Email Alerts</Text>
+              <Text style={styles.rDesc}>{notificationEmail ?? 'Not set — tap Add to configure'}</Text>
+            </View>
+            <TouchableOpacity onPress={() => { setEmailInput(notificationEmail ?? ''); setEditingEmail(true); }} style={styles.editChip}>
+              <Text style={styles.editChipText}>{notificationEmail ? 'Edit' : 'Add'}</Text>
+            </TouchableOpacity>
+          </View>
+          {editingEmail && (
+            <View style={styles.inlineEdit}>
+              {IS_WEB ? (
+                <input type="email" value={emailInput} placeholder="your@email.com"
+                  onChange={(e: any) => setEmailInput(e.target.value)}
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '14px', border: '1.5px solid #DBDADE', borderRadius: '8px', outline: 'none', fontFamily: 'Inter' } as any}
+                  autoFocus />
+              ) : (
+                <TextInput style={styles.inlineInput} value={emailInput} onChangeText={setEmailInput}
+                  placeholder="your@email.com" keyboardType="email-address" autoCapitalize="none"
+                  placeholderTextColor={colors.text3} autoFocus />
+              )}
+              <TouchableOpacity style={styles.inlineSave} onPress={() => { setNotificationEmail(emailInput.trim() || null); setEditingEmail(false); }}>
+                <Text style={styles.inlineSaveText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setEditingEmail(false)} style={{ padding: 4 }}>
+                <Ionicons name="close" size={18} color={colors.text3} />
+              </TouchableOpacity>
+            </View>
+          )}
+          <View style={styles.div} />
+          {/* WhatsApp */}
+          <View style={styles.row}>
+            <View style={[styles.rowIconBox, { backgroundColor: '#EAFFF4' }]}><Ionicons name="logo-whatsapp" size={16} color="#25D366" /></View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rTitle}>WhatsApp Alerts</Text>
+              <Text style={styles.rDesc}>{whatsappPhone ?? 'Not set — add phone for WhatsApp alerts'}</Text>
+            </View>
+            <TouchableOpacity onPress={() => { setPhoneInput(whatsappPhone ?? ''); setEditingPhone(true); }} style={styles.editChip}>
+              <Text style={styles.editChipText}>{whatsappPhone ? 'Edit' : 'Add'}</Text>
+            </TouchableOpacity>
+          </View>
+          {editingPhone && (
+            <View style={styles.inlineEdit}>
+              {IS_WEB ? (
+                <input type="tel" value={phoneInput} placeholder="+1 555 000 0000"
+                  onChange={(e: any) => setPhoneInput(e.target.value)}
+                  style={{ flex: 1, padding: '10px 12px', fontSize: '14px', border: '1.5px solid #DBDADE', borderRadius: '8px', outline: 'none', fontFamily: 'Inter' } as any}
+                  autoFocus />
+              ) : (
+                <TextInput style={styles.inlineInput} value={phoneInput} onChangeText={setPhoneInput}
+                  placeholder="+1 555 000 0000" keyboardType="phone-pad"
+                  placeholderTextColor={colors.text3} autoFocus />
+              )}
+              <TouchableOpacity style={styles.inlineSave} onPress={() => { setWhatsappPhone(phoneInput.trim() || null); setEditingPhone(false); }}>
+                <Text style={styles.inlineSaveText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setEditingPhone(false)} style={{ padding: 4 }}>
+                <Ionicons name="close" size={18} color={colors.text3} />
+              </TouchableOpacity>
+            </View>
+          )}
+          <View style={styles.alertInfoBox}>
+            <Ionicons name="information-circle-outline" size={14} color="#0E7490" />
+            <Text style={styles.alertInfoText}>
+              Alerts sent at 180, 90, 60, 30, 14, and 7 days before expiry. Requires Supabase edge function deployment — see README.
+            </Text>
+          </View>
+        </View>
+      )}
+
       {/* ── App Lock ── */}
       <SectionLabel iconName="lock-closed-outline" label="APP LOCK" />
       <View style={styles.card}>

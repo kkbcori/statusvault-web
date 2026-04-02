@@ -1,0 +1,40 @@
+# ═══════════════════════════════════════════════════════════════
+# StatusVault — Monthly Checklist Update Check
+# Runs 1st of every month at 9am UTC
+# Checks USCIS, VFS, and State Dept for any form/fee/process changes
+# Opens a GitHub Issue if changes are detected
+# ═══════════════════════════════════════════════════════════════
+
+name: Monthly Checklist Review
+
+on:
+  schedule:
+    - cron: '0 9 1 * *'   # 1st of every month at 9am UTC
+  workflow_dispatch:        # manual trigger for testing
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run checklist update checker
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/check_checklist_updates.py
+
+      - name: Commit any updates
+        run: |
+          git config --global user.email "bot@statusvault.app"
+          git config --global user.name "StatusVault Bot"
+          git add src/utils/checklists.ts
+          git diff --staged --quiet || git commit -m "chore: auto-update checklists $(date +%Y-%m)"
+          git push origin main || echo "Nothing to push"

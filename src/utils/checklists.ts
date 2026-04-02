@@ -228,6 +228,48 @@ export const CHECKLIST_TEMPLATES: ChecklistTemplate[] = [
   },
 ];
 
+  // ─── Indian Passport Renewal (USA) ───────────────────────────
+  {
+    id: 'indian-passport-usa',
+    label: 'Indian Passport Renewal (USA)',
+    icon: '🇮🇳',
+    description: 'Indian passport renewal from the US — VFS/Consulate',
+    items: [
+      // ── Eligibility & Planning ──
+      { id: 'ip-01', text: 'Check passport expiry — apply at least 6 months before expiry (airlines may deny boarding with <6 months validity)', category: 'Indian Passport' },
+      { id: 'ip-02', text: 'Identify your jurisdiction — Indian consulate/VFS based on your US state of residence', category: 'Indian Passport' },
+      { id: 'ip-03', text: 'Confirm you need Renewal vs Re-issue (damage, name change, address change use Re-issue)', category: 'Indian Passport' },
+      // ── Online Application ──
+      { id: 'ip-04', text: 'Create account or log in at passportindia.gov.in', category: 'Indian Passport' },
+      { id: 'ip-05', text: 'Fill Form SP(A) — Fresh/Re-issue of Passport (available on consulate website)', category: 'Indian Passport' },
+      { id: 'ip-06', text: 'Select correct category: Normal (36 pages) or Jumbo (60 pages)', category: 'Indian Passport' },
+      { id: 'ip-07', text: 'Select validity: 10 years (age 18+) or 5 years (minors)', category: 'Indian Passport' },
+      // ── Documents Required ──
+      { id: 'ip-08', text: 'Original current Indian passport + self-attested copy of all pages (including blank pages)', category: 'Indian Passport' },
+      { id: 'ip-09', text: 'Two recent passport-size photos: 2x2 inch, white background, no glasses, face 70–80% of frame', category: 'Indian Passport' },
+      { id: 'ip-10', text: 'Proof of US address: US driving license, utility bill, bank statement, or lease (issued within 6 months)', category: 'Indian Passport' },
+      { id: 'ip-11', text: 'Proof of US status: valid US visa stamp in passport OR valid EAD/Green Card (both sides, self-attested copy)', category: 'Indian Passport' },
+      { id: 'ip-12', text: 'I-94 printout from cbp.dhs.gov/i94 (shows most recent entry)', category: 'Indian Passport' },
+      { id: 'ip-13', text: 'Completed application form SP(A) — signed and dated', category: 'Indian Passport' },
+      // ── Optional / Situational ──
+      { id: 'ip-14', text: 'Marriage certificate (if name changed due to marriage) + Notarized English translation', category: 'Indian Passport' },
+      { id: 'ip-15', text: 'Court order (if name change for other reasons)', category: 'Indian Passport' },
+      { id: 'ip-16', text: 'Applicant Declaration form (from consulate website)', category: 'Indian Passport' },
+      { id: 'ip-17', text: 'Old expired passport(s) if any — may be required by some consulates', category: 'Indian Passport' },
+      // ── VFS Appointment / Submission ──
+      { id: 'ip-18', text: 'Book appointment at VFS Global India Visa Application Center for your jurisdiction', category: 'Indian Passport' },
+      { id: 'ip-19', text: 'Pay fee: ~$160 for normal adult passport (check consulate website for current fee)', category: 'Indian Passport' },
+      { id: 'ip-20', text: 'Bring all originals AND self-attested copies to VFS appointment', category: 'Indian Passport' },
+      { id: 'ip-21', text: 'Submit application and biometrics at VFS center', category: 'Indian Passport' },
+      // ── After Submission ──
+      { id: 'ip-22', text: 'Track application status on VFS portal or consulate website', category: 'Indian Passport' },
+      { id: 'ip-23', text: 'Receive passport by mail (prepaid envelope) or collect at VFS', category: 'Indian Passport' },
+      { id: 'ip-24', text: 'Verify all details on new passport immediately upon receipt', category: 'Indian Passport' },
+      { id: 'ip-25', text: 'Update new passport details with employer, bank, SSA, DMV, and USCIS if needed', category: 'Indian Passport' },
+      { id: 'ip-26', text: 'Add new passport to StatusVault with expiry date for future alerts', category: 'Indian Passport' },
+    ],
+  },
+
 /** Get template by ID */
 export const getChecklistTemplate = (id: string): ChecklistTemplate | undefined =>
   CHECKLIST_TEMPLATES.find((t) => t.id === id);
