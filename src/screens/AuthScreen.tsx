@@ -21,11 +21,14 @@ export const AuthScreen: React.FC = () => {
   const navigation  = useNavigation<any>();
   const signIn      = useStore((s) => s.signIn);
   const signUp      = useStore((s) => s.signUp);
+  const setNotificationEmail = useStore((s) => s.setNotificationEmail);
+  const setWhatsappPhone     = useStore((s) => s.setWhatsappPhone);
 
   const [tab,        setTab]        = useState<Tab>('login');
   const [email,      setEmail]      = useState('');
   const [password,   setPassword]   = useState('');
   const [confirmPwd, setConfirmPwd] = useState('');
+  const [phone,      setPhone]      = useState('');
   const [showPwd,    setShowPwd]    = useState(false);
   const [loading,    setLoading]    = useState(false);
   const [googleLoad, setGoogleLoad] = useState(false);
@@ -49,6 +52,9 @@ export const AuthScreen: React.FC = () => {
       } else {
         const { error } = await signUp(email.trim(), password);
         if (error) { setMessage({ text: error, type: 'error' }); return; }
+        // Save notification contacts immediately after registration
+        setNotificationEmail(email.trim());
+        if (phone.trim()) setWhatsappPhone(phone.trim());
         setMessage({ text: 'Account created! Check your email to verify, then sign in.', type: 'success' });
         setTab('login');
       }
@@ -264,6 +270,20 @@ export const AuthScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
 
+          {/* Phone number — register only (for alerts) */}
+          {tab === 'register' && (
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Phone / WhatsApp (optional)</Text>
+              <Text style={styles.inputHint}>For expiry alerts · include country code e.g. +1</Text>
+              <TextInput
+                style={styles.input}
+                value={phone} onChangeText={setPhone}
+                placeholder="+1 555 000 0000"
+                placeholderTextColor={colors.text3}
+                keyboardType="phone-pad"
+              />
+            </View>
+          )}
           {/* Confirm password — register only */}
           {tab === 'register' && (
             <>

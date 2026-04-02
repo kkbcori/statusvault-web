@@ -174,6 +174,7 @@ export const useStore = create<AppStore>()(
         // Bypasses free limit — used by profile setup wizard
         set((s) => ({ documents: [...s.documents, doc] }));
         scheduleSync();
+        setTimeout(() => get().syncAlerts(), 800);
       },
       canAddDocument: () => {
         const { documents, isPremium } = get();
@@ -196,6 +197,7 @@ export const useStore = create<AppStore>()(
         }
         set((s) => ({ documents: [...s.documents, { ...doc, notificationIds }] }));
         scheduleSync();
+        setTimeout(() => get().syncAlerts(), 800);
         return true;
       },
       removeDocument: async (id) => {
@@ -203,6 +205,7 @@ export const useStore = create<AppStore>()(
         if (doc?.notificationIds?.length) await cancelDocumentNotifications(doc.notificationIds);
         set((s) => ({ documents: s.documents.filter((d) => d.id !== id) }));
         scheduleSync();
+        setTimeout(() => get().syncAlerts(), 800);
       },
       updateDocument: async (id, updates) => {
         const doc = get().documents.find((d) => d.id === id);

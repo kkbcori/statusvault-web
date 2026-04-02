@@ -1,36 +1,33 @@
 // ═══════════════════════════════════════════════════════════════
-// Supabase Edge Function — Expiry Alert Sender
-// Checks all users' docs and sends email + WhatsApp for expiring ones
+// StatusVault — Expiry Alert Edge Function
+// Alert windows: 180d · 90d · 30d · 15d · 7d before expiry
+// Sends: Email (Resend) + WhatsApp (Twilio) + SMS (Twilio)
 //
 // DEPLOY:  supabase functions deploy check-expiry-alerts
 //
-// SCHEDULE (run daily at 9am UTC):
-//   In Supabase Dashboard → Database → Extensions → enable pg_cron
-//   Then run in SQL Editor:
-//
+// SCHEDULE — run once daily in Supabase SQL Editor:
 //   SELECT cron.schedule(
-//     'daily-expiry-check',
-//     '0 9 * * *',
-//     $$
-//       SELECT net.http_post(
-//         url := 'https://YOUR_PROJECT.supabase.co/functions/v1/check-expiry-alerts',
-//         headers := '{"Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb
-//       );
-//     $$
+//     'daily-expiry-alerts', '0 9 * * *',
+//     $$ SELECT net.http_post(
+//       url := 'https://gekhrdqkaadqeeebzvlu.supabase.co/functions/v1/check-expiry-alerts',
+//       headers := '{"Authorization":"Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb
+//     ); $$
 //   );
 //
-// ENV VARS needed in Supabase Dashboard → Settings → Edge Functions:
-//   RESEND_API_KEY      — from resend.com (free tier: 3000 emails/month)
-//   TWILIO_SID          — from twilio.com console
-//   TWILIO_TOKEN        — from twilio.com console  
-//   TWILIO_WHATSAPP_FROM — e.g. whatsapp:+14155238886 (Twilio sandbox number)
-//   FROM_EMAIL          — e.g. alerts@yourdomain.com
+// REQUIRED SECRETS (Supabase Dashboard → Edge Functions → Secrets):
+//   RESEND_API_KEY           from resend.com
+//   FROM_EMAIL               e.g. alerts@yourdomain.com (or onboarding@resend.dev for test)
+//   TWILIO_SID               from console.twilio.com
+//   TWILIO_TOKEN             from console.twilio.com
+//   TWILIO_WHATSAPP_FROM     e.g. whatsapp:+14155238886 (Twilio sandbox)
+//   TWILIO_SMS_FROM          e.g. +15005550006 (Twilio test) or your purchased number
 // ═══════════════════════════════════════════════════════════════
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const ALERT_WINDOWS = [180, 90, 60, 30, 14, 7, 1]; // days before expiry
+// Alert windows in days — matches the user's spec
+const ALERT_WINDOWS = [180, 90, 30, 15, 7];
 
 function daysUntil(dateStr: string): number {
   const expiry = new Date(dateStr);
@@ -40,104 +37,166 @@ function daysUntil(dateStr: string): number {
 }
 
 function urgencyLabel(days: number): string {
-  if (days < 0)   return '🔴 EXPIRED';
-  if (days <= 7)  return '🔴 CRITICAL';
-  if (days <= 30) return '🟡 URGENT';
-  if (days <= 90) return '🟢 UPCOMING';
-  return '✅ ACTIVE';
+  if (days < 0)    return '🔴 EXPIRED';
+  if (days <= 7)   return '🔴 CRITICAL — Act Now';
+  if (days <= 15)  return '🔴 URGENT';
+  if (days <= 30)  return '🟡 30 Days Left';
+  if (days <= 90)  return '🟠 3 Months Left';
+  return '🟢 6 Months Left';
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
+function urgencyColor(days: number): string {
+  if (days <= 15) return '#DC2626';
+  if (days <= 30) return '#D97706';
+  if (days <= 90) return '#EA580C';
+  return '#059669';
+}
+
+// ── Email via Resend ──────────────────────────────────────────
+async function sendEmail(to: string, docs: any[]): Promise<boolean> {
   const key = Deno.env.get('RESEND_API_KEY');
-  if (!key) return { ok: false, error: 'No RESEND_API_KEY' };
+  const from = Deno.env.get('FROM_EMAIL') ?? 'onboarding@resend.dev';
+  if (!key) return false;
+
+  const criticalCount = docs.filter(d => d.days <= 30).length;
+  const subject = criticalCount > 0
+    ? `🔴 ${criticalCount} document${criticalCount > 1 ? 's' : ''} expiring soon — StatusVault`
+    : `⏰ Immigration document expiry reminder — StatusVault`;
+
+  const rows = docs.map(d => `
+    <tr>
+      <td style="padding:12px 20px;border-bottom:1px solid #F3F4F6;">
+        <div style="font-weight:600;color:#111827;font-size:14px;">${d.icon} ${d.label}</div>
+        <div style="font-size:12px;color:#6B7280;margin-top:2px;">Expires ${d.expiryDate}</div>
+      </td>
+      <td style="padding:12px 20px;border-bottom:1px solid #F3F4F6;text-align:right;white-space:nowrap;">
+        <span style="background:${urgencyColor(d.days)}18;color:${urgencyColor(d.days)};padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">
+          ${d.days < 0 ? 'EXPIRED' : d.days === 0 ? 'TODAY' : `${d.days} days`}
+        </span>
+      </td>
+    </tr>`).join('');
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F4F5FA;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:560px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+        <!-- Header -->
+        <tr>
+          <td style="background:#2F3349;padding:28px 32px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">StatusVault</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px;">Immigration Document Tracker</div>
+          </td>
+        </tr>
+        <!-- Alert banner -->
+        <tr>
+          <td style="background:${criticalCount > 0 ? '#FEF2F2' : '#FEF3C7'};padding:16px 32px;border-bottom:1px solid ${criticalCount > 0 ? '#FECACA' : '#FDE68A'};">
+            <div style="font-size:15px;font-weight:700;color:${criticalCount > 0 ? '#991B1B' : '#92400E'};">
+              ${criticalCount > 0 ? '⚠️ Action Required' : '⏰ Upcoming Expiry Reminder'}
+            </div>
+            <div style="font-size:13px;color:${criticalCount > 0 ? '#B91C1C' : '#B45309'};margin-top:4px;">
+              ${docs.length} document${docs.length > 1 ? 's' : ''} require${docs.length === 1 ? 's' : ''} your attention
+            </div>
+          </td>
+        </tr>
+        <!-- Document table -->
+        <tr>
+          <td style="padding:0;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr style="background:#F9FAFB;">
+                <th style="text-align:left;padding:10px 20px;font-size:11px;font-weight:600;color:#6B7280;letter-spacing:0.5px;text-transform:uppercase;border-bottom:1px solid #E5E7EB;">Document</th>
+                <th style="text-align:right;padding:10px 20px;font-size:11px;font-weight:600;color:#6B7280;letter-spacing:0.5px;text-transform:uppercase;border-bottom:1px solid #E5E7EB;">Time Left</th>
+              </tr>
+              ${rows}
+            </table>
+          </td>
+        </tr>
+        <!-- CTA -->
+        <tr>
+          <td style="padding:28px 32px;text-align:center;">
+            <a href="https://kkbcori.github.io/statusvault-web"
+               style="display:inline-block;background:#7367F0;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:700;font-size:14px;">
+              View & Update Documents →
+            </a>
+            <div style="font-size:12px;color:#9CA3AF;margin-top:16px;line-height:1.6;">
+              Renew your documents before expiry to avoid visa complications.<br>
+              Always verify renewal requirements with official USCIS and embassy sources.
+            </div>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="background:#F9FAFB;padding:16px 32px;border-top:1px solid #F3F4F6;text-align:center;">
+            <div style="font-size:11px;color:#9CA3AF;">
+              StatusVault · AES-256 encrypted · 
+              <a href="https://kkbcori.github.io/statusvault-web" style="color:#9CA3AF;text-decoration:none;">Manage alerts</a>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: Deno.env.get('FROM_EMAIL') ?? 'noreply@statusvault.app',
-      to, subject, html,
-    }),
+    body: JSON.stringify({ from, to, subject, html }),
   });
-  return { ok: res.ok, status: res.status };
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('Email error:', err);
+    return false;
+  }
+  return true;
 }
 
-async function sendWhatsApp(to: string, body: string) {
+// ── WhatsApp via Twilio ───────────────────────────────────────
+async function sendWhatsApp(to: string, docs: any[]): Promise<boolean> {
+  return sendTwilioMessage(`whatsapp:${to}`, docs, Deno.env.get('TWILIO_WHATSAPP_FROM') ?? '');
+}
+
+// ── SMS via Twilio ────────────────────────────────────────────
+async function sendSMS(to: string, docs: any[]): Promise<boolean> {
+  const smsFrom = Deno.env.get('TWILIO_SMS_FROM');
+  if (!smsFrom) return false;
+  return sendTwilioMessage(to, docs, smsFrom);
+}
+
+async function sendTwilioMessage(to: string, docs: any[], from: string): Promise<boolean> {
   const sid   = Deno.env.get('TWILIO_SID');
   const token = Deno.env.get('TWILIO_TOKEN');
-  const from  = Deno.env.get('TWILIO_WHATSAPP_FROM') ?? 'whatsapp:+14155238886';
-  if (!sid || !token) return { ok: false, error: 'No Twilio credentials' };
-  const res = await fetch(
-    `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Basic ' + btoa(`${sid}:${token}`),
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        From: from,
-        To: `whatsapp:${to}`,
-        Body: body,
-      }).toString(),
-    }
-  );
-  return { ok: res.ok, status: res.status };
-}
+  if (!sid || !token || !from) return false;
 
-function buildEmailHtml(docs: any[], userEmail: string): string {
-  const rows = docs.map(d => `
-    <tr>
-      <td style="padding:10px 16px;border-bottom:1px solid #E5E7EB;">
-        <strong style="color:#111827">${d.icon} ${d.label}</strong>
-      </td>
-      <td style="padding:10px 16px;border-bottom:1px solid #E5E7EB;color:#6B7280;">${d.expiryDate}</td>
-      <td style="padding:10px 16px;border-bottom:1px solid #E5E7EB;">
-        <span style="background:${d.days <= 30 ? '#FEE2E2' : '#FEF3C7'};color:${d.days <= 30 ? '#991B1B' : '#92400E'};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">
-          ${d.days < 0 ? 'EXPIRED' : `${d.days}d left`}
-        </span>
-      </td>
-    </tr>
-  `).join('');
-
-  return `
-    <div style="font-family:Inter,sans-serif;max-width:560px;margin:0 auto;background:#F4F6FA;padding:24px;">
-      <div style="background:#0A1628;border-radius:16px;padding:24px;text-align:center;margin-bottom:20px;">
-        <h1 style="color:#fff;font-size:22px;margin:0 0 6px;">StatusVault</h1>
-        <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">Immigration Document Tracker</p>
-      </div>
-      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E5E7EB;">
-        <h2 style="color:#111827;font-size:17px;margin:0 0 16px;">⏰ Document Expiry Alert</h2>
-        <p style="color:#374151;font-size:14px;margin:0 0 16px;">The following documents require your attention:</p>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
-          <thead>
-            <tr style="background:#F9FAFB;">
-              <th style="text-align:left;padding:8px 16px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;">Document</th>
-              <th style="text-align:left;padding:8px 16px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;">Expiry</th>
-              <th style="text-align:left;padding:8px 16px;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;">Status</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-        <a href="https://kkbcori.github.io/statusvault-web"
-           style="display:block;background:#0099A8;color:#fff;text-align:center;padding:13px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;">
-          View & Update Documents →
-        </a>
-      </div>
-      <p style="color:#9CA3AF;font-size:11px;text-align:center;margin-top:16px;">
-        Sent to ${userEmail} · 
-        <a href="https://kkbcori.github.io/statusvault-web" style="color:#9CA3AF;">Manage alerts</a>
-      </p>
-    </div>
-  `;
-}
-
-function buildWhatsAppMessage(docs: any[]): string {
-  const lines = docs.map(d =>
-    `${d.icon} *${d.label}*\n  Expires: ${d.expiryDate} (${d.days < 0 ? 'EXPIRED' : d.days + 'd left'})`
+  const docLines = docs.map(d =>
+    `${d.icon} *${d.label}*\n   Expires: ${d.expiryDate} · ${d.days < 0 ? 'EXPIRED' : d.days === 0 ? 'TODAY' : `${d.days} days left`}`
   ).join('\n\n');
-  return `⏰ *StatusVault Alert*\n\nYour immigration documents need attention:\n\n${lines}\n\n👉 Update at: https://kkbcori.github.io/statusvault-web`;
+
+  const body = `⏰ *StatusVault Alert*\n\n${docs.length} document${docs.length > 1 ? 's' : ''} need your attention:\n\n${docLines}\n\n👉 https://kkbcori.github.io/statusvault-web`;
+
+  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Basic ' + btoa(`${sid}:${token}`),
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({ From: from, To: to, Body: body }).toString(),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('Twilio error:', err);
+    return false;
+  }
+  return true;
 }
 
+// ── Main handler ──────────────────────────────────────────────
 serve(async () => {
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
@@ -145,67 +204,54 @@ serve(async () => {
   );
 
   const { data: rows, error } = await supabase
-    .from('user_data')
-    .select('user_id, data_encrypted, updated_at');
+    .from('user_alerts')
+    .select('user_id, notification_email, whatsapp_phone, expiring_docs');
 
-  if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  }
 
-  let emailsSent = 0, whatsappSent = 0, usersChecked = 0;
+  let emailsSent = 0, whatsappSent = 0, smsSent = 0, usersChecked = 0;
 
   for (const row of rows ?? []) {
-    try {
-      // Get auth user for email
-      const { data: { user } } = await supabase.auth.admin.getUserById(row.user_id);
-      if (!user) continue;
+    usersChecked++;
+    const { notification_email, whatsapp_phone, expiring_docs } = row;
 
-      usersChecked++;
+    if (!notification_email && !whatsapp_phone) continue;
+    if (!expiring_docs || expiring_docs.length === 0) continue;
 
-      // NOTE: Data is AES-256 encrypted — we cannot decrypt server-side
-      // Instead, we rely on a separate 'user_alerts' table that the client
-      // writes notification preferences to (unencrypted contact info only)
-      // For now, check if user_alerts table has contact info
-      const { data: alertPrefs } = await supabase
-        .from('user_alerts')
-        .select('notification_email, whatsapp_phone, expiring_docs')
-        .eq('user_id', row.user_id)
-        .single();
+    // Find docs that are exactly at an alert window today
+    const alertDocs = (expiring_docs as any[])
+      .map(d => ({ ...d, days: daysUntil(d.expiryDate) }))
+      .filter(d => ALERT_WINDOWS.includes(d.days) || d.days < 0);
 
-      if (!alertPrefs) continue;
+    if (alertDocs.length === 0) continue;
 
-      const { notification_email, whatsapp_phone, expiring_docs } = alertPrefs;
-      if (!notification_email && !whatsapp_phone) continue;
-      if (!expiring_docs || expiring_docs.length === 0) continue;
+    console.log(`User ${row.user_id}: ${alertDocs.length} docs at alert window`);
 
-      // Filter docs that are at an alert window
-      const alertDocs = (expiring_docs as any[]).filter(d => {
-        const days = daysUntil(d.expiryDate);
-        return ALERT_WINDOWS.includes(days) || days < 0;
-      });
+    // Send email
+    if (notification_email) {
+      const ok = await sendEmail(notification_email, alertDocs);
+      if (ok) emailsSent++;
+    }
 
-      if (alertDocs.length === 0) continue;
-
-      const docsWithDays = alertDocs.map(d => ({ ...d, days: daysUntil(d.expiryDate) }));
-
-      // Send email
-      if (notification_email) {
-        const subject = `⏰ ${alertDocs.length} document${alertDocs.length > 1 ? 's' : ''} expiring — StatusVault`;
-        const result = await sendEmail(notification_email, subject, buildEmailHtml(docsWithDays, notification_email));
-        if (result.ok) emailsSent++;
-      }
-
-      // Send WhatsApp
-      if (whatsapp_phone) {
-        const result = await sendWhatsApp(whatsapp_phone, buildWhatsAppMessage(docsWithDays));
-        if (result.ok) whatsappSent++;
-      }
-
-    } catch (e) {
-      console.error('Error processing user:', row.user_id, e);
+    // Send WhatsApp
+    if (whatsapp_phone) {
+      const ok = await sendWhatsApp(whatsapp_phone, alertDocs);
+      if (ok) whatsappSent++;
+      // Also send SMS to same number
+      const smsOk = await sendSMS(whatsapp_phone, alertDocs);
+      if (smsOk) smsSent++;
     }
   }
 
   return new Response(JSON.stringify({
-    success: true, usersChecked, emailsSent, whatsappSent,
+    success: true,
+    usersChecked,
+    emailsSent,
+    whatsappSent,
+    smsSent,
+    alertWindows: ALERT_WINDOWS,
     timestamp: new Date().toISOString(),
   }), { headers: { 'Content-Type': 'application/json' } });
 });
