@@ -226,7 +226,6 @@ export const CHECKLIST_TEMPLATES: ChecklistTemplate[] = [
       { id: 'gc-18', text: 'Receive Green Card approval', category: 'Green Card' },
     ],
   },
-];
 
   // ─── Indian Passport Renewal (USA) ───────────────────────────
   {
@@ -269,6 +268,7 @@ export const CHECKLIST_TEMPLATES: ChecklistTemplate[] = [
       { id: 'ip-26', text: 'Add new passport to StatusVault with expiry date for future alerts', category: 'Indian Passport' },
     ],
   },
+];
 
 /** Get template by ID */
 export const getChecklistTemplate = (id: string): ChecklistTemplate | undefined =>
