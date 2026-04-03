@@ -318,11 +318,7 @@ export const DocumentsScreen: React.FC = () => {
           {/* Gold top trim */}
           <View style={styles.paywallTopTrim} />
 
-          <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={styles.paywallScroll}
-            showsVerticalScrollIndicator={false}
-          >
+          <View style={styles.paywallScroll}>
             {/* Close */}
             <TouchableOpacity style={styles.paywallCloseBtn} onPress={() => { setShowPaywall(false); setAnyModalOpen(false); }}>
               <View style={styles.paywallCloseCircle}>
@@ -351,8 +347,7 @@ export const DocumentsScreen: React.FC = () => {
                 { icon: 'documents-outline' as const,          text: 'Unlimited document tracking' },
                 { icon: 'notifications-outline' as const,      text: 'Advanced smart alerts per document type' },
                 { icon: 'cloud-download-outline' as const,     text: 'Data export & import for any device' },
-                { icon: 'lock-closed-outline' as const,        text: 'PIN lock — 100% offline, private' },
-                { icon: 'checkmark-circle-outline' as const,   text: 'Immigration checklists & counters' },
+{ icon: 'checkmark-circle-outline' as const,   text: 'Immigration checklists & counters' },
               ].map(({ icon, text }, i) => (
                 <View key={i} style={styles.paywallFeatureRow}>
                   <View style={styles.paywallFeatureIconBox}>
@@ -388,7 +383,7 @@ export const DocumentsScreen: React.FC = () => {
             </TouchableOpacity>
 
             <Text style={styles.paywallLegal}>Cancel anytime · Secure payment via App Store</Text>
-          </ScrollView>
+          </View>
         </LinearGradient>
         </View>
       </Modal>
