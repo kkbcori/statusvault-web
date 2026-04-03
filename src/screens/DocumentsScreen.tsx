@@ -8,13 +8,12 @@ import {
   Modal, FlatList, TextInput, Alert, Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useStore } from '../store';
+import { useStore, FREE_LIMIT } from '../store';
 import { IS_WEB } from '../utils/responsive';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { useDialog } from '../components/ConfirmDialog';
-import { useStore, FREE_LIMIT } from '../store';
 import { generateDeadlines } from '../utils/dates';
 import { ExpiryCard } from '../components';
 import { DOCUMENT_TEMPLATES, CATEGORY_LABELS, getTemplatesByCategory, DocumentTemplate } from '../utils/templates';
