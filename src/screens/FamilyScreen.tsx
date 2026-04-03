@@ -35,6 +35,7 @@ const VISA_TYPES = [
 
 export const FamilyScreen: React.FC = () => {
   const navigation       = useNavigation<any>();
+  const authUser         = useStore((s) => s.authUser);
   const familyMembers    = useStore((s) => s.familyMembers);
   const addFamilyMember  = useStore((s) => s.addFamilyMember);
   const removeFamilyMember = useStore((s) => s.removeFamilyMember);
@@ -197,6 +198,7 @@ setShowAddMember(false); setAnyModalOpen(false);
             <Text style={styles.webSub}>Track immigration documents for your spouse, children, and dependents in one place</Text>
           </View>
           <TouchableOpacity style={styles.addMemberBtn} onPress={() => {
+              if (!authUser) { useStore.getState().openAuthModal('Sign in to add family members'); return; }
               if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
                 dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
                 return;
@@ -218,6 +220,7 @@ setShowAddMember(false); setAnyModalOpen(false);
             Add family members to track their visas, work permits, and travel documents alongside yours.
           </Text>
           <TouchableOpacity style={styles.emptyBtn} onPress={() => {
+              if (!authUser) { useStore.getState().openAuthModal('Sign in to add family members'); return; }
               if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
                 dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
                 return;
@@ -237,6 +240,7 @@ setShowAddMember(false); setAnyModalOpen(false);
         <>
           {!IS_WEB && (
             <TouchableOpacity style={styles.addBtnRow} onPress={() => {
+              if (!authUser) { useStore.getState().openAuthModal('Sign in to add family members'); return; }
               if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
                 dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
                 return;

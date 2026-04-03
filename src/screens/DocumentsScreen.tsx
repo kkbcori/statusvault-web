@@ -8,6 +8,7 @@ import {
   Modal, FlatList, TextInput, Alert, Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useStore } from '../store';
 import { IS_WEB } from '../utils/responsive';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -62,7 +63,7 @@ export const DocumentsScreen: React.FC = () => {
   };
 
   const openAdd = () => {
-    if (!authUser) { navigation.navigate('Auth'); return; }
+    if (!authUser) { useStore.getState().openAuthModal('Sign in to add and track your documents'); return; }
     if (!canAddDocument()) { setShowPaywall(true); setAnyModalOpen(true); return; }
     resetAddFlow(); setShowAddModal(true); setAnyModalOpen(true);
   };

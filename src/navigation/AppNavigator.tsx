@@ -17,6 +17,7 @@ import { OnboardingScreen, DashboardScreen, DocumentsScreen, SettingsScreen } fr
 import { TravelScreen }  from '../screens/TravelScreen';
 import { AuthScreen }    from '../screens/AuthScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { AuthModal } from '../components/AuthModal';
 import { HelpScreen }       from '../screens/HelpScreen';
 import { ProcessingScreen } from '../screens/ProcessingScreen';
 import { FamilyScreen }     from '../screens/FamilyScreen';
@@ -147,7 +148,7 @@ const WebSidebar: React.FC = () => {
       {/* Account / profile card — bottom */}
       <TouchableOpacity
         style={sidebarStyles.profileCard}
-        onPress={() => authUser ? setShowProfile(true) : navigation.navigate('Auth')}
+        onPress={() => authUser ? setShowProfile(true) : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')}
         activeOpacity={0.8}
       >
         <View style={sidebarStyles.profileAvatar}>
@@ -247,7 +248,7 @@ const WebTopBar: React.FC = () => {
         )}
         <TouchableOpacity
           style={topBarStyles.avatarBtn}
-          onPress={() => authUser ? setShowProfile(true) : navigation.navigate('Auth')}
+          onPress={() => authUser ? setShowProfile(true) : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')}
           activeOpacity={0.8}
         >
           <Ionicons name={authUser ? 'person' : 'log-in-outline'} size={16} color={colors.text2} />
@@ -262,7 +263,11 @@ const WebTopBar: React.FC = () => {
 };
 
 // ─── Main Tabs ───────────────────────────────────────────────
-const MainTabs: React.FC = () => (
+const MainTabs: React.FC = () => {
+  const showAuthModal    = useStore((s) => s.showAuthModal);
+  const authModalMessage = useStore((s) => s.authModalMessage);
+  const closeAuthModal   = useStore((s) => s.closeAuthModal);
+  return (
   <View style={[layoutStyles.root, IS_WEB && { ...layoutStyles.rootWeb, backgroundColor: colors.sidebar }]}>
     {IS_WEB && <WebSidebar />}
     <View style={[layoutStyles.content, IS_WEB && layoutStyles.contentWeb]}>
@@ -321,17 +326,20 @@ const MainTabs: React.FC = () => (
       </View>
     </View>
   </View>
-);
+  {/* Global auth modal — shown whenever unauthenticated action is attempted */}
+  <AuthModal
+    visible={showAuthModal}
+    onClose={closeAuthModal}
+    message={authModalMessage}
+  />
+  );
+};
 
-export const AppNavigator: React.FC = () => {
-  const hasOnboarded = useStore((s) => s.hasOnboarded);
+const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-        {!hasOnboarded
-          ? <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-          : <Stack.Screen name="Main"       component={MainTabs} />
-        }
+        <Stack.Screen name="Main"    component={MainTabs} />
         <Stack.Screen name="Auth"    component={AuthScreen}    options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: 'slide_from_right' }} />
       </Stack.Navigator>

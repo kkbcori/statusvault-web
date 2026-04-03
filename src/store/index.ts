@@ -128,6 +128,10 @@ interface AppStore {
   setOnboarded: () => void;
   anyModalOpen: boolean;
   setAnyModalOpen: (v: boolean) => void;
+  showAuthModal: boolean;
+  authModalMessage: string;
+  openAuthModal: (message?: string) => void;
+  closeAuthModal: () => void;
   setVisaProfile: (profile: string) => void;
   resetAllData: () => void;
   exportData: () => string;
@@ -161,6 +165,8 @@ export const useStore = create<AppStore>()(
       trips: [],
       familyMembers: [],
       anyModalOpen: false,
+      showAuthModal: false,
+      authModalMessage: 'Sign in to continue',
       notificationsEnabled: true,
       notificationEmail: null,
       whatsappPhone: null,
@@ -594,6 +600,8 @@ export const useStore = create<AppStore>()(
       // ─── Settings ──────────────────────────────────────────
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
       setAnyModalOpen: (v) => set({ anyModalOpen: v }),
+      openAuthModal: (message) => set({ showAuthModal: true, authModalMessage: message ?? 'Sign in to continue' }),
+      closeAuthModal: () => set({ showAuthModal: false, authModalMessage: '' }),
       setOnboarded: () => set({ hasOnboarded: true }),
       setVisaProfile: (profile) => set({ visaProfile: profile }),
       setImmigrationProfile: (p) => { set({ immigrationProfile: p }); scheduleSync(); },
@@ -602,6 +610,8 @@ export const useStore = create<AppStore>()(
         _hasHydrated: false,
       hasOnboarded: false, visaProfile: null, documents: [], checklists: [], counters: [], trips: [],
         anyModalOpen: false,
+      showAuthModal: false,
+      authModalMessage: 'Sign in to continue',
       notificationsEnabled: true, notificationEmail: null, whatsappPhone: null, isPremium: false, pinEnabled: false, pinCode: null, familyMembers: [],
       }),
       exportData: () => {

@@ -49,7 +49,7 @@ export const CounterScreen: React.FC = () => {
           <View style={styles.emptyIcon}><Ionicons name="timer-outline" size={40} color="#ACAEC5" /></View>
           <Text style={styles.emptyTitle}>No timers yet</Text>
           <Text style={styles.emptyDesc}>Track OPT unemployment days, 60-day grace period, and other immigration deadlines</Text>
-          <TouchableOpacity style={styles.emptyBtn} onPress={() => { if (!authUser) { navigation.navigate('Auth'); return; } setShowAdd(true); }}>
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to create and save timers'); return; } setShowAdd(true); }}>
             <Text style={styles.emptyBtnText}>Browse Timers</Text>
           </TouchableOpacity>
         </View>
@@ -114,7 +114,7 @@ export const CounterScreen: React.FC = () => {
       )}
 
       {!IS_WEB && (
-        <TouchableOpacity style={styles.fab} onPress={() => { if (!authUser) { navigation.navigate('Auth'); return; } setShowAdd(true); }}>
+        <TouchableOpacity style={styles.fab} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to create and save timers'); return; } setShowAdd(true); }}>
           <Ionicons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       )}
@@ -135,7 +135,7 @@ export const CounterScreen: React.FC = () => {
                   <TouchableOpacity
                     key={t.id}
                     style={[styles.templateRow, added && styles.templateRowAdded]}
-                    onPress={() => { if (!added) { if (!authUser) { setShowAdd(false); navigation.navigate('Auth'); return; } addCounter(t.id); setShowAdd(false); } }}
+                    onPress={() => { if (!added) { if (!authUser) { setShowAdd(false); useStore.getState().openAuthModal('Sign in to create and save timers'); return; } addCounter(t.id); setShowAdd(false); } }}
                     activeOpacity={added ? 1 : 0.75}
                   >
                     <Text style={{ fontSize: 22, marginRight: 12 }}>{t.icon}</Text>

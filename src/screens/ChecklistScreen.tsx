@@ -50,7 +50,7 @@ export const ChecklistScreen: React.FC = () => {
           <View style={styles.emptyIcon}><Ionicons name="checkbox-outline" size={40} color="#ACAEC5" /></View>
           <Text style={styles.emptyTitle}>No checklists yet</Text>
           <Text style={styles.emptyDesc}>Add a checklist to track your OPT, H-1B, or green card application steps</Text>
-          <TouchableOpacity style={styles.emptyBtn} onPress={() => { if (!authUser) { navigation.navigate('Auth'); return; } setShowAdd(true); }}>
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to create and save checklists'); return; } setShowAdd(true); }}>
             <Text style={styles.emptyBtnText}>Browse Checklists</Text>
           </TouchableOpacity>
         </View>
@@ -111,7 +111,7 @@ export const ChecklistScreen: React.FC = () => {
       )}
 
       {!IS_WEB && (
-        <TouchableOpacity style={styles.fab} onPress={() => { if (!authUser) { navigation.navigate('Auth'); return; } setShowAdd(true); }}>
+        <TouchableOpacity style={styles.fab} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to create and save checklists'); return; } setShowAdd(true); }}>
           <Ionicons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       )}
@@ -133,7 +133,7 @@ export const ChecklistScreen: React.FC = () => {
                   <TouchableOpacity
                     key={t.id}
                     style={[styles.templateRow, added && styles.templateRowAdded]}
-                    onPress={() => { if (!added) { if (!authUser) { setShowAdd(false); navigation.navigate('Auth'); return; } addChecklist(t.id); setShowAdd(false); } }}
+                    onPress={() => { if (!added) { if (!authUser) { setShowAdd(false); useStore.getState().openAuthModal('Sign in to create and save checklists'); return; } addChecklist(t.id); setShowAdd(false); } }}
                     activeOpacity={added ? 1 : 0.75}
                   >
                     <Text style={{ fontSize: 22, marginRight: 12 }}>{t.icon}</Text>

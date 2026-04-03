@@ -660,7 +660,7 @@ export const DashboardScreen: React.FC = () => {
             <Text style={styles.authDesc}>Sign in to sync your documents across all devices and receive expiry alerts by email.</Text>
             <TouchableOpacity
               style={styles.authBtn}
-              onPress={() => { setShowAuthPrompt(false); navigation.navigate('Auth'); }}
+              onPress={() => { setShowAuthPrompt(false); useStore.getState().openAuthModal('Sign in to sync your documents and receive expiry alerts'); }}
             >
               <Text style={styles.authBtnText}>Sign In or Create Account</Text>
             </TouchableOpacity>
