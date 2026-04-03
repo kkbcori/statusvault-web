@@ -148,8 +148,7 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
             </View>
             <Text style={s.verifyTitle}>Check your email</Text>
             <Text style={s.verifyBody}>
-              We sent a verification link to{'
-'}
+              We sent a verification link to{' '}
               <Text style={s.verifyEmail}>{email}</Text>
             </Text>
             <Text style={s.verifyInstructions}>
