@@ -44,6 +44,13 @@ export interface ImmiCounter {
 interface AppStore {
   hasOnboarded: boolean;
   visaProfile: string | null;  // e.g. 'f1-opt', 'h1b', etc
+  immigrationProfile: {
+    firstName: string; lastName: string; phone: string; country: string; location: string;
+    visaType: string; startYear: string; statusExpiry: string; i94: string;
+    jobTitle: string; employer: string; salary: string; experience: string; degree: string;
+    gcStage: string; priorityDate: string; ebCategory: string; i140Status: string; perm: string;
+  } | null;
+  setImmigrationProfile: (p: AppStore['immigrationProfile']) => void;
   documents: UserDocument[];
   checklists: ChecklistInstance[];
   counters: ImmiCounter[];
@@ -145,6 +152,7 @@ export const useStore = create<AppStore>()(
     (set, get) => ({
       hasOnboarded: false,
       visaProfile: null,
+      immigrationProfile: null,
       documents: [],
       checklists: [],
       counters: [],
@@ -197,7 +205,7 @@ export const useStore = create<AppStore>()(
         }
         set((s) => ({ documents: [...s.documents, { ...doc, notificationIds }] }));
         scheduleSync();
-        setTimeout(() => get().syncAlerts(), 800);
+        setTimeout(() => get().syncAlerts(true), 800);
         return true;
       },
       removeDocument: async (id) => {
@@ -533,8 +541,8 @@ export const useStore = create<AppStore>()(
 
       // ─── Alert sync ────────────────────────────────────────
       // Writes contact info + expiring docs to user_alerts table
-      // (unencrypted — needed so edge function can send alerts)
-      syncAlerts: async () => {
+      // Then fires edge function immediately if any doc is < 180 days
+      syncAlerts: async (triggerImmediate = false) => {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) return;
         const { documents, notificationEmail, whatsappPhone } = get();
@@ -550,12 +558,35 @@ export const useStore = create<AppStore>()(
           })
           .filter(d => d.days <= 180);
 
+        // Write to user_alerts table
         await supabase.from('user_alerts').upsert({
           user_id: session.user.id,
           notification_email: notificationEmail,
           whatsapp_phone: whatsappPhone,
           expiring_docs: expiringDocs,
         }, { onConflict: 'user_id' });
+
+        // If triggered by a new/edited doc and something is within 180 days — fire immediately
+        if (triggerImmediate && expiringDocs.length > 0) {
+          try {
+            const { data: { session: s } } = await supabase.auth.getSession();
+            if (s?.access_token) {
+              await fetch(
+                'https://gekhrdqkaadqeeebzvlu.supabase.co/functions/v1/check-expiry-alerts',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${s.access_token}`,
+                  },
+                  body: JSON.stringify({ userId: session.user.id }),
+                }
+              );
+            }
+          } catch {
+            // Silent fail — daily cron will catch it
+          }
+        }
       },
 
       // ─── Settings ──────────────────────────────────────────
@@ -563,6 +594,7 @@ export const useStore = create<AppStore>()(
       setAnyModalOpen: (v) => set({ anyModalOpen: v }),
       setOnboarded: () => set({ hasOnboarded: true }),
       setVisaProfile: (profile) => set({ visaProfile: profile }),
+      setImmigrationProfile: (p) => { set({ immigrationProfile: p }); },
 
       resetAllData: () => set({
         hasOnboarded: false, visaProfile: null, documents: [], checklists: [], counters: [], trips: [],
@@ -601,6 +633,7 @@ export const useStore = create<AppStore>()(
         lastSyncedAt: s.lastSyncedAt,
         familyMembers: s.familyMembers,
         visaProfile: s.visaProfile,
+        immigrationProfile: s.immigrationProfile,
         notificationEmail: s.notificationEmail,
         whatsappPhone: s.whatsappPhone,
       }),
