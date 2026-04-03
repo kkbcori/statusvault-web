@@ -397,7 +397,20 @@ export const useStore = create<AppStore>()(
       // ─── Auth ──────────────────────────────────────────────
       signIn: async (email, password) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return { error: error.message };
+        if (error) {
+          // Translate Supabase error codes to friendly messages
+          const msg = error.message.toLowerCase();
+          if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('wrong password')) {
+            return { error: 'Incorrect email or password. If you just registered, please verify your email first.' };
+          }
+          if (msg.includes('email not confirmed')) {
+            return { error: 'Please verify your email first — check your inbox for a confirmation link.' };
+          }
+          if (msg.includes('too many requests') || msg.includes('rate limit')) {
+            return { error: 'Too many attempts. Please wait a few minutes and try again.' };
+          }
+          return { error: error.message };
+        }
         const user = data.user;
         set({
           authUser: {

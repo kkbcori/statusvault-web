@@ -82,8 +82,8 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
         if (err) { setError(err); return; }
         setNotificationEmail(email.trim());
         if (phone.trim()) setWhatsappPhone(phone.trim());
-        setSuccess('Account created! Check your email to verify, then sign in.');
-        setTab('login'); setPassword(''); setConfirmPwd('');
+        setSuccess('check-email');  // special state — show verification screen
+        setPassword(''); setConfirmPwd('');
       }
     } finally { setLoading(false); }
   };
@@ -141,20 +141,50 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
 
       {/* Form */}
       <View style={s.form}>
-        {success ? (
+        {success === 'check-email' ? (
+          <View style={s.verifyScreen}>
+            <View style={s.verifyIconBox}>
+              <Ionicons name="mail-unread-outline" size={36} color="#7367F0" />
+            </View>
+            <Text style={s.verifyTitle}>Check your email</Text>
+            <Text style={s.verifyBody}>
+              We sent a verification link to{'
+'}
+              <Text style={s.verifyEmail}>{email}</Text>
+            </Text>
+            <Text style={s.verifyInstructions}>
+              Click the link in the email to activate your account, then come back here to sign in.
+            </Text>
+            <View style={s.verifySteps}>
+              {['Open your inbox (check spam too)', 'Click the "Confirm your email" link', 'Return here and sign in'].map((step, i) => (
+                <View key={i} style={s.verifyStepRow}>
+                  <View style={s.verifyStepNum}><Text style={s.verifyStepNumTxt}>{i + 1}</Text></View>
+                  <Text style={s.verifyStepTxt}>{step}</Text>
+                </View>
+              ))}
+            </View>
+            <TouchableOpacity style={s.verifySignInBtn} onPress={() => { setSuccess(''); setTab('login'); }}>
+              <Text style={s.verifySignInTxt}>I've verified — Sign In →</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => { setSuccess(''); setTab('register'); }} style={{ marginTop: 10 }}>
+              <Text style={s.verifyResendTxt}>Use a different email</Text>
+            </TouchableOpacity>
+          </View>
+        ) : success ? (
           <View style={s.successBox}>
             <Ionicons name="checkmark-circle" size={16} color="#28C76F" />
             <Text style={s.successTxt}>{success}</Text>
           </View>
         ) : null}
 
-        {error ? (
+        {error && success !== 'check-email' ? (
           <View style={s.errorBox}>
             <Ionicons name="alert-circle" size={16} color="#EA5455" />
             <Text style={s.errorTxt}>{error}</Text>
           </View>
         ) : null}
 
+        {success !== 'check-email' && <>
         <Text style={s.label}>Email</Text>
         {IS_WEB ? (
           <input type="email" value={email} onChange={(e: any) => setEmail(e.target.value)}
@@ -216,6 +246,7 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
             : <Text style={s.submitTxt}>{tab === 'login' ? 'Sign In' : 'Create Account'}</Text>
           }
         </TouchableOpacity>
+        </>}
       </View>
     </View>
   );
@@ -276,6 +307,20 @@ const s = StyleSheet.create({
   eyeBtn:     { width: 40, height: 42, backgroundColor: '#F4F5FA', borderRadius: 8, borderWidth: 1.5, borderColor: '#DBDADE', alignItems: 'center', justifyContent: 'center' },
   submitBtn:  { backgroundColor: '#7367F0', borderRadius: 10, paddingVertical: 13, alignItems: 'center', marginTop: 6 },
   submitTxt:  { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
+  verifyScreen:     { alignItems: 'center', paddingVertical: 8 },
+  verifyIconBox:    { width: 72, height: 72, borderRadius: 18, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', marginBottom: 14 },
+  verifyTitle:      { fontSize: 18, fontFamily: 'Inter_700Bold', color: '#2F3349', marginBottom: 8 },
+  verifyBody:       { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#8588A5', textAlign: 'center', lineHeight: 20, marginBottom: 4 },
+  verifyEmail:      { fontFamily: 'Inter_700Bold', color: '#2F3349' },
+  verifyInstructions:{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#ACAEC5', textAlign: 'center', lineHeight: 18, marginBottom: 16 },
+  verifySteps:      { width: '100%', gap: 10, marginBottom: 20 } as any,
+  verifyStepRow:    { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  verifyStepNum:    { width: 22, height: 22, borderRadius: 11, backgroundColor: '#7367F0', alignItems: 'center', justifyContent: 'center' },
+  verifyStepNumTxt: { fontSize: 11, fontFamily: 'Inter_700Bold', color: '#fff' },
+  verifyStepTxt:    { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#4B4C6A', flex: 1 },
+  verifySignInBtn:  { backgroundColor: '#7367F0', borderRadius: 10, paddingVertical: 12, paddingHorizontal: 32, width: '100%', alignItems: 'center' },
+  verifySignInTxt:  { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff' },
+  verifyResendTxt:  { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5', textAlign: 'center' },
   errorBox:   { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: '#FFEEEE', borderRadius: 8, padding: 10, marginBottom: 12, borderWidth: 1, borderColor: '#FECACA' },
   errorTxt:   { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#EA5455', lineHeight: 17 },
   successBox: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: '#EAFFF4', borderRadius: 8, padding: 10, marginBottom: 12, borderWidth: 1, borderColor: '#D1FAE5' },
