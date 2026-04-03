@@ -75,7 +75,13 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
       if (tab === 'login') {
         const { error: err } = await signIn(email.trim(), password);
         if (err) { setError(err); return; }
-        reset(); onSuccess?.(); onClose();
+        reset();
+        // After login — open profile setup if first time (no immigrationProfile saved)
+        const prof = useStore.getState().immigrationProfile;
+        if (!prof) {
+          setTimeout(() => (useStore.getState() as any).openProfileModal?.(), 300);
+        }
+        onSuccess?.(); onClose();
       } else {
         const { error: err } = await signUp(email.trim(), password);
         if (err) { setError(err); return; }

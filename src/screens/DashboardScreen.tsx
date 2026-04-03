@@ -131,7 +131,6 @@ export const DashboardScreen: React.FC = () => {
   React.useEffect(() => { autoIncrementCounters(); }, []);
 
   // Show auth prompt after 5s — but only when no other modal is open
-  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   // Profile setup modal
   const [showProfileSetup, setShowProfileSetup] = useState(false);
@@ -251,6 +250,21 @@ export const DashboardScreen: React.FC = () => {
           <Text style={styles.mobileTitle}>StatusVault</Text>
           <Text style={styles.mobileSub}>Your Status Dashboard</Text>
         </LinearGradient>
+      )}
+
+      {/* ── Guest banner — always visible when not signed in ── */}
+      {IS_WEB && !authUser && (
+        <TouchableOpacity
+          style={styles.guestBanner}
+          onPress={() => useStore.getState().openAuthModal('Sign in to sync your data and receive expiry alerts')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="person-circle-outline" size={16} color="#7367F0" />
+          <Text style={styles.guestBannerText}>
+            <Text style={{ fontFamily: 'Inter_700Bold' }}>Viewing as guest</Text> — Sign in to save your data, sync across devices, and get expiry alerts
+          </Text>
+          <View style={styles.guestBannerBtn}><Text style={styles.guestBannerBtnTxt}>Sign In →</Text></View>
+        </TouchableOpacity>
       )}
 
       {/* ── Web top banner — profile setup or profile chip ── */}
@@ -646,30 +660,7 @@ export const DashboardScreen: React.FC = () => {
         </View>
       </Modal>
 
-      {/* ═══ AUTH PROMPT ═══ */}
-      <Modal visible={showAuthPrompt} transparent animationType="fade">
-        <View style={styles.overlay}>
-          <View style={styles.authCard}>
-            <TouchableOpacity style={styles.authClose} onPress={() => setShowAuthPrompt(false)}>
-              <Ionicons name="close" size={20} color="#8588A5" />
-            </TouchableOpacity>
-            <View style={styles.authIconWrap}>
-              <Ionicons name="cloud-outline" size={36} color="#7367F0" />
-            </View>
-            <Text style={styles.authTitle}>Save Your Progress</Text>
-            <Text style={styles.authDesc}>Sign in to sync your documents across all devices and receive expiry alerts by email.</Text>
-            <TouchableOpacity
-              style={styles.authBtn}
-              onPress={() => { setShowAuthPrompt(false); useStore.getState().openAuthModal('Sign in to sync your documents and receive expiry alerts'); }}
-            >
-              <Text style={styles.authBtnText}>Sign In or Create Account</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setShowAuthPrompt(false)}>
-              <Text style={styles.authSkip}>Continue without account</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+
 
       <View style={{ height: 32 }} />
     </ScrollView>
@@ -687,6 +678,10 @@ const styles = StyleSheet.create({
   mobileTitle:   { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#fff' },
   mobileSub:     { fontSize: 14, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.75)', marginTop: 4 },
 
+  guestBanner:         { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F0EEFF', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, marginBottom: 12, borderWidth: 1, borderColor: '#DDD6FE' },
+  guestBannerText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#4B4C6A', lineHeight: 17 },
+  guestBannerBtn:      { backgroundColor: '#7367F0', borderRadius: 7, paddingHorizontal: 12, paddingVertical: 6 },
+  guestBannerBtnTxt:   { fontSize: 11, fontFamily: 'Inter_700Bold', color: '#fff' },
   // Top banner (replaces page header)
   topBanner:           { marginBottom: 16 },
   topBannerSetup:      { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#DBDADE', borderLeftWidth: 3, borderLeftColor: '#7367F0' } as any,
