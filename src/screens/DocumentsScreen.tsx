@@ -31,6 +31,7 @@ export const DocumentsScreen: React.FC = () => {
   const updateDocument     = useStore((s) => s.updateDocument);
   const canAddDocument     = useStore((s) => s.canAddDocument);
   const isPremium          = useStore((s) => s.isPremium);
+  const authUser           = useStore((s) => s.authUser);
   const setAnyModalOpen    = useStore((s) => s.setAnyModalOpen);
   const getRemainingFreeSlots = useStore((s) => s.getRemainingFreeSlots);
   const dialog = useDialog();
@@ -61,6 +62,7 @@ export const DocumentsScreen: React.FC = () => {
   };
 
   const openAdd = () => {
+    if (!authUser) { navigation.navigate('Auth'); return; }
     if (!canAddDocument()) { setShowPaywall(true); setAnyModalOpen(true); return; }
     resetAddFlow(); setShowAddModal(true); setAnyModalOpen(true);
   };

@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB } from '../utils/responsive';
 import { useStore } from '../store';
@@ -19,12 +19,14 @@ type Tab = 'login' | 'register';
 
 export const AuthScreen: React.FC = () => {
   const navigation  = useNavigation<any>();
+  const route       = useRoute<any>();
   const signIn      = useStore((s) => s.signIn);
   const signUp      = useStore((s) => s.signUp);
   const setNotificationEmail = useStore((s) => s.setNotificationEmail);
   const setWhatsappPhone     = useStore((s) => s.setWhatsappPhone);
 
-  const [tab,        setTab]        = useState<Tab>('login');
+  // 'register' mode comes from Get Started on landing page
+  const [tab, setTab] = useState<Tab>((route?.params as any)?.mode === 'register' ? 'register' : 'login');
   const [email,      setEmail]      = useState('');
   const [password,   setPassword]   = useState('');
   const [confirmPwd, setConfirmPwd] = useState('');

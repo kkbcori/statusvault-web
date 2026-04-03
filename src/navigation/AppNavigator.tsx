@@ -65,6 +65,7 @@ const WebSidebar: React.FC = () => {
   const isSyncing  = useStore((s) => s.isSyncing);
   const isPremium  = useStore((s) => s.isPremium);
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
+  const [showProfile, setShowProfile] = React.useState(false);
   const dragging = useRef(false);
   const startX   = useRef(0);
   const startW   = useRef(DEFAULT_WIDTH);
@@ -218,6 +219,7 @@ const WebTopBar: React.FC = () => {
   const navigation   = useNavigation<any>();
   const authUser     = useStore((s) => s.authUser);
   const isSyncing    = useStore((s) => s.isSyncing);
+  const [showProfile, setShowProfile] = React.useState(false);
 
   const currentRoute = useNavigationState((state) => {
     const mainRoute = state?.routes?.find((r) => r.name === 'Main');

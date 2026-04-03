@@ -21,6 +21,7 @@ LogBox.ignoreLogs(['Setting a timer', 'expo-notifications', 'Cannot record touch
 
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
   const s = document.createElement('style');
+  document.title = 'StatusVault — Visa Tracker Dashboard';
   s.textContent = `
     *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html { height: 100%; }
@@ -67,9 +68,10 @@ class ErrorBoundary extends React.Component<
 }
 
 export default function App() {
-  const pinEnabled = useStore((s) => s.pinEnabled);
-  const verifyPin  = useStore((s) => s.verifyPin);
-  const initAuth   = useStore((s) => s.initAuth);
+  const pinEnabled    = useStore((s) => s.pinEnabled);
+  const verifyPin     = useStore((s) => s.verifyPin);
+  const initAuth      = useStore((s) => s.initAuth);
+  const _hasHydrated  = useStore((s) => s._hasHydrated);
   const [isLocked,  setIsLocked]  = useState(true);
   const [authReady, setAuthReady] = useState(false);
 
@@ -81,11 +83,19 @@ export default function App() {
   useEffect(() => {
     if (Platform.OS !== 'web') configureNotifications();
     useStore.getState().autoIncrementCounters();
-    initAuth().finally(() => setAuthReady(true));
+    // Timeout ensures blank page never persists even if Supabase/auth is slow
+    const authTimeout = setTimeout(() => setAuthReady(true), 3000);
+    initAuth().finally(() => { clearTimeout(authTimeout); setAuthReady(true); });
   }, []);
 
-  if ((!fontsLoaded && !fontError) || !authReady) {
-    return <View style={{ flex: 1, backgroundColor: colors.background }} />;
+  // Show loading only briefly — max 3s, never indefinite blank
+  if ((!fontsLoaded && !fontError) || !authReady || !_hasHydrated) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#2F3349', alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 22, fontWeight: '800', color: '#fff', letterSpacing: -0.5 }}>StatusVault</Text>
+        <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Loading...</Text>
+      </View>
+    );
   }
 
   if (pinEnabled && isLocked && Platform.OS !== 'web') {
