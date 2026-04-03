@@ -118,6 +118,7 @@ export const DashboardScreen: React.FC = () => {
   const documents            = useStore((s) => s.documents);
   const isPremium            = useStore((s) => s.isPremium);
   const authUser             = useStore((s) => s.authUser);
+  const emailVerified        = useStore((s) => s.emailVerified);
   const anyModalOpen         = useStore((s) => s.anyModalOpen);
   const setAnyModalOpen      = useStore((s) => s.setAnyModalOpen);
   const familyMembers        = useStore((s) => s.familyMembers);
@@ -236,6 +237,19 @@ export const DashboardScreen: React.FC = () => {
           <Text style={styles.mobileTitle}>StatusVault</Text>
           <Text style={styles.mobileSub}>Your Status Dashboard</Text>
         </LinearGradient>
+      )}
+
+      {/* ── Email verified success banner ── */}
+      {IS_WEB && authUser && emailVerified && (
+        <View style={styles.verifiedBanner}>
+          <Ionicons name="checkmark-circle" size={16} color="#28C76F" />
+          <Text style={styles.verifiedBannerText}>
+            <Text style={{ fontFamily: 'Inter_700Bold' }}>Email verified!</Text> You're now signed in to StatusVault.
+          </Text>
+          <TouchableOpacity onPress={() => useStore.setState({ emailVerified: false })}>
+            <Ionicons name="close" size={14} color="#28C76F" />
+          </TouchableOpacity>
+        </View>
       )}
 
       {/* ── Guest banner — always visible when not signed in ── */}
@@ -667,6 +681,8 @@ const styles = StyleSheet.create({
   mobileTitle:   { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#fff' },
   mobileSub:     { fontSize: 14, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.75)', marginTop: 4 },
 
+  verifiedBanner:      { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#EAFFF4', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, marginBottom: 12, borderWidth: 1, borderColor: '#A3F0C4' },
+  verifiedBannerText:  { flex: 1, fontSize: 13, fontFamily: 'Inter_400Regular', color: '#065F46' },
   guestBanner:         { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F0EEFF', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, marginBottom: 12, borderWidth: 1, borderColor: '#DDD6FE' },
   guestBannerText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#4B4C6A', lineHeight: 17 },
   guestBannerBtn:      { backgroundColor: '#7367F0', borderRadius: 7, paddingHorizontal: 12, paddingVertical: 6 },

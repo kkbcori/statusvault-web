@@ -133,6 +133,7 @@ interface AppStore {
   openAuthModal: (message?: string) => void;
   closeAuthModal: () => void;
   showPaywallModal: boolean;
+  emailVerified: boolean;
   openPaywall: () => void;
   closePaywall: () => void;
   openProfileModal: () => void;  // set by MainTabs after mount
@@ -447,11 +448,41 @@ export const useStore = create<AppStore>()(
 
       signOut: async () => {
         await supabase.auth.signOut();
-        set({ authUser: null, lastSyncedAt: null, syncError: null });
+        set({ authUser: null, lastSyncedAt: null, syncError: null, emailVerified: false });
       },
 
       initAuth: async () => {
         let initialSyncDone = false;
+
+        // Handle email confirmation token_hash in URL (from confirmation email)
+        if (typeof window !== 'undefined') {
+          const hash = window.location.hash;
+          const params = new URLSearchParams(hash.replace('#', '?'));
+          const tokenHash = params.get('token_hash');
+          const type = params.get('type');
+          if (tokenHash && (type === 'signup' || type === 'email')) {
+            try {
+              const { data, error } = await supabase.auth.verifyOtp({
+                token_hash: tokenHash,
+                type: type as any,
+              });
+              if (!error && data.session) {
+                set({
+                  authUser: {
+                    id: data.session.user.id,
+                    email: data.session.user.email!,
+                    createdAt: data.session.user.created_at,
+                  },
+                  emailVerified: true,
+                });
+                initialSyncDone = true;
+                try { await get().syncFromCloud(); } catch {}
+              }
+            } catch {}
+            // Clean the URL hash regardless of success
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        }
 
         // Listen for ALL auth changes — covers OAuth redirects, sign in, sign out
         supabase.auth.onAuthStateChange(async (event, session) => {
@@ -485,7 +516,7 @@ export const useStore = create<AppStore>()(
               }, 500);
             }
           } else if (event === 'SIGNED_OUT') {
-            set({ authUser: null, lastSyncedAt: null, syncError: null });
+            set({ authUser: null, lastSyncedAt: null, syncError: null, emailVerified: false });
           }
         });
 
