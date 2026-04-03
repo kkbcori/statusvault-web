@@ -135,6 +135,7 @@ interface AppStore {
   showPaywallModal: boolean;
   openPaywall: () => void;
   closePaywall: () => void;
+  openProfileModal: () => void;  // set by MainTabs after mount
   setVisaProfile: (profile: string) => void;
   resetAllData: () => void;
   exportData: () => string;
@@ -462,6 +463,14 @@ export const useStore = create<AppStore>()(
               initialSyncDone = true;
               try { await get().syncFromCloud(); } catch {}
             }
+            // After any sign-in, open profile setup if not completed yet
+            if (event === 'SIGNED_IN') {
+              setTimeout(() => {
+                if (!get().immigrationProfile) {
+                  get().openProfileModal();
+                }
+              }, 500);
+            }
           } else if (event === 'SIGNED_OUT') {
             set({ authUser: null, lastSyncedAt: null, syncError: null });
           }
@@ -608,6 +617,7 @@ export const useStore = create<AppStore>()(
       closeAuthModal: () => set({ showAuthModal: false, authModalMessage: '' }),
       openPaywall: () => set({ showPaywallModal: true }),
       closePaywall: () => set({ showPaywallModal: false }),
+      openProfileModal: () => { /* overridden by MainTabs */ },
       setOnboarded: () => set({ hasOnboarded: true }),
       setVisaProfile: (profile) => set({ visaProfile: profile }),
       setImmigrationProfile: (p) => { set({ immigrationProfile: p }); scheduleSync(); },

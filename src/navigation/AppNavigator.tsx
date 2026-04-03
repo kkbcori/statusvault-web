@@ -264,9 +264,9 @@ const MainTabs: React.FC = () => {
   const closePaywall     = useStore((s) => s.closePaywall);
   const setPremium       = useStore((s) => s.setPremium);
   const [showProfileModal, setShowProfileModal] = React.useState(false);
-  // Expose via store so sidebar/topbar can trigger it
+  // Register the profile modal opener in the store so any code can trigger it
   React.useEffect(() => {
-    useStore.setState({ openProfileModal: () => setShowProfileModal(true) } as any);
+    useStore.setState({ openProfileModal: () => setShowProfileModal(true) });
   }, []);
   return (
   <>
