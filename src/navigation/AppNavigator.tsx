@@ -337,7 +337,7 @@ const MainTabs: React.FC = () => {
   );
 };
 
-const AppNavigator: React.FC = () => {
+export const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
