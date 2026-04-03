@@ -374,10 +374,11 @@ export const DashboardScreen: React.FC = () => {
             right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />}
           />
           {[
-            { label: 'Expired',       count: expired.length,                                                                 color: '#EA5455', bg: '#FFEEEE' },
-            { label: 'Critical ≤30d', count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining <= 30).length,  color: '#FF9F43', bg: '#FFF4E6' },
-            { label: 'Upcoming ≤90d', count: deadlines.filter((d) => d.daysRemaining > 30 && d.daysRemaining <= 90).length,  color: '#7367F0', bg: '#F0EEFF' },
-            { label: 'Safe',          count: deadlines.filter((d) => d.daysRemaining > 90).length,                            color: '#28C76F', bg: '#EAFFF4' },
+            { label: 'Expired',        count: expired.length,                                                                   color: '#EA5455', bg: '#FFEEEE' },
+            { label: 'Critical (<30d)',  count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining < 30).length,   color: '#EA5455', bg: '#FFEEEE' },
+            { label: 'High (30–60d)',    count: deadlines.filter((d) => d.daysRemaining >= 30 && d.daysRemaining < 60).length,  color: '#FF9F43', bg: '#FFF4E6' },
+            { label: 'Medium (60–180d)', count: deadlines.filter((d) => d.daysRemaining >= 60 && d.daysRemaining < 180).length, color: '#7367F0', bg: '#F0EEFF' },
+            { label: 'Low (>180d)',      count: deadlines.filter((d) => d.daysRemaining >= 180).length,                          color: '#28C76F', bg: '#EAFFF4' },
           ].map((row) => (
             <View key={row.label} style={styles.statusRow}>
               <View style={[styles.statusDot, { backgroundColor: row.color }]} />
@@ -423,11 +424,13 @@ export const DashboardScreen: React.FC = () => {
             <View style={styles.deadlineList}>
               {deadlines.slice(0, 5).map((dl) => {
                 const isExpired  = dl.daysRemaining < 0;
-                const isCritical = !isExpired && dl.daysRemaining <= 30;
-                const isUpcoming = !isExpired && dl.daysRemaining <= 90;
-                const badgeColor = isExpired ? '#EA5455' : isCritical ? '#FF9F43' : isUpcoming ? '#7367F0' : '#28C76F';
-                const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFF4E6' : isUpcoming ? '#F0EEFF' : '#EAFFF4';
-                const badgeLabel = isExpired ? 'Expired' : `${dl.daysRemaining}d`;
+                const isCritical = !isExpired && dl.daysRemaining < 30;
+                const isHigh     = !isExpired && dl.daysRemaining >= 30 && dl.daysRemaining < 60;
+                const isMedium   = !isExpired && dl.daysRemaining >= 60 && dl.daysRemaining < 180;
+                const badgeColor = isExpired ? '#EA5455' : isCritical ? '#EA5455' : isHigh ? '#FF9F43' : isMedium ? '#7367F0' : '#28C76F';
+                const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFEEEE' : isHigh ? '#FFF4E6' : isMedium ? '#F0EEFF' : '#EAFFF4';
+                const severity   = isExpired ? 'Expired' : isCritical ? 'Critical' : isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
+                const badgeLabel = `${severity}${!isExpired ? ` · ${dl.daysRemaining}d` : ''}`;
                 return (
                   <View key={dl.documentId} style={styles.deadlineRow}>
                     <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />

@@ -35,6 +35,7 @@ export interface UserDocument {
   alertDays: number[];
   icon: string;
   notes: string;
+  documentNumber?: string;  // e.g. passport number, receipt number
   /** Notification IDs scheduled for this doc (for cancellation) */
   notificationIds: string[];
   createdAt: string;

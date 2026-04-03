@@ -17,11 +17,11 @@ export const calculateDaysRemaining = (targetDate: string): number => {
 
 /** Get urgency level from days remaining */
 export const getUrgency = (days: number): UrgencyLevel => {
-  if (days < 0) return 'expired';
-  if (days <= 7) return 'critical';
-  if (days <= 30) return 'urgent';
-  if (days <= 90) return 'upcoming';
-  return 'safe';
+  if (days < 0)    return 'expired';   // Expired
+  if (days < 30)   return 'critical';  // Critical  — < 30 days
+  if (days < 60)   return 'urgent';    // High      — 30–60 days
+  if (days < 180)  return 'upcoming';  // Medium    — 60–180 days
+  return 'safe';                        // Low       — > 180 days
 };
 
 /** Get color for urgency level */
@@ -59,6 +59,14 @@ export const getUrgencyBg = (days: number): string => {
 };
 
 /** Get display label for urgency */
+export const getSeverityLabel = (days: number): string => {
+  if (days < 0)   return 'Expired';
+  if (days < 30)  return 'Critical';
+  if (days < 60)  return 'High';
+  if (days < 180) return 'Medium';
+  return 'Low';
+};
+
 export const getUrgencyLabel = (days: number): string => {
   const urgency = getUrgency(days);
   switch (urgency) {

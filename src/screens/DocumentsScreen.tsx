@@ -44,6 +44,7 @@ export const DocumentsScreen: React.FC = () => {
   const [expiryDate,      setExpiryDate]      = useState(new Date());
   const [showDatePicker,  setShowDatePicker]  = useState(false);
   const [notes,           setNotes]           = useState('');
+  const [docNumber,       setDocNumber]       = useState('');
   const [filterCategory,  setFilterCategory]  = useState<DocumentCategory | 'all'>('all');
   const [editingDoc,      setEditingDoc]      = useState<UserDocument | null>(null);
 
@@ -112,6 +113,7 @@ export const DocumentsScreen: React.FC = () => {
     );
     setExpiryDate(new Date(doc.expiryDate + 'T12:00:00'));
     setNotes(doc.notes || '');
+    setDocNumber(doc.documentNumber || '');
     setAddStep('date');
     setShowAddModal(true); setAnyModalOpen(true);
   };
@@ -257,7 +259,7 @@ export const DocumentsScreen: React.FC = () => {
                     <Text style={styles.selectedLabel}>{selectedTemplate?.label ?? editingDoc?.label ?? 'Document'}</Text>
                     <Text style={styles.selectedDesc}>
                       {selectedTemplate
-                        ? `Alerts at: ${selectedTemplate.alertDays.map((d) => `${d}d`).join(', ')}`
+                        ? `Alert windows: ${selectedTemplate.alertDays.map((d) => `${d}d`).join(', ')}`
                         : editingDoc ? `Expires ${editingDoc.expiryDate}` : ''}
                     </Text>
                   </View>
@@ -301,7 +303,21 @@ export const DocumentsScreen: React.FC = () => {
                     )}
                   </>
                 )}
-                <Text style={[styles.fieldLabel, { marginTop: spacing.xl }]}>Notes (optional)</Text>
+                <Text style={[styles.fieldLabel, { marginTop: spacing.xl }]}>Document Number (optional)</Text>
+                {IS_WEB ? (
+                  <input
+                    value={docNumber}
+                    onChange={(e: any) => setDocNumber(e.target.value)}
+                    placeholder="e.g., A123456789 · WAC2512345678"
+                    style={{ width: '100%', padding: '12px 14px', fontSize: '14px', fontFamily: 'Inter', color: '#111827', border: '1.5px solid #E5E7EB', borderRadius: '10px', backgroundColor: '#fff', outline: 'none', boxSizing: 'border-box', marginBottom: '16px' } as any}
+                  />
+                ) : (
+                  <TextInput
+                    style={[styles.notesInput, { minHeight: 42 }]} value={docNumber} onChangeText={setDocNumber}
+                    placeholder="e.g., A123456789" placeholderTextColor={colors.text3}
+                  />
+                )}
+                <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>Notes (optional)</Text>
                 <TextInput
                   style={styles.notesInput} value={notes} onChangeText={setNotes}
                   placeholder="e.g., Filed at USCIS Nebraska center"
