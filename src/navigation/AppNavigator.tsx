@@ -268,6 +268,7 @@ const MainTabs: React.FC = () => {
   const authModalMessage = useStore((s) => s.authModalMessage);
   const closeAuthModal   = useStore((s) => s.closeAuthModal);
   return (
+  <>
   <View style={[layoutStyles.root, IS_WEB && { ...layoutStyles.rootWeb, backgroundColor: colors.sidebar }]}>
     {IS_WEB && <WebSidebar />}
     <View style={[layoutStyles.content, IS_WEB && layoutStyles.contentWeb]}>
@@ -332,6 +333,7 @@ const MainTabs: React.FC = () => {
     onClose={closeAuthModal}
     message={authModalMessage}
   />
+  </>
   );
 };
 
