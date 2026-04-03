@@ -146,23 +146,9 @@ export const DashboardScreen: React.FC = () => {
   const expiringSoon = deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining <= 90);
   const expired      = deadlines.filter((d) => d.daysRemaining < 0);
 
-  // Show auth prompt after 5s — only when completely idle, only once per session
+  // Track profile setup open/close in anyModalOpen
   React.useEffect(() => {
-    if (authUser || documents.length === 0) return;
-    const t = setTimeout(() => {
-      if (!useStore.getState().anyModalOpen) setShowAuthPrompt(true);
-    }, 5000);
-    return () => clearTimeout(t);
-  }, [authUser]);
-
-  // Hide auth prompt the moment ANY modal opens anywhere in the app
-  React.useEffect(() => {
-    if (anyModalOpen) setShowAuthPrompt(false);
-  }, [anyModalOpen]);
-
-  // Hide when profile setup opens
-  React.useEffect(() => {
-    if (showProfileSetup) { setShowAuthPrompt(false); setAnyModalOpen(true); }
+    if (showProfileSetup) setAnyModalOpen(true);
     else setAnyModalOpen(false);
   }, [showProfileSetup]);
 
