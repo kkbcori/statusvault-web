@@ -7,6 +7,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, TextInput, Modal,
   ActivityIndicator, Platform,
 } from 'react-native';
+import { supabase } from '../utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../store';
 import { IS_WEB } from '../utils/responsive';
@@ -33,6 +34,7 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
   const [phone,      setPhone]      = useState('');
   const [showPwd,    setShowPwd]    = useState(false);
   const [loading,    setLoading]    = useState(false);
+  const [googleLoad, setGoogleLoad] = useState(false);
   const [error,      setError]      = useState('');
   const [success,    setSuccess]    = useState('');
 
@@ -42,6 +44,25 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
   };
 
   const handleClose = () => { reset(); onClose(); };
+
+  const handleGoogle = async () => {
+    setGoogleLoad(true); setError('');
+    try {
+      const redirectTo = Platform.OS === 'web'
+        ? (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+            ? window.location.origin
+            : 'https://kkbcori.github.io/statusvault-web')
+        : 'statusvault://auth/callback';
+      const { error: err } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo },
+      });
+      if (err) { setError(err.message); return; }
+      onClose();
+    } catch (e: any) {
+      setError(e.message ?? 'Google sign-in failed');
+    } finally { setGoogleLoad(false); }
+  };
 
   const handleSubmit = async () => {
     setError(''); setSuccess('');
@@ -84,6 +105,25 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
         <TouchableOpacity style={s.closeBtn} onPress={handleClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <Ionicons name="close" size={20} color="#8588A5" />
         </TouchableOpacity>
+      </View>
+
+      {/* Google OAuth */}
+      <View style={s.googleWrap}>
+        <TouchableOpacity style={s.googleBtn} onPress={handleGoogle} disabled={googleLoad} activeOpacity={0.85}>
+          {googleLoad ? (
+            <ActivityIndicator size="small" color="#4285F4" />
+          ) : (
+            <>
+              <Text style={s.googleIcon}>G</Text>
+              <Text style={s.googleTxt}>Continue with Google</Text>
+            </>
+          )}
+        </TouchableOpacity>
+        <View style={s.dividerRow}>
+          <View style={s.dividerLine} />
+          <Text style={s.dividerTxt}>or use email</Text>
+          <View style={s.dividerLine} />
+        </View>
       </View>
 
       {/* Tab switcher */}
@@ -215,6 +255,13 @@ const s = StyleSheet.create({
   headerTitle:{ fontSize: 16, fontFamily: 'Inter_700Bold', color: '#2F3349', marginBottom: 2 },
   headerSub:  { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5', lineHeight: 17 },
   closeBtn:   { width: 32, height: 32, borderRadius: 8, backgroundColor: '#F4F5FA', alignItems: 'center', justifyContent: 'center' },
+  googleWrap: { padding: 16, paddingBottom: 0 },
+  googleBtn:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#DBDADE', borderRadius: 10, paddingVertical: 12, ...Platform.select({ web: { boxShadow: '0 1px 3px rgba(0,0,0,0.08)' } as any }) } as any,
+  googleIcon: { fontSize: 16, fontWeight: '800', color: '#4285F4', fontFamily: 'Inter_700Bold' },
+  googleTxt:  { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14, marginBottom: 4 },
+  dividerLine:{ flex: 1, height: 1, backgroundColor: '#F4F5FA' },
+  dividerTxt: { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#ACAEC5' },
   tabs:       { flexDirection: 'row', padding: 10, gap: 6, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
   tabBtn:     { flex: 1, paddingVertical: 9, borderRadius: 8, alignItems: 'center' },
   tabBtnOn:   { backgroundColor: '#7367F0' },
