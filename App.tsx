@@ -83,12 +83,19 @@ export default function App() {
   useEffect(() => {
     if (Platform.OS !== 'web') configureNotifications();
     useStore.getState().autoIncrementCounters();
-    // Timeout ensures blank page never persists even if Supabase/auth is slow
+    // Hard timeout — never let the app stay on loading screen
     const authTimeout = setTimeout(() => setAuthReady(true), 3000);
     initAuth().finally(() => { clearTimeout(authTimeout); setAuthReady(true); });
+    // Force hydration flag after 1s if onRehydrateStorage never fires (empty storage)
+    const hydrateTimeout = setTimeout(() => {
+      if (!useStore.getState()._hasHydrated) {
+        useStore.setState({ _hasHydrated: true });
+      }
+    }, 1000);
+    return () => { clearTimeout(authTimeout); clearTimeout(hydrateTimeout); };
   }, []);
 
-  // Show loading only briefly — max 3s, never indefinite blank
+  // Show loading only briefly — max 3s, never indefinite
   if ((!fontsLoaded && !fontError) || !authReady || !_hasHydrated) {
     return (
       <View style={{ flex: 1, backgroundColor: '#2F3349', alignItems: 'center', justifyContent: 'center' }}>

@@ -42,6 +42,7 @@ export interface ImmiCounter {
 
 // ─── State ───────────────────────────────────────────────────
 interface AppStore {
+  _hasHydrated: boolean;
   hasOnboarded: boolean;
   visaProfile: string | null;  // e.g. 'f1-opt', 'h1b', etc
   immigrationProfile: {
@@ -150,6 +151,7 @@ const scheduleSync = () => {
 export const useStore = create<AppStore>()(
   persist(
     (set, get) => ({
+      _hasHydrated: false,
       hasOnboarded: false,
       visaProfile: null,
       immigrationProfile: null,
@@ -597,7 +599,8 @@ export const useStore = create<AppStore>()(
       setImmigrationProfile: (p) => { set({ immigrationProfile: p }); scheduleSync(); },
 
       resetAllData: () => set({
-        hasOnboarded: false, visaProfile: null, documents: [], checklists: [], counters: [], trips: [],
+        _hasHydrated: false,
+      hasOnboarded: false, visaProfile: null, documents: [], checklists: [], counters: [], trips: [],
         anyModalOpen: false,
       notificationsEnabled: true, notificationEmail: null, whatsappPhone: null, isPremium: false, pinEnabled: false, pinCode: null, familyMembers: [],
       }),
@@ -626,6 +629,10 @@ export const useStore = create<AppStore>()(
     {
       name: 'statusvault-storage',
       storage: createJSONStorage(() => platformStorage),
+      onRehydrateStorage: () => (state) => {
+        // Always mark hydrated — even if state is null (first run / empty storage)
+        useStore.setState({ _hasHydrated: true });
+      },
       partialize: (s) => ({
         hasOnboarded: s.hasOnboarded, documents: s.documents, checklists: s.checklists,
         counters: s.counters, trips: s.trips, notificationsEnabled: s.notificationsEnabled,
