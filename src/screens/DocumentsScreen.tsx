@@ -50,7 +50,7 @@ export const DocumentsScreen: React.FC = () => {
   const remaining = getRemainingFreeSlots();
 
   React.useEffect(() => {
-    if (route.params?.openPaywall && !canAddDocument()) setShowPaywall(true); setAnyModalOpen(true);
+    if (route.params?.openPaywall) { setShowPaywall(true); setAnyModalOpen(true); }
   }, [route.params]);
 
   const filteredDocs = filterCategory === 'all' ? documents : documents.filter((d) => d.category === filterCategory);
@@ -66,6 +66,8 @@ export const DocumentsScreen: React.FC = () => {
     if (!canAddDocument()) { setShowPaywall(true); setAnyModalOpen(true); return; }
     resetAddFlow(); setShowAddModal(true); setAnyModalOpen(true);
   };
+
+  const openPaywallDirect = () => { setShowPaywall(true); setAnyModalOpen(true); };
 
   const selectTemplate = (template: DocumentTemplate) => {
     setSelectedTemplate(template); setAddStep('date');
@@ -130,9 +132,16 @@ export const DocumentsScreen: React.FC = () => {
             <View>
               <Text style={styles.headerLabel}>DOCUMENTS</Text>
               <Text style={styles.title}>Your Documents</Text>
-              <Text style={styles.subtitle}>
-                {documents.length} tracked{!isPremium ? ` · ${remaining} free left` : ' · Premium ⭐'}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                <Text style={styles.subtitle}>
+                  {documents.length} tracked{!isPremium ? ` · ${remaining} free left` : ' · Premium ⭐'}
+                </Text>
+                {!isPremium && (
+                  <TouchableOpacity onPress={openPaywallDirect} style={{ backgroundColor: '#F0EEFF', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
+                    <Text style={{ fontSize: 11, fontFamily: 'Inter_700Bold', color: '#7367F0' }}>Upgrade</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
             <TouchableOpacity style={styles.addBtn} onPress={openAdd} activeOpacity={0.8}>
               <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.addBtnGrad}>
