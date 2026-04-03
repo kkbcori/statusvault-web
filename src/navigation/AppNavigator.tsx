@@ -13,7 +13,7 @@ import { colors, spacing, radius, typography, shadows } from '../theme';
 import { useStore } from '../store';
 import { RootStackParamList, MainTabParamList } from '../types';
 
-import { OnboardingScreen, DashboardScreen, DocumentsScreen, SettingsScreen } from '../screens';
+import { DashboardScreen, DocumentsScreen, SettingsScreen } from '../screens';
 import { TravelScreen }  from '../screens/TravelScreen';
 import { AuthScreen }    from '../screens/AuthScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
@@ -341,9 +341,8 @@ const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-        <Stack.Screen name="Main"    component={MainTabs} />
-        <Stack.Screen name="Auth"    component={AuthScreen}    options={{ animation: 'slide_from_bottom' }} />
-        <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="Auth"  component={AuthScreen} options={{ animation: 'slide_from_bottom' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

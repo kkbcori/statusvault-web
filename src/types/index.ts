@@ -106,9 +106,7 @@ export interface AppState {
 
 /** Navigation param types */
 export type RootStackParamList = {
-  Onboarding: undefined;
-  Auth: undefined;
-  Profile: undefined;
+  Auth: { mode?: 'login' | 'register' } | undefined;
   Main: undefined;
   AddDocument: undefined;
   Premium: undefined;
