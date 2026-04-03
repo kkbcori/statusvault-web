@@ -594,7 +594,7 @@ export const useStore = create<AppStore>()(
       setAnyModalOpen: (v) => set({ anyModalOpen: v }),
       setOnboarded: () => set({ hasOnboarded: true }),
       setVisaProfile: (profile) => set({ visaProfile: profile }),
-      setImmigrationProfile: (p) => { set({ immigrationProfile: p }); },
+      setImmigrationProfile: (p) => { set({ immigrationProfile: p }); scheduleSync(); },
 
       resetAllData: () => set({
         hasOnboarded: false, visaProfile: null, documents: [], checklists: [], counters: [], trips: [],

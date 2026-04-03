@@ -146,7 +146,7 @@ const WebSidebar: React.FC = () => {
       {/* Account / profile card — bottom */}
       <TouchableOpacity
         style={sidebarStyles.profileCard}
-        onPress={() => navigation.navigate(authUser ? 'Profile' : 'Auth')}
+        onPress={() => authUser ? setShowProfile(true) : navigation.navigate('Auth')}
         activeOpacity={0.8}
       >
         <View style={sidebarStyles.profileAvatar}>
@@ -205,6 +205,10 @@ const WebSidebar: React.FC = () => {
       >
         <View style={sidebarStyles.resizeBar} />
       </View>
+    {/* Profile slide-in panel */}
+    {showProfile && (
+      <ProfileScreen visible={showProfile} onClose={() => setShowProfile(false)} />
+    )}
     </View>
   );
 };
@@ -241,12 +245,16 @@ const WebTopBar: React.FC = () => {
         )}
         <TouchableOpacity
           style={topBarStyles.avatarBtn}
-          onPress={() => navigation.navigate(authUser ? 'Profile' : 'Auth')}
+          onPress={() => authUser ? setShowProfile(true) : navigation.navigate('Auth')}
           activeOpacity={0.8}
         >
           <Ionicons name={authUser ? 'person' : 'log-in-outline'} size={16} color={colors.text2} />
         </TouchableOpacity>
       </View>
+    {/* Profile slide-in panel */}
+    {showProfile && (
+      <ProfileScreen visible={showProfile} onClose={() => setShowProfile(false)} />
+    )}
     </View>
   );
 };
