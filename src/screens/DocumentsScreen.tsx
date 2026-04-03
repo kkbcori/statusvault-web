@@ -318,9 +318,9 @@ export const DocumentsScreen: React.FC = () => {
       </Modal>
 
       {/* ═══ PAYWALL — CENTERED DIALOG ═══ */}
-      {IS_WEB && showPaywall && (
+      <Modal visible={showPaywall} animationType="fade" transparent statusBarTranslucent>
         <View style={styles.paywallOverlay}>
-          <TouchableOpacity style={styles.paywallBackdrop} activeOpacity={1} onPress={() => { setShowPaywall(false); setAnyModalOpen(false); }} />
+          <TouchableOpacity style={StyleSheet.absoluteFillObject as any} activeOpacity={1} onPress={() => { setShowPaywall(false); setAnyModalOpen(false); }} />
           <LinearGradient
             colors={['#060E1A', '#0A1628', '#0F2040']}
             style={styles.paywallCard}
@@ -396,21 +396,7 @@ export const DocumentsScreen: React.FC = () => {
           </View>
           </LinearGradient>
         </View>
-      )}
-      {!IS_WEB && (
-        <Modal visible={showPaywall} animationType="fade" transparent>
-          <View style={styles.paywallOverlay}>
-            <LinearGradient colors={['#060E1A', '#0A1628', '#0F2040']} style={styles.paywallCard}>
-              <View style={styles.paywallTopTrim} />
-              <View style={styles.paywallScroll}>
-                <TouchableOpacity style={styles.paywallCloseBtn} onPress={() => { setShowPaywall(false); setAnyModalOpen(false); }}>
-                  <View style={styles.paywallCloseCircle}><Ionicons name="close" size={20} color="rgba(255,255,255,0.6)" /></View>
-                </TouchableOpacity>
-              </View>
-            </LinearGradient>
-          </View>
-        </Modal>
-      )}
+      </Modal>
     </View>
   );
 };
@@ -474,8 +460,7 @@ const styles = StyleSheet.create({
   saveBtnText:        { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
 
   // ─── Paywall — centered card ────────────────────────────────
-  paywallBackdrop:      { position: 'absolute' as any, inset: 0 } as any,
-  paywallOverlay:      { position: 'fixed' as any, inset: 0, zIndex: 3000, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'center', alignItems: 'center', padding: 20 } as any,
+  paywallOverlay:      { flex: 1, backgroundColor: 'rgba(0,0,0,0.80)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   paywallCard:         { width: '100%', maxWidth: 420, borderRadius: 20, overflow: 'hidden', alignSelf: 'center' } as any,
   paywallFull:         { flex: 1 },
   paywallTopTrim:      { position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: '#7367F0', opacity: 0.8 },
