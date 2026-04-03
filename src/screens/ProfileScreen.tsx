@@ -324,9 +324,9 @@ export const ProfileScreen: React.FC<{ visible?: boolean; onClose?: () => void }
 };
 
 const s = StyleSheet.create({
-  overlay:    { position: 'absolute' as any, inset: 0, zIndex: 1000, flexDirection: 'row', justifyContent: 'flex-end' } as any,
-  backdrop:   { flex: 1, backgroundColor: 'rgba(47,51,73,0.4)' },
-  panel:      { width: IS_WEB ? 480 : '100%', maxWidth: IS_WEB ? 480 : undefined, backgroundColor: '#FFFFFF', display: 'flex' as any, flexDirection: 'column', height: '100%' as any, ...Platform.select({ web: { boxShadow: '-4px 0 24px rgba(47,43,61,0.16)' } as any }) } as any,
+  overlay:    { position: 'fixed' as any, inset: 0, zIndex: 2000, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(47,51,73,0.5)' } as any,
+  backdrop:   { position: 'absolute' as any, inset: 0 } as any,
+  panel:      { width: '100%', maxWidth: 520, maxHeight: '90%' as any, backgroundColor: '#FFFFFF', borderRadius: 16, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', zIndex: 1, ...Platform.select({ web: { boxShadow: '0 8px 40px rgba(47,43,61,0.20)' } as any }) } as any,
   sheet:      { flex: 1, display: 'flex' as any, flexDirection: 'column' },
   header:     { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 20, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
   headerTitle:{ fontSize: 16, fontFamily: 'Inter_700Bold', color: '#2F3349' },

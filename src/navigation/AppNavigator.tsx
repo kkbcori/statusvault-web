@@ -148,7 +148,7 @@ const WebSidebar: React.FC = () => {
       {/* Account / profile card — bottom */}
       <TouchableOpacity
         style={sidebarStyles.profileCard}
-        onPress={() => authUser ? setShowProfile(true) : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')}
+        onPress={() => authUser ? (useStore.getState() as any).openProfileModal?.() : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')}
         activeOpacity={0.8}
       >
         <View style={sidebarStyles.profileAvatar}>
@@ -207,10 +207,6 @@ const WebSidebar: React.FC = () => {
       >
         <View style={sidebarStyles.resizeBar} />
       </View>
-    {/* Profile slide-in panel */}
-    {showProfile && (
-      <ProfileScreen visible={showProfile} onClose={() => setShowProfile(false)} />
-    )}
     </View>
   );
 };
@@ -248,16 +244,12 @@ const WebTopBar: React.FC = () => {
         )}
         <TouchableOpacity
           style={topBarStyles.avatarBtn}
-          onPress={() => authUser ? setShowProfile(true) : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')}
+          onPress={() => authUser ? (useStore.getState() as any).openProfileModal?.() : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')}
           activeOpacity={0.8}
         >
           <Ionicons name={authUser ? 'person' : 'log-in-outline'} size={16} color={colors.text2} />
         </TouchableOpacity>
       </View>
-    {/* Profile slide-in panel */}
-    {showProfile && (
-      <ProfileScreen visible={showProfile} onClose={() => setShowProfile(false)} />
-    )}
     </View>
   );
 };
@@ -267,6 +259,11 @@ const MainTabs: React.FC = () => {
   const showAuthModal    = useStore((s) => s.showAuthModal);
   const authModalMessage = useStore((s) => s.authModalMessage);
   const closeAuthModal   = useStore((s) => s.closeAuthModal);
+  const [showProfileModal, setShowProfileModal] = React.useState(false);
+  // Expose via store so sidebar/topbar can trigger it
+  React.useEffect(() => {
+    useStore.setState({ openProfileModal: () => setShowProfileModal(true) } as any);
+  }, []);
   return (
   <>
   <View style={[layoutStyles.root, IS_WEB && { ...layoutStyles.rootWeb, backgroundColor: colors.sidebar }]}>
@@ -327,12 +324,14 @@ const MainTabs: React.FC = () => {
       </View>
     </View>
   </View>
-  {/* Global auth modal — shown whenever unauthenticated action is attempted */}
+  {/* Global auth modal */}
   <AuthModal
     visible={showAuthModal}
     onClose={closeAuthModal}
     message={authModalMessage}
   />
+  {/* Global profile modal */}
+  <ProfileScreen visible={showProfileModal} onClose={() => setShowProfileModal(false)} />
   </>
   );
 };
