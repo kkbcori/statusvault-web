@@ -132,6 +132,9 @@ interface AppStore {
   authModalMessage: string;
   openAuthModal: (message?: string) => void;
   closeAuthModal: () => void;
+  showPaywallModal: boolean;
+  openPaywall: () => void;
+  closePaywall: () => void;
   setVisaProfile: (profile: string) => void;
   resetAllData: () => void;
   exportData: () => string;
@@ -167,6 +170,7 @@ export const useStore = create<AppStore>()(
       anyModalOpen: false,
       showAuthModal: false,
       authModalMessage: 'Sign in to continue',
+      showPaywallModal: false,
       notificationsEnabled: true,
       notificationEmail: null,
       whatsappPhone: null,
@@ -602,6 +606,8 @@ export const useStore = create<AppStore>()(
       setAnyModalOpen: (v) => set({ anyModalOpen: v }),
       openAuthModal: (message) => set({ showAuthModal: true, authModalMessage: message ?? 'Sign in to continue' }),
       closeAuthModal: () => set({ showAuthModal: false, authModalMessage: '' }),
+      openPaywall: () => set({ showPaywallModal: true }),
+      closePaywall: () => set({ showPaywallModal: false }),
       setOnboarded: () => set({ hasOnboarded: true }),
       setVisaProfile: (profile) => set({ visaProfile: profile }),
       setImmigrationProfile: (p) => { set({ immigrationProfile: p }); scheduleSync(); },
@@ -612,6 +618,7 @@ export const useStore = create<AppStore>()(
         anyModalOpen: false,
       showAuthModal: false,
       authModalMessage: 'Sign in to continue',
+      showPaywallModal: false,
       notificationsEnabled: true, notificationEmail: null, whatsappPhone: null, isPremium: false, pinEnabled: false, pinCode: null, familyMembers: [],
       }),
       exportData: () => {

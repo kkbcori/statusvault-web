@@ -18,6 +18,7 @@ import { TravelScreen }  from '../screens/TravelScreen';
 import { AuthScreen }    from '../screens/AuthScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { AuthModal } from '../components/AuthModal';
+import { PaywallModal } from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
 import { ProcessingScreen } from '../screens/ProcessingScreen';
 import { FamilyScreen }     from '../screens/FamilyScreen';
@@ -171,7 +172,7 @@ const WebSidebar: React.FC = () => {
       {!isPremium && (
         <TouchableOpacity
           style={sidebarStyles.upgradeRow}
-          onPress={() => navigation.navigate('Documents', { openPaywall: true })}
+          onPress={() => useStore.getState().openPaywall()}
           activeOpacity={0.85}
         >
           <View style={sidebarStyles.upgradeRowIcon}>
@@ -259,6 +260,9 @@ const MainTabs: React.FC = () => {
   const showAuthModal    = useStore((s) => s.showAuthModal);
   const authModalMessage = useStore((s) => s.authModalMessage);
   const closeAuthModal   = useStore((s) => s.closeAuthModal);
+  const showPaywallModal = useStore((s) => s.showPaywallModal);
+  const closePaywall     = useStore((s) => s.closePaywall);
+  const setPremium       = useStore((s) => s.setPremium);
   const [showProfileModal, setShowProfileModal] = React.useState(false);
   // Expose via store so sidebar/topbar can trigger it
   React.useEffect(() => {
@@ -332,6 +336,12 @@ const MainTabs: React.FC = () => {
   />
   {/* Global profile modal */}
   <ProfileScreen visible={showProfileModal} onClose={() => setShowProfileModal(false)} />
+  {/* Global paywall modal */}
+  <PaywallModal
+    visible={showPaywallModal}
+    onClose={closePaywall}
+    onUnlock={() => { setPremium(true); closePaywall(); }}
+  />
   </>
   );
 };

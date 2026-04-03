@@ -33,6 +33,7 @@ export const DocumentsScreen: React.FC = () => {
   const isPremium          = useStore((s) => s.isPremium);
   const authUser           = useStore((s) => s.authUser);
   const setAnyModalOpen    = useStore((s) => s.setAnyModalOpen);
+  const openPaywall        = useStore((s) => s.openPaywall);
   const getRemainingFreeSlots = useStore((s) => s.getRemainingFreeSlots);
   const dialog = useDialog();
 
@@ -50,7 +51,7 @@ export const DocumentsScreen: React.FC = () => {
   const remaining = getRemainingFreeSlots();
 
   React.useEffect(() => {
-    if (route.params?.openPaywall) { setShowPaywall(true); setAnyModalOpen(true); }
+    if (route.params?.openPaywall) { openPaywall(); }
   }, [route.params]);
 
   const filteredDocs = filterCategory === 'all' ? documents : documents.filter((d) => d.category === filterCategory);
@@ -63,11 +64,11 @@ export const DocumentsScreen: React.FC = () => {
 
   const openAdd = () => {
     if (!authUser) { useStore.getState().openAuthModal('Sign in to add and track your documents'); return; }
-    if (!canAddDocument()) { setShowPaywall(true); setAnyModalOpen(true); return; }
+    if (!canAddDocument()) { openPaywall(); return; }
     resetAddFlow(); setShowAddModal(true); setAnyModalOpen(true);
   };
 
-  const openPaywallDirect = () => { setShowPaywall(true); setAnyModalOpen(true); };
+  const openPaywallDirect = () => { openPaywall(); };
 
   const selectTemplate = (template: DocumentTemplate) => {
     setSelectedTemplate(template); setAddStep('date');
@@ -94,7 +95,7 @@ export const DocumentsScreen: React.FC = () => {
     };
     const success = await addDocument(doc);
     if (success) { setShowAddModal(false); setAnyModalOpen(false); resetAddFlow(); }
-    else { setShowAddModal(false); setAnyModalOpen(false); resetAddFlow(); setShowPaywall(true); setAnyModalOpen(true); }
+    else { setShowAddModal(false); setAnyModalOpen(false); resetAddFlow(); openPaywall(); }
   };
 
   const handleDelete = (id: string, label: string) => {
