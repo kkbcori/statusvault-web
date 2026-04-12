@@ -18,6 +18,7 @@ import { TravelScreen }  from '../screens/TravelScreen';
 import { AuthScreen }    from '../screens/AuthScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { AuthModal } from '../components/AuthModal';
+import { WelcomeModal } from '../components/WelcomeModal';
 import { PaywallModal } from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
 import { ProcessingScreen } from '../screens/ProcessingScreen';
@@ -258,6 +259,18 @@ const WebTopBar: React.FC = () => {
 // ─── Main Tabs ───────────────────────────────────────────────
 const MainTabs: React.FC = () => {
   const showAuthModal    = useStore((s) => s.showAuthModal);
+  const showWelcomeModal = useStore((s) => s.showWelcomeModal);
+  const hasOnboarded     = useStore((s) => s.hasOnboarded);
+  const setGuestMode     = useStore((s) => s.setGuestMode);
+  const setOnboarded     = useStore((s) => s.setOnboarded);
+  const openAuthModal    = useStore((s) => s.openAuthModal);
+
+  // Show welcome modal on very first visit
+  React.useEffect(() => {
+    if (!hasOnboarded) {
+      setTimeout(() => useStore.setState({ showWelcomeModal: true }), 600);
+    }
+  }, []);
   const authModalMessage = useStore((s) => s.authModalMessage);
   const closeAuthModal   = useStore((s) => s.closeAuthModal);
   const showPaywallModal = useStore((s) => s.showPaywallModal);
@@ -328,6 +341,20 @@ const MainTabs: React.FC = () => {
       </View>
     </View>
   </View>
+  {/* First-visit welcome modal */}
+  <WelcomeModal
+    visible={showWelcomeModal}
+    onGuest={() => {
+      setGuestMode(true);
+      setOnboarded();
+      useStore.setState({ showWelcomeModal: false });
+    }}
+    onCreateAccount={() => {
+      useStore.setState({ showWelcomeModal: false });
+      setOnboarded();
+      setTimeout(() => openAuthModal('Create a free account to unlock more features'), 200);
+    }}
+  />
   {/* Global auth modal */}
   <AuthModal
     visible={showAuthModal}

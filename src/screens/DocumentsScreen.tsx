@@ -63,13 +63,17 @@ export const DocumentsScreen: React.FC = () => {
     setEditingDoc(null);
   };
 
-  const preAuthDocCount  = useStore((s) => s.preAuthDocCount);
+  const isGuestMode      = useStore((s) => s.isGuestMode);
   const openAdd = () => {
-    if (!authUser && preAuthDocCount >= 1) {
-      useStore.getState().openAuthModal('Create a free account to track up to 3 documents');
-      return;
+    if (isGuestMode || !authUser) {
+      // Guest: max 1 doc
+      if (!canAddDocument()) {
+        useStore.getState().openAuthModal('Create a free account to track up to 3 documents · or upgrade to Premium for unlimited');
+        return;
+      }
+    } else if (!canAddDocument()) {
+      openPaywall(); return;
     }
-    if (!canAddDocument()) { openPaywall(); return; }
     resetAddFlow(); setShowAddModal(true); setAnyModalOpen(true);
   };
 
@@ -141,7 +145,7 @@ export const DocumentsScreen: React.FC = () => {
               <Text style={styles.title}>Your Documents</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
                 <Text style={styles.subtitle}>
-                  {documents.length} tracked{!isPremium ? (authUser ? ` · ${remaining} of 3 free` : ' · 1 free before sign-in') : ' · Premium ⭐'}
+                  {documents.length} tracked{isPremium ? ' · Premium ⭐' : isGuestMode ? ' · 1 of 1 (guest)' : ` · ${remaining} of 2 free`}
                 </Text>
                 {!isPremium && (
                   <TouchableOpacity onPress={openPaywallDirect} style={{ backgroundColor: '#F0EEFF', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>

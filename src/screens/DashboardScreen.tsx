@@ -118,6 +118,7 @@ export const DashboardScreen: React.FC = () => {
   const documents            = useStore((s) => s.documents);
   const isPremium            = useStore((s) => s.isPremium);
   const authUser             = useStore((s) => s.authUser);
+  const isGuestMode          = useStore((s) => s.isGuestMode);
   const emailVerified        = useStore((s) => s.emailVerified);
   const anyModalOpen         = useStore((s) => s.anyModalOpen);
   const setAnyModalOpen      = useStore((s) => s.setAnyModalOpen);
@@ -253,7 +254,7 @@ export const DashboardScreen: React.FC = () => {
       )}
 
       {/* ── Guest banner — always visible when not signed in ── */}
-      {IS_WEB && !authUser && (
+      {IS_WEB && (!authUser || isGuestMode) && (
         <TouchableOpacity
           style={styles.guestBanner}
           onPress={() => useStore.getState().openAuthModal('Sign in to sync your data and receive expiry alerts')}
@@ -261,9 +262,9 @@ export const DashboardScreen: React.FC = () => {
         >
           <Ionicons name="person-circle-outline" size={16} color="#7367F0" />
           <Text style={styles.guestBannerText}>
-            <Text style={{ fontFamily: 'Inter_700Bold' }}>Viewing as guest</Text> — 100% private · data stays on your device · sign in to unlock 3 free documents
+            {isGuestMode ? <><Text style={{ fontFamily: 'Inter_700Bold' }}>Guest mode</Text> — 1 doc · 1 checklist · 1 timer · no family members</> : <><Text style={{ fontFamily: 'Inter_700Bold' }}>Viewing as guest</Text> — Sign in for 2 free documents + family member tracking</>}
           </Text>
-          <View style={styles.guestBannerBtn}><Text style={styles.guestBannerBtnTxt}>Sign In →</Text></View>
+          <TouchableOpacity style={styles.guestBannerBtn} onPress={() => useStore.getState().openAuthModal('Create a free account to unlock more features')}><Text style={styles.guestBannerBtnTxt}>{isGuestMode ? 'Upgrade →' : 'Sign In →'}</Text></TouchableOpacity>
         </TouchableOpacity>
       )}
 

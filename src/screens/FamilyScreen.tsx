@@ -36,6 +36,7 @@ const VISA_TYPES = [
 export const FamilyScreen: React.FC = () => {
   const navigation       = useNavigation<any>();
   const authUser         = useStore((s) => s.authUser);
+  const isGuestMode      = useStore((s) => s.isGuestMode);
   const familyMembers    = useStore((s) => s.familyMembers);
   const addFamilyMember  = useStore((s) => s.addFamilyMember);
   const removeFamilyMember = useStore((s) => s.removeFamilyMember);
@@ -43,7 +44,9 @@ export const FamilyScreen: React.FC = () => {
   const addDocument      = useStore((s) => s.addDocument);
   const removeDocument   = useStore((s) => s.removeDocument);
   const documents        = useStore((s) => s.documents);
-  const isPremium        = useStore((s) => s.isPremium);
+  const isPremium          = useStore((s) => s.isPremium);
+  const canAddFamilyMember = useStore((s) => s.canAddFamilyMember);
+  const isGuestMode        = useStore((s) => s.isGuestMode);
   const dialog           = useDialog();
   const setAnyModalOpen  = useStore((s) => s.setAnyModalOpen);
 
@@ -87,11 +90,11 @@ export const FamilyScreen: React.FC = () => {
 
   const handleAddMember = () => {
     if (!name.trim()) { setNameError(true); return; }
-    if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
+    if (!canAddFamilyMember()) {
       setNameError(false);
       setShowAddMember(false);
       setAnyModalOpen(false);
-      dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
+      useStore.getState().openPaywall();
       return;
     }
     setNameError(false);
@@ -198,7 +201,7 @@ setShowAddMember(false); setAnyModalOpen(false);
             <Text style={styles.webSub}>Track immigration documents for your spouse, children, and dependents in one place</Text>
           </View>
           <TouchableOpacity style={styles.addMemberBtn} onPress={() => {
-              if (!authUser) { useStore.getState().openAuthModal('Sign in to add family members'); return; }
+              if (!authUser || isGuestMode) { useStore.getState().openAuthModal('Create a free account to add family members'); return; }
               if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
                 dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
                 return;
@@ -220,7 +223,7 @@ setShowAddMember(false); setAnyModalOpen(false);
             Add family members to track their visas, work permits, and travel documents alongside yours.
           </Text>
           <TouchableOpacity style={styles.emptyBtn} onPress={() => {
-              if (!authUser) { useStore.getState().openAuthModal('Sign in to add family members'); return; }
+              if (!authUser || isGuestMode) { useStore.getState().openAuthModal('Create a free account to add family members'); return; }
               if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
                 dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
                 return;
@@ -240,7 +243,7 @@ setShowAddMember(false); setAnyModalOpen(false);
         <>
           {!IS_WEB && (
             <TouchableOpacity style={styles.addBtnRow} onPress={() => {
-              if (!authUser) { useStore.getState().openAuthModal('Sign in to add family members'); return; }
+              if (!authUser || isGuestMode) { useStore.getState().openAuthModal('Create a free account to add family members'); return; }
               if (!isPremium && familyMembers.length >= FREE_FAMILY_LIMIT) {
                 dialog.alert('Upgrade Required', 'Free plan allows 1 family member. Upgrade to Premium for unlimited family members.');
                 return;
@@ -252,7 +255,16 @@ setShowAddMember(false); setAnyModalOpen(false);
             </TouchableOpacity>
           )}
 
-          {!isPremium && (
+          {isGuestMode && (
+            <View style={[styles.freePlanBanner, { borderColor: '#ACAEC5' }]}>
+              <Ionicons name="information-circle-outline" size={14} color="#8588A5" />
+              <Text style={styles.freePlanBannerText}>Guest mode — <Text style={{ fontFamily: 'Inter_700Bold' }}>Create a free account</Text> to add family members</Text>
+              <TouchableOpacity onPress={() => useStore.getState().openAuthModal('Create a free account to add family members')}>
+                <Text style={styles.freePlanUpgrade}>Sign Up →</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {!isPremium && !isGuestMode && (
             <View style={styles.freePlanBanner}>
               <Ionicons name="information-circle-outline" size={14} color="#7367F0" />
               <Text style={styles.freePlanBannerText}>

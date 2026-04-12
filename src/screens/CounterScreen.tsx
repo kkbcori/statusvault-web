@@ -18,7 +18,9 @@ export const CounterScreen: React.FC = () => {
   const counters       = useStore((s) => s.counters);
   const addCounter     = useStore((s) => s.addCounter);
   const isPremium      = useStore((s) => s.isPremium);
-  const FREE_COUNTER_LIMIT = 1;
+  const isGuestMode    = useStore((s) => s.isGuestMode);
+  const authUser2      = useStore((s) => s.authUser);
+  const COUNTER_LIMIT  = (!authUser2 || isGuestMode) ? 1 : 1;
   const removeCounter  = useStore((s) => s.removeCounter);
   const incrementCounter = useStore((s) => s.incrementCounter);
   const decrementCounter = useStore((s) => s.decrementCounter);
@@ -51,7 +53,7 @@ export const CounterScreen: React.FC = () => {
           <View style={styles.emptyIcon}><Ionicons name="timer-outline" size={40} color="#ACAEC5" /></View>
           <Text style={styles.emptyTitle}>No timers yet</Text>
           <Text style={styles.emptyDesc}>Track OPT unemployment days, 60-day grace period, and other immigration deadlines</Text>
-          <TouchableOpacity style={styles.emptyBtn} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to create and save timers'); return; } setShowAdd(true); }}>
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to save timers'); return; } if (!canAddCounter()) { useStore.getState().openPaywall(); return; } setShowAdd(true); }}>
             <Text style={styles.emptyBtnText}>Browse Timers</Text>
           </TouchableOpacity>
         </View>
@@ -116,7 +118,7 @@ export const CounterScreen: React.FC = () => {
       )}
 
       {!IS_WEB && (
-        <TouchableOpacity style={styles.fab} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to create and save timers'); return; } setShowAdd(true); }}>
+        <TouchableOpacity style={styles.fab} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to save timers'); return; } if (!canAddCounter()) { useStore.getState().openPaywall(); return; } setShowAdd(true); }}>
           <Ionicons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       )}
@@ -140,7 +142,7 @@ export const CounterScreen: React.FC = () => {
                     onPress={() => {
                     if (!added) {
                       if (!authUser) { setShowAdd(false); useStore.getState().openAuthModal('Sign in to save timers'); return; }
-                      if (!isPremium && counters.length >= FREE_COUNTER_LIMIT) {
+                      if (!isPremium && counters.length >= COUNTER_LIMIT) {
                         setShowAdd(false); useStore.getState().openPaywall(); return;
                       }
                       addCounter(t.id); setShowAdd(false);

@@ -19,7 +19,9 @@ export const ChecklistScreen: React.FC = () => {
   const checklists         = useStore((s) => s.checklists);
   const addChecklist       = useStore((s) => s.addChecklist);
   const isPremium          = useStore((s) => s.isPremium);
-  const FREE_CHECKLIST_LIMIT = 1;
+  const isGuestMode        = useStore((s) => s.isGuestMode);
+  const authUser2          = useStore((s) => s.authUser);
+  const CHECKLIST_LIMIT    = (!authUser2 || isGuestMode) ? 1 : 1;  // same limit for both
   const removeChecklist    = useStore((s) => s.removeChecklist);
   const toggleChecklistItem= useStore((s) => s.toggleChecklistItem);
 
@@ -52,7 +54,7 @@ export const ChecklistScreen: React.FC = () => {
           <View style={styles.emptyIcon}><Ionicons name="checkbox-outline" size={40} color="#ACAEC5" /></View>
           <Text style={styles.emptyTitle}>No checklists yet</Text>
           <Text style={styles.emptyDesc}>Add a checklist to track your OPT, H-1B, or green card application steps</Text>
-          <TouchableOpacity style={styles.emptyBtn} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to create and save checklists'); return; } setShowAdd(true); }}>
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to create checklists'); return; } if (!canAddChecklist()) { useStore.getState().openPaywall(); return; } setShowAdd(true); }}>
             <Text style={styles.emptyBtnText}>Browse Checklists</Text>
           </TouchableOpacity>
         </View>
@@ -113,7 +115,7 @@ export const ChecklistScreen: React.FC = () => {
       )}
 
       {!IS_WEB && (
-        <TouchableOpacity style={styles.fab} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to create and save checklists'); return; } setShowAdd(true); }}>
+        <TouchableOpacity style={styles.fab} onPress={() => { if (!authUser) { useStore.getState().openAuthModal('Sign in to create checklists'); return; } if (!canAddChecklist()) { useStore.getState().openPaywall(); return; } setShowAdd(true); }}>
           <Ionicons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       )}

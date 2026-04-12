@@ -16,12 +16,18 @@ import { platformStorage } from '../utils/storage';
 import { supabase } from '../utils/supabase';
 import { deriveKey, encryptData, decryptData } from '../utils/crypto';
 
-const FREE_DOCUMENT_LIMIT = 3;      // 3 docs after account
-const FREE_FAMILY_LIMIT_STORE = 1;  // 1 family member
-const FREE_FAMILY_DOC_LIMIT = 1;    // 1 doc per family member (free)
-const FREE_CHECKLIST_LIMIT = 1;     // 1 checklist (free)
-const FREE_COUNTER_LIMIT = 1;       // 1 immi timer (free)
-const PRE_AUTH_DOC_LIMIT = 1;       // 1 doc allowed before login
+// Guest limits (no account)
+const GUEST_DOC_LIMIT = 1;
+const GUEST_CHECKLIST_LIMIT = 1;
+const GUEST_COUNTER_LIMIT = 1;
+const GUEST_FAMILY_LIMIT = 0;       // no family in guest mode
+// Free account limits
+const FREE_DOCUMENT_LIMIT = 2;
+const FREE_FAMILY_LIMIT_STORE = 1;
+const FREE_FAMILY_DOC_LIMIT = 1;
+const FREE_CHECKLIST_LIMIT = 1;
+const FREE_COUNTER_LIMIT = 1;
+const PRE_AUTH_DOC_LIMIT = 1;       // kept for canAddDocument compat
 
 // ─── Checklist Instance ──────────────────────────────────────
 export interface ChecklistInstance {
@@ -139,7 +145,11 @@ interface AppStore {
   closeAuthModal: () => void;
   showPaywallModal: boolean;
   emailVerified: boolean;
-  preAuthDocCount: number;  // docs added before login
+  preAuthDocCount: number;
+  isGuestMode: boolean;       // true = using without account
+  showWelcomeModal: boolean;  // first-visit chooser
+  setGuestMode: (v: boolean) => void;
+  setWelcomeModalShown: () => void;
   openPaywall: () => void;
   closePaywall: () => void;
   openProfileModal: () => void;  // set by MainTabs after mount
@@ -152,6 +162,8 @@ interface AppStore {
 const today = () => new Date().toISOString().split('T')[0];
 
 export const FREE_LIMIT = FREE_DOCUMENT_LIMIT;
+export const GUEST_LIMIT = GUEST_DOC_LIMIT;
+export { GUEST_CHECKLIST_LIMIT, GUEST_COUNTER_LIMIT, GUEST_FAMILY_LIMIT };
 
 // ─── Sync helper — call after any mutation ───────────────────
 const scheduleSync = () => {
@@ -203,10 +215,28 @@ export const useStore = create<AppStore>()(
         set((s) => ({ documents: [...s.documents, doc] }));
         scheduleSync();
       },
-      canAddDocument: () => {
-        const { documents, isPremium, authUser } = get();
+      canAddChecklist: () => {
+        const { checklists, isPremium, authUser, isGuestMode } = get();
         if (isPremium) return true;
-        if (!authUser) return get().preAuthDocCount < PRE_AUTH_DOC_LIMIT;
+        if (!authUser || isGuestMode) return checklists.length < GUEST_CHECKLIST_LIMIT;
+        return checklists.length < FREE_CHECKLIST_LIMIT;
+      },
+      canAddCounter: () => {
+        const { counters, isPremium, authUser, isGuestMode } = get();
+        if (isPremium) return true;
+        if (!authUser || isGuestMode) return counters.length < GUEST_COUNTER_LIMIT;
+        return counters.length < FREE_COUNTER_LIMIT;
+      },
+      canAddFamilyMember: () => {
+        const { familyMembers, isPremium, authUser, isGuestMode } = get();
+        if (isPremium) return true;
+        if (!authUser || isGuestMode) return false; // no family in guest mode
+        return familyMembers.length < FREE_FAMILY_LIMIT_STORE;
+      },
+      canAddDocument: () => {
+        const { documents, isPremium, authUser, isGuestMode } = get();
+        if (isPremium) return true;
+        if (!authUser || isGuestMode) return documents.length < GUEST_DOC_LIMIT;
         return documents.length < FREE_DOCUMENT_LIMIT;
       },
       getRemainingFreeSlots: () => {
@@ -665,6 +695,14 @@ export const useStore = create<AppStore>()(
       // ─── Settings ──────────────────────────────────────────
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
       setAnyModalOpen: (v) => set({ anyModalOpen: v }),
+      setGuestMode: (v) => set({ isGuestMode: v }),
+      setWelcomeModalShown: () => {
+        // Only show on very first visit (hasOnboarded===false AND no documents)
+        const { hasOnboarded, documents } = useStore.getState();
+        if (!hasOnboarded && documents.length === 0) {
+          set({ showWelcomeModal: true });
+        }
+      },
       openAuthModal: (message) => set({ showAuthModal: true, authModalMessage: message ?? 'Sign in to continue' }),
       closeAuthModal: () => set({ showAuthModal: false, authModalMessage: '' }),
       openPaywall: () => set({ showPaywallModal: true }),
@@ -723,6 +761,7 @@ export const useStore = create<AppStore>()(
         notificationEmail: s.notificationEmail,
         whatsappPhone: s.whatsappPhone,
         preAuthDocCount: s.preAuthDocCount,
+        isGuestMode: s.isGuestMode,
       }),
     }
   )
