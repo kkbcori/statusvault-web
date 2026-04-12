@@ -92,6 +92,100 @@ export const SettingsScreen: React.FC = () => {
     } else { dialog.alert('Import Failed', 'Not a valid StatusVault backup. Please check the file and try again.'); }
   };
 
+  // Open file picker to import JSON
+  const handleImport = () => {
+    if (IS_WEB && typeof document !== 'undefined') {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json,application/json';
+      input.onchange = (e: any) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const text = ev.target?.result as string;
+          if (!text) return;
+          const success = importData(text.trim());
+          if (success) {
+            dialog.alert('Import Successful', 'Documents and settings have been restored.');
+          } else {
+            dialog.alert('Import Failed', 'Not a valid StatusVault backup file.');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    } else {
+      setShowImportModal(true);
+    }
+  };
+
+  const handleExportPDF = () => {
+    if (IS_WEB && typeof window !== 'undefined') {
+      const { documents: docs, familyMembers, checklists } = useStore.getState();
+      const lines: string[] = [
+        'StatusVault — Document Export',
+        `Generated: ${new Date().toLocaleDateString()}`,
+        '═══════════════════════════════════',
+        '',
+        '=== YOUR DOCUMENTS ===',
+      ];
+      docs.forEach(d => {
+        const days = Math.floor((new Date(d.expiryDate).getTime() - Date.now()) / 86400000);
+        const status = days < 0 ? 'EXPIRED' : days < 30 ? 'CRITICAL' : days < 60 ? 'HIGH' : days < 180 ? 'MEDIUM' : 'LOW';
+        lines.push(`${d.icon} ${d.label}`);
+        lines.push(`   Expires: ${d.expiryDate}  |  Status: ${status} (${days}d remaining)`);
+        if (d.documentNumber) lines.push(`   Doc #: ${d.documentNumber}`);
+        if (d.notes) lines.push(`   Notes: ${d.notes}`);
+        lines.push('');
+      });
+      if (familyMembers.length > 0) {
+        lines.push('=== FAMILY MEMBERS ===', '');
+        familyMembers.forEach(m => {
+          lines.push(`${m.name} (${m.visaType})`);
+          const mDocs = docs.filter(d => m.documentIds.includes(d.id));
+          mDocs.forEach(d => {
+            const days = Math.floor((new Date(d.expiryDate).getTime() - Date.now()) / 86400000);
+            lines.push(`   ${d.icon} ${d.label} | ${d.expiryDate} | ${days}d`);
+          });
+          lines.push('');
+        });
+      }
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url;
+      a.download = `statusvault-documents-${new Date().toISOString().split('T')[0]}.txt`;
+      a.click(); URL.revokeObjectURL(url);
+    } else {
+      dialog.alert('PDF Export', 'PDF export is available on the web version.');
+    }
+  };
+
+  const handleExportChecklistPDF = () => {
+    if (IS_WEB && typeof window !== 'undefined') {
+      const { checklists } = useStore.getState();
+      const lines: string[] = [
+        'StatusVault — Checklist Export',
+        `Generated: ${new Date().toLocaleDateString()}`,
+        '═══════════════════════════════════',
+        '',
+      ];
+      checklists.forEach(cl => {
+        const done = cl.items.filter((i: any) => i.done).length;
+        lines.push(`${cl.icon} ${cl.label}  (${done}/${cl.items.length} complete)`);
+        cl.items.forEach((item: any) => lines.push(`  [${item.done ? '✓' : ' '}] ${item.text}`));
+        lines.push('');
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url;
+      a.download = `statusvault-checklists-${new Date().toISOString().split('T')[0]}.txt`;
+      a.click(); URL.revokeObjectURL(url);
+    } else {
+      dialog.alert('Export', 'Checklist export is available on the web version.');
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.cc} showsVerticalScrollIndicator={false}>
 
