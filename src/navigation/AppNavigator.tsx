@@ -115,7 +115,7 @@ const WebSidebar: React.FC = () => {
       </View>
 
       {/* Nav groups */}
-      <ScrollView style={sidebarStyles.nav} showsVerticalScrollIndicator={false}>
+      <View style={sidebarStyles.nav}>
         {NAV_GROUPS.map((group) => (
           <View key={group.label}>
             <Text style={sidebarStyles.groupLabel}>{group.label}</Text>
@@ -143,7 +143,7 @@ const WebSidebar: React.FC = () => {
             })}
           </View>
         ))}
-      </ScrollView>
+      </View>
 
       <View style={{ flex: 1 }} />
 
@@ -400,7 +400,7 @@ const sidebarStyles = StyleSheet.create({
   resizeBar:     { width: 1, height: 32, borderRadius: 1, backgroundColor: 'rgba(255,255,255,0.06)' } as any,
   logoRow:       { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   logoImg:       { width: 148, height: 42 } as any,
-  nav:           { flex: 1, paddingHorizontal: 10, paddingTop: 12, overflowY: 'auto' as any },
+  nav:           { flex: 1, paddingHorizontal: 10, paddingTop: 12 },
   groupLabel:    { fontSize: 9, fontFamily: 'Inter_600SemiBold', color: 'rgba(148,163,184,0.40)', letterSpacing: 1.5, paddingLeft: 10, paddingTop: 20, paddingBottom: 6, textTransform: 'uppercase' as any },
   navItem:       { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 9, borderRadius: 10, marginBottom: 1 },
   navItemActive: { backgroundColor: 'rgba(79,70,229,0.18)', borderLeftWidth: 2, borderLeftColor: '#818CF8' } as any,
