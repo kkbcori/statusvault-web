@@ -51,18 +51,13 @@ export const CounterScreen: React.FC = () => {
           <View style={styles.emptyIcon}><Ionicons name="timer-outline" size={40} color="#ACAEC5" /></View>
           <Text style={styles.emptyTitle}>No timers yet</Text>
           <Text style={styles.emptyDesc}>Track OPT unemployment days, 60-day grace period, and other immigration deadlines</Text>
-          <TouchableOpacity style={styles.emptyBtn} onPress={() => { () => {
-            if (!authUser || isGuestMode) {
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => {
               if (!canAddCounter()) {
-                useStore.getState().openAuthModal('Create an account for up to 2 timers');
-              } else {
-                useStore.getState().openAuthModal('Sign in to save timers');
+                authUser && !isGuestMode ? useStore.getState().openPaywall() : useStore.getState().openAuthModal('Create a free account for up to 2 timers');
+                return;
               }
-              return;
-            }
-            if (!canAddCounter()) { useStore.getState().openPaywall(); return; }
-            setShowAdd(true);
-          }}>
+              setShowAdd(true);
+            }}>
             <Text style={styles.emptyBtnText}>Browse Timers</Text>
           </TouchableOpacity>
         </View>
@@ -127,7 +122,7 @@ export const CounterScreen: React.FC = () => {
       )}
 
       {!IS_WEB && (
-        <TouchableOpacity style={styles.fab} onPress={() => { onPress={() => {
+        <TouchableOpacity style={styles.fab} onPress={() => {
               if (!canAddCounter()) {
                 authUser && !isGuestMode ? useStore.getState().openPaywall() : useStore.getState().openAuthModal('Create a free account for up to 2 timers');
                 return;
