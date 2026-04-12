@@ -36,17 +36,16 @@ const SECTIONS: ToolSection[] = [
   {
     icon: '💼', title: 'H-1B Resources', color: '#0891B2', bg: '#ECFEFF',
     links: [
-      { label: 'H-1B Employer Data Hub', url: 'https://www.uscis.gov/tools/reports-and-studies/h-1b-employer-data-hub', desc: 'Search H-1B petitions filed by employer' },
-      { label: 'LCA / Wage Search (DOL)', url: 'https://www.dol.gov/agencies/eta/foreign-labor/wages/wage-search', desc: 'Look up prevailing wages for H-1B positions' },
+      { label: 'H-1B Employer Data Hub (USCIS)', url: 'https://www.uscis.gov/tools/reports-and-studies/h-1b-employer-data-hub', desc: 'Search H-1B petitions filed by any employer' },
+      { label: 'H-1B Performance Data (DOL)', url: 'https://www.dol.gov/agencies/eta/foreign-labor/performance', desc: 'Official DOL H-1B disclosure data by employer and year' },
+      { label: 'LCA Wage Search (DOL OFLC)', url: 'https://flag.dol.gov/wage-data/wage-search', desc: 'Official DOL prevailing wage lookup for H-1B / LCA positions' },
       { label: 'H-1B Visa Bulletin', url: 'https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html', desc: 'Monthly priority date cutoffs from State Dept' },
-      { label: 'myvisajobs — Sponsor Search', url: 'https://www.myvisajobs.com/Search_H1B_LCA.aspx', desc: 'Search companies that have sponsored H-1B visas' },
-      { label: 'H1BData.info', url: 'https://h1bdata.info', desc: 'Browse H-1B salary and employer data' },
     ],
   },
   {
     icon: '🎓', title: 'F-1 / OPT / STEM', color: '#059669', bg: '#ECFDF5',
     links: [
-      { label: 'SEVIS Fee Payment (FMJ)', url: 'https://fmjfee.com', desc: 'Pay the SEVIS I-901 fee before your visa interview' },
+      { label: 'SEVIS I-901 Fee Info (ICE)', url: 'https://www.ice.gov/sevis/i901', desc: 'Official ICE page for SEVIS fee requirements and payment' },
       { label: 'OPT / STEM OPT Info (USCIS)', url: 'https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-opt-for-f-1-students', desc: 'Official OPT rules, timelines and filing tips' },
       { label: 'I-20 & DSO Lookup (ICE)', url: 'https://studyinthestates.dhs.gov', desc: 'Study in the States — DSO resources and F-1 info' },
       { label: 'STEM OPT Extension Guide', url: 'https://www.ice.gov/sevis/practical-training', desc: 'ICE official STEM OPT extension requirements' },
@@ -67,7 +66,7 @@ const SECTIONS: ToolSection[] = [
     links: [
       { label: 'I-94 Arrival / Departure Records', url: 'https://i94.cbp.dhs.gov/I94', desc: 'Check or retrieve your official I-94 record' },
       { label: 'Passport Renewal (US Dept of State)', url: 'https://travel.state.gov/content/travel/en/passports/need-passport/renew-adult-passport.html', desc: 'Renew your US passport online or by mail' },
-      { label: 'Indian Passport Renewal (CKGS)', url: 'https://www.ckgs.us/passport/', desc: 'Indian passport renewal via CKGS USA (BLS)' },
+      { label: 'Indian Passport (Embassy of India)', url: 'https://www.cgisf.gov.in/page/passport-services/', desc: 'Official Indian consulate passport services in the US' },
       { label: 'Global Entry / TSA PreCheck', url: 'https://ttp.cbp.dhs.gov', desc: 'Apply or renew Trusted Traveler Programs' },
       { label: 'ESTA (Visa Waiver)', url: 'https://esta.cbp.dhs.gov', desc: 'Apply for ESTA authorization for VWP countries' },
     ],
@@ -76,7 +75,7 @@ const SECTIONS: ToolSection[] = [
     icon: '📞', title: 'Official Contacts', color: '#7C3AED', bg: '#F5F3FF',
     links: [
       { label: 'USCIS Contact Center', url: 'https://www.uscis.gov/about-us/contact-us', desc: 'Call 1-800-375-5283 or chat with Emma' },
-      { label: 'DOS Visa Appointment (CGI Federal)', url: 'https://www.ustraveldocs.com', desc: 'Schedule US visa interview at a US consulate' },
+      { label: 'US Visa Appointment (State Dept)', url: 'https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/appointment-wait-times.html', desc: 'Official State Dept visa appointment wait times and scheduling info' },
       { label: 'EOIR Immigration Court', url: 'https://www.justice.gov/eoir', desc: 'Find immigration court hearings and EOIR info' },
       { label: 'ICE SEVIS Info', url: 'https://www.ice.gov/sevis', desc: 'SEVIS program information for F, M, and J visa holders' },
     ],
@@ -92,7 +91,7 @@ export const VisaToolsScreen: React.FC = () => (
       </View>
       <View style={{ flex: 1 }}>
         <Text style={s.headerTitle}>Visa & Immigration Tools</Text>
-        <Text style={s.headerSub}>Official government links — opens in your browser</Text>
+        <Text style={s.headerSub}>Official .gov sources only — opens in your browser</Text>
       </View>
     </View>
 

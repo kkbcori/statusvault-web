@@ -38,7 +38,7 @@ const TAB_ITEMS: Array<{
 }> = [
   { name: 'Dashboard', label: 'Home',      active: 'grid',          inactive: 'grid-outline' },
   { name: 'Documents', label: 'Documents', active: 'document-text', inactive: 'document-text-outline' },
-  { name: 'Travel',    label: 'Travel',    active: 'airplane',      inactive: 'airplane-outline' },
+  { name: 'Travel',    label: 'Residency & Travel',  active: 'airplane', inactive: 'airplane-outline' },
   { name: 'Settings',  label: 'Settings',  active: 'settings',      inactive: 'settings-outline' },
   { name: 'Family',     label: 'Family',    active: 'people',        inactive: 'people-outline' },
   { name: 'Checklist',  label: 'Checklist', active: 'checkbox',      inactive: 'checkbox-outline' },

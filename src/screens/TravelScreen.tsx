@@ -239,8 +239,8 @@ export const TravelScreen: React.FC = () => {
         <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
           <View style={styles.header}>
             <View>
-              <Text style={styles.headerLabel}>TRAVEL HISTORY</Text>
-              <Text style={styles.headerTitle}>I-94 Tracker</Text>
+              <Text style={styles.headerLabel}>RESIDENCY & TRAVEL</Text>
+              <Text style={styles.headerTitle}>US Presence & Travel Log</Text>
               <Text style={styles.headerSub}>{trips.length} trip{trips.length !== 1 ? 's' : ''} recorded · N-400 ready</Text>
             </View>
             <TouchableOpacity style={styles.addBtn} onPress={openAdd} activeOpacity={0.8}>
