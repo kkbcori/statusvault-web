@@ -218,13 +218,13 @@ export const useStore = create<AppStore>()(
       canAddChecklist: () => {
         const { checklists, isPremium, authUser, isGuestMode } = get();
         if (isPremium) return true;
-        if (!authUser || isGuestMode) return checklists.length < GUEST_CHECKLIST_LIMIT;
+        if (isGuestMode || !authUser) return checklists.length < GUEST_CHECKLIST_LIMIT;
         return checklists.length < FREE_CHECKLIST_LIMIT;
       },
       canAddCounter: () => {
         const { counters, isPremium, authUser, isGuestMode } = get();
         if (isPremium) return true;
-        if (!authUser || isGuestMode) return counters.length < GUEST_COUNTER_LIMIT;
+        if (isGuestMode || !authUser) return counters.length < GUEST_COUNTER_LIMIT;
         return counters.length < FREE_COUNTER_LIMIT;
       },
       canAddFamilyMember: () => {
@@ -236,7 +236,11 @@ export const useStore = create<AppStore>()(
       canAddDocument: () => {
         const { documents, isPremium, authUser, isGuestMode } = get();
         if (isPremium) return true;
-        if (!authUser || isGuestMode) return documents.length < GUEST_DOC_LIMIT;
+        // Guest mode (explicitly chose guest): 1 doc limit
+        if (isGuestMode) return documents.length < GUEST_DOC_LIMIT;
+        // Not logged in yet but hasn't chosen guest: still allow 1 doc (pre-auth)
+        if (!authUser) return documents.length < GUEST_DOC_LIMIT;
+        // Free account
         return documents.length < FREE_DOCUMENT_LIMIT;
       },
       getRemainingFreeSlots: () => {
