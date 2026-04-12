@@ -262,9 +262,17 @@ const MainTabs: React.FC = () => {
   const openAuthModal    = useStore((s) => s.openAuthModal);
 
   // Show welcome modal on very first visit
+  const authUser         = useStore((s) => s.authUser);
   React.useEffect(() => {
+    // Never show welcome modal if user is already authenticated
+    if (authUser) return;
     if (!hasOnboarded) {
-      setTimeout(() => useStore.setState({ showWelcomeModal: true }), 600);
+      setTimeout(() => {
+        // Double-check auth hasn't arrived in the meantime
+        if (!useStore.getState().authUser) {
+          useStore.setState({ showWelcomeModal: true });
+        }
+      }, 800);
     }
   }, []);
   const authModalMessage = useStore((s) => s.authModalMessage);

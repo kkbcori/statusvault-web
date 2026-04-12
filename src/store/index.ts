@@ -560,7 +560,7 @@ export const useStore = create<AppStore>()(
             }
             // Clear guest mode when user signs in
             if (event === 'SIGNED_IN') {
-              set({ isGuestMode: false });
+              set({ isGuestMode: false, hasOnboarded: true, showWelcomeModal: false });
             }
             // After any sign-in, open profile setup if not completed yet
             if (event === 'SIGNED_IN') {
