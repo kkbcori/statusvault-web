@@ -53,7 +53,7 @@ export const ChecklistScreen: React.FC = () => {
           <View style={styles.emptyIcon}><Ionicons name="checkbox-outline" size={40} color="#ACAEC5" /></View>
           <Text style={styles.emptyTitle}>No checklists yet</Text>
           <Text style={styles.emptyDesc}>Add a checklist to track your OPT, H-1B, or green card application steps</Text>
-          <TouchableOpacity style={styles.emptyBtn} onPress={() => { onPress={() => {
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => {
               if (!canAddChecklist()) {
                 authUser && !isGuestMode ? useStore.getState().openPaywall() : useStore.getState().openAuthModal('Create a free account for up to 2 checklists');
                 return;
@@ -120,7 +120,7 @@ export const ChecklistScreen: React.FC = () => {
       )}
 
       {!IS_WEB && (
-        <TouchableOpacity style={styles.fab} onPress={() => { onPress={() => {
+        <TouchableOpacity style={styles.fab} onPress={() => {
               if (!canAddChecklist()) {
                 authUser && !isGuestMode ? useStore.getState().openPaywall() : useStore.getState().openAuthModal('Create a free account for up to 2 checklists');
                 return;
