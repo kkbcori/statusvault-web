@@ -17,6 +17,8 @@ export const CounterScreen: React.FC = () => {
   const authUser       = useStore((s) => s.authUser);
   const counters       = useStore((s) => s.counters);
   const addCounter     = useStore((s) => s.addCounter);
+  const isPremium      = useStore((s) => s.isPremium);
+  const FREE_COUNTER_LIMIT = 1;
   const removeCounter  = useStore((s) => s.removeCounter);
   const incrementCounter = useStore((s) => s.incrementCounter);
   const decrementCounter = useStore((s) => s.decrementCounter);
@@ -135,7 +137,15 @@ export const CounterScreen: React.FC = () => {
                   <TouchableOpacity
                     key={t.id}
                     style={[styles.templateRow, added && styles.templateRowAdded]}
-                    onPress={() => { if (!added) { if (!authUser) { setShowAdd(false); useStore.getState().openAuthModal('Sign in to create and save timers'); return; } addCounter(t.id); setShowAdd(false); } }}
+                    onPress={() => {
+                    if (!added) {
+                      if (!authUser) { setShowAdd(false); useStore.getState().openAuthModal('Sign in to save timers'); return; }
+                      if (!isPremium && counters.length >= FREE_COUNTER_LIMIT) {
+                        setShowAdd(false); useStore.getState().openPaywall(); return;
+                      }
+                      addCounter(t.id); setShowAdd(false);
+                    }
+                  }}
                     activeOpacity={added ? 1 : 0.75}
                   >
                     <Text style={{ fontSize: 22, marginRight: 12 }}>{t.icon}</Text>

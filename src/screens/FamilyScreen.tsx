@@ -48,7 +48,7 @@ export const FamilyScreen: React.FC = () => {
   const setAnyModalOpen  = useStore((s) => s.setAnyModalOpen);
 
   const FREE_FAMILY_LIMIT = 1;   // free: 1 member
-  const FREE_DOC_LIMIT    = 2;   // free: 2 docs per member
+  const FREE_DOC_LIMIT    = 1;   // free: 1 doc per member
 
   const [showAddMember,    setShowAddMember]    = useState(false);
   const [showAddDoc,       setShowAddDoc]       = useState(false);

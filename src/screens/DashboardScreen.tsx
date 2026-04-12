@@ -261,7 +261,7 @@ export const DashboardScreen: React.FC = () => {
         >
           <Ionicons name="person-circle-outline" size={16} color="#7367F0" />
           <Text style={styles.guestBannerText}>
-            <Text style={{ fontFamily: 'Inter_700Bold' }}>Viewing as guest</Text> — Sign in to save your data, sync across devices, and get expiry alerts
+            <Text style={{ fontFamily: 'Inter_700Bold' }}>Viewing as guest</Text> — 100% private · data stays on your device · sign in to unlock 3 free documents
           </Text>
           <View style={styles.guestBannerBtn}><Text style={styles.guestBannerBtnTxt}>Sign In →</Text></View>
         </TouchableOpacity>

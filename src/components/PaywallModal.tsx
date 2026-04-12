@@ -9,10 +9,11 @@ const PRICE_LABEL = '$3.99/year';
 
 const FEATURES = [
   { icon: 'documents-outline' as const,        text: 'Unlimited document tracking' },
-  { icon: 'notifications-outline' as const,    text: 'Advanced smart alerts per document type' },
-  { icon: 'cloud-download-outline' as const,   text: 'Data export & import for any device' },
-  { icon: 'people-outline' as const,           text: 'Unlimited family members & documents' },
-  { icon: 'checkmark-circle-outline' as const, text: 'Immigration checklists & counters' },
+  { icon: 'people-outline' as const,           text: 'Unlimited family members & their documents' },
+  { icon: 'checkbox-outline' as const,         text: 'Unlimited checklists & immi timers' },
+  { icon: 'document-text-outline' as const,    text: 'PDF export — docs, checklists & family' },
+  { icon: 'phone-portrait-outline' as const,   text: 'JSON export/import for cross-device use' },
+  { icon: 'notifications-outline' as const,    text: 'Smart app notifications at 6mo·3mo·2mo·1mo·15d·7d' },
 ];
 
 interface Props {

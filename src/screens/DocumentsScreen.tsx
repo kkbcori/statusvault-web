@@ -63,8 +63,12 @@ export const DocumentsScreen: React.FC = () => {
     setEditingDoc(null);
   };
 
+  const preAuthDocCount  = useStore((s) => s.preAuthDocCount);
   const openAdd = () => {
-    if (!authUser) { useStore.getState().openAuthModal('Sign in to add and track your documents'); return; }
+    if (!authUser && preAuthDocCount >= 1) {
+      useStore.getState().openAuthModal('Create a free account to track up to 3 documents');
+      return;
+    }
     if (!canAddDocument()) { openPaywall(); return; }
     resetAddFlow(); setShowAddModal(true); setAnyModalOpen(true);
   };
@@ -137,7 +141,7 @@ export const DocumentsScreen: React.FC = () => {
               <Text style={styles.title}>Your Documents</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
                 <Text style={styles.subtitle}>
-                  {documents.length} tracked{!isPremium ? ` · ${remaining} free left` : ' · Premium ⭐'}
+                  {documents.length} tracked{!isPremium ? (authUser ? ` · ${remaining} of 3 free` : ' · 1 free before sign-in') : ' · Premium ⭐'}
                 </Text>
                 {!isPremium && (
                   <TouchableOpacity onPress={openPaywallDirect} style={{ backgroundColor: '#F0EEFF', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>

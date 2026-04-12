@@ -92,8 +92,8 @@ export const requestPermissions = async (): Promise<boolean> => {
  * Get the appropriate Android channel based on urgency
  */
 const getChannel = (alertDay: number): string => {
-  if (alertDay <= 7) return 'deadlines-critical';
-  if (alertDay <= 30) return 'deadlines-urgent';
+  if (alertDay <= 15) return 'deadlines-critical';
+  if (alertDay <= 60) return 'deadlines-urgent';
   return 'reminders';
 };
 
@@ -131,8 +131,8 @@ export const scheduleDocumentNotifications = async (
             // Android-specific: choose channel by urgency
             ...(Platform.OS === 'android' && {
               channelId: getChannel(alertDay),
-              color: alertDay <= 7 ? '#E63946' : alertDay <= 30 ? '#F4A261' : '#2E5AAC',
-              sticky: alertDay <= 7, // Critical alerts persist in notification tray
+              color: alertDay <= 15 ? '#E63946' : alertDay <= 60 ? '#F4A261' : '#2E5AAC',
+              sticky: alertDay <= 15, // Critical alerts persist in notification tray
             }),
             // iOS-specific: category for action buttons
             ...(Platform.OS === 'ios' && {
@@ -210,8 +210,8 @@ export const sendTestNotification = async (): Promise<void> => {
 // Tailored messaging per urgency level
 
 const getNotificationSubtitle = (alertDay: number): string => {
-  if (alertDay <= 7) return '⚠️ Critical Alert';
-  if (alertDay <= 30) return '🔴 Urgent Reminder';
+  if (alertDay <= 15) return '⚠️ Critical Alert';
+  if (alertDay <= 60) return '🔴 Urgent Reminder';
   if (alertDay <= 60) return '🟡 Upcoming Deadline';
   return '📋 Advance Notice';
 };
@@ -226,13 +226,13 @@ const getNotificationTitle = (doc: UserDocument, alertDay: number): string => {
 const getNotificationBody = (doc: UserDocument, alertDay: number): string => {
   const label = doc.label;
 
-  if (alertDay <= 7) {
+  if (alertDay <= 15) {
     return `Your ${label} expires in ${alertDay} days! Take action immediately to protect your immigration status. Do not delay.`;
   }
   if (alertDay <= 14) {
     return `Your ${label} expires in ${alertDay} days. Start the renewal process now — processing times may be longer than expected.`;
   }
-  if (alertDay <= 30) {
+  if (alertDay <= 60) {
     return `Your ${label} expires in ${alertDay} days. Begin gathering documents and filing for renewal to avoid any gaps.`;
   }
   if (alertDay <= 60) {

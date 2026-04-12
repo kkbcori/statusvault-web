@@ -18,6 +18,8 @@ export const ChecklistScreen: React.FC = () => {
   const authUser           = useStore((s) => s.authUser);
   const checklists         = useStore((s) => s.checklists);
   const addChecklist       = useStore((s) => s.addChecklist);
+  const isPremium          = useStore((s) => s.isPremium);
+  const FREE_CHECKLIST_LIMIT = 1;
   const removeChecklist    = useStore((s) => s.removeChecklist);
   const toggleChecklistItem= useStore((s) => s.toggleChecklistItem);
 

@@ -16,7 +16,12 @@ import { platformStorage } from '../utils/storage';
 import { supabase } from '../utils/supabase';
 import { deriveKey, encryptData, decryptData } from '../utils/crypto';
 
-const FREE_DOCUMENT_LIMIT = 3;
+const FREE_DOCUMENT_LIMIT = 3;      // 3 docs after account
+const FREE_FAMILY_LIMIT_STORE = 1;  // 1 family member
+const FREE_FAMILY_DOC_LIMIT = 1;    // 1 doc per family member (free)
+const FREE_CHECKLIST_LIMIT = 1;     // 1 checklist (free)
+const FREE_COUNTER_LIMIT = 1;       // 1 immi timer (free)
+const PRE_AUTH_DOC_LIMIT = 1;       // 1 doc allowed before login
 
 // ─── Checklist Instance ──────────────────────────────────────
 export interface ChecklistInstance {
@@ -134,6 +139,7 @@ interface AppStore {
   closeAuthModal: () => void;
   showPaywallModal: boolean;
   emailVerified: boolean;
+  preAuthDocCount: number;  // docs added before login
   openPaywall: () => void;
   closePaywall: () => void;
   openProfileModal: () => void;  // set by MainTabs after mount
@@ -196,19 +202,20 @@ export const useStore = create<AppStore>()(
         // Bypasses free limit — used by profile setup wizard
         set((s) => ({ documents: [...s.documents, doc] }));
         scheduleSync();
-        setTimeout(() => get().syncAlerts(), 800);
       },
       canAddDocument: () => {
-        const { documents, isPremium } = get();
-        return isPremium || documents.length < FREE_DOCUMENT_LIMIT;
+        const { documents, isPremium, authUser } = get();
+        if (isPremium) return true;
+        if (!authUser) return get().preAuthDocCount < PRE_AUTH_DOC_LIMIT;
+        return documents.length < FREE_DOCUMENT_LIMIT;
       },
       getRemainingFreeSlots: () => {
         const { documents, isPremium } = get();
         return isPremium ? 999 : Math.max(0, FREE_DOCUMENT_LIMIT - documents.length);
       },
       setPremium: (v) => set({ isPremium: v }),
-      setNotificationEmail: (email) => { set({ notificationEmail: email }); scheduleSync(); setTimeout(() => get().syncAlerts(), 500); },
-      setWhatsappPhone: (phone) => { set({ whatsappPhone: phone }); scheduleSync(); setTimeout(() => get().syncAlerts(), 500); },
+      setNotificationEmail: (email) => { set({ notificationEmail: email }); scheduleSync(); },
+      setWhatsappPhone: (phone) => { set({ whatsappPhone: phone }); scheduleSync(); },
 
       // ─── Documents ─────────────────────────────────────────
       addDocument: async (doc) => {
@@ -217,9 +224,11 @@ export const useStore = create<AppStore>()(
         if (get().notificationsEnabled) {
           try { notificationIds = await scheduleDocumentNotifications(doc); } catch {}
         }
-        set((s) => ({ documents: [...s.documents, { ...doc, notificationIds }] }));
+        set((s) => ({
+          documents: [...s.documents, { ...doc, notificationIds }],
+          preAuthDocCount: !s.authUser ? s.preAuthDocCount + 1 : s.preAuthDocCount,
+        }));
         scheduleSync();
-        setTimeout(() => get().syncAlerts(true), 800);
         return true;
       },
       removeDocument: async (id) => {
@@ -227,7 +236,6 @@ export const useStore = create<AppStore>()(
         if (doc?.notificationIds?.length) await cancelDocumentNotifications(doc.notificationIds);
         set((s) => ({ documents: s.documents.filter((d) => d.id !== id) }));
         scheduleSync();
-        setTimeout(() => get().syncAlerts(), 800);
       },
       updateDocument: async (id, updates) => {
         const doc = get().documents.find((d) => d.id === id);

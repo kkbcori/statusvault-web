@@ -157,98 +157,75 @@ export const SettingsScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* ── Expiry Alert Contacts (Premium only) ── */}
-      <SectionLabel iconName="mail-outline" label="EXPIRY ALERTS — EMAIL & WHATSAPP" />
+      {/* ── Cross-Device Sync via JSON ── */}
+      <SectionLabel iconName="phone-portrait-outline" label="CROSS-DEVICE SYNC" />
+      <View style={styles.card}>
+        <View style={styles.infoBox2}>
+          <Ionicons name="shield-checkmark-outline" size={16} color="#7367F0" />
+          <Text style={styles.infoBox2Text}>
+            <Text style={{ fontFamily: 'Inter_600SemiBold' }}>100% Private · On Your Device</Text>
+            {'
+'}Your data never leaves your device. To use on another device, export a JSON file and import it there.
+          </Text>
+        </View>
+        <View style={styles.div} />
+        <TouchableOpacity style={styles.sRow} onPress={handleExport}>
+          <View style={styles.rowIconBox}><Ionicons name="download-outline" size={16} color="#7367F0" /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.sText}>Export Data (JSON)</Text>
+            <Text style={styles.rDesc}>Download all docs, checklists, timers to a file</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.text3} />
+        </TouchableOpacity>
+        <View style={styles.div} />
+        <TouchableOpacity style={styles.sRow} onPress={handleImport}>
+          <View style={styles.rowIconBox}><Ionicons name="cloud-upload-outline" size={16} color="#7367F0" /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.sText}>Import Data (JSON)</Text>
+            <Text style={styles.rDesc}>Restore from a previously exported file</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.text3} />
+        </TouchableOpacity>
+      </View>
+
+      {/* ── PDF Export (Premium only) ── */}
+      <SectionLabel iconName="document-text-outline" label="PDF EXPORT — PREMIUM" />
       {!isPremium ? (
         <View style={styles.card}>
           <View style={styles.premiumAlertBanner}>
             <Ionicons name="lock-closed" size={18} color="#FF9F43" />
             <View style={{ flex: 1 }}>
               <Text style={styles.premiumAlertTitle}>Premium Feature</Text>
-              <Text style={styles.premiumAlertDesc}>
-                Email and WhatsApp expiry alerts are available for Premium subscribers. Upgrade to receive alerts 180, 90, 60, 30, 14, and 7 days before your documents expire.
-              </Text>
+              <Text style={styles.premiumAlertDesc}>Export all your documents, checklists, and family member docs as a PDF. Available for Premium subscribers.</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.upgradeBtn} onPress={() => setPremium(true)}>
+          <TouchableOpacity style={styles.upgradeBtn} onPress={() => useStore.getState().openPaywall()}>
             <Text style={styles.upgradeBtnText}>⭐ Upgrade to Premium</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={styles.card}>
-          {/* Email */}
-          <View style={styles.row}>
-            <View style={styles.rowIconBox}><Ionicons name="mail-outline" size={16} color="#7367F0" /></View>
+          <TouchableOpacity style={styles.sRow} onPress={handleExportPDF}>
+            <View style={styles.rowIconBox}><Ionicons name="document-text-outline" size={16} color="#7367F0" /></View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.rTitle}>Email Alerts</Text>
-              <Text style={styles.rDesc}>{notificationEmail ?? 'Not set — tap Add to configure'}</Text>
+              <Text style={styles.sText}>Export All Documents as PDF</Text>
+              <Text style={styles.rDesc}>Includes your docs + family member docs with expiry status</Text>
             </View>
-            <TouchableOpacity onPress={() => { setEmailInput(notificationEmail ?? ''); setEditingEmail(true); }} style={styles.editChip}>
-              <Text style={styles.editChipText}>{notificationEmail ? 'Edit' : 'Add'}</Text>
-            </TouchableOpacity>
-          </View>
-          {editingEmail && (
-            <View style={styles.inlineEdit}>
-              {IS_WEB ? (
-                <input type="email" value={emailInput} placeholder="your@email.com"
-                  onChange={(e: any) => setEmailInput(e.target.value)}
-                  style={{ flex: 1, padding: '10px 12px', fontSize: '14px', border: '1.5px solid #DBDADE', borderRadius: '8px', outline: 'none', fontFamily: 'Inter' } as any}
-                  autoFocus />
-              ) : (
-                <TextInput style={styles.inlineInput} value={emailInput} onChangeText={setEmailInput}
-                  placeholder="your@email.com" keyboardType="email-address" autoCapitalize="none"
-                  placeholderTextColor={colors.text3} autoFocus />
-              )}
-              <TouchableOpacity style={styles.inlineSave} onPress={() => { setNotificationEmail(emailInput.trim() || null); setEditingEmail(false); }}>
-                <Text style={styles.inlineSaveText}>Save</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setEditingEmail(false)} style={{ padding: 4 }}>
-                <Ionicons name="close" size={18} color={colors.text3} />
-              </TouchableOpacity>
-            </View>
-          )}
+            <Ionicons name="chevron-forward" size={18} color={colors.text3} />
+          </TouchableOpacity>
           <View style={styles.div} />
-          {/* WhatsApp */}
-          <View style={styles.row}>
-            <View style={[styles.rowIconBox, { backgroundColor: '#EAFFF4' }]}><Ionicons name="logo-whatsapp" size={16} color="#25D366" /></View>
+          <TouchableOpacity style={styles.sRow} onPress={handleExportChecklistPDF}>
+            <View style={styles.rowIconBox}><Ionicons name="checkbox-outline" size={16} color="#7367F0" /></View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.rTitle}>WhatsApp Alerts</Text>
-              <Text style={styles.rDesc}>{whatsappPhone ?? 'Not set — add phone for WhatsApp alerts'}</Text>
+              <Text style={styles.sText}>Export Checklists as PDF</Text>
+              <Text style={styles.rDesc}>All checklists with progress and completed steps</Text>
             </View>
-            <TouchableOpacity onPress={() => { setPhoneInput(whatsappPhone ?? ''); setEditingPhone(true); }} style={styles.editChip}>
-              <Text style={styles.editChipText}>{whatsappPhone ? 'Edit' : 'Add'}</Text>
-            </TouchableOpacity>
-          </View>
-          {editingPhone && (
-            <View style={styles.inlineEdit}>
-              {IS_WEB ? (
-                <input type="tel" value={phoneInput} placeholder="+1 555 000 0000"
-                  onChange={(e: any) => setPhoneInput(e.target.value)}
-                  style={{ flex: 1, padding: '10px 12px', fontSize: '14px', border: '1.5px solid #DBDADE', borderRadius: '8px', outline: 'none', fontFamily: 'Inter' } as any}
-                  autoFocus />
-              ) : (
-                <TextInput style={styles.inlineInput} value={phoneInput} onChangeText={setPhoneInput}
-                  placeholder="+1 555 000 0000" keyboardType="phone-pad"
-                  placeholderTextColor={colors.text3} autoFocus />
-              )}
-              <TouchableOpacity style={styles.inlineSave} onPress={() => { setWhatsappPhone(phoneInput.trim() || null); setEditingPhone(false); }}>
-                <Text style={styles.inlineSaveText}>Save</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setEditingPhone(false)} style={{ padding: 4 }}>
-                <Ionicons name="close" size={18} color={colors.text3} />
-              </TouchableOpacity>
-            </View>
-          )}
-          <View style={styles.alertInfoBox}>
-            <Ionicons name="information-circle-outline" size={14} color="#0E7490" />
-            <Text style={styles.alertInfoText}>
-              Alerts sent at 180, 90, 60, 30, 14, and 7 days before expiry. Requires Supabase edge function deployment — see README.
-            </Text>
-          </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.text3} />
+          </TouchableOpacity>
         </View>
       )}
 
-      {/* ── App Lock ── */}
+            {/* ── App Lock ── */}
       <SectionLabel iconName="lock-closed-outline" label="APP LOCK" />
       <View style={styles.card}>
         <View style={styles.row}>
