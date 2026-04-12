@@ -122,7 +122,6 @@ export type MainTabParamList = {
   VisaTools: undefined;
   Timers: undefined;
   Processing: undefined;
-  Scanner: undefined;
   Settings: undefined;
   Help: undefined;
 };

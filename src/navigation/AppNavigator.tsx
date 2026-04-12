@@ -23,7 +23,6 @@ import { PaywallModal } from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
 import { ProcessingScreen } from '../screens/ProcessingScreen';
 import { FamilyScreen }     from '../screens/FamilyScreen';
-import { ScannerScreen }     from '../screens/ScannerScreen';
 import { ChecklistScreen }  from '../screens/ChecklistScreen';
 import { CounterScreen }    from '../screens/CounterScreen';
 import { VisaToolsScreen }  from '../screens/VisaToolsScreen';
@@ -47,13 +46,12 @@ const TAB_ITEMS: Array<{
   { name: 'Timers',     label: 'Timers',    active: 'timer',         inactive: 'timer-outline' },
   { name: 'VisaTools',  label: 'Visa Tools', active: 'briefcase',    inactive: 'briefcase-outline' },
   { name: 'Processing', label: 'USCIS',     active: 'time',          inactive: 'time-outline' },
-  { name: 'Scanner',    label: 'Scan',      active: 'scan',          inactive: 'scan-outline' },
   { name: 'Help',       label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
 ];
 
 const NAV_GROUPS = [
   { label: 'MAIN', items: ['Dashboard', 'Documents', 'Travel', 'Family'] },
-  { label: 'TOOLS',   items: ['Checklist', 'Timers', 'VisaTools', 'Processing', 'Scanner'] },
+  { label: 'TOOLS',   items: ['Checklist', 'Timers', 'VisaTools', 'Processing'] },
   { label: 'ACCOUNT', items: ['Settings', 'Help'] },
 ];
 
@@ -120,7 +118,8 @@ const WebSidebar: React.FC = () => {
           <View key={group.label}>
             <Text style={sidebarStyles.groupLabel}>{group.label}</Text>
             {group.items.map((name) => {
-              const item  = TAB_ITEMS.find((t) => t.name === name)!;
+              const item  = TAB_ITEMS.find((t) => t.name === name);
+              if (!item) return null;
               const active = currentRoute === name;
               return (
                 <TouchableOpacity
@@ -331,7 +330,6 @@ const MainTabs: React.FC = () => {
                 item.name === 'VisaTools'  ? VisaToolsScreen  :
                 item.name === 'Timers'     ? CounterScreen    :
                 item.name === 'Processing' ? ProcessingScreen :
-                item.name === 'Scanner'    ? ScannerScreen    :
                 item.name === 'Help'       ? HelpScreen       : SettingsScreen
               }
               options={{ tabBarLabel: item.label }}
