@@ -350,8 +350,9 @@ const MainTabs: React.FC = () => {
       useStore.setState({ showWelcomeModal: false });
     }}
     onCreateAccount={() => {
-      useStore.setState({ showWelcomeModal: false });
+      setGuestMode(false);   // ensure guest mode is off
       setOnboarded();
+      useStore.setState({ showWelcomeModal: false });
       setTimeout(() => openAuthModal('Create a free account to unlock more features'), 200);
     }}
   />

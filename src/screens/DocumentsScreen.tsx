@@ -65,14 +65,15 @@ export const DocumentsScreen: React.FC = () => {
 
   const isGuestMode      = useStore((s) => s.isGuestMode);
   const openAdd = () => {
-    if (isGuestMode || !authUser) {
-      // Guest: max 1 doc
-      if (!canAddDocument()) {
-        useStore.getState().openAuthModal('Create a free account to track up to 3 documents · or upgrade to Premium for unlimited');
-        return;
+    if (!canAddDocument()) {
+      // Guest/unauthed hit their 1-doc limit → prompt to create account
+      if (!authUser || isGuestMode) {
+        useStore.getState().openAuthModal('Create a free account to track up to 2 documents');
+      } else {
+        // Free account hit 2-doc limit → show paywall
+        openPaywall();
       }
-    } else if (!canAddDocument()) {
-      openPaywall(); return;
+      return;
     }
     resetAddFlow(); setShowAddModal(true); setAnyModalOpen(true);
   };

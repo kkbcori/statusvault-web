@@ -49,8 +49,8 @@ export const FamilyScreen: React.FC = () => {
   const dialog           = useDialog();
   const setAnyModalOpen  = useStore((s) => s.setAnyModalOpen);
 
-  const FREE_FAMILY_LIMIT = 1;   // free: 1 member
-  const FREE_DOC_LIMIT    = 1;   // free: 1 doc per member
+  const FREE_FAMILY_LIMIT = 1;   // free account: 1 family member
+  const FREE_DOC_LIMIT    = 1;   // free account: 1 doc per family member
 
   const [showAddMember,    setShowAddMember]    = useState(false);
   const [showAddDoc,       setShowAddDoc]       = useState(false);
@@ -357,8 +357,7 @@ setShowAddMember(false); setAnyModalOpen(false);
                           onPress={() => {
                             const mDocs = getMemberDocs(member);
                             if (!isPremium && mDocs.length >= FREE_DOC_LIMIT) {
-                              // Open paywall directly — don't open the doc card
-                              navigation.navigate('Main', { screen: 'Documents', params: { openPaywall: true } });
+                              useStore.getState().openPaywall();
                               return;
                             }
                             setSelectedMember(member); setShowAddDoc(true); setAnyModalOpen(true);

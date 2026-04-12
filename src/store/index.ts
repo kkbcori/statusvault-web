@@ -25,8 +25,8 @@ const GUEST_FAMILY_LIMIT = 0;       // no family in guest mode
 const FREE_DOCUMENT_LIMIT = 2;
 const FREE_FAMILY_LIMIT_STORE = 1;
 const FREE_FAMILY_DOC_LIMIT = 1;
-const FREE_CHECKLIST_LIMIT = 1;
-const FREE_COUNTER_LIMIT = 1;
+const FREE_CHECKLIST_LIMIT = 2;
+const FREE_COUNTER_LIMIT = 2;
 const PRE_AUTH_DOC_LIMIT = 1;       // kept for canAddDocument compat
 
 // ─── Checklist Instance ──────────────────────────────────────
@@ -218,29 +218,33 @@ export const useStore = create<AppStore>()(
       canAddChecklist: () => {
         const { checklists, isPremium, authUser, isGuestMode } = get();
         if (isPremium) return true;
-        if (isGuestMode || !authUser) return checklists.length < GUEST_CHECKLIST_LIMIT;
+        // Guest or not logged in: max 1
+        if (!authUser || isGuestMode) return checklists.length < GUEST_CHECKLIST_LIMIT;
+        // Free account: max 2
         return checklists.length < FREE_CHECKLIST_LIMIT;
       },
       canAddCounter: () => {
         const { counters, isPremium, authUser, isGuestMode } = get();
         if (isPremium) return true;
-        if (isGuestMode || !authUser) return counters.length < GUEST_COUNTER_LIMIT;
+        // Guest or not logged in: max 1
+        if (!authUser || isGuestMode) return counters.length < GUEST_COUNTER_LIMIT;
+        // Free account: max 2
         return counters.length < FREE_COUNTER_LIMIT;
       },
       canAddFamilyMember: () => {
         const { familyMembers, isPremium, authUser, isGuestMode } = get();
         if (isPremium) return true;
-        if (!authUser || isGuestMode) return false; // no family in guest mode
+        // Guest or not logged in: no family allowed
+        if (!authUser || isGuestMode) return false;
+        // Free account: max 1 family member
         return familyMembers.length < FREE_FAMILY_LIMIT_STORE;
       },
       canAddDocument: () => {
         const { documents, isPremium, authUser, isGuestMode } = get();
         if (isPremium) return true;
-        // Guest mode (explicitly chose guest): 1 doc limit
-        if (isGuestMode) return documents.length < GUEST_DOC_LIMIT;
-        // Not logged in yet but hasn't chosen guest: still allow 1 doc (pre-auth)
-        if (!authUser) return documents.length < GUEST_DOC_LIMIT;
-        // Free account
+        // Guest or not logged in: max 1
+        if (!authUser || isGuestMode) return documents.length < GUEST_DOC_LIMIT;
+        // Free account: max 2
         return documents.length < FREE_DOCUMENT_LIMIT;
       },
       getRemainingFreeSlots: () => {
@@ -260,7 +264,7 @@ export const useStore = create<AppStore>()(
         }
         set((s) => ({
           documents: [...s.documents, { ...doc, notificationIds }],
-          preAuthDocCount: !s.authUser ? s.preAuthDocCount + 1 : s.preAuthDocCount,
+          // preAuthDocCount deprecated — limit enforced via documents.length in canAddDocument
         }));
         scheduleSync();
         return true;
@@ -440,6 +444,10 @@ export const useStore = create<AppStore>()(
       // ─── Auth ──────────────────────────────────────────────
       signIn: async (email, password) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (!error) {
+          // Clear guest mode immediately on successful login
+          set({ isGuestMode: false });
+        }
         if (error) {
           // Translate Supabase error codes to friendly messages
           const msg = error.message.toLowerCase();
@@ -469,6 +477,7 @@ export const useStore = create<AppStore>()(
 
       signUp: async (email, password) => {
         const { data, error } = await supabase.auth.signUp({ email, password });
+        if (!error) set({ isGuestMode: false });
         if (error) return { error: error.message };
         if (data.user && !data.session) {
           // Email confirmation required
@@ -548,6 +557,10 @@ export const useStore = create<AppStore>()(
             if (!initialSyncDone) {
               initialSyncDone = true;
               try { await get().syncFromCloud(); } catch {}
+            }
+            // Clear guest mode when user signs in
+            if (event === 'SIGNED_IN') {
+              set({ isGuestMode: false });
             }
             // After any sign-in, open profile setup if not completed yet
             if (event === 'SIGNED_IN') {
