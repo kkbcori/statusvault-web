@@ -46,7 +46,6 @@ export const FamilyScreen: React.FC = () => {
   const documents        = useStore((s) => s.documents);
   const isPremium          = useStore((s) => s.isPremium);
   const canAddFamilyMember = useStore((s) => s.canAddFamilyMember);
-  const isGuestMode        = useStore((s) => s.isGuestMode);
   const dialog           = useDialog();
   const setAnyModalOpen  = useStore((s) => s.setAnyModalOpen);
 
