@@ -27,22 +27,28 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     html { height: 100%; }
     body {
       height: 100%; margin: 0; padding: 0; overflow: hidden;
-      background: #2F3349;
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      background: #0A0E1A;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     }
     #root { width: 100vw; height: 100vh; display: flex; flex-direction: row; overflow: hidden; }
-    /* Allow RNW ScrollViews to scroll */
+    /* Smooth scrolling */
     div[style*="overflow-y: scroll"], div[style*="overflow: scroll"], div[style*="overflow: auto"] {
       -webkit-overflow-scrolling: touch !important;
     }
-    /* ── Scrollbars — always visible on right side ── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #EBEBEB; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb { background: #ACAEC5; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #8588A5; }
-    * { scrollbar-width: thin; scrollbar-color: #ACAEC5 #EBEBEB; }
+    /* Premium scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(79,70,229,0.25); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(79,70,229,0.45); }
+    * { scrollbar-width: thin; scrollbar-color: rgba(79,70,229,0.25) transparent; }
+    /* Focus rings */
+    :focus-visible { outline: 2px solid rgba(79,70,229,0.5); outline-offset: 2px; border-radius: 4px; }
     :focus:not(:focus-visible) { outline: none; }
+    /* Selection */
+    ::selection { background: rgba(79,70,229,0.15); color: #0F172A; }
+    /* Smooth transitions on interactive elements */
+    button, a, [role="button"] { transition: opacity 0.15s ease, transform 0.15s ease; }
   `;
   document.head.appendChild(s);
 }

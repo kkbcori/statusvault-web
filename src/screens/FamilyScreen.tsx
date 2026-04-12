@@ -249,7 +249,7 @@ setShowAddMember(false); setAnyModalOpen(false);
               }
               setShowAddMember(true); setAnyModalOpen(true);
             }}>
-              <Ionicons name="person-add-outline" size={16} color={'#7367F0'} />
+              <Ionicons name="person-add-outline" size={16} color={'#4F46E5'} />
               <Text style={styles.addBtnRowText}>Add family member</Text>
             </TouchableOpacity>
           )}
@@ -265,7 +265,7 @@ setShowAddMember(false); setAnyModalOpen(false);
           )}
           {!isPremium && !isGuestMode && (
             <View style={styles.freePlanBanner}>
-              <Ionicons name="information-circle-outline" size={14} color="#7367F0" />
+              <Ionicons name="information-circle-outline" size={14} color="#4F46E5" />
               <Text style={styles.freePlanBannerText}>
                 Free plan: <Text style={{ fontFamily: 'Inter_700Bold' }}>1 family member</Text> · <Text style={{ fontFamily: 'Inter_700Bold' }}>2 docs</Text> per member
               </Text>
@@ -365,7 +365,7 @@ setShowAddMember(false); setAnyModalOpen(false);
                           }}
                           activeOpacity={0.8}
                         >
-                          <Ionicons name="add-circle-outline" size={15} color={'#7367F0'} />
+                          <Ionicons name="add-circle-outline" size={15} color={'#4F46E5'} />
                           <Text style={styles.addDocBtnText}>Add document</Text>
                           {!isPremium && getMemberDocs(member).length >= FREE_DOC_LIMIT && (
                             <View style={styles.lockBadge}>
@@ -384,7 +384,7 @@ setShowAddMember(false); setAnyModalOpen(false);
                           }}
                           style={styles.editMemberBtn}
                         >
-                          <Ionicons name="create-outline" size={13} color="#7367F0" />
+                          <Ionicons name="create-outline" size={13} color="#4F46E5" />
                           <Text style={styles.editMemberText}>Edit</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => handleRemoveMember(member)}>
@@ -518,10 +518,10 @@ setShowAddMember(false); setAnyModalOpen(false);
                     >
                       <Text style={{ fontSize: 18, marginRight: 10, opacity: alreadyAdded ? 0.4 : 1 }}>{t.icon}</Text>
                       <View style={{ flex: 1 }}>
-                        <Text style={[styles.templateLabel, isSelected && { color: '#7367F0' }, alreadyAdded && { color: '#ACAEC5', textDecorationLine: 'line-through' as any }]}>{t.label}</Text>
+                        <Text style={[styles.templateLabel, isSelected && { color: '#4F46E5' }, alreadyAdded && { color: '#ACAEC5', textDecorationLine: 'line-through' as any }]}>{t.label}</Text>
                         {alreadyAdded && <Text style={styles.alreadyAddedText}>✓ Already added</Text>}
                       </View>
-                      {isSelected && <Ionicons name="checkmark-circle" size={16} color={'#7367F0'} style={{ marginLeft: 'auto' as any }} />}
+                      {isSelected && <Ionicons name="checkmark-circle" size={16} color={'#4F46E5'} style={{ marginLeft: 'auto' as any }} />}
                       {alreadyAdded && !isSelected && <Ionicons name="checkmark-circle" size={16} color={'#ACAEC5'} style={{ marginLeft: 'auto' as any }} />}
                     </TouchableOpacity>
                   );
@@ -543,7 +543,7 @@ setShowAddMember(false); setAnyModalOpen(false);
                   type="date"
                   value={docExpiry}
                   onChange={(e: any) => { setDocExpiry(e.target.value); setDocExpiryError(false); }}
-                  style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: `1.5px solid ${docExpiryError ? '#EA5455' : '#DBDADE'}`, borderRadius: '8px', backgroundColor: '#F4F5FA', outline: 'none', marginBottom: '16px', boxSizing: 'border-box', fontFamily: 'Inter' } as any}
+                  style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: `1.5px solid ${docExpiryError ? '#EA5455' : '#E2E8F0'}`, borderRadius: '8px', backgroundColor: '#F4F5FA', outline: 'none', marginBottom: '16px', boxSizing: 'border-box', fontFamily: 'Inter' } as any}
                 />
               ) : (
                 <TextInput
@@ -652,27 +652,27 @@ const styles = StyleSheet.create({
   webHero:          { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xl },
   webTitle:         { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#0F172A', letterSpacing: -0.5 },
   webSub:           { ...typography.caption, color: colors.text3, marginTop: 4, maxWidth: 500 },
-  addMemberBtn:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#7367F0', paddingHorizontal: 18, paddingVertical: 10, borderRadius: radius.lg },
+  addMemberBtn:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#4F46E5', paddingHorizontal: 18, paddingVertical: 10, borderRadius: radius.lg },
   addMemberBtnText: { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#fff' },
   emptyState:       { alignItems: 'center', padding: 40, gap: 14 },
-  emptyIcon:        { width: 80, height: 80, borderRadius: 20, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
+  emptyIcon:        { width: 80, height: 80, borderRadius: 20, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   emptyTitle:       { ...typography.h2, color: colors.text1 },
   emptyDesc:        { ...typography.body, color: colors.text3, textAlign: 'center', maxWidth: 300, lineHeight: 22 },
   emptyBtn:         { width: '100%', maxWidth: 320, borderRadius: radius.lg, overflow: 'hidden' },
   emptyBtnGrad:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16 },
   emptyBtnText:     { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
   addBtnRow:        { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.screen, paddingVertical: spacing.md },
-  addBtnRowText:    { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
-  freePlanBanner:   { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#F0EEFF', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, marginBottom: 10, borderWidth: 1, borderColor: '#E0DBFF' },
+  addBtnRowText:    { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#4F46E5' },
+  freePlanBanner:   { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#EEF2FF', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, marginBottom: 10, borderWidth: 1, borderColor: '#E0DBFF' },
   freePlanBannerText:{ flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#4B4C6A' },
-  freePlanUpgrade:  { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  freePlanUpgrade:  { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#4F46E5' },
   lockBadge:        { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#FFF4E6', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: '#FFD59E' },
   lockBadgeText:    { fontSize: 9, fontFamily: 'Inter_600SemiBold', color: '#CC7A28' },
   memberGrid:       { paddingHorizontal: spacing.screen, gap: spacing.md },
   memberGridWeb:    { paddingHorizontal: 0 },
-  memberCard:       { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#DBDADE' },
+  memberCard:       { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0' },
   memberCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: spacing.lg },
-  memberAvatar:     { width: 46, height: 46, borderRadius: 12, backgroundColor: '#F4F5FA', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE' },
+  memberAvatar:     { width: 46, height: 46, borderRadius: 12, backgroundColor: '#F4F5FA', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
   memberName:       { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
   memberMeta:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 2 },
   memberRight:      { alignItems: 'flex-end', gap: 4 },
@@ -691,10 +691,10 @@ const styles = StyleSheet.create({
   daysText:         { fontSize: 11, fontFamily: 'Inter_700Bold' },
   memberActions:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: colors.borderLight },
   addDocBtn:        { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  addDocBtnText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  addDocBtnText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#4F46E5' },
   removeText:       { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.danger },
   editMemberBtn:    { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  editMemberText:   { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#7367F0' },
+  editMemberText:   { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#4F46E5' },
   overlay:          { flex: 1, backgroundColor: 'rgba(17,24,39,0.55)', alignItems: 'center', justifyContent: 'center', padding: 20 },
   modal:            { backgroundColor: colors.card, borderRadius: 16, width: '100%', maxWidth: 480, maxHeight: '88%' as any, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', ...shadows.lg } as any,
   modalHeader:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.xl, paddingBottom: 0 },
@@ -705,19 +705,19 @@ const styles = StyleSheet.create({
   fieldInputError:  { borderColor: '#EA5455', borderWidth: 1.5 },
   inlineError:      { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4, marginBottom: 4 },
   inlineErrorText:  { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#EA5455' },
-  fieldInput:       { backgroundColor: '#F4F5FA', borderRadius: radius.md, borderWidth: 1.5, borderColor: '#DBDADE', padding: 12, fontSize: 14, fontFamily: 'Inter_400Regular', color: colors.text1, marginBottom: spacing.md },
+  fieldInput:       { backgroundColor: '#F4F5FA', borderRadius: radius.md, borderWidth: 1.5, borderColor: '#E2E8F0', padding: 12, fontSize: 14, fontFamily: 'Inter_400Regular', color: colors.text1, marginBottom: spacing.md },
   chipRow:          { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: spacing.md },
-  relChip:          { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE' },
-  relChipActive:    { backgroundColor: '#F0EEFF', borderColor: '#7367F0' },
+  relChip:          { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#E2E8F0' },
+  relChipActive:    { backgroundColor: '#EEF2FF', borderColor: '#4F46E5' },
   relChipIcon:      { fontSize: 13 },
   relChipText:      { fontSize: 11, fontFamily: 'Inter_500Medium', color: colors.text2 },
-  relChipTextActive:{ color: '#7367F0', fontFamily: 'Inter_700Bold' },
-  visaChip:         { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE' },
+  relChipTextActive:{ color: '#4F46E5', fontFamily: 'Inter_700Bold' },
+  visaChip:         { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#E2E8F0' },
   visaGrid:         { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: spacing.md } as any,
-  visaGridChip:     { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE' },
-  docTypeList:      { borderRadius: 8, borderWidth: 1, borderColor: '#DBDADE', height: 260, marginBottom: spacing.md },
+  visaGridChip:     { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#E2E8F0' },
+  docTypeList:      { borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0', height: 260, marginBottom: spacing.md },
   templateRow:      { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
-  templateRowActive:{ backgroundColor: '#F0EEFF' },
+  templateRowActive:{ backgroundColor: '#EEF2FF' },
   templateRowAdded: { backgroundColor: '#F9FAFB', opacity: 0.7 },
   alreadyAddedText: { fontSize: 10, fontFamily: 'Inter_400Regular', color: '#28C76F', marginTop: 1 },
   templateLabel:    { fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.text1, flex: 1 },

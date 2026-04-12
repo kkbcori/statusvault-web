@@ -38,44 +38,47 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, icon, iconBg, iconColor, trend, onPress }) => (
-  <TouchableOpacity style={statStyles.card} onPress={onPress} activeOpacity={onPress ? 0.8 : 1}>
+  <TouchableOpacity style={statStyles.card} onPress={onPress} activeOpacity={onPress ? 0.85 : 1}>
+    {/* Top accent line — colored per card */}
+    <View style={[statStyles.accentLine, { backgroundColor: iconColor }]} />
     <View style={statStyles.inner}>
       <View style={statStyles.left}>
         <Text style={statStyles.label}>{label}</Text>
         <Text style={statStyles.value}>{value}</Text>
         {trend ? (
           <View style={statStyles.trendRow}>
-            <Ionicons
-              name={trend.up ? 'trending-up' : 'trending-down'}
-              size={13}
-              color={trend.up ? colors.success : colors.danger}
-            />
-            <Text style={[statStyles.trendText, { color: trend.up ? colors.success : colors.danger }]}>
+            <Ionicons name={trend.up ? 'trending-up' : 'trending-down'} size={13}
+              color={trend.up ? '#059669' : '#DC2626'} />
+            <Text style={[statStyles.trendText, { color: trend.up ? '#059669' : '#DC2626' }]}>
               {trend.value}
             </Text>
-            <Text style={statStyles.subtitleText}>{subtitle}</Text>
           </View>
         ) : (
           <Text style={statStyles.subtitleText}>{subtitle}</Text>
         )}
       </View>
-      <View style={[statStyles.iconBox, { backgroundColor: iconBg }]}>
-        <Ionicons name={icon as any} size={24} color={iconColor} />
-      </View>
+      {/* Icon with gradient-style box */}
+      <LinearGradient
+        colors={[iconBg, iconBg + 'CC']}
+        style={statStyles.iconBox}
+      >
+        <Ionicons name={icon as any} size={22} color={iconColor} />
+      </LinearGradient>
     </View>
   </TouchableOpacity>
 );
 
 const statStyles = StyleSheet.create({
-  card:       { flex: 1, minWidth: IS_WEB ? 180 : '100%', backgroundColor: '#FFFFFF', borderRadius: 12, padding: 20, ...(Platform.OS === 'web' ? { boxShadow: '0 2px 6px rgba(47,43,61,0.08)' } : shadows.sm) } as any,
-  inner:      { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
-  left:       { flex: 1, gap: 4 },
-  label:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#8588A5' },
-  value:      { fontSize: 26, fontFamily: 'Inter_700Bold', color: '#2F3349', letterSpacing: -0.5, marginTop: 2 },
-  trendRow:   { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
-  trendText:  { fontSize: 12, fontFamily: 'Inter_600SemiBold' },
-  subtitleText:{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5' },
-  iconBox:    { width: 46, height: 46, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  card:        { flex: 1, minWidth: IS_WEB ? 180 : '100%', backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, overflow: 'hidden', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(15,23,42,0.04)' } : shadows.md) } as any,
+  accentLine:  { position: 'absolute' as any, top: 0, left: 0, right: 0, height: 3, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
+  inner:       { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 4 },
+  left:        { flex: 1, gap: 4 },
+  label:       { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#94A3B8', letterSpacing: 0.4, textTransform: 'uppercase' as any },
+  value:       { fontSize: 32, fontFamily: 'Inter_800ExtraBold', color: '#0F172A', letterSpacing: -1, lineHeight: 38 },
+  trendRow:    { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  trendText:   { fontSize: 12, fontFamily: 'Inter_600SemiBold' },
+  subtitleText:{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 2 },
+  iconBox:     { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
 });
 
 // ─── Section Card ─────────────────────────────────────────────
@@ -94,10 +97,10 @@ const CardHeader: React.FC<{ title: string; subtitle?: string; right?: React.Rea
 );
 
 const cardStyles = StyleSheet.create({
-  card:     { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 20, ...(Platform.OS === 'web' ? { boxShadow: '0 2px 6px rgba(47,43,61,0.08)' } : shadows.sm) } as any,
+  card:     { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(15,23,42,0.04)' } : shadows.md) } as any,
   header:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 },
-  title:    { fontSize: 16, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
-  subtitle: { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5', marginTop: 2 },
+  title:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A' },
+  subtitle: { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 2 },
 });
 
 // ─── Badge / Chip ─────────────────────────────────────────────
@@ -234,7 +237,7 @@ export const DashboardScreen: React.FC = () => {
     >
       {/* ── Mobile header ── */}
       {!IS_WEB && (
-        <LinearGradient colors={['#7367F0', '#9E95F5']} style={styles.mobileHeader}>
+        <LinearGradient colors={['#0A0E1A', '#1E1B4B', '#312E81']} style={styles.mobileHeader}>
           <Text style={styles.mobileTitle}>StatusVault</Text>
           <Text style={styles.mobileSub}>Your Status Dashboard</Text>
         </LinearGradient>
@@ -311,8 +314,8 @@ export const DashboardScreen: React.FC = () => {
           value={documents.length}
           subtitle={`of ${isPremium ? '∞' : FREE_LIMIT} total`}
           icon="document-text"
-          iconBg="#F0EEFF"
-          iconColor="#7367F0"
+          iconBg="#EEF2FF"
+          iconColor="#4F46E5"
           onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
         />
         <StatCard
@@ -322,8 +325,8 @@ export const DashboardScreen: React.FC = () => {
             ? (mostCritical.daysRemaining < 0 ? 'EXPIRED' : mostCritical.label)
             : 'All documents safe'}
           icon="time-outline"
-          iconBg={mostCritical && mostCritical.daysRemaining <= 30 ? '#FFEEEE' : '#EAFFF4'}
-          iconColor={mostCritical && mostCritical.daysRemaining <= 30 ? '#EA5455' : '#28C76F'}
+          iconBg={mostCritical && mostCritical.daysRemaining <= 30 ? '#FEF2F2' : '#ECFDF5'}
+          iconColor={mostCritical && mostCritical.daysRemaining <= 30 ? '#DC2626' : '#059669'}
           trend={mostCritical && mostCritical.daysRemaining < 0
             ? { value: 'Action needed', up: false }
             : undefined}
@@ -334,8 +337,8 @@ export const DashboardScreen: React.FC = () => {
           value={expiringSoon.length}
           subtitle={expiringSoon.length > 0 ? 'within 90 days' : 'None in 90 days'}
           icon="alert-circle-outline"
-          iconBg={expiringSoon.length > 0 ? '#FFF4E6' : '#EAFFF4'}
-          iconColor={expiringSoon.length > 0 ? '#FF9F43' : '#28C76F'}
+          iconBg={expiringSoon.length > 0 ? '#FFFBEB' : '#ECFDF5'}
+          iconColor={expiringSoon.length > 0 ? '#D97706' : '#059669'}
           onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
         />
         <StatCard
@@ -389,7 +392,7 @@ export const DashboardScreen: React.FC = () => {
             right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />}
           />
           {[
-            { label: 'Expired',        count: expired.length,                                                                   color: '#EA5455', bg: '#FFEEEE' },
+            { label: '🔴 Expired',     count: expired.length,                                                                   color: '#EA5455', bg: '#FFEEEE' },
             { label: 'Critical (<30d)',  count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining < 30).length,   color: '#EA5455', bg: '#FFEEEE' },
             { label: 'High (30–60d)',    count: deadlines.filter((d) => d.daysRemaining >= 30 && d.daysRemaining < 60).length,  color: '#FF9F43', bg: '#FFF4E6' },
             { label: 'Medium (60–180d)', count: deadlines.filter((d) => d.daysRemaining >= 60 && d.daysRemaining < 180).length, color: '#7367F0', bg: '#F0EEFF' },
@@ -673,7 +676,7 @@ export const DashboardScreen: React.FC = () => {
 
 // ─── Styles ────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container:     { flex: 1, backgroundColor: '#F4F5FA' },
+  container:     { flex: 1, backgroundColor: '#F0F4FF' },
   content:       { paddingBottom: 32 },
   contentWeb:    { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 48 },
 
@@ -684,19 +687,19 @@ const styles = StyleSheet.create({
 
   verifiedBanner:      { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#EAFFF4', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, marginBottom: 12, borderWidth: 1, borderColor: '#A3F0C4' },
   verifiedBannerText:  { flex: 1, fontSize: 13, fontFamily: 'Inter_400Regular', color: '#065F46' },
-  guestBanner:         { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F0EEFF', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, marginBottom: 12, borderWidth: 1, borderColor: '#DDD6FE' },
-  guestBannerText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#4B4C6A', lineHeight: 17 },
-  guestBannerBtn:      { backgroundColor: '#7367F0', borderRadius: 7, paddingHorizontal: 12, paddingVertical: 6 },
+  guestBanner:         { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#EEF2FF', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 12, borderWidth: 1, borderColor: '#C7D2FE' },
+  guestBannerText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#3730A3', lineHeight: 17 },
+  guestBannerBtn:      { backgroundColor: '#4F46E5', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
   guestBannerBtnTxt:   { fontSize: 11, fontFamily: 'Inter_700Bold', color: '#fff' },
   // Top banner (replaces page header)
   topBanner:           { marginBottom: 16 },
-  topBannerSetup:      { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#DBDADE', borderLeftWidth: 3, borderLeftColor: '#7367F0' } as any,
-  topBannerIcon:       { width: 34, height: 34, borderRadius: 8, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center' },
-  topBannerTitle:      { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
-  topBannerSub:        { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#8588A5', marginTop: 1 },
-  topBannerBtn:        { backgroundColor: '#7367F0', borderRadius: 7, paddingHorizontal: 14, paddingVertical: 7 },
+  topBannerSetup:      { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14, borderWidth: 1, borderColor: '#E2E8F0', borderLeftWidth: 4, borderLeftColor: '#4F46E5', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.05)' } : {}) } as any,
+  topBannerIcon:       { width: 38, height: 38, borderRadius: 10, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#C7D2FE' },
+  topBannerTitle:      { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#0F172A' },
+  topBannerSub:        { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 1 },
+  topBannerBtn:        { backgroundColor: '#4F46E5', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8 },
   topBannerBtnText:    { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#fff' },
-  topBannerProfile:    { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: '#DBDADE', borderLeftWidth: 3, borderLeftColor: '#28C76F' } as any,
+  topBannerProfile:    { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFFFFF', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#E2E8F0', borderLeftWidth: 4, borderLeftColor: '#059669', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.05)' } : {}) } as any,
   topBannerProfileLabel:{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#2F3349', flex: 1 },
   topBannerEditBtn:    { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA' },
   topBannerEditText:   { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#8588A5' },
@@ -705,10 +708,10 @@ const styles = StyleSheet.create({
   statRow:       { flexDirection: IS_WEB ? 'row' as any : 'column' as any, gap: 16, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : 16, marginTop: IS_WEB ? 0 : 16 },
 
   // Free strip
-  freeStrip:     { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 10, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : 16, borderWidth: 1, borderColor: '#DBDADE', ...(Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(47,43,61,0.05)' } : {}) } as any,
+  freeStrip:     { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 11, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : 16, borderWidth: 1, borderColor: '#E2E8F0', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(15,23,42,0.04)' } : {}) } as any,
   freeStripDots: { flexDirection: 'row', gap: 4 },
   freeStripDot:  { width: 10, height: 10, borderRadius: 5 },
-  freeStripText: { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: '#4B4C6A' },
+  freeStripText: { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: '#334155' },
   freeStripBadge:{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
   freeStripBadgeText:{ fontSize: 11, fontFamily: 'Inter_700Bold' },
 
@@ -721,19 +724,19 @@ const styles = StyleSheet.create({
 
   // View all button
   viewAllBtn:    { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  viewAllText:   { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#7367F0' },
+  viewAllText:   { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#4F46E5' },
 
   // Empty state
   emptyState:    { alignItems: 'center', paddingVertical: 32, gap: 8 },
-  emptyIconWrap: { width: 64, height: 64, borderRadius: 16, backgroundColor: '#F4F5FA', alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
-  emptyTitle:    { fontSize: 15, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
-  emptyDesc:     { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#8588A5', textAlign: 'center', maxWidth: 280, lineHeight: 20 },
-  emptyBtn:      { backgroundColor: '#7367F0', borderRadius: 8, paddingHorizontal: 20, paddingVertical: 10, marginTop: 4 },
+  emptyIconWrap: { width: 64, height: 64, borderRadius: 18, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', marginBottom: 4, borderWidth: 1, borderColor: '#C7D2FE' },
+  emptyTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A' },
+  emptyDesc:     { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#64748B', textAlign: 'center', maxWidth: 280, lineHeight: 20 },
+  emptyBtn:      { backgroundColor: '#4F46E5', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginTop: 4 },
   emptyBtnText:  { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#fff' },
 
   // Deadline list
   deadlineList:  { gap: 0 },
-  deadlineRow:   { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
+  deadlineRow:   { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   deadlineStrip: { width: 3, height: 36, borderRadius: 2 },
   deadlineIcon:  { fontSize: 20 },
   deadlineInfo:  { flex: 1 },
@@ -742,9 +745,9 @@ const styles = StyleSheet.create({
 
   // Profile setup card
   profileSetupBody:   { alignItems: 'center', gap: 12, paddingBottom: 4 },
-  profileSetupIconWrap:{ width: 64, height: 64, borderRadius: 16, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center' },
+  profileSetupIconWrap:{ width: 64, height: 64, borderRadius: 18, backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE', alignItems: 'center', justifyContent: 'center' },
   profileSetupDesc:   { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#8588A5', textAlign: 'center', lineHeight: 20, maxWidth: 240 },
-  profileSetupBtn:    { backgroundColor: '#7367F0', borderRadius: 8, paddingHorizontal: 20, paddingVertical: 10, width: '100%' as any },
+  profileSetupBtn:    { backgroundColor: '#4F46E5', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 12, width: '100%' as any },
   profileSetupBtnText:{ fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#fff', textAlign: 'center' },
 
   // Profile edit row
@@ -795,12 +798,12 @@ const styles = StyleSheet.create({
   // Modal
   overlay:        { flex: 1, backgroundColor: 'rgba(47,51,73,0.60)', alignItems: 'center', justifyContent: 'center', padding: 20 },
   modal:          { backgroundColor: '#FFFFFF', borderRadius: 16, width: '100%', maxWidth: 480, maxHeight: '85%' as any, overflow: 'hidden', ...(Platform.OS === 'web' ? { boxShadow: '0 16px 40px rgba(47,43,61,0.20)' } : {}) } as any,
-  modalTopBar:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
+  modalTopBar:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   modalBack:      { fontSize: 14, fontFamily: 'Inter_500Medium', color: '#7367F0' },
   modalTitle:     { fontSize: 15, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
 
   // Visa select list
-  visaRow:        { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
+  visaRow:        { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   visaRowActive:  { backgroundColor: '#FAFAFE' },
   visaIconBox:    { width: 44, height: 44, borderRadius: 10, backgroundColor: '#F4F5FA', alignItems: 'center', justifyContent: 'center' },
   visaLabel:      { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
@@ -809,7 +812,7 @@ const styles = StyleSheet.create({
   // Doc confirm list
   docHint:        { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: '#FFF4E6', margin: 16, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#FFD59E' },
   docHintText:    { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#92400E', lineHeight: 18 },
-  docRow:         { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
+  docRow:         { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   docCheck:       { width: 20, height: 20, borderRadius: 6, borderWidth: 2, borderColor: '#DBDADE', alignItems: 'center', justifyContent: 'center' },
   docCheckActive: { backgroundColor: '#7367F0', borderColor: '#7367F0' },
   docLabel:       { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#2F3349' },

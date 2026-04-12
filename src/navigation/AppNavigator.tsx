@@ -132,7 +132,7 @@ const WebSidebar: React.FC = () => {
                   <Ionicons
                     name={active ? item.active : item.inactive}
                     size={16}
-                    color={active ? '#7367F0' : 'rgba(225,222,245,0.55)'}
+                    color={active ? '#4F46E5' : 'rgba(225,222,245,0.55)'}
                     style={sidebarStyles.navIcon}
                   />
                   <Text style={[sidebarStyles.navLabel, active && sidebarStyles.navLabelActive]}>
@@ -394,48 +394,48 @@ const layoutStyles = StyleSheet.create({
 });
 
 const sidebarStyles = StyleSheet.create({
-  container:     { backgroundColor: '#2F3349', borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.06)', flexDirection: 'column', position: 'relative' as any },
+  container:     { backgroundColor: '#0A0E1A', borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.05)', flexDirection: 'column', position: 'relative' as any },
   resizeHandle:  { position: 'absolute' as any, top: 0, right: -4, bottom: 0, width: 8, cursor: 'col-resize' as any, alignItems: 'center', justifyContent: 'center', zIndex: 10 } as any,
-  resizeBar:     { width: 1, height: 32, borderRadius: 1, backgroundColor: 'rgba(255,255,255,0.08)' } as any,
-  logoRow:       { paddingHorizontal: 22, paddingTop: 22, paddingBottom: 22, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
+  resizeBar:     { width: 1, height: 32, borderRadius: 1, backgroundColor: 'rgba(255,255,255,0.06)' } as any,
+  logoRow:       { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   logoImg:       { width: 148, height: 42 } as any,
-  nav:           { flex: 1, paddingHorizontal: 12, paddingTop: 10, overflowY: 'auto' as any },
-  groupLabel:    { fontSize: 10, fontFamily: 'Inter_500Medium', color: 'rgba(225,222,245,0.30)', letterSpacing: 1.2, paddingLeft: 8, paddingTop: 20, paddingBottom: 6, textTransform: 'uppercase' as any },
-  navItem:       { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 9, borderRadius: 8, marginBottom: 2 },
-  navItemActive: { backgroundColor: 'rgba(115,103,240,0.16)' },
+  nav:           { flex: 1, paddingHorizontal: 10, paddingTop: 12, overflowY: 'auto' as any },
+  groupLabel:    { fontSize: 9, fontFamily: 'Inter_600SemiBold', color: 'rgba(148,163,184,0.40)', letterSpacing: 1.5, paddingLeft: 10, paddingTop: 20, paddingBottom: 6, textTransform: 'uppercase' as any },
+  navItem:       { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 9, borderRadius: 10, marginBottom: 1 },
+  navItemActive: { backgroundColor: 'rgba(79,70,229,0.18)', borderLeftWidth: 2, borderLeftColor: '#818CF8' } as any,
   navIcon:       { marginRight: 10 },
-  navLabel:      { fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(225,222,245,0.55)', lineHeight: 20 },
-  navLabelActive:{ color: '#7367F0', fontFamily: 'Inter_600SemiBold' },
-  upgradeRow:    { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 10, marginBottom: 8, backgroundColor: 'rgba(115,103,240,0.14)', borderWidth: 1, borderColor: 'rgba(115,103,240,0.22)', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
-  upgradeRowIcon:{ width: 26, height: 26, borderRadius: 7, backgroundColor: 'rgba(115,103,240,0.22)', alignItems: 'center', justifyContent: 'center' },
-  upgradeRowTitle:{ fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#9E95F5' },
-  upgradeRowSub: { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(225,222,245,0.40)', marginTop: 1 },
-  profileCard:   { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 10, marginBottom: 10, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
-  profileAvatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#7367F0', alignItems: 'center', justifyContent: 'center' },
-  profileInitial:{ fontSize: 12, fontFamily: 'Inter_700Bold', color: '#fff' },
-  profileName:   { fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(225,222,245,0.87)' },
-  profilePlan:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(225,222,245,0.45)', marginTop: 1 },
-  bottom:        { paddingHorizontal: 10, paddingBottom: 8, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' },
-  syncRow:       { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 8, paddingLeft: 2 },
+  navLabel:      { fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.55)', lineHeight: 20 },
+  navLabelActive:{ color: '#A5B4FC', fontFamily: 'Inter_600SemiBold' },
+  upgradeRow:    { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 8, marginBottom: 8, backgroundColor: 'rgba(79,70,229,0.12)', borderWidth: 1, borderColor: 'rgba(79,70,229,0.25)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 11 },
+  upgradeRowIcon:{ width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(79,70,229,0.20)', alignItems: 'center', justifyContent: 'center' },
+  upgradeRowTitle:{ fontSize: 12, fontFamily: 'Inter_700Bold', color: '#A5B4FC' },
+  upgradeRowSub: { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(165,180,252,0.50)', marginTop: 1 },
+  profileCard:   { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 8, marginBottom: 10, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 },
+  profileAvatar: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#4F46E5', alignItems: 'center', justifyContent: 'center' },
+  profileInitial:{ fontSize: 13, fontFamily: 'Inter_700Bold', color: '#fff' },
+  profileName:   { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: 'rgba(248,250,252,0.90)' },
+  profilePlan:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.40)', marginTop: 1 },
+  bottom:        { paddingHorizontal: 8, paddingBottom: 8, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
+  syncRow:       { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 8, paddingLeft: 4 },
   syncDot:       { width: 5, height: 5, borderRadius: 3 },
-  syncText:      { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(225,222,245,0.30)' },
+  syncText:      { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(148,163,184,0.35)' },
 });
 
 const topBarStyles = StyleSheet.create({
-  container: { height: 56, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#DBDADE', paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' } as any,
+  container: { height: 56, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E2E8F0', paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' } as any,
   left:      { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  breadcrumb:{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5' },
-  sep:       { fontSize: 12, color: '#ACAEC5', marginHorizontal: 4 },
-  title:     { fontSize: 15, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
+  breadcrumb:{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#94A3B8' },
+  sep:       { fontSize: 12, color: '#CBD5E1', marginHorizontal: 4 },
+  title:     { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A' },
   right:     { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  pulsePill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#EAFFF4', borderWidth: 1, borderColor: '#A3F0C4', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
-  pulsePillSyncing: { backgroundColor: '#FFF4E6', borderColor: '#FFD59E' },
+  pulsePill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#6EE7B7', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
+  pulsePillSyncing: { backgroundColor: '#FFFBEB', borderColor: '#FCD34D' },
   pulseDot:  { width: 6, height: 6, borderRadius: 3 },
-  pulseText: { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#1E9954' },
-  pulseTextSyncing: { color: '#CC7A28' },
-  avatarBtn: { width: 34, height: 34, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#DBDADE', borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  pulseText: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#059669' },
+  pulseTextSyncing: { color: '#D97706' },
+  avatarBtn: { width: 34, height: 34, backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE', borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
 });
 
 const mobileStyles = StyleSheet.create({
-  activeWrap: { width: 36, height: 36, borderRadius: 10, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center' },
+  activeWrap: { width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(79,70,229,0.12)', alignItems: 'center', justifyContent: 'center' },
 });
