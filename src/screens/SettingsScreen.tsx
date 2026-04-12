@@ -163,9 +163,8 @@ export const SettingsScreen: React.FC = () => {
         <View style={styles.infoBox2}>
           <Ionicons name="shield-checkmark-outline" size={16} color="#7367F0" />
           <Text style={styles.infoBox2Text}>
-            <Text style={{ fontFamily: 'Inter_600SemiBold' }}>100% Private · On Your Device</Text>
-            {'
-'}Your data never leaves your device. To use on another device, export a JSON file and import it there.
+            <Text style={{ fontFamily: 'Inter_600SemiBold' }}>100% Private · On Your Device{'\n'}</Text>
+            {'Your data never leaves your device. To use on another device, export a JSON file and import it there.'}
           </Text>
         </View>
         <View style={styles.div} />

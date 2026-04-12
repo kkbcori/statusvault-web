@@ -722,6 +722,7 @@ export const useStore = create<AppStore>()(
         immigrationProfile: s.immigrationProfile,
         notificationEmail: s.notificationEmail,
         whatsappPhone: s.whatsappPhone,
+        preAuthDocCount: s.preAuthDocCount,
       }),
     }
   )
