@@ -20,7 +20,6 @@ export const ChecklistScreen: React.FC = () => {
   const addChecklist       = useStore((s) => s.addChecklist);
   const isPremium          = useStore((s) => s.isPremium);
   const isGuestMode        = useStore((s) => s.isGuestMode);
-  const CHECKLIST_LIMIT    = (!authUser2 || isGuestMode) ? 1 : 1;  // same limit for both
   const removeChecklist    = useStore((s) => s.removeChecklist);
   const toggleChecklistItem= useStore((s) => s.toggleChecklistItem);
 
