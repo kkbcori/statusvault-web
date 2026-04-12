@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
   premPeriod:      { fontSize: 16, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.4)', marginLeft: 4 },
   premBtn:         { width: '100%', borderRadius: radius.md, overflow: 'hidden' },
   premBtnGrad:     { paddingVertical: 14, alignItems: 'center', borderRadius: radius.md },
-  premBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#4F46E5' },
+  premBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF' },
   legalText:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, lineHeight: 20 },
   version:         { ...typography.caption, color: colors.text3, textAlign: 'center', marginTop: spacing.xxl, lineHeight: 20, fontSize: 12 },
   importOverlay:   { flex: 1, backgroundColor: colors.overlay, justifyContent: 'center', alignItems: 'center', padding: 24 },

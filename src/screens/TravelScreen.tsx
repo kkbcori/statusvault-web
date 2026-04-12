@@ -566,5 +566,5 @@ const styles = StyleSheet.create({
   durationText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
   saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 20 },
   saveBtnGrad:     { paddingVertical: 16, alignItems: 'center', borderRadius: radius.md },
-  saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#7367F0' },
+  saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF' },
 });
