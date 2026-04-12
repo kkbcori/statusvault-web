@@ -535,7 +535,7 @@ export const DashboardScreen: React.FC = () => {
                 style={{ flex: 1 }}
                 data={VISA_PROFILES}
                 keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={true}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={[styles.visaRow, selectedVisa === item.id && styles.visaRowActive]}
@@ -558,7 +558,7 @@ export const DashboardScreen: React.FC = () => {
                 style={{ flex: 1 }}
                 data={[...DOCUMENT_TEMPLATES.filter((t) => selectedDocIds.includes(t.id)), { id: '__add__', label: '+ Add custom document', icon: '➕', category: 'other', alertDays: [], description: '' } as any]}
                 keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={true}
                 ListHeaderComponent={
                   <View style={styles.docHint}>
                     <Ionicons name="information-circle-outline" size={14} color="#FF9F43" />

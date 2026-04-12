@@ -83,7 +83,7 @@ const SECTIONS: ToolSection[] = [
 ];
 
 export const VisaToolsScreen: React.FC = () => (
-  <ScrollView style={s.container} contentContainerStyle={[s.content, IS_WEB && s.contentWeb]} showsVerticalScrollIndicator={false}>
+  <ScrollView style={s.container} contentContainerStyle={[s.content, IS_WEB && s.contentWeb]} showsVerticalScrollIndicator={true}>
     {/* Header */}
     <View style={s.header}>
       <View style={s.headerIcon}>

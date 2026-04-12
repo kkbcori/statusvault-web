@@ -163,7 +163,7 @@ export const AuthScreen: React.FC = () => {
         style={styles.container}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
       >
         {/* Header */}
         <LinearGradient colors={[colors.primary, colors.primaryMid]} style={styles.header}>

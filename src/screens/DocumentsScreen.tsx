@@ -228,7 +228,7 @@ export const DocumentsScreen: React.FC = () => {
               <FlatList style={{ flex: 1 }}
                 data={Object.entries(templatesByCategory)}
                 keyExtractor={([c]) => c}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={true}
                 renderItem={({ item: [category, templates] }) => {
                   if (templates.length === 0) return null;
                   return (
@@ -261,7 +261,7 @@ export const DocumentsScreen: React.FC = () => {
             )}
 
             {(addStep === 'date' && selectedTemplate) || (editingDoc && addStep === 'date') ? (
-              <ScrollView style={styles.dateStep} showsVerticalScrollIndicator={false}>
+              <ScrollView style={styles.dateStep} showsVerticalScrollIndicator={true}>
                 <View style={styles.selectedSummary}>
                   <Text style={styles.selectedIcon}>{selectedTemplate?.icon ?? editingDoc?.icon ?? '📄'}</Text>
                   <View>

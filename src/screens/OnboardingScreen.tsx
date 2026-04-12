@@ -36,7 +36,7 @@ export const OnboardingScreen: React.FC = () => {
 
   return (
     <LinearGradient colors={['#1A1F3C', '#2F3349', '#1A1F3C']} style={s.root}>
-      <ScrollView contentContainerStyle={[s.scroll, IS_WEB && s.scrollWeb]} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[s.scroll, IS_WEB && s.scrollWeb]} showsVerticalScrollIndicator={true}>
 
         {/* Logo */}
         <View style={s.logoWrap}>

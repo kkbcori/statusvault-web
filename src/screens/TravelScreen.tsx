@@ -369,7 +369,7 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.modalBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <View style={styles.modalBody}>
 
               {/* Dates */}
               <DateField label="Departure Date" value={departure} onPress={() => setActivePicker('departure')} onChange={setDeparture} />
@@ -401,7 +401,7 @@ export const TravelScreen: React.FC = () => {
               />
 
               {/* Port of Entry */}
-              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Port of Entry (on return)</Text>
+              <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Port of Entry (on return)</Text>
               <TextInput
                 style={styles.fieldInput}
                 value={portOfEntry}
@@ -412,7 +412,7 @@ export const TravelScreen: React.FC = () => {
               />
 
               {/* Purpose */}
-              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Purpose of Trip</Text>
+              <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Purpose of Trip</Text>
               <View style={styles.purposeRow}>
                 {PURPOSES.map((p) => (
                   <TouchableOpacity
@@ -429,9 +429,9 @@ export const TravelScreen: React.FC = () => {
               </View>
 
               {/* Notes */}
-              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Notes (optional)</Text>
+              <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Notes (optional)</Text>
               <TextInput
-                style={[styles.fieldInput, { minHeight: 72, textAlignVertical: 'top' }]}
+                style={[styles.fieldInput, { minHeight: 52, textAlignVertical: 'top' }]}
                 value={notes}
                 onChangeText={setNotes}
                 placeholder="e.g., Extended family visit, work project in London"
@@ -460,7 +460,7 @@ export const TravelScreen: React.FC = () => {
                 </LinearGradient>
               </TouchableOpacity>
 
-            </ScrollView>
+            </View>
           </View>
         </View>
       </Modal>
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
 
   // Modal
   modalOverlay:    { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
-  modalSheet:      { backgroundColor: '#F4F5FA', borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '80%' as any : '92%', maxWidth: IS_WEB ? 520 : undefined, width: IS_WEB ? 520 : '100%' as any, paddingBottom: 40, overflow: 'hidden', borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column' } as any,
+  modalSheet:      { backgroundColor: '#F4F5FA', maxWidth: IS_WEB ? 520 : undefined, width: IS_WEB ? 520 : '100%' as any, paddingBottom: 20, overflow: 'hidden', borderRadius: IS_WEB ? radius.xl : 20, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column' } as any,
   modalTrim:       { height: 3, backgroundColor: '#7367F0' },
   modalHeader:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   modalCancel:     { fontSize: 14, fontFamily: 'Inter_500Medium', color: colors.text3 },
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
   purposeLabelActive:{ color: '#7367F0' },
   durationPreview: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#F0EEFF', borderRadius: radius.md, padding: 12, marginTop: 12, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   durationText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
-  saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 20 },
+  saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 12 },
   saveBtnGrad:     { paddingVertical: 16, alignItems: 'center', borderRadius: radius.md },
   saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF' },
 });

@@ -187,7 +187,7 @@ export const SettingsScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.cc} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.cc} showsVerticalScrollIndicator={true}>
 
       {/* Header */}
       <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
