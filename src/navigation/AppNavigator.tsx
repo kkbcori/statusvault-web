@@ -21,7 +21,6 @@ import { AuthModal } from '../components/AuthModal';
 import { WelcomeModal } from '../components/WelcomeModal';
 import { PaywallModal } from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
-import { ProcessingScreen } from '../screens/ProcessingScreen';
 import { FamilyScreen }     from '../screens/FamilyScreen';
 import { ChecklistScreen }  from '../screens/ChecklistScreen';
 import { CounterScreen }    from '../screens/CounterScreen';
@@ -44,14 +43,13 @@ const TAB_ITEMS: Array<{
   { name: 'Family',     label: 'Family',    active: 'people',        inactive: 'people-outline' },
   { name: 'Checklist',  label: 'Checklist', active: 'checkbox',      inactive: 'checkbox-outline' },
   { name: 'Timers',     label: 'Timers',    active: 'timer',         inactive: 'timer-outline' },
-  { name: 'VisaTools',  label: 'Visa Tools', active: 'briefcase',    inactive: 'briefcase-outline' },
-  { name: 'Processing', label: 'USCIS',     active: 'time',          inactive: 'time-outline' },
+  { name: 'VisaTools',  label: 'Links',      active: 'link',         inactive: 'link-outline' },
   { name: 'Help',       label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
 ];
 
 const NAV_GROUPS = [
   { label: 'MAIN', items: ['Dashboard', 'Documents', 'Travel', 'Family'] },
-  { label: 'TOOLS',   items: ['Checklist', 'Timers', 'VisaTools', 'Processing'] },
+  { label: 'TOOLS',   items: ['Checklist', 'Timers', 'VisaTools'] },
   { label: 'ACCOUNT', items: ['Settings', 'Help'] },
 ];
 
@@ -328,7 +326,6 @@ const MainTabs: React.FC = () => {
                 item.name === 'Checklist'  ? ChecklistScreen  :
                 item.name === 'VisaTools'  ? VisaToolsScreen  :
                 item.name === 'Timers'     ? CounterScreen    :
-                item.name === 'Processing' ? ProcessingScreen :
                 item.name === 'Help'       ? HelpScreen       : SettingsScreen
               }
               options={{ tabBarLabel: item.label }}

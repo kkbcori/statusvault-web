@@ -271,39 +271,20 @@ export const DashboardScreen: React.FC = () => {
         </TouchableOpacity>
       )}
 
-      {/* ── Web top banner — profile setup or profile chip ── */}
-      {IS_WEB && (
+      {/* ── Profile chip — only when logged in and profile set ── */}
+      {IS_WEB && authUser && !isGuestMode && visaProfile && (
         <View style={styles.topBanner}>
-          {!visaProfile ? (
+          <View style={styles.topBannerProfile}>
+            <Ionicons name="shield-checkmark" size={16} color="#059669" />
+            <Text style={styles.topBannerProfileLabel}>{profileLabel}</Text>
             <TouchableOpacity
-              style={styles.topBannerSetup}
               onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
-              activeOpacity={0.85}
+              style={styles.topBannerEditBtn}
             >
-              <View style={styles.topBannerIcon}>
-                <Ionicons name="person-circle-outline" size={18} color="#7367F0" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.topBannerTitle}>Set up your profile</Text>
-                <Text style={styles.topBannerSub}>Select your visa status to auto-populate your documents</Text>
-              </View>
-              <View style={styles.topBannerBtn}>
-                <Text style={styles.topBannerBtnText}>Get Started</Text>
-              </View>
+              <Ionicons name="create-outline" size={13} color="#64748B" />
+              <Text style={styles.topBannerEditText}>Edit</Text>
             </TouchableOpacity>
-          ) : (
-            <View style={styles.topBannerProfile}>
-              <Ionicons name="shield-checkmark" size={16} color="#28C76F" />
-              <Text style={styles.topBannerProfileLabel}>{profileLabel}</Text>
-              <TouchableOpacity
-                onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
-                style={styles.topBannerEditBtn}
-              >
-                <Ionicons name="create-outline" size={13} color="#8588A5" />
-                <Text style={styles.topBannerEditText}>Edit</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          </View>
         </View>
       )}
 
@@ -352,34 +333,7 @@ export const DashboardScreen: React.FC = () => {
         />
       </View>
 
-      {/* ═══ FREE PLAN STRIP ═══ */}
-      {!isPremium && (
-        <TouchableOpacity
-          style={styles.freeStrip}
-          onPress={() => navigation.navigate('Documents', { openPaywall: true })}
-          activeOpacity={0.8}
-        >
-          <View style={styles.freeStripDots}>
-            {Array.from({ length: FREE_LIMIT }).map((_, i) => (
-              <View key={i} style={[styles.freeStripDot, {
-                backgroundColor: i < documents.length
-                  ? (remaining === 0 ? '#EA5455' : '#7367F0')
-                  : '#DBDADE'
-              }]} />
-            ))}
-          </View>
-          <Text style={styles.freeStripText}>
-            {remaining > 0
-              ? `Free plan · ${documents.length}/${FREE_LIMIT} documents · ${remaining} slot${remaining !== 1 ? 's' : ''} remaining`
-              : 'Free limit reached — upgrade to track unlimited documents'}
-          </Text>
-          <View style={[styles.freeStripBadge, { backgroundColor: remaining === 0 ? '#FFEEEE' : '#F0EEFF' }]}>
-            <Text style={[styles.freeStripBadgeText, { color: remaining === 0 ? '#EA5455' : '#7367F0' }]}>
-              {remaining === 0 ? 'Upgrade' : 'Free'}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      )}
+
 
       {/* ═══ 4-CARD GRID ═══ */}
       <View style={[styles.cardGrid, IS_WEB && styles.cardGridWeb]}>
