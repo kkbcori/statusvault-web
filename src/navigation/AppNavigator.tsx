@@ -19,6 +19,7 @@ import { AuthScreen }    from '../screens/AuthScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { AuthModal } from '../components/AuthModal';
 import { SearchModal } from '../components/SearchModal';
+import { NotificationBell } from '../components/NotificationBell';
 import { WelcomeModal } from '../components/WelcomeModal';
 import { PaywallModal } from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
@@ -256,6 +257,7 @@ const WebTopBar: React.FC = () => {
         >
           <Ionicons name="search-outline" size={16} color={colors.text2} />
         </TouchableOpacity>
+        <NotificationBell />
         {authUser && isPremium && (
           <View style={[topBarStyles.privateBadge, isSyncing && { backgroundColor: '#FFFBEB', borderColor: '#FCD34D' }]}>
             <Ionicons name={isSyncing ? "sync-outline" : "cloud-done-outline"} size={10} color={isSyncing ? "#D97706" : "#059669"} />

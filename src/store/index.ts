@@ -153,6 +153,7 @@ interface AppStore {
   pendingProfileSetup: boolean; // true if profile modal should show when MainTabs mounts
   cloudBackupEnabled: boolean;  // premium only — auto-sync to Supabase
   setCloudBackupEnabled: (v: boolean) => void;
+  notifications: any[];             // in-app notification center items
   isGuestMode: boolean;       // true = using without account
   showWelcomeModal: boolean;  // first-visit chooser
   setGuestMode: (v: boolean) => void;
@@ -190,6 +191,7 @@ export const useStore = create<AppStore>()(
       profileSetupShown: false,
       pendingProfileSetup: false,
       cloudBackupEnabled: true,  // default on for premium
+      notifications: [],
       visaProfile: null,
       immigrationProfile: null,
       documents: [],
@@ -940,6 +942,7 @@ export const useStore = create<AppStore>()(
         isGuestMode: s.isGuestMode,
         profileSetupShown: s.profileSetupShown,
         cloudBackupEnabled: s.cloudBackupEnabled,
+        notifications: s.notifications,
       }),
     }
   )
