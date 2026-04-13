@@ -21,6 +21,7 @@ export const ChecklistScreen: React.FC = () => {
   const isPremium          = useStore((s) => s.isPremium);
   const isGuestMode        = useStore((s) => s.isGuestMode);
   const removeChecklist    = useStore((s) => s.removeChecklist);
+  const canAddChecklist    = useStore((s) => s.canAddChecklist);
   const toggleChecklistItem= useStore((s) => s.toggleChecklistItem);
 
   const [showAdd,   setShowAdd]   = useState(false);

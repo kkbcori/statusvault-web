@@ -19,7 +19,8 @@ export const CounterScreen: React.FC = () => {
   const addCounter     = useStore((s) => s.addCounter);
   const isPremium      = useStore((s) => s.isPremium);
   const isGuestMode    = useStore((s) => s.isGuestMode);
-  const removeCounter  = useStore((s) => s.removeCounter);
+  const removeCounter    = useStore((s) => s.removeCounter);
+  const canAddCounter    = useStore((s) => s.canAddCounter);
   const incrementCounter = useStore((s) => s.incrementCounter);
   const decrementCounter = useStore((s) => s.decrementCounter);
   const toggleCounterTracking = useStore((s) => s.toggleCounterTracking);

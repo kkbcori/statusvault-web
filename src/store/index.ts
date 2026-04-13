@@ -545,12 +545,11 @@ export const useStore = create<AppStore>()(
         set({
           authUser: null, lastSyncedAt: null, syncError: null,
           emailVerified: false, isGuestMode: false,
-          hasOnboarded: true, // keep so welcome modal doesn't reappear
-          showWelcomeModal: false,
+          hasOnboarded: true, showWelcomeModal: false,
         });
-        // On web, reload the page to fully clear session state
+        // Reload after a tick to let state settle
         if (typeof window !== 'undefined') {
-          window.location.reload();
+          setTimeout(() => window.location.reload(), 100);
         }
       },
 
