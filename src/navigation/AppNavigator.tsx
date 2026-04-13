@@ -301,9 +301,20 @@ const MainTabs: React.FC = () => {
   const closePaywall     = useStore((s) => s.closePaywall);
   const setPremium       = useStore((s) => s.setPremium);
   const [showProfileModal, setShowProfileModal] = React.useState(false);
-  // Register the profile modal opener in the store so any code can trigger it
+  const immigrationProfile = useStore((s) => s.immigrationProfile);
+  const profileSetupShown  = useStore((s) => s.profileSetupShown);
+
+  // Register openProfileModal in the store so any code can call it
   React.useEffect(() => {
     useStore.setState({ openProfileModal: () => setShowProfileModal(true) });
+
+    // Consume the pendingProfileSetup flag — this handles the case where
+    // initAuth processed a magic link token before MainTabs was mounted
+    const s = useStore.getState();
+    if (s.pendingProfileSetup) {
+      useStore.setState({ pendingProfileSetup: false });
+      setTimeout(() => setShowProfileModal(true), 500);
+    }
   }, []);
   return (
   <>

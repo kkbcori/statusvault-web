@@ -150,6 +150,7 @@ interface AppStore {
   emailVerified: boolean;
   preAuthDocCount: number;
   profileSetupShown: boolean;  // true after profile modal shown once
+  pendingProfileSetup: boolean; // true if profile modal should show when MainTabs mounts
   isGuestMode: boolean;       // true = using without account
   showWelcomeModal: boolean;  // first-visit chooser
   setGuestMode: (v: boolean) => void;
@@ -186,6 +187,7 @@ export const useStore = create<AppStore>()(
       _hasHydrated: false,
       hasOnboarded: false,
       profileSetupShown: false,
+      pendingProfileSetup: false,
       visaProfile: null,
       immigrationProfile: null,
       documents: [],
@@ -606,10 +608,8 @@ export const useStore = create<AppStore>()(
                 initialSyncDone = true;
                 try { await get().syncFromCloud(); } catch {}
                 // Show profile setup once after first magic link login
-                if (isFirstLogin) {
-                  setTimeout(() => {
-                    if (!get().immigrationProfile) get().openProfileModal();
-                  }, 1200);
+                if (isFirstLogin && !get().immigrationProfile) {
+                  set({ pendingProfileSetup: true });
                 }
               }
             } catch {}
@@ -622,10 +622,8 @@ export const useStore = create<AppStore>()(
           if (accessToken && (type === 'signup' || type === 'magiclink')) {
             const isFirstLoginOAuth = !get().profileSetupShown;
             set({ emailVerified: true, isGuestMode: false, hasOnboarded: true, showWelcomeModal: false, showAuthModal: false, profileSetupShown: true });
-            if (isFirstLoginOAuth) {
-              setTimeout(() => {
-                if (!get().immigrationProfile) get().openProfileModal();
-              }, 1500);
+            if (isFirstLoginOAuth && !get().immigrationProfile) {
+              set({ pendingProfileSetup: true });
             }
             setTimeout(() => {
               window.history.replaceState(null, '', window.location.pathname);
@@ -670,9 +668,9 @@ export const useStore = create<AppStore>()(
             // Only if profileSetupShown is false AND we haven't already processed a URL token
             if (event === 'SIGNED_IN' && !get().profileSetupShown) {
               set({ profileSetupShown: true });
-              setTimeout(() => {
-                if (!get().immigrationProfile) get().openProfileModal();
-              }, 1200);
+              if (!get().immigrationProfile) {
+                set({ pendingProfileSetup: true });
+              }
             }
           } else if (event === 'SIGNED_OUT') {
             set({ authUser: null, lastSyncedAt: null, syncError: null, emailVerified: false });
