@@ -548,6 +548,10 @@ export const useStore = create<AppStore>()(
           hasOnboarded: true, // keep so welcome modal doesn't reappear
           showWelcomeModal: false,
         });
+        // On web, reload the page to fully clear session state
+        if (typeof window !== 'undefined') {
+          window.location.reload();
+        }
       },
 
       deleteAccount: async () => {
