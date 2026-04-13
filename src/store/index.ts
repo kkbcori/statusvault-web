@@ -705,7 +705,7 @@ export const useStore = create<AppStore>()(
         const { data: { session } } = await supabase.auth.getSession();
         const user = session?.user;
         if (!user) return;
-        const { authUser: storeAuth, documents, checklists, counters, trips, isPremium } = get();
+        const { authUser: storeAuth, documents, checklists, counters, trips } = get();
         const email = storeAuth?.email ?? user.email ?? '';
         set({ isSyncing: true, syncError: null });
         try {
