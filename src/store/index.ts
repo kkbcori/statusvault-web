@@ -176,10 +176,18 @@ export { GUEST_CHECKLIST_LIMIT, GUEST_COUNTER_LIMIT, GUEST_FAMILY_LIMIT };
 
 // ─── Sync helper — premium + cloudBackupEnabled only ─────────
 const scheduleSync = () => {
-  const { authUser, isPremium, cloudBackupEnabled, syncToCloud } = useStore.getState();
+  const { authUser, isPremium, cloudBackupEnabled, isSyncing } = useStore.getState();
   if (authUser && isPremium && cloudBackupEnabled) {
     clearTimeout((scheduleSync as any)._t);
-    (scheduleSync as any)._t = setTimeout(() => syncToCloud(), 1500);
+    // If already syncing, wait a bit longer to avoid overlapping requests
+    const delay = isSyncing ? 3000 : 1500;
+    (scheduleSync as any)._t = setTimeout(() => {
+      // Re-read state at execution time (not closure time)
+      const s = useStore.getState();
+      if (s.authUser && s.isPremium && s.cloudBackupEnabled) {
+        s.syncToCloud();
+      }
+    }, delay);
   }
 };
 
@@ -728,11 +736,22 @@ export const useStore = create<AppStore>()(
           const { notificationEmail, whatsappPhone } = get();
           const blob = { documents, checklists, counters, trips, familyMembers, visaProfile, isPremium, notificationEmail, whatsappPhone, syncedAt: new Date().toISOString() };
           const data_encrypted = encryptData(blob, key);
-          const { error } = await supabase
+          // Try upsert first, fall back to update if upsert fails
+          let { error } = await supabase
             .from('user_data')
-            .upsert({ user_id: user.id, data_encrypted }, { onConflict: 'user_id' });
-          if (error) throw new Error(error.message);
-          set({ lastSyncedAt: new Date().toISOString(), isSyncing: false });
+            .upsert(
+              { user_id: user.id, data_encrypted },
+              { onConflict: 'user_id', ignoreDuplicates: false }
+            );
+          if (error) {
+            // Fallback: explicit update
+            const { error: updateError } = await supabase
+              .from('user_data')
+              .update({ data_encrypted })
+              .eq('user_id', user.id);
+            if (updateError) throw new Error(updateError.message);
+          }
+          set({ lastSyncedAt: new Date().toISOString(), isSyncing: false, syncError: null });
         } catch (e: any) {
           set({ isSyncing: false, syncError: e.message ?? 'Sync failed' });
         }

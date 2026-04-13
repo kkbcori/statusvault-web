@@ -232,6 +232,7 @@ const WebTopBar: React.FC = () => {
   const navigation   = useNavigation<any>();
   const authUser     = useStore((s) => s.authUser);
   const isSyncing    = useStore((s) => s.isSyncing);
+  const syncError    = useStore((s) => s.syncError);
   const isPremium    = useStore((s) => s.isPremium);
   const [showProfile, setShowProfile] = React.useState(false);
 
@@ -259,10 +260,21 @@ const WebTopBar: React.FC = () => {
         </TouchableOpacity>
         <NotificationBell />
         {authUser && isPremium && (
-          <View style={[topBarStyles.privateBadge, isSyncing && { backgroundColor: '#FFFBEB', borderColor: '#FCD34D' }]}>
-            <Ionicons name={isSyncing ? "sync-outline" : "cloud-done-outline"} size={10} color={isSyncing ? "#D97706" : "#059669"} />
-            <Text style={[topBarStyles.privateBadgeTxt, isSyncing && { color: '#D97706' }]}>
-              {isSyncing ? 'Syncing...' : 'Backed Up'}
+          <View style={[
+            topBarStyles.privateBadge,
+            isSyncing && { backgroundColor: '#FFFBEB', borderColor: '#FCD34D' },
+            syncError && { backgroundColor: '#FEF2F2', borderColor: '#FECACA' },
+          ]}>
+            <Ionicons
+              name={isSyncing ? "sync-outline" : syncError ? "cloud-offline-outline" : "cloud-done-outline"}
+              size={10}
+              color={isSyncing ? "#D97706" : syncError ? "#DC2626" : "#059669"}
+            />
+            <Text style={[topBarStyles.privateBadgeTxt,
+              isSyncing && { color: '#D97706' },
+              syncError && { color: '#DC2626' },
+            ]}>
+              {isSyncing ? 'Syncing...' : syncError ? 'Sync Failed' : 'Backed Up'}
             </Text>
           </View>
         )}
