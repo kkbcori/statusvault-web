@@ -211,63 +211,58 @@ export const SettingsScreen: React.FC = () => {
       {/* Header */}
       <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
         <View style={styles.header}>
-          <Text style={styles.headerLabel}>SETTINGS</Text>
-          <Text style={styles.title}>Settings</Text>
+          <View style={styles.headerIcon}>
+            <Ionicons name="settings-outline" size={20} color="#4F46E5" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerTitle}>Settings</Text>
+            <Text style={styles.headerSub}>Manage your StatusVault preferences</Text>
+          </View>
+          {authUser && (
+            <View style={[styles.badge, { backgroundColor: isPremium ? '#EEF2FF' : '#F8FAFF' }]}>
+              <Text style={[styles.badgeTxt, { color: isPremium ? '#4F46E5' : '#64748B' }]}>
+                {isPremium ? 'PRO' : 'FREE'}
+              </Text>
+            </View>
+          )}
         </View>
       </LinearGradient>
-
-      {/* Stats summary strip — replaces the hollow profile block */}
-      <View style={styles.statsStrip}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{documents.length}</Text>
-          <Text style={styles.statLabel}>Documents</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{counters.length}</Text>
-          <Text style={styles.statLabel}>Counters</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={[styles.statNumber, { color: isPremium ? '#4F46E5' : colors.text3 }]}>
-            {isPremium ? 'PRO' : 'FREE'}
-          </Text>
-          <Text style={styles.statLabel}>Plan</Text>
-        </View>
-      </View>
 
       {/* ── Notifications ── */}
       <SectionLabel iconName="notifications-outline" label="NOTIFICATIONS" />
       <View style={styles.card}>
         <View style={styles.row}>
-          <View style={styles.rowIconBox}>
-            <Ionicons name="notifications-outline" size={16} color={'#4F46E5'} />
-          </View>
+          <View style={styles.rowIconBox}><Ionicons name="notifications-outline" size={16} color="#4F46E5" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.rTitle}>Push Notifications</Text>
-            <Text style={styles.rDesc}>Banner alerts on lock screen</Text>
+            <Text style={styles.rDesc}>Alerts at 180 · 90 · 60 · 30 · 15 · 7 days before expiry</Text>
           </View>
           <Switch
-            value={notificationsEnabled} onValueChange={handleNotificationToggle}
+            value={notificationsEnabled}
+            onValueChange={handleNotificationToggle}
             trackColor={{ false: colors.border, true: '#4F46E5' + '55' }}
             thumbColor={notificationsEnabled ? '#4F46E5' : '#f4f4f4'}
           />
         </View>
-        <View style={styles.div} />
-        <TouchableOpacity style={styles.sRow} onPress={handleTestNotification}>
-          <View style={styles.rowIconBox}><Ionicons name="phone-portrait-outline" size={16} color={'#4F46E5'} /></View>
-          <Text style={styles.sText}>Send Test Notification</Text>
-          <Ionicons name="chevron-forward" size={18} color={colors.text3} />
-        </TouchableOpacity>
-        <View style={styles.div} />
-        <TouchableOpacity style={styles.sRow} onPress={async () => {
-          const c = await getScheduledCount();
-          dialog.alert('Scheduled Alerts', `${c} notification${c !== 1 ? 's' : ''} currently scheduled.`);
-        }}>
-          <View style={styles.rowIconBox}><Ionicons name="stats-chart-outline" size={16} color={'#4F46E5'} /></View>
-          <Text style={styles.sText}>View Scheduled Alerts</Text>
-          <Ionicons name="chevron-forward" size={18} color={colors.text3} />
-        </TouchableOpacity>
+        {notificationsEnabled && (
+          <>
+            <View style={styles.div} />
+            <TouchableOpacity style={styles.sRow} onPress={handleTestNotification}>
+              <View style={styles.rowIconBox}><Ionicons name="paper-plane-outline" size={16} color="#4F46E5" /></View>
+              <Text style={styles.sText}>Send Test Notification</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.text3} />
+            </TouchableOpacity>
+            <View style={styles.div} />
+            <TouchableOpacity style={styles.sRow} onPress={async () => {
+              const c = await getScheduledCount();
+              dialog.alert('Scheduled Alerts', `${c} notification${c !== 1 ? 's' : ''} currently scheduled.`);
+            }}>
+              <View style={styles.rowIconBox}><Ionicons name="stats-chart-outline" size={16} color="#4F46E5" /></View>
+              <Text style={styles.sText}>View Scheduled Alerts</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.text3} />
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
       {/* ── Cross-Device Sync via JSON ── */}
@@ -298,13 +293,13 @@ export const SettingsScreen: React.FC = () => {
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.text3} />
         </TouchableOpacity>
-
+      </View>
 
       {/* ── App Lock ── */}
       <SectionLabel iconName="lock-closed-outline" label="APP LOCK" />
       <View style={styles.card}>
         <View style={styles.row}>
-          <View style={styles.rowIconBox}><Ionicons name="keypad-outline" size={16} color={'#4F46E5'} /></View>
+          <View style={styles.rowIconBox}><Ionicons name="keypad-outline" size={16} color="#4F46E5" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.rTitle}>PIN Lock</Text>
             <Text style={styles.rDesc}>{pinEnabled ? 'PIN is enabled — app is locked on launch' : 'Protect your data with a 4-digit PIN'}</Text>
@@ -319,7 +314,7 @@ export const SettingsScreen: React.FC = () => {
           <>
             <View style={styles.div} />
             <TouchableOpacity style={styles.sRow} onPress={() => setShowPinSetup(true)}>
-              <View style={styles.rowIconBox}><Ionicons name="refresh-outline" size={16} color={'#4F46E5'} /></View>
+              <View style={styles.rowIconBox}><Ionicons name="refresh-outline" size={16} color="#4F46E5" /></View>
               <Text style={styles.sText}>Change PIN</Text>
               <Ionicons name="chevron-forward" size={18} color={colors.text3} />
             </TouchableOpacity>
@@ -364,29 +359,21 @@ export const SettingsScreen: React.FC = () => {
         </View>
       )}
 
-
-
-
-
-
-
       {/* ── Premium ── */}
       <SectionLabel iconName="star-outline" label="PREMIUM" />
       {isPremium ? (
         <View style={[styles.card, { borderWidth: 2, borderColor: '#4F46E5' }]}>
           <View style={styles.row}>
-            <View style={[styles.rowIconBox, { backgroundColor: '#EEF2FF', borderColor: 'rgba(115,103,240,0.25)' }]}>
-              <Ionicons name="star" size={16} color={'#4F46E5'} />
+            <View style={[styles.rowIconBox, { backgroundColor: '#EEF2FF' }]}>
+              <Ionicons name="star" size={16} color="#4F46E5" />
             </View>
             <Text style={[styles.rTitle, { color: '#4F46E5' }]}>Premium Active — Unlimited tracking</Text>
           </View>
         </View>
       ) : (
         <LinearGradient colors={['#030712', '#0F172A', '#1E1B4B']} style={styles.premCard}>
-          {/* Decorative orbs */}
           <View style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(79,70,229,0.12)' }} />
           <View style={{ position: 'absolute', bottom: -10, left: -10, width: 70, height: 70, borderRadius: 35, backgroundColor: 'rgba(124,58,237,0.08)' }} />
-
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
             <LinearGradient colors={['#4F46E5','#7C3AED']} style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="shield-checkmark" size={22} color="#fff" />
@@ -396,12 +383,7 @@ export const SettingsScreen: React.FC = () => {
               <Text style={styles.premTitle}>Upgrade to Premium</Text>
             </View>
           </View>
-
-          {[
-            'Unlimited docs · checklists · timers · family',
-            'PDF & JSON export for all your data',
-            'Smart alerts at 6mo · 3mo · 1mo · 7d',
-          ].map((f, i) => (
+          {['Unlimited docs · checklists · timers · family', 'PDF & JSON export for all your data', 'Smart alerts at 6mo · 3mo · 1mo · 7d'].map((f, i) => (
             <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: 'rgba(79,70,229,0.25)', alignItems: 'center', justifyContent: 'center' }}>
                 <Ionicons name="checkmark" size={11} color="#818CF8" />
@@ -409,7 +391,6 @@ export const SettingsScreen: React.FC = () => {
               <Text style={{ fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.70)' }}>{f}</Text>
             </View>
           ))}
-
           <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 14, marginBottom: 16, gap: 4 }}>
             <Text style={styles.premPrice}>{PRICE}</Text>
             <Text style={styles.premPeriod}>/year</Text>
@@ -417,9 +398,7 @@ export const SettingsScreen: React.FC = () => {
               <Text style={{ fontSize: 9, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: 0.5 }}>SAVE 85%</Text>
             </View>
           </View>
-
-          <TouchableOpacity style={styles.premBtn} onPress={() => dialog.confirm({ title: 'Coming Soon', message: 'In-app purchase available soon.', type: 'confirm',
-            confirmLabel: 'Unlock for Testing', cancelLabel: 'Cancel', onConfirm: () => setPremium(true) })}>
+          <TouchableOpacity style={styles.premBtn} onPress={() => dialog.confirm({ title: 'Coming Soon', message: 'In-app purchase available soon.', type: 'confirm', confirmLabel: 'Unlock for Testing', cancelLabel: 'Cancel', onConfirm: () => setPremium(true) })}>
             <LinearGradient colors={['#4F46E5', '#7C3AED']} style={styles.premBtnGrad} start={{ x:0, y:0 }} end={{ x:1, y:0 }}>
               <Ionicons name="star" size={14} color="#FCD34D" />
               <Text style={styles.premBtnText}>Unlock Premium — {PRICE_YEAR}</Text>
@@ -462,14 +441,14 @@ export const SettingsScreen: React.FC = () => {
       <SectionLabel iconName="warning-outline" label="DANGER ZONE" />
       <View style={[styles.card, { borderWidth: 1, borderColor: colors.dangerLight }]}>
         <TouchableOpacity style={styles.sRow} onPress={async () => {
-            const ok = typeof window !== 'undefined'
-              ? window.confirm('Reset ALL data? This permanently deletes all documents, checklists, timers, and trips. Cannot be undone.')
-              : true;
-            if (!ok) return;
-            await cancelAllNotifications();
-            resetAllData();
-          }}>
-          <View style={[styles.rowIconBox, { backgroundColor: colors.dangerLight, borderColor: colors.danger + '25' }]}>
+          const ok = typeof window !== 'undefined'
+            ? window.confirm('Reset ALL data? This permanently deletes all documents, checklists, timers, and trips. Cannot be undone.')
+            : true;
+          if (!ok) return;
+          await cancelAllNotifications();
+          resetAllData();
+        }}>
+          <View style={[styles.rowIconBox, { backgroundColor: colors.dangerLight }]}>
             <Ionicons name="trash-outline" size={16} color={colors.danger} />
           </View>
           <Text style={[styles.sText, { color: colors.danger }]}>Reset All Data</Text>
@@ -535,9 +514,11 @@ export const SettingsScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
+
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container:       { flex: 1, backgroundColor: '#F4F5FA' },
