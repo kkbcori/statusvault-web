@@ -60,7 +60,7 @@ export const WelcomeModal: React.FC<Props> = ({ visible, onGuest, onCreateAccoun
                   <Text style={s.accountTitle}>Create Free Account</Text>
                   <View style={s.recommendedBadge}><Text style={s.recommendedTxt}>RECOMMENDED</Text></View>
                 </View>
-                <Text style={s.accountDesc}>More features · sync · backup</Text>
+                <Text style={s.accountDesc}>Email login link · no password needed</Text>
                 <View style={s.chips}>
                   {['2 documents','1 family + 1 doc','1 checklist','1 timer'].map(l => (
                     <View key={l} style={s.chipWhite}><Text style={s.chipWhiteTxt}>{l}</Text></View>

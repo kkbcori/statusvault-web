@@ -127,6 +127,7 @@ interface AppStore {
   // Auth actions
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<{ error: string | null }>;
+  sendMagicLink: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   initAuth: () => Promise<void>;
 
@@ -462,7 +463,7 @@ export const useStore = create<AppStore>()(
           if (msg.includes('too many requests') || msg.includes('rate limit')) {
             return { error: 'Too many attempts. Please wait a few minutes and try again.' };
           }
-          return { error: error.message };
+          return { error: `${error.message} (${error.status ?? ''})` };
         }
         const user = data.user;
         set({
@@ -496,6 +497,20 @@ export const useStore = create<AppStore>()(
           // Upload local data to fresh account
           await get().syncToCloud();
         }
+        return { error: null };
+      },
+
+      sendMagicLink: async (email) => {
+        const redirectTo = typeof window !== 'undefined'
+          ? (window.location.hostname === 'localhost'
+              ? window.location.origin + '/statusvault-web'
+              : 'https://kkbcori.github.io/statusvault-web')
+          : 'https://kkbcori.github.io/statusvault-web';
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
+        });
+        if (error) return { error: error.message };
         return { error: null };
       },
 
