@@ -470,7 +470,11 @@ const MainTabs: React.FC = () => {
 
 export const AppNavigator: React.FC = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      documentTitle={{
+        formatter: () => 'StatusVault — Your Personal Immigration Document Expiry Tracker',
+      }}
+    >
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
         <Stack.Screen name="Main" component={MainTabs} />
         <Stack.Screen name="Auth"  component={AuthScreen} options={{ animation: 'slide_from_bottom' }} />
