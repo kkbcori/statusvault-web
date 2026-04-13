@@ -151,6 +151,8 @@ interface AppStore {
   preAuthDocCount: number;
   profileSetupShown: boolean;  // true after profile modal shown once
   pendingProfileSetup: boolean; // true if profile modal should show when MainTabs mounts
+  cloudBackupEnabled: boolean;  // premium only — auto-sync to Supabase
+  setCloudBackupEnabled: (v: boolean) => void;
   isGuestMode: boolean;       // true = using without account
   showWelcomeModal: boolean;  // first-visit chooser
   setGuestMode: (v: boolean) => void;
@@ -171,11 +173,10 @@ export const FREE_LIMIT = FREE_DOCUMENT_LIMIT;
 export const GUEST_LIMIT = GUEST_DOC_LIMIT;
 export { GUEST_CHECKLIST_LIMIT, GUEST_COUNTER_LIMIT, GUEST_FAMILY_LIMIT };
 
-// ─── Sync helper — call after any mutation ───────────────────
+// ─── Sync helper — premium + cloudBackupEnabled only ─────────
 const scheduleSync = () => {
-  const { authUser, syncToCloud } = useStore.getState();
-  if (authUser) {
-    // Debounce — wait 1.5s after last change before uploading
+  const { authUser, isPremium, cloudBackupEnabled, syncToCloud } = useStore.getState();
+  if (authUser && isPremium && cloudBackupEnabled) {
     clearTimeout((scheduleSync as any)._t);
     (scheduleSync as any)._t = setTimeout(() => syncToCloud(), 1500);
   }
@@ -188,6 +189,7 @@ export const useStore = create<AppStore>()(
       hasOnboarded: false,
       profileSetupShown: false,
       pendingProfileSetup: false,
+      cloudBackupEnabled: true,  // default on for premium
       visaProfile: null,
       immigrationProfile: null,
       documents: [],
@@ -698,7 +700,8 @@ export const useStore = create<AppStore>()(
 
       // ─── Sync ──────────────────────────────────────────────
       syncToCloud: async () => {
-        // Use getSession() — reads from local storage, no network call needed
+        const { isPremium, cloudBackupEnabled } = get();
+        if (!isPremium || !cloudBackupEnabled) return;
         const { data: { session } } = await supabase.auth.getSession();
         const user = session?.user;
         if (!user) return;
@@ -722,7 +725,9 @@ export const useStore = create<AppStore>()(
       },
 
       syncFromCloud: async () => {
-        // Use getSession() — reads from local storage, no network call needed
+        const { isPremium, cloudBackupEnabled } = get();
+        // Only pull from cloud for premium users with backup enabled
+        if (!isPremium || !cloudBackupEnabled) return;
         const { data: { session } } = await supabase.auth.getSession();
         const user = session?.user;
         if (!user) return;
@@ -817,6 +822,7 @@ export const useStore = create<AppStore>()(
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
       setAnyModalOpen: (v) => set({ anyModalOpen: v }),
       setGuestMode: (v) => set({ isGuestMode: v }),
+      setCloudBackupEnabled: (v) => set({ cloudBackupEnabled: v }),
       setWelcomeModalShown: () => {
         // Only show on very first visit (hasOnboarded===false AND no documents)
         const { hasOnboarded, documents } = useStore.getState();
@@ -933,6 +939,7 @@ export const useStore = create<AppStore>()(
         preAuthDocCount: s.preAuthDocCount,
         isGuestMode: s.isGuestMode,
         profileSetupShown: s.profileSetupShown,
+        cloudBackupEnabled: s.cloudBackupEnabled,
       }),
     }
   )

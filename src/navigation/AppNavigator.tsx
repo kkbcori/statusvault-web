@@ -255,10 +255,12 @@ const WebTopBar: React.FC = () => {
         >
           <Ionicons name="search-outline" size={16} color={colors.text2} />
         </TouchableOpacity>
-        {authUser && (
-          <View style={topBarStyles.privateBadge}>
-            <Ionicons name="lock-closed" size={10} color="#059669" />
-            <Text style={topBarStyles.privateBadgeTxt}>On Device</Text>
+        {authUser && isPremium && (
+          <View style={[topBarStyles.privateBadge, isSyncing && { backgroundColor: '#FFFBEB', borderColor: '#FCD34D' }]}>
+            <Ionicons name={isSyncing ? "sync-outline" : "cloud-done-outline"} size={10} color={isSyncing ? "#D97706" : "#059669"} />
+            <Text style={[topBarStyles.privateBadgeTxt, isSyncing && { color: '#D97706' }]}>
+              {isSyncing ? 'Syncing...' : 'Backed Up'}
+            </Text>
           </View>
         )}
         <TouchableOpacity

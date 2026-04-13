@@ -41,8 +41,13 @@ export const SettingsScreen: React.FC = () => {
   const navigation  = useNavigation<any>();
   const authUser    = useStore((s) => s.authUser);
   const isSyncing   = useStore((s) => s.isSyncing);
-  const signOut       = useStore((s) => s.signOut);
-  const deleteAccount = useStore((s) => s.deleteAccount);
+  const signOut              = useStore((s) => s.signOut);
+  const deleteAccount        = useStore((s) => s.deleteAccount);
+  const isPremiumUser        = useStore((s) => s.isPremium);
+  const cloudBackupEnabled   = useStore((s) => s.cloudBackupEnabled);
+  const setCloudBackupEnabled = useStore((s) => s.setCloudBackupEnabled);
+  const lastSyncedAt         = useStore((s) => s.lastSyncedAt);
+  const isSyncing            = useStore((s) => s.isSyncing);
   const { 
     documents, counters, notificationsEnabled, isPremium,
     notificationEmail, whatsappPhone,
@@ -59,6 +64,21 @@ export const SettingsScreen: React.FC = () => {
   const dialog = useDialog();
   const [importText,      setImportText]      = useState('');
   const [showPinSetup,    setShowPinSetup]    = useState(false);
+
+  const handleCloudBackupToggle = async () => {
+    if (cloudBackupEnabled) {
+      // Warn user before turning off
+      const ok = typeof window !== 'undefined'
+        ? window.confirm('⚠️ Turn off cloud backup?\n\nNo backup — your data will be lost if you switch devices or clear your browser.\n\nAre you sure?')
+        : true;
+      if (!ok) return;
+      setCloudBackupEnabled(false);
+    } else {
+      setCloudBackupEnabled(true);
+      // Trigger immediate sync when re-enabling
+      useStore.getState().syncToCloud().catch(() => {});
+    }
+  };
 
   const handleSignOut = async () => {
     const ok = typeof window !== 'undefined'
@@ -264,6 +284,59 @@ export const SettingsScreen: React.FC = () => {
           </>
         )}
       </View>
+
+      {/* ── Cloud Backup (Premium only) ── */}
+      <SectionLabel iconName="cloud-outline" label="CLOUD BACKUP" />
+      {!isPremiumUser ? (
+        <View style={styles.card}>
+          <View style={styles.infoBox2}>
+            <Ionicons name="lock-closed" size={16} color="#FF9F43" />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.premiumAlertTitle}>Premium Feature</Text>
+              <Text style={styles.premiumAlertDesc}>
+                Automatic encrypted cloud backup restores your data on any device. Upgrade to Premium to enable.
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity style={styles.upgradeBtn} onPress={() => useStore.getState().openPaywall()}>
+            <Text style={styles.upgradeBtnText}>⭐ Upgrade to Premium</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.card}>
+          <View style={styles.row}>
+            <View style={[styles.rowIconBox, { backgroundColor: cloudBackupEnabled ? '#ECFDF5' : '#FEF2F2' }]}>
+              <Ionicons name={cloudBackupEnabled ? 'cloud-done-outline' : 'cloud-offline-outline'} size={16} color={cloudBackupEnabled ? '#059669' : '#DC2626'} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rTitle}>Auto Cloud Backup</Text>
+              <Text style={styles.rDesc}>
+                {cloudBackupEnabled
+                  ? isSyncing
+                    ? 'Syncing to cloud...'
+                    : lastSyncedAt
+                      ? `Last backed up: ${new Date(lastSyncedAt).toLocaleString()}`
+                      : 'Enabled — backs up after every change'
+                  : '⚠️ Off — your data will be lost if you switch devices'}
+              </Text>
+            </View>
+            <Switch
+              value={cloudBackupEnabled}
+              onValueChange={handleCloudBackupToggle}
+              trackColor={{ false: '#FEE2E2', true: '#4F46E5' + '55' }}
+              thumbColor={cloudBackupEnabled ? '#4F46E5' : '#DC2626'}
+            />
+          </View>
+          {!cloudBackupEnabled && (
+            <View style={{ backgroundColor: '#FEF2F2', borderRadius: 8, padding: 12, margin: 4, flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
+              <Ionicons name="warning-outline" size={16} color="#DC2626" />
+              <Text style={{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#DC2626', flex: 1, lineHeight: 18 }}>
+                Cloud backup is off. If you lose this device or clear your browser data, all your documents, family members, and settings will be permanently lost.
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
 
       {/* ── Cross-Device Sync via JSON ── */}
       <SectionLabel iconName="phone-portrait-outline" label="CROSS-DEVICE SYNC" />
