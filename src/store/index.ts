@@ -555,7 +555,7 @@ export const useStore = create<AppStore>()(
           const type        = params.get('type');
 
           // Format 1: token_hash (older email template format)
-          if (tokenHash && (type === 'signup' || type === 'email')) {
+          if (tokenHash && (type === 'signup' || type === 'email' || type === 'magiclink')) {
             try {
               const { data, error } = await supabase.auth.verifyOtp({
                 token_hash: tokenHash,
@@ -583,7 +583,7 @@ export const useStore = create<AppStore>()(
           // Format 2: access_token (current Supabase email confirmation format)
           // Supabase JS handles this automatically via onAuthStateChange,
           // but we mark emailVerified and clean the URL here
-          if (accessToken && type === 'signup') {
+          if (accessToken && (type === 'signup' || type === 'magiclink')) {
             set({ emailVerified: true, isGuestMode: false, hasOnboarded: true, showWelcomeModal: false });
             setTimeout(() => {
               window.history.replaceState(null, '', window.location.pathname);
@@ -614,9 +614,15 @@ export const useStore = create<AppStore>()(
               initialSyncDone = true;
               try { await get().syncFromCloud(); } catch {}
             }
-            // Clear guest mode when user signs in
+            // Clear guest mode when user signs in + close any open auth modal
             if (event === 'SIGNED_IN') {
-              set({ isGuestMode: false, hasOnboarded: true, showWelcomeModal: false });
+              set({
+                isGuestMode: false,
+                hasOnboarded: true,
+                showWelcomeModal: false,
+                showAuthModal: false,   // close auth modal automatically
+                authModalMessage: '',
+              });
             }
             // After any sign-in, open profile setup if not completed yet
             if (event === 'SIGNED_IN') {
