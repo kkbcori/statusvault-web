@@ -23,7 +23,6 @@ export const AuthScreen: React.FC = () => {
   const signIn      = useStore((s) => s.signIn);
   const signUp      = useStore((s) => s.signUp);
   const setNotificationEmail = useStore((s) => s.setNotificationEmail);
-  const setWhatsappPhone     = useStore((s) => s.setWhatsappPhone);
 
   // 'register' mode comes from Get Started on landing page
   const [tab, setTab] = useState<Tab>((route?.params as any)?.mode === 'register' ? 'register' : 'login');
@@ -56,7 +55,6 @@ export const AuthScreen: React.FC = () => {
         if (error) { setMessage({ text: error, type: 'error' }); return; }
         // Save notification contacts immediately after registration
         setNotificationEmail(email.trim());
-        if (phone.trim()) setWhatsappPhone(phone.trim());
         setMessage({ text: 'Account created! Check your email to verify, then sign in.', type: 'success' });
         setTab('login');
       }
@@ -275,7 +273,7 @@ export const AuthScreen: React.FC = () => {
           {/* Phone number — register only (for alerts) */}
           {tab === 'register' && (
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Phone / WhatsApp (optional)</Text>
+              <Text style={styles.inputLabel}>Phone (optional)</Text>
               <Text style={styles.inputHint}>For expiry alerts · include country code e.g. +1</Text>
               <TextInput
                 style={styles.input}

@@ -15,7 +15,7 @@ const FEATURES = [
   { icon: '📋', title: 'Immi Checklist',    desc: 'Step-by-step checklists for OPT, H-1B, I-140, I-485, Indian Passport renewal and more' },
   { icon: '⏱️', title: 'Immi Timers',        desc: 'Track OPT unemployment days, 60-day grace period, STEM extension caps — auto or manual' },
   { icon: '📄', title: '25+ Document Types', desc: 'Visa stamps, EAD, I-20, I-94, passports, green card — expiry alerts before it\'s too late' },
-  { icon: '📅', title: 'Smart Alerts',       desc: 'Email & WhatsApp reminders at 180, 90, 30, 15 and 7 days before expiry' },
+  { icon: '📅', title: 'Smart Alerts',       desc: 'App notifications at 180, 90, 30, 15 and 7 days before expiry' },
   { icon: '👨‍👩‍👧', title: 'Family Mode',       desc: 'Track documents for spouse and dependents — H-4, L-2, F-2 and more' },
   { icon: '🔒', title: 'AES-256 Encrypted',  desc: 'All data encrypted on device. Your documents are never visible to us' },
 ];

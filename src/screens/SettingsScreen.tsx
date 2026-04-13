@@ -40,7 +40,6 @@ const slStyles = StyleSheet.create({
 export const SettingsScreen: React.FC = () => {
   const navigation  = useNavigation<any>();
   const authUser    = useStore((s) => s.authUser);
-  const isSyncing   = useStore((s) => s.isSyncing);
   const signOut              = useStore((s) => s.signOut);
   const deleteAccount        = useStore((s) => s.deleteAccount);
   const isPremiumUser        = useStore((s) => s.isPremium);
@@ -50,8 +49,8 @@ export const SettingsScreen: React.FC = () => {
   const isSyncing            = useStore((s) => s.isSyncing);
   const { 
     documents, counters, notificationsEnabled, isPremium,
-    notificationEmail, whatsappPhone,
-    setNotificationsEnabled, setNotificationEmail, setWhatsappPhone, resetAllData, setPremium,
+    notificationEmail,
+    setNotificationsEnabled, setNotificationEmail, resetAllData, setPremium,
     exportData, importData,
     pinEnabled, setPin, removePin, verifyPin,
   } = useStore();
