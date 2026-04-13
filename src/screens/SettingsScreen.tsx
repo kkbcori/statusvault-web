@@ -419,26 +419,50 @@ export const SettingsScreen: React.FC = () => {
           </View>
         </View>
       ) : (
-        <LinearGradient colors={[colors.primary, colors.primaryMid]} style={styles.premCard}>
-          {[...Array(3)].map((_, i) => (
-            <View key={i} style={{ position: 'absolute', top: 15 + i * 25, left: 0, right: 0, height: 1, backgroundColor: '#fff', opacity: 0.03 }} />
-          ))}
-          {/* Corner accent */}
-          <View style={{ position: 'absolute', top: 14, right: 14, width: 20, height: 20, borderTopWidth: 1.5, borderRightWidth: 1.5, borderColor: 'rgba(0,153,168,0.2)', borderTopRightRadius: 4 }} />
+        <LinearGradient colors={['#030712', '#0F172A', '#1E1B4B']} style={styles.premCard}>
+          {/* Decorative orbs */}
+          <View style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(79,70,229,0.12)' }} />
+          <View style={{ position: 'absolute', bottom: -10, left: -10, width: 70, height: 70, borderRadius: 35, backgroundColor: 'rgba(124,58,237,0.08)' }} />
 
-          <Ionicons name="shield-checkmark" size={32} color={'#4F46E5'} style={{ marginBottom: 10 }} />
-          <Text style={styles.premTitle}>Upgrade to Premium</Text>
-          <Text style={styles.premDesc}>Unlimited tracking, advanced alerts, data export, priority support.</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', marginBottom: 20 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <LinearGradient colors={['#4F46E5','#7C3AED']} style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="shield-checkmark" size={22} color="#fff" />
+            </LinearGradient>
+            <View>
+              <Text style={{ fontSize: 10, fontFamily: 'Inter_700Bold', color: '#A5B4FC', letterSpacing: 1.5 }}>✦ STATUSVAULT PREMIUM</Text>
+              <Text style={styles.premTitle}>Upgrade to Premium</Text>
+            </View>
+          </View>
+
+          {[
+            'Unlimited docs · checklists · timers · family',
+            'PDF & JSON export for all your data',
+            'Smart alerts at 6mo · 3mo · 1mo · 7d',
+          ].map((f, i) => (
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: 'rgba(79,70,229,0.25)', alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="checkmark" size={11} color="#818CF8" />
+              </View>
+              <Text style={{ fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.70)' }}>{f}</Text>
+            </View>
+          ))}
+
+          <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 14, marginBottom: 16, gap: 4 }}>
             <Text style={styles.premPrice}>{PRICE}</Text>
             <Text style={styles.premPeriod}>/year</Text>
+            <View style={{ backgroundColor: '#4F46E5', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2, marginLeft: 6 }}>
+              <Text style={{ fontSize: 9, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: 0.5 }}>SAVE 85%</Text>
+            </View>
           </View>
+
           <TouchableOpacity style={styles.premBtn} onPress={() => dialog.confirm({ title: 'Coming Soon', message: 'In-app purchase available soon.', type: 'confirm',
             confirmLabel: 'Unlock for Testing', cancelLabel: 'Cancel', onConfirm: () => setPremium(true) })}>
-            <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.premBtnGrad}>
-              <Text style={styles.premBtnText}>Subscribe — {PRICE_YEAR}</Text>
+            <LinearGradient colors={['#4F46E5', '#7C3AED']} style={styles.premBtnGrad} start={{ x:0, y:0 }} end={{ x:1, y:0 }}>
+              <Ionicons name="star" size={14} color="#FCD34D" />
+              <Text style={styles.premBtnText}>Unlock Premium — {PRICE_YEAR}</Text>
             </LinearGradient>
           </TouchableOpacity>
+          <Text style={{ fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.30)', textAlign: 'center', marginTop: 8 }}>Cancel anytime · Secure · AES-256 encrypted</Text>
         </LinearGradient>
       )}
 
@@ -584,7 +608,7 @@ const styles = StyleSheet.create({
   premPrice:       { fontSize: 32, fontFamily: 'Inter_900Black', color: '#4F46E5' },
   premPeriod:      { fontSize: 16, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.4)', marginLeft: 4 },
   premBtn:         { width: '100%', borderRadius: radius.md, overflow: 'hidden' },
-  premBtnGrad:     { paddingVertical: 14, alignItems: 'center', borderRadius: radius.md },
+  premBtnGrad:     { paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: radius.md },
   premBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF' },
   legalText:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, lineHeight: 20 },
   version:         { ...typography.caption, color: colors.text3, textAlign: 'center', marginTop: spacing.xxl, lineHeight: 20, fontSize: 12 },

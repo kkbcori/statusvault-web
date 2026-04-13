@@ -18,6 +18,7 @@ import { TravelScreen }  from '../screens/TravelScreen';
 import { AuthScreen }    from '../screens/AuthScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { AuthModal } from '../components/AuthModal';
+import { SearchModal } from '../components/SearchModal';
 import { WelcomeModal } from '../components/WelcomeModal';
 import { PaywallModal } from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
@@ -247,6 +248,13 @@ const WebTopBar: React.FC = () => {
       </View>
       <View style={topBarStyles.right}>
 
+        <TouchableOpacity
+          style={topBarStyles.avatarBtn}
+          onPress={() => (useStore.getState() as any).openSearch?.()}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="search-outline" size={16} color={colors.text2} />
+        </TouchableOpacity>
         {authUser && (
           <View style={topBarStyles.privateBadge}>
             <Ionicons name="lock-closed" size={10} color="#059669" />
@@ -301,12 +309,16 @@ const MainTabs: React.FC = () => {
   const closePaywall     = useStore((s) => s.closePaywall);
   const setPremium       = useStore((s) => s.setPremium);
   const [showProfileModal, setShowProfileModal] = React.useState(false);
+  const [showSearch, setShowSearch] = React.useState(false);
   const immigrationProfile = useStore((s) => s.immigrationProfile);
   const profileSetupShown  = useStore((s) => s.profileSetupShown);
 
-  // Register openProfileModal in the store so any code can call it
+  // Register openProfileModal and openSearch in the store
   React.useEffect(() => {
-    useStore.setState({ openProfileModal: () => setShowProfileModal(true) });
+    useStore.setState({
+      openProfileModal: () => setShowProfileModal(true),
+      openSearch: () => setShowSearch(true),
+    } as any);
 
     // Consume the pendingProfileSetup flag — this handles the case where
     // initAuth processed a magic link token before MainTabs was mounted
@@ -410,6 +422,8 @@ const MainTabs: React.FC = () => {
   />
   {/* Global profile modal */}
   <ProfileScreen visible={showProfileModal} onClose={() => setShowProfileModal(false)} />
+  {/* Global search */}
+  <SearchModal visible={showSearch} onClose={() => setShowSearch(false)} />
   {/* Global paywall modal */}
   <PaywallModal
     visible={showPaywallModal}

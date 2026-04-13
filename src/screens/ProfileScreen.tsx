@@ -223,8 +223,8 @@ export const ProfileScreen: React.FC<{ visible?: boolean; onClose?: () => void }
         {tab === 1 && (
           <>
             <View style={s.row2}>
-              <F label="First Name"><Input value={firstName} onChange={setFirstName} placeholder="Ravi" /></F>
-              <F label="Last Name"><Input value={lastName} onChange={setLastName} placeholder="Kumar" /></F>
+              <F label="First Name"><Input value={firstName} onChange={setFirstName} placeholder="First name" /></F>
+              <F label="Last Name"><Input value={lastName} onChange={setLastName} placeholder="Last name" /></F>
             </View>
             <View style={s.row2}>
               <F label="Phone"><Input value={phone} onChange={setPhone} placeholder="+1 555 000 0000" /></F>

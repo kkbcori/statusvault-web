@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore, FREE_LIMIT } from '../store';
@@ -8,12 +8,12 @@ const PRICE = '$3.99';
 const PRICE_LABEL = '$3.99/year';
 
 const FEATURES = [
-  { icon: 'documents-outline' as const,        text: 'Unlimited document tracking' },
-  { icon: 'people-outline' as const,           text: 'Unlimited family members & their documents' },
-  { icon: 'checkbox-outline' as const,         text: 'Unlimited checklists & immi timers' },
-  { icon: 'document-text-outline' as const,    text: 'PDF export — docs, checklists & family' },
-  { icon: 'phone-portrait-outline' as const,   text: 'JSON export/import for cross-device use' },
-  { icon: 'notifications-outline' as const,    text: 'Smart app notifications at 6mo·3mo·2mo·1mo·15d·7d' },
+  { icon: 'documents-outline' as const,      text: 'Unlimited documents for you & family',  check: true },
+  { icon: 'people-outline' as const,         text: 'Unlimited family members & their docs',  check: true },
+  { icon: 'checkbox-outline' as const,       text: 'Unlimited checklists & immi timers',     check: true },
+  { icon: 'document-text-outline' as const,  text: 'PDF export for all docs & checklists',   check: true },
+  { icon: 'phone-portrait-outline' as const, text: 'JSON export for cross-device use',        check: true },
+  { icon: 'notifications-outline' as const,  text: 'Smart alerts at 6mo · 3mo · 1mo · 7d',  check: true },
 ];
 
 interface Props {
@@ -24,95 +24,116 @@ interface Props {
 
 export const PaywallModal: React.FC<Props> = ({ visible, onClose, onUnlock }) => {
   const documents = useStore(s => s.documents);
+  const atLimit   = documents.length >= FREE_LIMIT;
 
   return (
     <Modal visible={visible} animationType="fade" transparent statusBarTranslucent>
       <View style={s.overlay}>
         <TouchableOpacity style={StyleSheet.absoluteFillObject as any} activeOpacity={1} onPress={onClose} />
-        <LinearGradient colors={['#030712', '#0A0E1A', '#0F172A']} style={s.card}>
-          <View style={s.topTrim} />
-          <View style={s.body}>
+
+        <View style={s.card}>
+          {/* Dark gradient header */}
+          <LinearGradient colors={['#030712', '#0F172A', '#1E1B4B']} style={s.header}>
+            {/* Decorative orbs */}
+            <View style={s.orb1} />
+            <View style={s.orb2} />
+
             {/* Close */}
             <TouchableOpacity style={s.closeBtn} onPress={onClose}>
-              <View style={s.closeCircle}><Ionicons name="close" size={18} color="rgba(255,255,255,0.6)" /></View>
+              <Ionicons name="close" size={16} color="rgba(255,255,255,0.50)" />
             </TouchableOpacity>
 
-            {/* Hero */}
-            <View style={s.hero}>
-              <View style={s.iconRing}>
-                <View style={s.iconInner}><Ionicons name="shield-checkmark" size={28} color="#7367F0" /></View>
-              </View>
-              <Text style={s.eyebrow}>STATUSVAULT PREMIUM</Text>
-              <Text style={s.title}>Protect Your{'\n'}Immigration Status</Text>
-              <View style={s.bar} />
-              <Text style={s.subtitle}>
-                {documents.length >= FREE_LIMIT
-                  ? `You've used all ${FREE_LIMIT} free document slots.\nUpgrade to track unlimited documents.`
-                  : 'Unlock unlimited documents, alerts, and family tracking.'}
-              </Text>
+            {/* Icon */}
+            <View style={s.iconWrap}>
+              <LinearGradient colors={['#4F46E5', '#7C3AED']} style={s.iconGrad}>
+                <Ionicons name="shield-checkmark" size={26} color="#fff" />
+              </LinearGradient>
             </View>
 
-            {/* Features */}
-            <View style={s.features}>
-              {FEATURES.map(({ icon, text }, i) => (
-                <View key={i} style={s.featureRow}>
-                  <View style={s.featureIcon}><Ionicons name={icon} size={14} color="#7367F0" /></View>
-                  <Text style={s.featureText}>{text}</Text>
+            <Text style={s.eyebrow}>✦ STATUSVAULT PREMIUM</Text>
+            <Text style={s.title}>Protect Your{'\n'}Immigration Status</Text>
+            <View style={s.titleUnderline} />
+            <Text style={s.subtitle}>
+              {atLimit
+                ? `You've used all ${FREE_LIMIT} free document slots`
+                : 'Unlock the full power of StatusVault'}
+            </Text>
+          </LinearGradient>
+
+          {/* White body */}
+          <View style={s.body}>
+            {/* Feature list */}
+            {FEATURES.map(({ icon, text }, i) => (
+              <View key={i} style={s.featureRow}>
+                <View style={s.featureCheck}>
+                  <Ionicons name="checkmark" size={12} color="#4F46E5" />
                 </View>
-              ))}
-            </View>
+                <Text style={s.featureText}>{text}</Text>
+              </View>
+            ))}
 
-            {/* Price */}
-            <View style={s.priceBlock}>
+            {/* Price block */}
+            <LinearGradient colors={['#EEF2FF', '#F5F3FF']} style={s.priceBlock}>
               <View style={s.priceRow}>
-                <Text style={s.price}>{PRICE}</Text>
-                <View style={{ gap: 1 }}>
-                  <Text style={s.period}>/ year</Text>
-                  <Text style={s.priceNote}>Less than $0.34/month</Text>
+                <View>
+                  <Text style={s.price}>{PRICE}</Text>
+                  <Text style={s.priceNote}>per year · less than $0.34/month</Text>
+                </View>
+                <View style={s.saveBadge}>
+                  <Text style={s.saveTxt}>SAVE 85%</Text>
                 </View>
               </View>
-            </View>
+            </LinearGradient>
 
             {/* CTA */}
-            <TouchableOpacity style={s.cta} onPress={onUnlock} activeOpacity={0.85}>
-              <LinearGradient colors={['#4F46E5', '#9E95F5', '#4F46E5']} style={s.ctaGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                <Text style={s.ctaText}>Subscribe — {PRICE_LABEL}</Text>
+            <TouchableOpacity style={s.cta} onPress={onUnlock} activeOpacity={0.88}>
+              <LinearGradient colors={['#4F46E5', '#7C3AED']} style={s.ctaGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                <Ionicons name="star" size={15} color="#FCD34D" />
+                <Text style={s.ctaTxt}>Unlock Premium — {PRICE_LABEL}</Text>
               </LinearGradient>
             </TouchableOpacity>
 
-            <Text style={s.legal}>Cancel anytime · Secure payment via App Store</Text>
+            <Text style={s.legal}>Cancel anytime · Secure payment · AES-256 encrypted</Text>
           </View>
-        </LinearGradient>
+        </View>
       </View>
     </Modal>
   );
 };
 
 const s = StyleSheet.create({
-  overlay:    { flex: 1, backgroundColor: 'rgba(0,0,0,0.80)', justifyContent: 'center', alignItems: 'center', padding: 20 },
-  card:       { width: '100%', maxWidth: 420, borderRadius: 20, overflow: 'hidden' } as any,
-  topTrim:    { position: 'absolute' as any, top: 0, left: 0, right: 0, height: 3, backgroundColor: '#4F46E5' },
-  body:       { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 24, alignItems: 'center' },
-  closeBtn:   { alignSelf: 'flex-end', marginBottom: 8 },
-  closeCircle:{ width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
-  hero:       { alignItems: 'center', marginBottom: 14 },
-  iconRing:   { width: 60, height: 60, borderRadius: 30, borderWidth: 1, borderColor: 'rgba(115,103,240,0.3)', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  iconInner:  { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(115,103,240,0.12)', alignItems: 'center', justifyContent: 'center' },
-  eyebrow:    { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#818CF8', letterSpacing: 2, marginBottom: 5 },
-  title:      { fontSize: 22, fontFamily: 'Inter_900Black', color: '#FFFFFF', textAlign: 'center', letterSpacing: -0.3, lineHeight: 28, marginBottom: 8 },
-  bar:        { width: 36, height: 3, backgroundColor: '#4F46E5', borderRadius: 2, marginBottom: 8 },
-  subtitle:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 18 },
-  features:   { width: '100%', marginBottom: 14 },
-  featureRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
-  featureIcon:{ width: 26, height: 26, borderRadius: 7, backgroundColor: 'rgba(115,103,240,0.12)', alignItems: 'center', justifyContent: 'center' },
-  featureText:{ fontSize: 13, fontFamily: 'Inter_500Medium', color: 'rgba(255,255,255,0.85)', flex: 1 },
-  priceBlock: { width: '100%', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 12, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(115,103,240,0.2)' },
-  priceRow:   { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  price:      { fontSize: 36, fontFamily: 'Inter_900Black', color: '#818CF8', letterSpacing: -1 },
-  period:     { fontSize: 14, fontFamily: 'Inter_500Medium', color: 'rgba(255,255,255,0.5)' },
-  priceNote:  { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#28C76F' },
-  cta:        { width: '100%', borderRadius: 10, overflow: 'hidden', marginBottom: 8 },
-  ctaGrad:    { paddingVertical: 13, alignItems: 'center', borderRadius: 10 },
-  ctaText:    { fontSize: 15, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: 0.2 },
-  legal:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.25)', textAlign: 'center' },
+  overlay:    { flex: 1, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  card:       { width: '100%', maxWidth: 420, borderRadius: 24, overflow: 'hidden', ...Platform.select({ web: { boxShadow: '0 24px 64px rgba(0,0,0,0.40)' } as any }) } as any,
+
+  header:     { padding: 24, alignItems: 'center', overflow: 'hidden', position: 'relative' as any },
+  orb1:       { position: 'absolute' as any, top: -30, right: -30, width: 120, height: 120, borderRadius: 60, backgroundColor: 'rgba(79,70,229,0.15)' },
+  orb2:       { position: 'absolute' as any, bottom: -20, left: -20, width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(124,58,237,0.10)' },
+
+  closeBtn:   { position: 'absolute' as any, top: 14, right: 14, width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
+  iconWrap:   { marginBottom: 12 },
+  iconGrad:   { width: 56, height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+
+  eyebrow:    { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#A5B4FC', letterSpacing: 2, marginBottom: 8 },
+  title:      { fontSize: 24, fontFamily: 'Inter_900Black', color: '#F8FAFF', textAlign: 'center', letterSpacing: -0.5, lineHeight: 30, marginBottom: 10 },
+  titleUnderline: { width: 40, height: 3, backgroundColor: '#4F46E5', borderRadius: 2, marginBottom: 10 },
+  subtitle:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.60)', textAlign: 'center' },
+
+  body:       { backgroundColor: '#FFFFFF', padding: 20 },
+
+  featureRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7 },
+  featureCheck:{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#C7D2FE' },
+  featureText:{ fontSize: 13, fontFamily: 'Inter_500Medium', color: '#0F172A', flex: 1 },
+
+  priceBlock: { borderRadius: 12, padding: 14, marginTop: 14, marginBottom: 12 },
+  priceRow:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  price:      { fontSize: 32, fontFamily: 'Inter_900Black', color: '#4F46E5', letterSpacing: -1 },
+  priceNote:  { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 2 },
+  saveBadge:  { backgroundColor: '#4F46E5', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5 },
+  saveTxt:    { fontSize: 10, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: 1 },
+
+  cta:        { borderRadius: 12, overflow: 'hidden', marginBottom: 10 },
+  ctaGrad:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14 },
+  ctaTxt:     { fontSize: 15, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: 0.2 },
+
+  legal:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#94A3B8', textAlign: 'center' },
 });
