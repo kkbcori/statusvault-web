@@ -61,28 +61,20 @@ export const SettingsScreen: React.FC = () => {
   const [showPinSetup,    setShowPinSetup]    = useState(false);
 
   const handleSignOut = async () => {
-    dialog.confirm({
-      title: 'Sign Out',
-      message: 'You will be signed out. Your data stays on this device.',
-      type: 'confirm',
-      confirmLabel: 'Sign Out',
-      cancelLabel: 'Cancel',
-      onConfirm: async () => { await signOut(); },
-    });
+    const ok = typeof window !== 'undefined'
+      ? window.confirm('Sign out? Your data stays on this device.')
+      : true;
+    if (!ok) return;
+    await signOut();
   };
 
   const handleDeleteAccount = async () => {
-    dialog.confirm({
-      title: 'Delete Account',
-      message: 'This will permanently delete your account and all data. This cannot be undone.',
-      type: 'danger',
-      confirmLabel: 'Delete My Account',
-      cancelLabel: 'Cancel',
-      onConfirm: async () => {
-        const { error } = await deleteAccount();
-        if (error) dialog.alert('Error', error);
-      },
-    });
+    const ok = typeof window !== 'undefined'
+      ? window.confirm('PERMANENTLY delete your account and all data? This cannot be undone.')
+      : true;
+    if (!ok) return;
+    const { error } = await deleteAccount();
+    if (error) alert(error);
   };
 
   const handleNotificationToggle = async (value: boolean) => {
@@ -306,6 +298,33 @@ export const SettingsScreen: React.FC = () => {
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.text3} />
         </TouchableOpacity>
+
+
+      {/* ── App Lock ── */}
+      <SectionLabel iconName="lock-closed-outline" label="APP LOCK" />
+      <View style={styles.card}>
+        <View style={styles.row}>
+          <View style={styles.rowIconBox}><Ionicons name="keypad-outline" size={16} color={'#4F46E5'} /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rTitle}>PIN Lock</Text>
+            <Text style={styles.rDesc}>{pinEnabled ? 'PIN is enabled — app is locked on launch' : 'Protect your data with a 4-digit PIN'}</Text>
+          </View>
+          <Switch
+            value={pinEnabled} onValueChange={() => setShowPinSetup(true)}
+            trackColor={{ false: colors.border, true: '#4F46E5' + '55' }}
+            thumbColor={pinEnabled ? '#4F46E5' : '#f4f4f4'}
+          />
+        </View>
+        {pinEnabled && (
+          <>
+            <View style={styles.div} />
+            <TouchableOpacity style={styles.sRow} onPress={() => setShowPinSetup(true)}>
+              <View style={styles.rowIconBox}><Ionicons name="refresh-outline" size={16} color={'#4F46E5'} /></View>
+              <Text style={styles.sText}>Change PIN</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.text3} />
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
       {/* ── PDF Export (Premium only) ── */}
@@ -345,67 +364,11 @@ export const SettingsScreen: React.FC = () => {
         </View>
       )}
 
-            {/* ── App Lock ── */}
-      <SectionLabel iconName="lock-closed-outline" label="APP LOCK" />
-      <View style={styles.card}>
-        <View style={styles.row}>
-          <View style={styles.rowIconBox}><Ionicons name="keypad-outline" size={16} color={'#4F46E5'} /></View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.rTitle}>PIN Lock</Text>
-            <Text style={styles.rDesc}>{pinEnabled ? 'PIN is enabled — app is locked on launch' : 'Protect your data with a 4-digit PIN'}</Text>
-          </View>
-          <Switch
-            value={pinEnabled} onValueChange={() => setShowPinSetup(true)}
-            trackColor={{ false: colors.border, true: '#4F46E5' + '55' }}
-            thumbColor={pinEnabled ? '#4F46E5' : '#f4f4f4'}
-          />
-        </View>
-        {pinEnabled && (
-          <>
-            <View style={styles.div} />
-            <TouchableOpacity style={styles.sRow} onPress={() => setShowPinSetup(true)}>
-              <View style={styles.rowIconBox}><Ionicons name="refresh-outline" size={16} color={'#4F46E5'} /></View>
-              <Text style={styles.sText}>Change PIN</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.text3} />
-            </TouchableOpacity>
-          </>
-        )}
-      </View>
 
-      {/* ── Immi Counters ── */}
-      <SectionLabel iconName="timer-outline" label="IMMI COUNTERS" />
-      <View style={styles.card}>
-        <View style={styles.row}>
-          <View style={styles.rowIconBox}><Ionicons name="timer-outline" size={16} color={'#4F46E5'} /></View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.rTitle}>{counters.length} counter{counters.length !== 1 ? 's' : ''} active</Text>
-            <Text style={styles.rDesc}>Manage counters from the Dashboard</Text>
-          </View>
-        </View>
-      </View>
 
-      {/* ── Data Backup ── */}
-      <SectionLabel iconName="archive-outline" label="DATA BACKUP" />
-      <View style={styles.card}>
-        <TouchableOpacity style={styles.sRow} onPress={handleExport}>
-          <View style={styles.rowIconBox}><Ionicons name="share-outline" size={16} color={'#4F46E5'} /></View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.sText}>Export Backup</Text>
-            <Text style={styles.rDesc}>Share as JSON · portable to any device</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color={colors.text3} />
-        </TouchableOpacity>
-        <View style={styles.div} />
-        <TouchableOpacity style={styles.sRow} onPress={() => setShowImportModal(true)}>
-          <View style={styles.rowIconBox}><Ionicons name="download-outline" size={16} color={'#4F46E5'} /></View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.sText}>Import Backup</Text>
-            <Text style={styles.rDesc}>Paste JSON backup from another device</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color={colors.text3} />
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.dataNote}>Backups are plain JSON — easy to read, transfer, and store.</Text>
+
+
+
 
       {/* ── Premium ── */}
       <SectionLabel iconName="star-outline" label="PREMIUM" />
@@ -498,8 +461,14 @@ export const SettingsScreen: React.FC = () => {
       {/* ── Danger Zone ── */}
       <SectionLabel iconName="warning-outline" label="DANGER ZONE" />
       <View style={[styles.card, { borderWidth: 1, borderColor: colors.dangerLight }]}>
-        <TouchableOpacity style={styles.sRow} onPress={() => dialog.confirm({ title: 'Reset All Data?', message: 'This permanently deletes all your documents, counters, checklists, and trips. This cannot be undone.',
-              type: 'danger', confirmLabel: 'Delete Everything', onConfirm: () => { cancelAllNotifications(); resetAllData(); } })}>
+        <TouchableOpacity style={styles.sRow} onPress={async () => {
+            const ok = typeof window !== 'undefined'
+              ? window.confirm('Reset ALL data? This permanently deletes all documents, checklists, timers, and trips. Cannot be undone.')
+              : true;
+            if (!ok) return;
+            await cancelAllNotifications();
+            resetAllData();
+          }}>
           <View style={[styles.rowIconBox, { backgroundColor: colors.dangerLight, borderColor: colors.danger + '25' }]}>
             <Ionicons name="trash-outline" size={16} color={colors.danger} />
           </View>

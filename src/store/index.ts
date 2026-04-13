@@ -552,16 +552,11 @@ export const useStore = create<AppStore>()(
 
       deleteAccount: async () => {
         try {
-          // Delete user data from Supabase cloud
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
-            // Delete synced data from cloud
             await supabase.from('user_data').delete().eq('user_id', user.id);
-            // Delete auth user — requires service role in production,
-            // for now we sign out and clear all local data
           }
           await supabase.auth.signOut();
-          // Clear all local data
           get().resetAllData();
           return { error: null };
         } catch (e: any) {
@@ -847,7 +842,7 @@ export const useStore = create<AppStore>()(
         // Sign out from Supabase too
         supabase.auth.signOut().catch(() => {});
         set({
-          _hasHydrated: false,
+          _hasHydrated: true,   // NEVER set false — causes infinite loading freeze
           hasOnboarded: false,
           isGuestMode: false,
           showWelcomeModal: false,
