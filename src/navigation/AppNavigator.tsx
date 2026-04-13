@@ -144,26 +144,37 @@ const WebSidebar: React.FC = () => {
 
 
       {/* Account / profile card — bottom */}
-      <TouchableOpacity
-        style={sidebarStyles.profileCard}
-        onPress={() => authUser ? (useStore.getState() as any).openProfileModal?.() : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')}
-        activeOpacity={0.8}
-      >
-        <View style={sidebarStyles.profileAvatar}>
-          <Text style={sidebarStyles.profileInitial}>
-            {authUser ? authUser.email[0].toUpperCase() : '?'}
-          </Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={sidebarStyles.profileName} numberOfLines={1}>
-            {authUser ? authUser.email : 'Guest User'}
-          </Text>
-          <Text style={sidebarStyles.profilePlan}>
-            {isPremium ? '⭐ Premium' : 'Free Plan'}
-          </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={14} color={colors.text3} />
-      </TouchableOpacity>
+      {authUser ? (
+        <TouchableOpacity
+          style={sidebarStyles.profileCard}
+          onPress={() => (useStore.getState() as any).openProfileModal?.()}
+          activeOpacity={0.8}
+        >
+          <View style={sidebarStyles.profileAvatar}>
+            <Text style={sidebarStyles.profileInitial}>
+              {authUser.email[0].toUpperCase()}
+            </Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={sidebarStyles.profileName} numberOfLines={1}>
+              {authUser.email}
+            </Text>
+            <Text style={sidebarStyles.profilePlan}>
+              {isPremium ? '⭐ Premium' : 'Free Plan'}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={14} color={colors.text3} />
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={sidebarStyles.signInCard}
+          onPress={() => useStore.getState().openAuthModal('Sign in to your StatusVault account')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="log-in-outline" size={18} color="#818CF8" />
+          <Text style={sidebarStyles.signInText}>Sign In / Create Account</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Compact upgrade row — free users only, same height as profile card */}
       {!isPremium && (
@@ -434,6 +445,8 @@ const sidebarStyles = StyleSheet.create({
   upgradeRowTitle:{ fontSize: 12, fontFamily: 'Inter_700Bold', color: '#A5B4FC' },
   upgradeRowSub: { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(165,180,252,0.50)', marginTop: 1 },
   profileCard:   { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 8, marginBottom: 10, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 },
+  signInCard:    { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 8, marginBottom: 10, backgroundColor: 'rgba(79,70,229,0.15)', borderWidth: 1, borderColor: 'rgba(129,140,248,0.30)', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12 },
+  signInText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#A5B4FC', flex: 1 },
   profileAvatar: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#4F46E5', alignItems: 'center', justifyContent: 'center' },
   profileInitial:{ fontSize: 13, fontFamily: 'Inter_700Bold', color: '#fff' },
   profileName:   { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: 'rgba(248,250,252,0.90)' },
