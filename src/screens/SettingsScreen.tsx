@@ -81,21 +81,29 @@ export const SettingsScreen: React.FC = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    const ok = typeof window !== 'undefined'
-      ? window.confirm('Sign out? Your data stays on this device.')
-      : true;
-    if (!ok) return;
-    await signOut();
+  const handleSignOut = () => {
+    dialog.confirm({
+      title: 'Sign Out',
+      message: 'You will be signed out. Your data stays on this device.',
+      type: 'confirm',
+      confirmLabel: 'Sign Out',
+      cancelLabel: 'Cancel',
+      onConfirm: () => { signOut(); },
+    });
   };
 
-  const handleDeleteAccount = async () => {
-    const ok = typeof window !== 'undefined'
-      ? window.confirm('PERMANENTLY delete your account and all data? This cannot be undone.')
-      : true;
-    if (!ok) return;
-    const { error } = await deleteAccount();
-    if (error) alert(error);
+  const handleDeleteAccount = () => {
+    dialog.confirm({
+      title: 'Delete Account',
+      message: 'This will permanently delete your account and all data. This cannot be undone.',
+      type: 'danger',
+      confirmLabel: 'Delete My Account',
+      cancelLabel: 'Cancel',
+      onConfirm: async () => {
+        const { error } = await deleteAccount();
+        if (error) dialog.alert('Error', error);
+      },
+    });
   };
 
   const handleNotificationToggle = async (value: boolean) => {
@@ -611,7 +619,13 @@ const styles = StyleSheet.create({
   container:       { flex: 1, backgroundColor: '#F4F5FA' },
   cc:              { paddingBottom: 20 },
   headerGradient:  { paddingBottom: 8 },
-  header:          { paddingHorizontal: spacing.screen, paddingTop: spacing.xxl + 20, paddingBottom: spacing.lg },
+  header:          { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: spacing.screen, paddingTop: spacing.xl, paddingBottom: spacing.lg },
+  headerGradient:  { paddingBottom: 0 },
+  headerIcon:      { width: 40, height: 40, borderRadius: 12, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#C7D2FE' },
+  headerTitle:     { fontSize: 17, fontFamily: 'Inter_700Bold', color: '#0F172A' },
+  headerSub:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 1 },
+  badge:           { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: '#C7D2FE' },
+  badgeTxt:        { fontSize: 11, fontFamily: 'Inter_700Bold', letterSpacing: 0.5 },
   headerLabel:     { ...typography.micro, color: colors.text3, letterSpacing: 1.5, marginBottom: 3, fontSize: 10 },
   title:           { ...typography.h1, color: colors.text1, fontSize: 22 },
 
