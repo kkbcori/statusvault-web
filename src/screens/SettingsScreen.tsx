@@ -544,7 +544,8 @@ export const SettingsScreen: React.FC = () => {
             cancelLabel: 'Cancel',
             onConfirm: async () => {
               await cancelAllNotifications();
-              await resetAllData();
+              // Call directly from store at execution time — avoids stale closure
+              await useStore.getState().resetAllData();
             },
           });
         }}>

@@ -22,7 +22,7 @@ interface DialogOptions {
   type?: DialogType;
   confirmLabel?: string;
   cancelLabel?: string;
-  onConfirm?: () => void;
+  onConfirm?: () => void | Promise<void>;
   onCancel?: () => void;
 }
 
@@ -68,8 +68,13 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   const handleConfirm = () => {
+    // Capture callback BEFORE hiding — hide() clears options via setTimeout
+    const callback = options?.onConfirm;
     hide();
-    options?.onConfirm?.();
+    if (callback) {
+      const result = callback();
+      if (result instanceof Promise) result.catch(() => {});
+    }
   };
 
   const handleCancel = () => {
