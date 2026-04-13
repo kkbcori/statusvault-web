@@ -65,17 +65,18 @@ export const SettingsScreen: React.FC = () => {
   const [importText,      setImportText]      = useState('');
   const [showPinSetup,    setShowPinSetup]    = useState(false);
 
-  const handleCloudBackupToggle = async () => {
+  const handleCloudBackupToggle = () => {
     if (cloudBackupEnabled) {
-      // Warn user before turning off
-      const ok = typeof window !== 'undefined'
-        ? window.confirm('⚠️ Turn off cloud backup?\n\nNo backup — your data will be lost if you switch devices or clear your browser.\n\nAre you sure?')
-        : true;
-      if (!ok) return;
-      setCloudBackupEnabled(false);
+      dialog.confirm({
+        title: 'Turn Off Cloud Backup?',
+        message: 'No backup — your data will be lost if you switch devices or clear your browser. Are you sure?',
+        type: 'danger',
+        confirmLabel: 'Turn Off',
+        cancelLabel: 'Keep Enabled',
+        onConfirm: () => setCloudBackupEnabled(false),
+      });
     } else {
       setCloudBackupEnabled(true);
-      // Trigger immediate sync when re-enabling
       useStore.getState().syncToCloud().catch(() => {});
     }
   };
