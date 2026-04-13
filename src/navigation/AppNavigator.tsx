@@ -291,18 +291,25 @@ const MainTabs: React.FC = () => {
     return hash.includes('access_token') || hash.includes('token_hash');
   }, []);
 
-  // Show welcome modal on very first visit — never during magic link processing
+  const hasHydrated = useStore((s) => s._hasHydrated);
+
+  // Show welcome modal ONLY after store is hydrated from localStorage
+  // This prevents the race where hasOnboarded=false (initial) before localStorage loads
   React.useEffect(() => {
-    if (authUser || hasMagicLinkInUrl) return;
-    if (!hasOnboarded) {
-      setTimeout(() => {
-        const s = useStore.getState();
-        if (!s.authUser && !s.showWelcomeModal) {
-          useStore.setState({ showWelcomeModal: true });
-        }
-      }, 1200);  // longer delay to let Supabase process tokens
-    }
-  }, []);
+    if (!hasHydrated) return;           // wait for localStorage to load
+    if (authUser) return;               // already logged in
+    if (hasMagicLinkInUrl) return;      // magic link being processed
+    if (hasOnboarded) return;           // returning user, never show again
+
+    // Brand new user — show welcome after a short delay
+    const t = setTimeout(() => {
+      const s = useStore.getState();
+      if (!s.authUser && !s.hasOnboarded) {
+        useStore.setState({ showWelcomeModal: true });
+      }
+    }, 600);
+    return () => clearTimeout(t);
+  }, [hasHydrated]); // re-run once hydration completes
   const authModalMessage = useStore((s) => s.authModalMessage);
   const closeAuthModal   = useStore((s) => s.closeAuthModal);
   const showPaywallModal = useStore((s) => s.showPaywallModal);
