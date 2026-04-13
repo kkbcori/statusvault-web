@@ -261,18 +261,25 @@ const MainTabs: React.FC = () => {
   const setOnboarded     = useStore((s) => s.setOnboarded);
   const openAuthModal    = useStore((s) => s.openAuthModal);
 
-  // Show welcome modal on very first visit
   const authUser         = useStore((s) => s.authUser);
+
+  // Detect magic link / OAuth redirect in URL — suppress all modals while processing
+  const hasMagicLinkInUrl = React.useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const hash = window.location.hash;
+    return hash.includes('access_token') || hash.includes('token_hash');
+  }, []);
+
+  // Show welcome modal on very first visit — never during magic link processing
   React.useEffect(() => {
-    // Never show welcome modal if user is already authenticated
-    if (authUser) return;
+    if (authUser || hasMagicLinkInUrl) return;
     if (!hasOnboarded) {
       setTimeout(() => {
-        // Double-check auth hasn't arrived in the meantime
-        if (!useStore.getState().authUser) {
+        const s = useStore.getState();
+        if (!s.authUser && !s.showWelcomeModal) {
           useStore.setState({ showWelcomeModal: true });
         }
-      }, 800);
+      }, 1200);  // longer delay to let Supabase process tokens
     }
   }, []);
   const authModalMessage = useStore((s) => s.authModalMessage);
@@ -343,6 +350,19 @@ const MainTabs: React.FC = () => {
       </View>
     </View>
   </View>
+  {/* Magic link processing overlay — shows while Supabase verifies the token */}
+  {hasMagicLinkInUrl && !authUser && (
+    <View style={{ position: 'fixed' as any, inset: 0, zIndex: 9999, backgroundColor: '#0A0E1A', alignItems: 'center', justifyContent: 'center' } as any}>
+      <View style={{ alignItems: 'center', gap: 16 } as any}>
+        <View style={{ width: 60, height: 60, borderRadius: 16, backgroundColor: 'rgba(79,70,229,0.15)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(129,140,248,0.25)' }}>
+          <Ionicons name="shield-checkmark" size={28} color="#818CF8" />
+        </View>
+        <Text style={{ fontSize: 18, fontFamily: 'Inter_700Bold', color: '#F8FAFF' }}>Signing you in...</Text>
+        <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.60)' }}>Verifying your login link</Text>
+      </View>
+    </View>
+  )}
+
   {/* First-visit welcome modal */}
   <WelcomeModal
     visible={showWelcomeModal}
