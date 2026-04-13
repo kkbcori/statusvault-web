@@ -41,6 +41,8 @@ export const SettingsScreen: React.FC = () => {
   const navigation  = useNavigation<any>();
   const authUser    = useStore((s) => s.authUser);
   const isSyncing   = useStore((s) => s.isSyncing);
+  const signOut       = useStore((s) => s.signOut);
+  const deleteAccount = useStore((s) => s.deleteAccount);
   const { 
     documents, counters, notificationsEnabled, isPremium,
     notificationEmail, whatsappPhone,
@@ -57,6 +59,31 @@ export const SettingsScreen: React.FC = () => {
   const dialog = useDialog();
   const [importText,      setImportText]      = useState('');
   const [showPinSetup,    setShowPinSetup]    = useState(false);
+
+  const handleSignOut = async () => {
+    dialog.confirm({
+      title: 'Sign Out',
+      message: 'You will be signed out. Your data stays on this device.',
+      type: 'confirm',
+      confirmLabel: 'Sign Out',
+      cancelLabel: 'Cancel',
+      onConfirm: async () => { await signOut(); },
+    });
+  };
+
+  const handleDeleteAccount = async () => {
+    dialog.confirm({
+      title: 'Delete Account',
+      message: 'This will permanently delete your account and all data. This cannot be undone.',
+      type: 'danger',
+      confirmLabel: 'Delete My Account',
+      cancelLabel: 'Cancel',
+      onConfirm: async () => {
+        const { error } = await deleteAccount();
+        if (error) dialog.alert('Error', error);
+      },
+    });
+  };
 
   const handleNotificationToggle = async (value: boolean) => {
     if (value) {

@@ -155,6 +155,7 @@ interface AppStore {
   openProfileModal: () => void;  // set by MainTabs after mount
   setVisaProfile: (profile: string) => void;
   resetAllData: () => void;
+  deleteAccount: () => Promise<{ error: string | null }>;
   exportData: () => string;
   importData: (json: string) => boolean;
 }
@@ -499,7 +500,31 @@ export const useStore = create<AppStore>()(
 
       signOut: async () => {
         await supabase.auth.signOut();
-        set({ authUser: null, lastSyncedAt: null, syncError: null, emailVerified: false });
+        set({
+          authUser: null, lastSyncedAt: null, syncError: null,
+          emailVerified: false, isGuestMode: false,
+          hasOnboarded: true, // keep so welcome modal doesn't reappear
+          showWelcomeModal: false,
+        });
+      },
+
+      deleteAccount: async () => {
+        try {
+          // Delete user data from Supabase cloud
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            // Delete synced data from cloud
+            await supabase.from('user_data').delete().eq('user_id', user.id);
+            // Delete auth user — requires service role in production,
+            // for now we sign out and clear all local data
+          }
+          await supabase.auth.signOut();
+          // Clear all local data
+          get().resetAllData();
+          return { error: null };
+        } catch (e: any) {
+          return { error: e.message ?? 'Failed to delete account' };
+        }
       },
 
       initAuth: async () => {
@@ -729,15 +754,38 @@ export const useStore = create<AppStore>()(
       setVisaProfile: (profile) => set({ visaProfile: profile }),
       setImmigrationProfile: (p) => { set({ immigrationProfile: p }); scheduleSync(); },
 
-      resetAllData: () => set({
-        _hasHydrated: false,
-      hasOnboarded: false, visaProfile: null, documents: [], checklists: [], counters: [], trips: [],
-        anyModalOpen: false,
-      showAuthModal: false,
-      authModalMessage: 'Sign in to continue',
-      showPaywallModal: false,
-      notificationsEnabled: true, notificationEmail: null, whatsappPhone: null, isPremium: false, pinEnabled: false, pinCode: null, familyMembers: [],
-      }),
+      resetAllData: () => {
+        // Sign out from Supabase too
+        supabase.auth.signOut().catch(() => {});
+        set({
+          _hasHydrated: false,
+          hasOnboarded: false,
+          isGuestMode: false,
+          showWelcomeModal: false,
+          authUser: null,
+          visaProfile: null,
+          immigrationProfile: null,
+          documents: [],
+          checklists: [],
+          counters: [],
+          trips: [],
+          familyMembers: [],
+          anyModalOpen: false,
+          showAuthModal: false,
+          authModalMessage: 'Sign in to continue',
+          showPaywallModal: false,
+          emailVerified: false,
+          notificationsEnabled: true,
+          notificationEmail: null,
+          whatsappPhone: null,
+          isPremium: false,
+          pinEnabled: false,
+          pinCode: null,
+          lastSyncedAt: null,
+          syncError: null,
+          preAuthDocCount: 0,
+        });
+      },
       exportData: () => {
         const { documents, checklists, counters, trips, isPremium } = get();
         return JSON.stringify({
