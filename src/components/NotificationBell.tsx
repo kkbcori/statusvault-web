@@ -4,7 +4,7 @@
 // Mark read / unread / delete per alert
 // ═══════════════════════════════════════════════════════════════
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../store';
 import { calculateDaysRemaining } from '../utils/dates';
@@ -119,10 +119,21 @@ export const NotificationBell: React.FC = () => {
   const markAllRead = () => setNotifications(notifications.map(n => ({ ...n, read: true })));
   const clearAll    = () => setNotifications([]);
 
+  const bellRef = useRef<any>(null);
+  const [bellPos, setBellPos] = React.useState({ top: 0, right: 0 });
+
+  const handleBellPress = () => {
+    if (!open && bellRef.current && typeof bellRef.current.getBoundingClientRect === 'function') {
+      const rect = bellRef.current.getBoundingClientRect();
+      setBellPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+    }
+    setOpen(v => !v);
+  };
+
   return (
     <View ref={panelRef} style={s.wrap}>
       {/* Bell button */}
-      <TouchableOpacity style={s.bellBtn} onPress={() => setOpen(v => !v)} activeOpacity={0.8}>
+      <TouchableOpacity ref={bellRef} style={s.bellBtn} onPress={handleBellPress} activeOpacity={0.8}>
         <Ionicons name={open ? 'notifications' : 'notifications-outline'} size={18} color={open ? '#4F46E5' : '#64748B'} />
         {unread > 0 && (
           <View style={s.badge}>
@@ -131,8 +142,13 @@ export const NotificationBell: React.FC = () => {
         )}
       </TouchableOpacity>
 
-      {/* Dropdown panel */}
-      {open && (
+      {/* Panel — rendered as fixed overlay so it's always on top */}
+      {open && (typeof window !== 'undefined') && (
+        <Modal visible={open} transparent animationType="none" onRequestClose={() => setOpen(false)}>
+          {/* Invisible backdrop */}
+          <TouchableOpacity style={s.backdrop} activeOpacity={1} onPress={() => setOpen(false)} />
+          {/* Panel anchored to bell position */}
+          <View style={[s.panel, { top: bellPos.top, right: bellPos.right }]}>
         <View style={s.panel}>
           {/* Header */}
           <View style={s.panelHeader}>
@@ -227,7 +243,8 @@ const s = StyleSheet.create({
   badge:        { position: 'absolute' as any, top: -4, right: -4, minWidth: 17, height: 17, borderRadius: 9, backgroundColor: '#DC2626', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3, borderWidth: 2, borderColor: '#fff' },
   badgeTxt:     { fontSize: 9, fontFamily: 'Inter_800ExtraBold', color: '#fff', lineHeight: 12 },
 
-  panel:        { position: 'absolute' as any, top: 42, right: 0, width: 340, maxHeight: 480, backgroundColor: '#fff', borderRadius: 16, zIndex: 9999, ...Platform.select({ web: { boxShadow: '0 8px 40px rgba(15,23,42,0.15)' } as any }), borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden' } as any,
+  backdrop:     { position: 'absolute' as any, inset: 0 } as any,
+  panel:        { position: 'absolute' as any, width: 340, maxHeight: 480, backgroundColor: '#fff', borderRadius: 16, ...Platform.select({ web: { boxShadow: '0 8px 40px rgba(15,23,42,0.15)' } as any }), borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden' } as any,
 
   panelHeader:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   panelTitle:   { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#0F172A' },
