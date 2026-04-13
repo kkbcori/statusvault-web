@@ -570,12 +570,9 @@ export const useStore = create<AppStore>()(
           // but we mark emailVerified and clean the URL here
           if (accessToken && type === 'signup') {
             set({ emailVerified: true, isGuestMode: false, hasOnboarded: true, showWelcomeModal: false });
-            // Let Supabase process the session from hash automatically
-            // Clean URL after a short delay to allow Supabase to parse it first
             setTimeout(() => {
               window.history.replaceState(null, '', window.location.pathname);
             }, 1000);
-          }
           }
         }
 
