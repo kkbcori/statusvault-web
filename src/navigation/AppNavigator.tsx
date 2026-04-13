@@ -293,34 +293,32 @@ const MainTabs: React.FC = () => {
 
   const hasHydrated = useStore((s) => s._hasHydrated);
 
-  // Show welcome modal only for truly new users
-  // Must wait for: (1) store hydration, (2) Supabase session check
   React.useEffect(() => {
     if (!hasHydrated) return;
     if (hasMagicLinkInUrl) return;
 
-    // Don't show if already onboarded (returning user)
+    // Check Supabase session synchronously from localStorage — no async race
+    const hasSupabaseSession = (() => {
+      try {
+        const key = 'sb-gekhrdqkaadqeeebzvlu-auth-token';
+        const raw = localStorage.getItem(key);
+        if (!raw) return false;
+        const parsed = JSON.parse(raw);
+        return !!(parsed?.access_token || parsed?.session?.access_token);
+      } catch { return false; }
+    })();
+
+    // User is logged in — suppress welcome modal permanently
+    if (hasSupabaseSession) {
+      useStore.setState({ hasOnboarded: true, showWelcomeModal: false });
+      return;
+    }
+
+    // Already onboarded (chose guest or created account before)
     if (useStore.getState().hasOnboarded) return;
 
-    // Also check Supabase session directly — authUser may not be set yet
-    // because session restore is async
-    const checkAndShow = async () => {
-      const { data } = await import('../utils/supabase').then(m =>
-        m.supabase.auth.getSession()
-      );
-      // If user has an active session, suppress the modal entirely
-      if (data?.session?.user) {
-        useStore.setState({ hasOnboarded: true, showWelcomeModal: false });
-        return;
-      }
-      // Truly new user with no session — show welcome modal
-      if (!useStore.getState().hasOnboarded) {
-        useStore.setState({ showWelcomeModal: true });
-      }
-    };
-
-    const t = setTimeout(checkAndShow, 400);
-    return () => clearTimeout(t);
+    // Brand new user — show welcome modal
+    useStore.setState({ showWelcomeModal: true });
   }, [hasHydrated]);
   const authModalMessage = useStore((s) => s.authModalMessage);
   const closeAuthModal   = useStore((s) => s.closeAuthModal);
