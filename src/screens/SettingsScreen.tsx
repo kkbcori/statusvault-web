@@ -48,12 +48,13 @@ export const SettingsScreen: React.FC = () => {
   const lastSyncedAt         = useStore((s) => s.lastSyncedAt);
   const isSyncing            = useStore((s) => s.isSyncing);
   const { 
-    documents, counters, notificationsEnabled, isPremium,
+    documents, counters, notificationsEnabled,
     notificationEmail,
     setNotificationsEnabled, setNotificationEmail, resetAllData, setPremium,
     exportData, importData,
     pinEnabled, setPin, removePin, verifyPin,
   } = useStore();
+  const isPremium = isPremiumUser; // single source of truth
 
   const [showImportModal,    setShowImportModal]    = useState(false);
   const [editingEmail,       setEditingEmail]       = useState(false);
