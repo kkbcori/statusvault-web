@@ -549,10 +549,13 @@ export const useStore = create<AppStore>()(
         // Handle email confirmation in URL (both token_hash and access_token formats)
         if (typeof window !== 'undefined') {
           const hash = window.location.hash;
-          const params = new URLSearchParams(hash.replace('#', '?'));
-          const tokenHash   = params.get('token_hash');
-          const accessToken = params.get('access_token');
-          const type        = params.get('type');
+          const search = window.location.search;
+          // Check both hash (#token_hash=) and query string (?token_hash=)
+          const hashParams   = new URLSearchParams(hash.replace('#', '?'));
+          const searchParams = new URLSearchParams(search);
+          const tokenHash    = hashParams.get('token_hash') || searchParams.get('token_hash');
+          const accessToken  = hashParams.get('access_token');
+          const type         = hashParams.get('type') || searchParams.get('type');
 
           // Format 1: token_hash (older email template format)
           if (tokenHash && (type === 'signup' || type === 'email' || type === 'magiclink')) {
@@ -849,8 +852,16 @@ export const useStore = create<AppStore>()(
       name: 'statusvault-storage',
       storage: createJSONStorage(() => platformStorage),
       onRehydrateStorage: () => (state) => {
-        // Always mark hydrated — even if state is null (first run / empty storage)
-        useStore.setState({ _hasHydrated: true });
+        // Check for magic link token in URL — suppress welcome modal immediately
+        const hasMagicToken = typeof window !== 'undefined' &&
+          (window.location.hash.includes('access_token') ||
+           window.location.hash.includes('token_hash') ||
+           window.location.search.includes('token_hash'));
+        useStore.setState({
+          _hasHydrated: true,
+          // Suppress welcome modal if magic link is being processed
+          ...(hasMagicToken ? { hasOnboarded: true, showWelcomeModal: false } : {}),
+        });
       },
       partialize: (s) => ({
         hasOnboarded: s.hasOnboarded, documents: s.documents, checklists: s.checklists,

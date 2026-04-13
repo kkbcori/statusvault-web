@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Platform, View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
+import { Platform, View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal } from 'react-native';
 import { NavigationContainer, useNavigation, useNavigationState } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -350,18 +350,18 @@ const MainTabs: React.FC = () => {
       </View>
     </View>
   </View>
-  {/* Magic link processing overlay — shows while Supabase verifies the token */}
-  {hasMagicLinkInUrl && !authUser && (
-    <View style={{ position: 'fixed' as any, inset: 0, zIndex: 9999, backgroundColor: '#0A0E1A', alignItems: 'center', justifyContent: 'center' } as any}>
+  {/* Magic link processing overlay — Modal so it renders above WelcomeModal */}
+  <Modal visible={hasMagicLinkInUrl && !authUser} transparent animationType="none">
+    <View style={{ flex: 1, backgroundColor: '#0A0E1A', alignItems: 'center', justifyContent: 'center' }}>
       <View style={{ alignItems: 'center', gap: 16 } as any}>
-        <View style={{ width: 60, height: 60, borderRadius: 16, backgroundColor: 'rgba(79,70,229,0.15)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(129,140,248,0.25)' }}>
-          <Ionicons name="shield-checkmark" size={28} color="#818CF8" />
+        <View style={{ width: 64, height: 64, borderRadius: 18, backgroundColor: 'rgba(79,70,229,0.15)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(129,140,248,0.25)' }}>
+          <Ionicons name="shield-checkmark" size={30} color="#818CF8" />
         </View>
-        <Text style={{ fontSize: 18, fontFamily: 'Inter_700Bold', color: '#F8FAFF' }}>Signing you in...</Text>
-        <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.60)' }}>Verifying your login link</Text>
+        <Text style={{ fontSize: 20, fontFamily: 'Inter_700Bold', color: '#F8FAFF' }}>Signing you in...</Text>
+        <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.55)' }}>Verifying your login link</Text>
       </View>
     </View>
-  )}
+  </Modal>
 
   {/* First-visit welcome modal */}
   <WelcomeModal
