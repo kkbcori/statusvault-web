@@ -574,6 +574,18 @@ export const useStore = create<AppStore>()(
       initAuth: async () => {
         let initialSyncDone = false;
 
+        // Re-sync from cloud when tab becomes visible (handles cross-device updates)
+        if (typeof document !== 'undefined') {
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+              const { authUser } = useStore.getState();
+              if (authUser) {
+                useStore.getState().syncFromCloud().catch(() => {});
+              }
+            }
+          });
+        }
+
         // Handle email confirmation in URL (both token_hash and access_token formats)
         if (typeof window !== 'undefined') {
           const hash = window.location.hash;
@@ -748,7 +760,7 @@ export const useStore = create<AppStore>()(
             .single();
 
           // PGRST116 = no row found — free user, nothing to restore, silent return
-          if (error?.code === 'PGRST116' || !data) return;
+          if (error?.code === 'PGRST116' || !data) { set({ isSyncing: false }); return; }
 
           // Row exists → this user has/had premium. Decrypt and restore.
           if (error) throw new Error(error.message);
