@@ -727,43 +727,48 @@ export const useStore = create<AppStore>()(
       },
 
       syncFromCloud: async () => {
-        const { isPremium, cloudBackupEnabled } = get();
-        // Only pull from cloud for premium users with backup enabled
-        if (!isPremium || !cloudBackupEnabled) return;
+        const { cloudBackupEnabled } = get();
+        // If user explicitly turned off backup, respect that
+        if (cloudBackupEnabled === false) return;
+
         const { data: { session } } = await supabase.auth.getSession();
         const user = session?.user;
         if (!user) return;
+
         const { authUser: storeAuth } = get();
         const email = storeAuth?.email ?? user.email ?? '';
-        set({ isSyncing: true, syncError: null });
+
+        // Silently check if cloud data exists — no loading spinner for free users
+        // This is a lightweight SELECT that costs nothing if no row exists
         try {
           const { data, error } = await supabase
             .from('user_data')
             .select('data_encrypted, updated_at')
             .eq('user_id', user.id)
             .single();
-          if (error && error.code !== 'PGRST116') throw new Error(error.message);
-          if (!data) {
-            // No cloud data yet — upload local data
-            await get().syncToCloud();
-            return;
-          }
+
+          // PGRST116 = no row found — free user, nothing to restore, silent return
+          if (error?.code === 'PGRST116' || !data) return;
+
+          // Row exists → this user has/had premium. Decrypt and restore.
+          if (error) throw new Error(error.message);
+
+          set({ isSyncing: true, syncError: null });
           const key     = deriveKey(user.id, email);
           const decoded = decryptData(data.data_encrypted, key) as any;
-          if (!decoded) throw new Error('Decryption failed — wrong account?');
-          // Cloud wins: merge by taking cloud data as source of truth
+          if (!decoded) throw new Error('Decryption failed');
+
           set({
-            documents:  decoded.documents  ?? get().documents,
-            checklists: decoded.checklists ?? get().checklists,
-            counters:   decoded.counters   ?? get().counters,
-            trips:      decoded.trips      ?? get().trips,
-            familyMembers: decoded.familyMembers ?? get().familyMembers,
-            visaProfile: decoded.visaProfile ?? get().visaProfile,
+            documents:         decoded.documents      ?? get().documents,
+            checklists:        decoded.checklists     ?? get().checklists,
+            counters:          decoded.counters       ?? get().counters,
+            trips:             decoded.trips          ?? get().trips,
+            familyMembers:     decoded.familyMembers  ?? get().familyMembers,
+            visaProfile:       decoded.visaProfile    ?? get().visaProfile,
             notificationEmail: decoded.notificationEmail ?? get().notificationEmail,
-            whatsappPhone: decoded.whatsappPhone ?? get().whatsappPhone,
-            isPremium:  decoded.isPremium  ?? get().isPremium,
-            lastSyncedAt: data.updated_at,
-            isSyncing: false,
+            isPremium:         decoded.isPremium      ?? get().isPremium,
+            lastSyncedAt:      data.updated_at,
+            isSyncing:         false,
           });
         } catch (e: any) {
           set({ isSyncing: false, syncError: e.message ?? 'Sync failed' });
