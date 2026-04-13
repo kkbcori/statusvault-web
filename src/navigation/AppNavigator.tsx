@@ -293,23 +293,35 @@ const MainTabs: React.FC = () => {
 
   const hasHydrated = useStore((s) => s._hasHydrated);
 
-  // Show welcome modal ONLY after store is hydrated from localStorage
-  // This prevents the race where hasOnboarded=false (initial) before localStorage loads
+  // Show welcome modal only for truly new users
+  // Must wait for: (1) store hydration, (2) Supabase session check
   React.useEffect(() => {
-    if (!hasHydrated) return;           // wait for localStorage to load
-    if (authUser) return;               // already logged in
-    if (hasMagicLinkInUrl) return;      // magic link being processed
-    if (hasOnboarded) return;           // returning user, never show again
+    if (!hasHydrated) return;
+    if (hasMagicLinkInUrl) return;
 
-    // Brand new user — show welcome after a short delay
-    const t = setTimeout(() => {
-      const s = useStore.getState();
-      if (!s.authUser && !s.hasOnboarded) {
+    // Don't show if already onboarded (returning user)
+    if (useStore.getState().hasOnboarded) return;
+
+    // Also check Supabase session directly — authUser may not be set yet
+    // because session restore is async
+    const checkAndShow = async () => {
+      const { data } = await import('../utils/supabase').then(m =>
+        m.supabase.auth.getSession()
+      );
+      // If user has an active session, suppress the modal entirely
+      if (data?.session?.user) {
+        useStore.setState({ hasOnboarded: true, showWelcomeModal: false });
+        return;
+      }
+      // Truly new user with no session — show welcome modal
+      if (!useStore.getState().hasOnboarded) {
         useStore.setState({ showWelcomeModal: true });
       }
-    }, 600);
+    };
+
+    const t = setTimeout(checkAndShow, 400);
     return () => clearTimeout(t);
-  }, [hasHydrated]); // re-run once hydration completes
+  }, [hasHydrated]);
   const authModalMessage = useStore((s) => s.authModalMessage);
   const closeAuthModal   = useStore((s) => s.closeAuthModal);
   const showPaywallModal = useStore((s) => s.showPaywallModal);
