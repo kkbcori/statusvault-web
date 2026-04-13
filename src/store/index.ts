@@ -811,7 +811,15 @@ export const useStore = create<AppStore>()(
       },
       openAuthModal: (message) => set({ showAuthModal: true, authModalMessage: message ?? 'Sign in to continue' }),
       closeAuthModal: () => set({ showAuthModal: false, authModalMessage: '' }),
-      openPaywall: () => set({ showPaywallModal: true }),
+      openPaywall: () => {
+        const { authUser, isGuestMode } = get();
+        // Guests must create account before subscribing to premium
+        if (!authUser || isGuestMode) {
+          set({ showAuthModal: true, authModalMessage: 'Create a free account first, then upgrade to Premium' });
+          return;
+        }
+        set({ showPaywallModal: true });
+      },
       closePaywall: () => set({ showPaywallModal: false }),
       openProfileModal: () => { /* overridden by MainTabs */ },
       setOnboarded: () => set({ hasOnboarded: true }),

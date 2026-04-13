@@ -180,7 +180,14 @@ const WebSidebar: React.FC = () => {
       {!isPremium && (
         <TouchableOpacity
           style={sidebarStyles.upgradeRow}
-          onPress={() => useStore.getState().openPaywall()}
+          onPress={() => {
+            const s = useStore.getState();
+            if (!s.authUser || s.isGuestMode) {
+              s.openAuthModal('Create a free account to access premium features');
+            } else {
+              s.openPaywall();
+            }
+          }}
           activeOpacity={0.85}
         >
           <View style={sidebarStyles.upgradeRowIcon}>
