@@ -185,6 +185,7 @@ export const useStore = create<AppStore>()(
     (set, get) => ({
       _hasHydrated: false,
       hasOnboarded: false,
+      profileSetupShown: false,
       visaProfile: null,
       immigrationProfile: null,
       documents: [],
@@ -588,6 +589,7 @@ export const useStore = create<AppStore>()(
                 type: type as any,
               });
               if (!error && data.session) {
+                const isFirstLogin = !get().profileSetupShown;
                 set({
                   authUser: {
                     id: data.session.user.id,
@@ -598,9 +600,17 @@ export const useStore = create<AppStore>()(
                   isGuestMode: false,
                   hasOnboarded: true,
                   showWelcomeModal: false,
+                  showAuthModal: false,
+                  profileSetupShown: true,  // mark shown so SIGNED_IN doesn't re-trigger
                 });
                 initialSyncDone = true;
                 try { await get().syncFromCloud(); } catch {}
+                // Show profile setup once after first magic link login
+                if (isFirstLogin) {
+                  setTimeout(() => {
+                    if (!get().immigrationProfile) get().openProfileModal();
+                  }, 1200);
+                }
               }
             } catch {}
             window.history.replaceState(null, '', window.location.pathname);
@@ -610,7 +620,13 @@ export const useStore = create<AppStore>()(
           // Supabase JS handles this automatically via onAuthStateChange,
           // but we mark emailVerified and clean the URL here
           if (accessToken && (type === 'signup' || type === 'magiclink')) {
-            set({ emailVerified: true, isGuestMode: false, hasOnboarded: true, showWelcomeModal: false });
+            const isFirstLoginOAuth = !get().profileSetupShown;
+            set({ emailVerified: true, isGuestMode: false, hasOnboarded: true, showWelcomeModal: false, showAuthModal: false, profileSetupShown: true });
+            if (isFirstLoginOAuth) {
+              setTimeout(() => {
+                if (!get().immigrationProfile) get().openProfileModal();
+              }, 1500);
+            }
             setTimeout(() => {
               window.history.replaceState(null, '', window.location.pathname);
             }, 1000);
@@ -650,14 +666,13 @@ export const useStore = create<AppStore>()(
                 authModalMessage: '',
               });
             }
-            // Open profile setup only on FIRST login ever (not on every page refresh)
+            // Trigger profile setup on first login via Google OAuth (no URL token)
+            // Only if profileSetupShown is false AND we haven't already processed a URL token
             if (event === 'SIGNED_IN' && !get().profileSetupShown) {
               set({ profileSetupShown: true });
               setTimeout(() => {
-                if (!get().immigrationProfile) {
-                  get().openProfileModal();
-                }
-              }, 800);
+                if (!get().immigrationProfile) get().openProfileModal();
+              }, 1200);
             }
           } else if (event === 'SIGNED_OUT') {
             set({ authUser: null, lastSyncedAt: null, syncError: null, emailVerified: false });
