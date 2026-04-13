@@ -682,12 +682,16 @@ export const useStore = create<AppStore>()(
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.user) {
             initialSyncDone = true;
+            // Set hasOnboarded FIRST so welcome modal never shows for logged-in users
             set({
               authUser: {
                 id: session.user.id,
                 email: session.user.email!,
                 createdAt: session.user.created_at,
               },
+              hasOnboarded: true,
+              showWelcomeModal: false,
+              isGuestMode: false,
             });
             try { await get().syncFromCloud(); } catch {}
           }
@@ -897,15 +901,25 @@ export const useStore = create<AppStore>()(
       name: 'statusvault-storage',
       storage: createJSONStorage(() => platformStorage),
       onRehydrateStorage: () => (state) => {
-        // Check for magic link token in URL — suppress welcome modal immediately
         const hasMagicToken = typeof window !== 'undefined' &&
           (window.location.hash.includes('access_token') ||
            window.location.hash.includes('token_hash') ||
            window.location.search.includes('token_hash'));
+
+        // Check Supabase session synchronously — logged-in users never see welcome modal
+        const hasSupabaseSession = (() => {
+          try {
+            const raw = localStorage.getItem('sb-gekhrdqkaadqeeebzvlu-auth-token');
+            if (!raw) return false;
+            const parsed = JSON.parse(raw);
+            return !!(parsed?.access_token || parsed?.session?.access_token);
+          } catch { return false; }
+        })();
+
+        const suppressWelcome = hasMagicToken || hasSupabaseSession;
         useStore.setState({
           _hasHydrated: true,
-          // Suppress welcome modal if magic link is being processed
-          ...(hasMagicToken ? { hasOnboarded: true, showWelcomeModal: false } : {}),
+          ...(suppressWelcome ? { hasOnboarded: true, showWelcomeModal: false } : {}),
         });
       },
       partialize: (s) => ({
