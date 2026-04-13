@@ -63,7 +63,8 @@ export const SettingsScreen: React.FC = () => {
   const [phoneInput,         setPhoneInput]         = useState('');
   const dialog = useDialog();
   const [importText,      setImportText]      = useState('');
-  const [showPinSetup,    setShowPinSetup]    = useState(false);
+  const [showPinSetup,       setShowPinSetup]       = useState(false);
+  const [confirmAction,      setConfirmAction]      = useState<null|'signout'|'delete'|'reset'>(null);
 
   const handleCloudBackupToggle = () => {
     if (cloudBackupEnabled) {
@@ -81,30 +82,9 @@ export const SettingsScreen: React.FC = () => {
     }
   };
 
-  const handleSignOut = () => {
-    dialog.confirm({
-      title: 'Sign Out',
-      message: 'You will be signed out. Your data stays on this device.',
-      type: 'confirm',
-      confirmLabel: 'Sign Out',
-      cancelLabel: 'Cancel',
-      onConfirm: () => { signOut(); },
-    });
-  };
+  const handleSignOut = () => setConfirmAction('signout');
 
-  const handleDeleteAccount = () => {
-    dialog.confirm({
-      title: 'Delete Account',
-      message: 'This will permanently delete your account and all data. This cannot be undone.',
-      type: 'danger',
-      confirmLabel: 'Delete My Account',
-      cancelLabel: 'Cancel',
-      onConfirm: async () => {
-        const { error } = await deleteAccount();
-        if (error) dialog.alert('Error', error);
-      },
-    });
-  };
+  const handleDeleteAccount = () => setConfirmAction('delete');
 
   const handleNotificationToggle = async (value: boolean) => {
     if (value) {
@@ -248,6 +228,7 @@ export const SettingsScreen: React.FC = () => {
   };
 
   return (
+    <View style={{ flex: 1 }}>
     <ScrollView style={styles.container} contentContainerStyle={styles.cc} showsVerticalScrollIndicator={true}>
 
       {/* Header */}
@@ -535,20 +516,7 @@ export const SettingsScreen: React.FC = () => {
       {/* ── Danger Zone ── */}
       <SectionLabel iconName="warning-outline" label="DANGER ZONE" />
       <View style={[styles.card, { borderWidth: 1, borderColor: colors.dangerLight }]}>
-        <TouchableOpacity style={styles.sRow} onPress={() => {
-          dialog.confirm({
-            title: 'Reset All Data?',
-            message: 'This permanently deletes all your documents, checklists, timers, trips and family members. You will stay signed in. This cannot be undone.',
-            type: 'danger',
-            confirmLabel: 'Reset Everything',
-            cancelLabel: 'Cancel',
-            onConfirm: async () => {
-              await cancelAllNotifications();
-              // Call directly from store at execution time — avoids stale closure
-              await useStore.getState().resetAllData();
-            },
-          });
-        }}>
+        <TouchableOpacity style={styles.sRow} onPress={() => setConfirmAction('reset')}>
           <View style={[styles.rowIconBox, { backgroundColor: colors.dangerLight }]}>
             <Ionicons name="trash-outline" size={16} color={colors.danger} />
           </View>
@@ -617,6 +585,65 @@ export const SettingsScreen: React.FC = () => {
       </Modal>
 
     </ScrollView>
+    {/* ── Confirm Modals — rendered outside ScrollView so they're not clipped ── */}
+    {(['signout','delete','reset'] as const).map(action => {
+      const cfg = {
+        signout: {
+          title: 'Sign Out',
+          msg: 'You will be signed out. Your data stays on this device.',
+          btnLabel: 'Sign Out',
+          btnColor: '#4F46E5',
+          onConfirm: () => { signOut(); },
+        },
+        delete: {
+          title: 'Delete Account',
+          msg: 'This permanently deletes your Supabase account and all cloud data. Local data is cleared. This cannot be undone.',
+          btnLabel: 'Delete Account',
+          btnColor: '#DC2626',
+          onConfirm: async () => { const { error } = await deleteAccount(); if (error) alert(error); },
+        },
+        reset: {
+          title: 'Reset All Data?',
+          msg: 'Permanently deletes all your documents, checklists, timers, trips and family members from this device and cloud. You will stay signed in.',
+          btnLabel: 'Reset Everything',
+          btnColor: '#DC2626',
+          onConfirm: async () => { await cancelAllNotifications(); await useStore.getState().resetAllData(); },
+        },
+      }[action];
+      return (
+        <Modal key={action} visible={confirmAction === action} transparent animationType="fade" statusBarTranslucent>
+          <View style={styles.confirmOverlay}>
+            <TouchableOpacity style={StyleSheet.absoluteFillObject as any} activeOpacity={1} onPress={() => setConfirmAction(null)} />
+            <View style={styles.confirmBox}>
+              <View style={styles.confirmIconRow}>
+                <View style={[styles.confirmIconBg, { backgroundColor: action === 'signout' ? '#EEF2FF' : '#FEF2F2' }]}>
+                  <Ionicons
+                    name={action === 'signout' ? 'log-out-outline' : action === 'delete' ? 'person-remove-outline' : 'trash-outline'}
+                    size={22}
+                    color={action === 'signout' ? '#4F46E5' : '#DC2626'}
+                  />
+                </View>
+              </View>
+              <Text style={styles.confirmTitle}>{cfg.title}</Text>
+              <Text style={styles.confirmMsg}>{cfg.msg}</Text>
+              <View style={styles.confirmBtns}>
+                <TouchableOpacity style={styles.confirmCancel} onPress={() => setConfirmAction(null)} activeOpacity={0.8}>
+                  <Text style={styles.confirmCancelTxt}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.confirmOk, { backgroundColor: cfg.btnColor }]}
+                  onPress={async () => { setConfirmAction(null); await cfg.onConfirm(); }}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.confirmOkTxt}>{cfg.btnLabel}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      );
+    })}
+    </View>
   );
 };
 
@@ -668,6 +695,17 @@ const styles = StyleSheet.create({
   premBtnGrad:     { paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: radius.md },
   premBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF' },
   legalText:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, lineHeight: 20 },
+  confirmIconRow:  { alignItems: 'center', marginBottom: 14 },
+  confirmIconBg:   { width: 52, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  confirmOverlay:  { position: 'absolute' as any, inset: 0, backgroundColor: 'rgba(15,23,42,0.65)', alignItems: 'center', justifyContent: 'center', zIndex: 9999 } as any,
+  confirmBox:      { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 24, width: '90%', maxWidth: 380, ...Platform.select({ web: { boxShadow: '0 8px 32px rgba(15,23,42,0.18)' } as any }) } as any,
+  confirmTitle:    { fontSize: 17, fontFamily: 'Inter_700Bold', color: '#0F172A', marginBottom: 8 },
+  confirmMsg:      { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#64748B', lineHeight: 20, marginBottom: 20 },
+  confirmBtns:     { flexDirection: 'row', gap: 10, justifyContent: 'flex-end' } as any,
+  confirmCancel:   { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, backgroundColor: '#F1F5F9' },
+  confirmCancelTxt:{ fontSize: 14, fontFamily: 'Inter_500Medium', color: '#475569' },
+  confirmOk:       { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
+  confirmOkTxt:    { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#FFFFFF' },
   version:         { ...typography.caption, color: colors.text3, textAlign: 'center', marginTop: spacing.xxl, lineHeight: 20, fontSize: 12 },
   importOverlay:   { flex: 1, backgroundColor: colors.overlay, justifyContent: 'center', alignItems: 'center', padding: 24 },
   importSheet:     { backgroundColor: '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 380, overflow: 'hidden' },
