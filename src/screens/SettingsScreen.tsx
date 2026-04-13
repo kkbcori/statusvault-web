@@ -442,6 +442,35 @@ export const SettingsScreen: React.FC = () => {
         </LinearGradient>
       )}
 
+      {/* ── Account Actions ── */}
+      {authUser && (
+        <>
+          <SectionLabel iconName="person-circle-outline" label="ACCOUNT" />
+          <View style={styles.card}>
+            <TouchableOpacity style={styles.sRow} onPress={() => useStore.getState().openAuthModal('set your password')} activeOpacity={0.75}>
+              <View style={styles.rowIconBox}>
+                <Ionicons name="key-outline" size={16} color="#4F46E5" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.sText}>Set / Change Password</Text>
+                <Text style={styles.rDesc}>Enable email + password sign-in alongside magic link</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.text3} />
+            </TouchableOpacity>
+            <View style={styles.div} />
+            <TouchableOpacity style={styles.sRow} onPress={handleSignOut} activeOpacity={0.75}>
+              <View style={[styles.rowIconBox, { backgroundColor: '#FEF2F2' }]}>
+                <Ionicons name="log-out-outline" size={16} color="#DC2626" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.sText, { color: '#DC2626' }]}>Sign Out</Text>
+                <Text style={styles.rDesc}>Your data stays on this device</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
+
       {/* ── Danger Zone ── */}
       <SectionLabel iconName="warning-outline" label="DANGER ZONE" />
       <View style={[styles.card, { borderWidth: 1, borderColor: colors.dangerLight }]}>
@@ -453,6 +482,18 @@ export const SettingsScreen: React.FC = () => {
           <Text style={[styles.sText, { color: colors.danger }]}>Reset All Data</Text>
           <Ionicons name="chevron-forward" size={18} color={colors.danger} />
         </TouchableOpacity>
+        {authUser && (
+          <>
+            <View style={styles.div} />
+            <TouchableOpacity style={styles.sRow} onPress={handleDeleteAccount} activeOpacity={0.75}>
+              <View style={[styles.rowIconBox, { backgroundColor: '#FEF2F2' }]}>
+                <Ionicons name="person-remove-outline" size={16} color="#DC2626" />
+              </View>
+              <Text style={[styles.sText, { color: '#DC2626' }]}>Delete Account</Text>
+              <Ionicons name="chevron-forward" size={18} color="#DC2626" />
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
       {/* ── Legal ── */}

@@ -199,10 +199,8 @@ const WebSidebar: React.FC = () => {
         <View style={sidebarStyles.bottom}>
           <View style={sidebarStyles.syncRow}>
             <View style={[sidebarStyles.syncDot, {
-              backgroundColor: isSyncing ? colors.warning : colors.success
             }]} />
             <Text style={sidebarStyles.syncText}>
-              {isSyncing ? 'Syncing…' : 'Synced · AES-256 encrypted'}
             </Text>
           </View>
         </View>
@@ -241,14 +239,11 @@ const WebTopBar: React.FC = () => {
         <Text style={topBarStyles.title}>{item?.label ?? 'Dashboard'}</Text>
       </View>
       <View style={topBarStyles.right}>
+
         {authUser && (
-          <View style={[topBarStyles.pulsePill, isSyncing && topBarStyles.pulsePillSyncing]}>
-            <View style={[topBarStyles.pulseDot, {
-              backgroundColor: isSyncing ? '#F59E0B' : '#10B981'
-            }]} />
-            <Text style={[topBarStyles.pulseText, isSyncing && topBarStyles.pulseTextSyncing]}>
-              {isSyncing ? 'Syncing' : 'Synced'}
-            </Text>
+          <View style={topBarStyles.privateBadge}>
+            <Ionicons name="lock-closed" size={10} color="#059669" />
+            <Text style={topBarStyles.privateBadgeTxt}>On Device</Text>
           </View>
         )}
         <TouchableOpacity
@@ -469,7 +464,9 @@ const topBarStyles = StyleSheet.create({
   pulseDot:  { width: 6, height: 6, borderRadius: 3 },
   pulseText: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#059669' },
   pulseTextSyncing: { color: '#D97706' },
-  avatarBtn: { width: 34, height: 34, backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE', borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  avatarBtn:      { width: 34, height: 34, backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE', borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  privateBadge:   { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ECFDF5', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: '#6EE7B7' },
+  privateBadgeTxt:{ fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#059669' },
 });
 
 const mobileStyles = StyleSheet.create({

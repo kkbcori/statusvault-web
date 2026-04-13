@@ -128,6 +128,8 @@ interface AppStore {
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<{ error: string | null }>;
   sendMagicLink: (email: string) => Promise<{ error: string | null }>;
+  signInWithPassword: (email: string, password: string) => Promise<{ error: string | null }>;
+  setPassword: (password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   initAuth: () => Promise<void>;
 
@@ -147,6 +149,7 @@ interface AppStore {
   showPaywallModal: boolean;
   emailVerified: boolean;
   preAuthDocCount: number;
+  profileSetupShown: boolean;  // true after profile modal shown once
   isGuestMode: boolean;       // true = using without account
   showWelcomeModal: boolean;  // first-visit chooser
   setGuestMode: (v: boolean) => void;
@@ -514,6 +517,26 @@ export const useStore = create<AppStore>()(
         return { error: null };
       },
 
+      signInWithPassword: async (email, password) => {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          const msg = error.message.toLowerCase();
+          if (msg.includes('email not confirmed'))
+            return { error: 'Please verify your email first.' };
+          if (msg.includes('invalid') || msg.includes('credentials'))
+            return { error: 'Incorrect email or password.' };
+          return { error: error.message };
+        }
+        set({ isGuestMode: false });
+        return { error: null };
+      },
+
+      setPassword: async (password) => {
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) return { error: error.message };
+        return { error: null };
+      },
+
       signOut: async () => {
         await supabase.auth.signOut();
         set({
@@ -627,13 +650,14 @@ export const useStore = create<AppStore>()(
                 authModalMessage: '',
               });
             }
-            // After any sign-in, open profile setup if not completed yet
-            if (event === 'SIGNED_IN') {
+            // Open profile setup only on FIRST login ever (not on every page refresh)
+            if (event === 'SIGNED_IN' && !get().profileSetupShown) {
+              set({ profileSetupShown: true });
               setTimeout(() => {
                 if (!get().immigrationProfile) {
                   get().openProfileModal();
                 }
-              }, 500);
+              }, 800);
             }
           } else if (event === 'SIGNED_OUT') {
             set({ authUser: null, lastSyncedAt: null, syncError: null, emailVerified: false });
@@ -875,6 +899,7 @@ export const useStore = create<AppStore>()(
         whatsappPhone: s.whatsappPhone,
         preAuthDocCount: s.preAuthDocCount,
         isGuestMode: s.isGuestMode,
+        profileSetupShown: s.profileSetupShown,
       }),
     }
   )
