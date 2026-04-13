@@ -162,7 +162,7 @@ interface AppStore {
   closePaywall: () => void;
   openProfileModal: () => void;  // set by MainTabs after mount
   setVisaProfile: (profile: string) => void;
-  resetAllData: () => void;
+  resetAllData: () => Promise<void>;
   deleteAccount: () => Promise<{ error: string | null }>;
   exportData: () => string;
   importData: (json: string) => boolean;
@@ -885,15 +885,27 @@ export const useStore = create<AppStore>()(
       setVisaProfile: (profile) => set({ visaProfile: profile }),
       setImmigrationProfile: (p) => { set({ immigrationProfile: p }); scheduleSync(); },
 
-      resetAllData: () => {
-        // Sign out from Supabase too
-        supabase.auth.signOut().catch(() => {});
+      resetAllData: async () => {
+        // Delete cloud data from Supabase (keep user logged in)
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            await supabase.from('user_data').delete().eq('user_id', session.user.id);
+          }
+        } catch {}
+
+        // Preserve auth state — only clear local data
+        const { authUser, isPremium, emailVerified } = get();
         set({
-          _hasHydrated: true,   // NEVER set false — causes infinite loading freeze
-          hasOnboarded: false,
+          _hasHydrated: true,
+          hasOnboarded: true,   // keep true so welcome modal doesn't reappear
           isGuestMode: false,
           showWelcomeModal: false,
-          authUser: null,
+          // Keep auth — user stays logged in
+          authUser,
+          isPremium,
+          emailVerified,
+          // Clear all personal data
           visaProfile: null,
           immigrationProfile: null,
           documents: [],
@@ -905,16 +917,14 @@ export const useStore = create<AppStore>()(
           showAuthModal: false,
           authModalMessage: 'Sign in to continue',
           showPaywallModal: false,
-          emailVerified: false,
           notificationsEnabled: true,
           notificationEmail: null,
-          whatsappPhone: null,
-          isPremium: false,
           pinEnabled: false,
           pinCode: null,
           lastSyncedAt: null,
           syncError: null,
           preAuthDocCount: 0,
+          notifications: [],
         });
       },
       exportData: () => {

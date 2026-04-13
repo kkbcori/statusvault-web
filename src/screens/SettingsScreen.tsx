@@ -535,13 +535,18 @@ export const SettingsScreen: React.FC = () => {
       {/* ── Danger Zone ── */}
       <SectionLabel iconName="warning-outline" label="DANGER ZONE" />
       <View style={[styles.card, { borderWidth: 1, borderColor: colors.dangerLight }]}>
-        <TouchableOpacity style={styles.sRow} onPress={async () => {
-          const ok = typeof window !== 'undefined'
-            ? window.confirm('Reset ALL data? This permanently deletes all documents, checklists, timers, and trips. Cannot be undone.')
-            : true;
-          if (!ok) return;
-          await cancelAllNotifications();
-          resetAllData();
+        <TouchableOpacity style={styles.sRow} onPress={() => {
+          dialog.confirm({
+            title: 'Reset All Data?',
+            message: 'This permanently deletes all your documents, checklists, timers, trips and family members. You will stay signed in. This cannot be undone.',
+            type: 'danger',
+            confirmLabel: 'Reset Everything',
+            cancelLabel: 'Cancel',
+            onConfirm: async () => {
+              await cancelAllNotifications();
+              await resetAllData();
+            },
+          });
         }}>
           <View style={[styles.rowIconBox, { backgroundColor: colors.dangerLight }]}>
             <Ionicons name="trash-outline" size={16} color={colors.danger} />
