@@ -450,13 +450,14 @@ export const useStore = create<AppStore>()(
           set({ isGuestMode: false });
         }
         if (error) {
-          // Translate Supabase error codes to friendly messages
           const msg = error.message.toLowerCase();
-          if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('wrong password')) {
-            return { error: 'Incorrect email or password. If you just registered, please verify your email first.' };
-          }
+          // Only show "verify email" for the specific Supabase "email not confirmed" error
           if (msg.includes('email not confirmed')) {
-            return { error: 'Please verify your email first — check your inbox for a confirmation link.' };
+            return { error: 'Your email is not verified yet. Check your inbox for the confirmation link.' };
+          }
+          // Wrong credentials — do NOT mention email verification here
+          if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('wrong password') || msg.includes('user not found')) {
+            return { error: 'Incorrect email or password. Please check and try again.' };
           }
           if (msg.includes('too many requests') || msg.includes('rate limit')) {
             return { error: 'Too many attempts. Please wait a few minutes and try again.' };
@@ -530,12 +531,15 @@ export const useStore = create<AppStore>()(
       initAuth: async () => {
         let initialSyncDone = false;
 
-        // Handle email confirmation token_hash in URL (from confirmation email)
+        // Handle email confirmation in URL (both token_hash and access_token formats)
         if (typeof window !== 'undefined') {
           const hash = window.location.hash;
           const params = new URLSearchParams(hash.replace('#', '?'));
-          const tokenHash = params.get('token_hash');
-          const type = params.get('type');
+          const tokenHash   = params.get('token_hash');
+          const accessToken = params.get('access_token');
+          const type        = params.get('type');
+
+          // Format 1: token_hash (older email template format)
           if (tokenHash && (type === 'signup' || type === 'email')) {
             try {
               const { data, error } = await supabase.auth.verifyOtp({
@@ -550,13 +554,28 @@ export const useStore = create<AppStore>()(
                     createdAt: data.session.user.created_at,
                   },
                   emailVerified: true,
+                  isGuestMode: false,
+                  hasOnboarded: true,
+                  showWelcomeModal: false,
                 });
                 initialSyncDone = true;
                 try { await get().syncFromCloud(); } catch {}
               }
             } catch {}
-            // Clean the URL hash regardless of success
             window.history.replaceState(null, '', window.location.pathname);
+          }
+
+          // Format 2: access_token (current Supabase email confirmation format)
+          // Supabase JS handles this automatically via onAuthStateChange,
+          // but we mark emailVerified and clean the URL here
+          if (accessToken && type === 'signup') {
+            set({ emailVerified: true, isGuestMode: false, hasOnboarded: true, showWelcomeModal: false });
+            // Let Supabase process the session from hash automatically
+            // Clean URL after a short delay to allow Supabase to parse it first
+            setTimeout(() => {
+              window.history.replaceState(null, '', window.location.pathname);
+            }, 1000);
+          }
           }
         }
 
