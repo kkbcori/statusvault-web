@@ -383,7 +383,6 @@ const MainTabs: React.FC = () => {
           tabBar={(props) => showMobileTabBar ? <MobileTabBar {...props} /> : null}
           screenOptions={({ route }) => ({
             headerShown: false,
-            tabBarStyle: IS_WEB ? { display: 'none' } : { display: 'none' },
           })}
         >
           {TAB_ITEMS.map((item) => (
