@@ -43,6 +43,20 @@ jobs:
       - name: Add .nojekyll
         run: touch dist/.nojekyll
 
+      - name: Add static pages to dist
+        run: |
+          # Write privacy and terms directly — no dependency on source files
+          cp web/privacy.html dist/privacy.html
+          cp web/terms.html dist/terms.html
+          # Also create /privacy/ and /terms/ subdirs for clean URL routing
+          mkdir -p dist/privacy dist/terms
+          cp web/privacy.html dist/privacy/index.html
+          cp web/terms.html dist/terms/index.html
+          echo "=== dist/ contents ==="
+          ls dist/
+          echo "Privacy: $(wc -c < dist/privacy.html) bytes"
+          echo "Terms:   $(wc -c < dist/terms.html) bytes"
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
