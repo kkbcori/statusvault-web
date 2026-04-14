@@ -6,6 +6,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Platform, View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal } from 'react-native';
 import { NavigationContainer, useNavigation, useNavigationState } from '@react-navigation/native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useWindowDimensions } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -458,6 +459,7 @@ const MainTabs: React.FC = () => {
 
 export const AppNavigator: React.FC = () => {
   return (
+    <SafeAreaProvider>
     <NavigationContainer
       documentTitle={{
         formatter: () => 'StatusVault — Your Personal Immigration Document Expiry Tracker',
@@ -468,6 +470,7 @@ export const AppNavigator: React.FC = () => {
         <Stack.Screen name="Auth"  component={AuthScreen} options={{ animation: 'slide_from_bottom' }} />
       </Stack.Navigator>
     </NavigationContainer>
+    </SafeAreaProvider>
   );
 };
 
