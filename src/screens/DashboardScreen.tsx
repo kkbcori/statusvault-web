@@ -347,10 +347,10 @@ export const DashboardScreen: React.FC = () => {
 
 
       {/* ═══ 4-CARD GRID ═══ */}
-      <View style={[styles.cardGrid, IS_WEB && styles.cardGridWeb]}>
+      <View style={[styles.cardGrid, hasSidebar && styles.cardGridWeb]}>
 
         {/* Card 1: Document Status */}
-        <Card style={styles.gridCard}>
+        <Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
           <CardHeader
             title="Document Status"
             subtitle="Urgency breakdown"
@@ -384,7 +384,7 @@ export const DashboardScreen: React.FC = () => {
         </Card>
 
         {/* Card 2: Upcoming Deadlines */}
-        <Card style={styles.gridCard}>
+        <Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
           <CardHeader
             title="Upcoming Deadlines"
             subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
@@ -431,7 +431,7 @@ export const DashboardScreen: React.FC = () => {
         </Card>
 
         {/* Card 3: Immi Checklist */}
-        <Card style={styles.gridCard}>
+        <Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
           <CardHeader
             title="Immi Checklist"
             subtitle={checklists.length > 0 ? `${checklists.length} active checklist${checklists.length !== 1 ? 's' : ''}` : 'Track your immigration steps'}
@@ -478,7 +478,7 @@ export const DashboardScreen: React.FC = () => {
         </Card>
 
         {/* Card 4: Immi Timers */}
-        <Card style={styles.gridCard}>
+        <Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
           <CardHeader
             title="Immi Timers"
             subtitle={counters.length > 0 ? `${counters.length} timer${counters.length !== 1 ? 's' : ''} active` : 'Track unemployment & stay days'}
@@ -734,7 +734,7 @@ const styles = StyleSheet.create({
   // 4-card grid
   cardGrid:            { gap: 16 },
   cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'flex-start' as any },
-  gridCard:            { flex: IS_WEB ? '0 0 calc(50% - 8px)' as any : 1, minWidth: IS_WEB ? 280 : undefined } as any,
+  gridCard:            { flex: 1 } as any,
   cardFooterBtn:       { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
   cardFooterText:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#7367F0', flex: 1 },
 
