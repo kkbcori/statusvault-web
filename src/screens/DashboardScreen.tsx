@@ -294,7 +294,13 @@ export const DashboardScreen: React.FC = () => {
       )}
 
       {/* ═══ STAT CARDS ═══ */}
-      <View style={styles.statRow}>
+      <View style={[styles.statRow, {
+        flexDirection: (hasSidebar || IS_TABLET) ? 'row' as any : 'column',
+        flexWrap: IS_TABLET ? 'wrap' as any : undefined,
+        gap: IS_TABLET ? 12 : 16,
+        marginHorizontal: hasSidebar ? 0 : IS_TABLET ? 24 : 16,
+        marginTop: hasSidebar ? 0 : 16,
+      }]}>
         <StatCard
           label="Documents Tracked"
           value={documents.length}
@@ -664,7 +670,7 @@ const styles = StyleSheet.create({
   topBannerEditText:   { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#8588A5' },
 
   // Stat cards
-  statRow:       { flexDirection: (IS_WEB && screenWidth >= 768) ? 'row' as any : IS_TABLET ? 'row' as any : 'column' as any, flexWrap: IS_TABLET ? 'wrap' as any : undefined, gap: IS_TABLET ? 12 : 16, marginBottom: 20, marginHorizontal: (IS_WEB && screenWidth >= 768) ? 0 : IS_TABLET ? 24 : 16, marginTop: IS_WEB ? 0 : 16 },
+  statRow:       { flexDirection: 'column' as any, gap: 16, marginBottom: 20, marginHorizontal: 16, marginTop: 16 },
 
   // Free strip
   freeStrip:     { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 11, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : 16, borderWidth: 1, borderColor: '#E2E8F0', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(15,23,42,0.04)' } : {}) } as any,
