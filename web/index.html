@@ -43,5 +43,23 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Footer links required for Google OAuth verification — visible to crawlers -->
+    <div id="legal-footer" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(10,15,30,0.92);backdrop-filter:blur(8px);padding:8px 20px;display:flex;align-items:center;justify-content:center;gap:20px;font-family:system-ui,sans-serif;font-size:12px;border-top:1px solid rgba(255,255,255,0.08);">
+      <span style="color:rgba(203,213,225,0.4);">© 2025 StatusVault</span>
+      <a href="/privacy" style="color:rgba(165,180,252,0.7);text-decoration:none;" onmouseover="this.style.color='#A5B4FC'" onmouseout="this.style.color='rgba(165,180,252,0.7)'">Privacy Policy</a>
+      <span style="color:rgba(255,255,255,0.15)">·</span>
+      <a href="/terms" style="color:rgba(165,180,252,0.7);text-decoration:none;" onmouseover="this.style.color='#A5B4FC'" onmouseout="this.style.color='rgba(165,180,252,0.7)'">Terms of Service</a>
+      <span style="color:rgba(255,255,255,0.15)">·</span>
+      <span style="color:rgba(203,213,225,0.35);">Not affiliated with USCIS</span>
+    </div>
+    <script>
+      // Hide footer once React app loads (avoids overlap with app UI)
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var f = document.getElementById('legal-footer');
+          if (f) f.style.display = 'none';
+        }, 3000);
+      });
+    </script>
   </body>
 </html>
