@@ -295,11 +295,9 @@ export const DashboardScreen: React.FC = () => {
 
       {/* ═══ STAT CARDS ═══ */}
       <View style={[styles.statRow, {
-        flexDirection: (hasSidebar || IS_TABLET) ? 'row' as any : 'column',
-        flexWrap: IS_TABLET ? 'wrap' as any : undefined,
-        gap: IS_TABLET ? 12 : 16,
-        marginHorizontal: hasSidebar ? 0 : IS_TABLET ? 24 : 16,
-        marginTop: hasSidebar ? 0 : 16,
+        flexDirection: hasSidebar ? 'row' as any : 'column',
+        gap: 16,
+        marginTop: hasSidebar ? 0 : 0,
       }]}>
         <StatCard
           label="Documents Tracked"

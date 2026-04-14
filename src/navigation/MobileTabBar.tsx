@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform, Animated, Dimension
 import { Ionicons } from '@expo/vector-icons';
 
 const { width: SCREEN_W } = Dimensions.get('window');
-const IS_TABLET = SCREEN_W >= 768;
+const IS_TABLET = SCREEN_W >= 768 && SCREEN_W < 1024;
 
 // Bottom safe area — hardcoded per platform, no context needed
 const SAFE_BOTTOM = Platform.OS === 'ios' ? 20 : 8;

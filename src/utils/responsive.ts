@@ -6,7 +6,7 @@ export const IS_WEB = Platform.OS === 'web';
 const { width: INIT_W } = Dimensions.get('window');
 
 /** Device class based on initial width */
-export const IS_TABLET  = INIT_W >= 768;
+export const IS_TABLET  = INIT_W >= 768 && INIT_W < 1024;
 export const IS_PHONE   = INIT_W < 768;
 export const IS_SMALL   = INIT_W < 390;   // Small phones (SE, 12 mini)
 

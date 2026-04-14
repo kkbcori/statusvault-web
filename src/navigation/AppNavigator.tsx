@@ -299,7 +299,7 @@ const WebTopBar: React.FC = () => {
 const MainTabs: React.FC = () => {
   const { width: screenWidth } = useWindowDimensions();
   // Show sidebar only on wide screens (tablet/desktop web)
-  const showSidebar = IS_WEB && screenWidth >= 768;
+  const showSidebar = IS_WEB && screenWidth >= 1024;
   const showMobileTabBar = !showSidebar;  // mobile phones + narrow browser windows
 
   const showAuthModal    = useStore((s) => s.showAuthModal);
