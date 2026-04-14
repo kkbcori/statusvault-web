@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   emptyDesc:     { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#64748B', textAlign: 'center', maxWidth: 280, lineHeight: 20 },
   emptyBtn:      { backgroundColor: '#4F46E5', borderRadius: 8, paddingHorizontal: 20, paddingVertical: 10 },
   emptyBtnText:  { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#fff' },
-  list:          { gap: 12, paddingHorizontal: IS_WEB ? 0 : 16 },
+  list:          { gap: 12, paddingHorizontal: 0 },
   card:          { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden' } as any,
   cardHeader:    { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16 },
   cardIcon:      { fontSize: 24 },

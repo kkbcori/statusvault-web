@@ -16,6 +16,7 @@ import { useStore, FREE_LIMIT } from '../store';
 import { generateDeadlines, getMostCritical, calculateDaysRemaining, formatDate } from '../utils/dates';
 import { TimelineItem } from '../components';
 import { IS_WEB, IS_TABLET, useScreenSize } from '../utils/responsive';
+import { useWindowDimensions } from 'react-native';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
 import { UserDocument } from '../types';
 import { useDialog } from '../components/ConfirmDialog';
@@ -116,6 +117,10 @@ const StatusBadge: React.FC<{ label: string; color: string; bg: string }> = ({ l
 export const DashboardScreen: React.FC = () => {
   const navigation   = useNavigation<any>();
   const dialog       = useDialog();
+  const { width: screenWidth } = useWindowDimensions();
+  // On web, only suppress padding when sidebar is visible (wide screen)
+  const hasSidebar = IS_WEB && screenWidth >= 768;
+  const hPad = hasSidebar ? 0 : IS_TABLET ? 24 : 16;
 
   // Store
   const documents            = useStore((s) => s.documents);
@@ -659,7 +664,7 @@ const styles = StyleSheet.create({
   topBannerEditText:   { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#8588A5' },
 
   // Stat cards
-  statRow:       { flexDirection: IS_WEB ? 'row' as any : IS_TABLET ? 'row' as any : 'column' as any, flexWrap: IS_TABLET ? 'wrap' as any : undefined, gap: IS_TABLET ? 12 : 16, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : 16, marginTop: IS_WEB ? 0 : 16 },
+  statRow:       { flexDirection: (IS_WEB && screenWidth >= 768) ? 'row' as any : IS_TABLET ? 'row' as any : 'column' as any, flexWrap: IS_TABLET ? 'wrap' as any : undefined, gap: IS_TABLET ? 12 : 16, marginBottom: 20, marginHorizontal: (IS_WEB && screenWidth >= 768) ? 0 : IS_TABLET ? 24 : 16, marginTop: IS_WEB ? 0 : 16 },
 
   // Free strip
   freeStrip:     { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 11, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : 16, borderWidth: 1, borderColor: '#E2E8F0', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(15,23,42,0.04)' } : {}) } as any,

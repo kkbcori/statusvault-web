@@ -6,6 +6,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Platform, View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal } from 'react-native';
 import { NavigationContainer, useNavigation, useNavigationState } from '@react-navigation/native';
+import { useWindowDimensions } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -295,6 +296,11 @@ const WebTopBar: React.FC = () => {
 
 // ─── Main Tabs ───────────────────────────────────────────────
 const MainTabs: React.FC = () => {
+  const { width: screenWidth } = useWindowDimensions();
+  // Show sidebar only on wide screens (tablet/desktop web)
+  const showSidebar = IS_WEB && screenWidth >= 768;
+  const showMobileTabBar = !showSidebar;  // mobile phones + narrow browser windows
+
   const showAuthModal    = useStore((s) => s.showAuthModal);
   const showWelcomeModal = useStore((s) => s.showWelcomeModal);
   const hasOnboarded     = useStore((s) => s.hasOnboarded);
@@ -367,14 +373,14 @@ const MainTabs: React.FC = () => {
   }, []);
   return (
   <>
-  <View style={[layoutStyles.root, IS_WEB && { ...layoutStyles.rootWeb, backgroundColor: colors.sidebar }]}>
-    {IS_WEB && <WebSidebar />}
-    <View style={[layoutStyles.content, IS_WEB && layoutStyles.contentWeb]}>
-      {IS_WEB && <WebTopBar />}
+  <View style={[layoutStyles.root, showSidebar && { ...layoutStyles.rootWeb, backgroundColor: colors.sidebar }]}>
+    {showSidebar && <WebSidebar />}
+    <View style={[layoutStyles.content, showSidebar ? layoutStyles.contentWeb : IS_WEB ? layoutStyles.contentMobileWeb : undefined]}>
+      {showSidebar && <WebTopBar />}
       <View style={{ flex: 1, overflow: IS_WEB ? 'hidden' as any : undefined }}>
         <Tab.Navigator
           initialRouteName="Dashboard"
-          tabBar={(props) => IS_WEB ? null : <MobileTabBar {...props} />}
+          tabBar={(props) => showMobileTabBar ? <MobileTabBar {...props} /> : null}
           screenOptions={({ route }) => ({
             headerShown: false,
             tabBarStyle: IS_WEB ? { display: 'none' } : { display: 'none' },
@@ -473,6 +479,7 @@ const layoutStyles = StyleSheet.create({
   rootWeb:    { flexDirection: 'row', width: '100%' as any, height: '100%' as any },
   content:    { flex: 1 },
   contentWeb: { flexDirection: 'column', backgroundColor: '#F4F5FA', flex: 1, minWidth: 0, overflow: 'hidden' as any },
+  contentMobileWeb: { flexDirection: 'column', backgroundColor: '#F4F5FA', flex: 1 },
 });
 
 const sidebarStyles = StyleSheet.create({

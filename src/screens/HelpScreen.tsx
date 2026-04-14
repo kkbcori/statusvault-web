@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   webHeroSub:    { fontSize: 15, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.5)', lineHeight: 24, maxWidth: 600 },
 
   // Stats
-  statsRow:      { flexDirection: 'row', paddingHorizontal: IS_WEB ? 0 : spacing.screen, gap: 10, marginVertical: spacing.lg },
+  statsRow:      { flexDirection: 'row', paddingHorizontal: 0, gap: 10, marginVertical: spacing.lg },
   statCard:      { flex: 1, backgroundColor: colors.card, borderRadius: radius.lg, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
   statNum:       { fontSize: 20, fontFamily: 'Inter_900Black', color: '#7367F0', letterSpacing: -0.5 },
   statLabel:     { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: colors.text3, marginTop: 2, textAlign: 'center' },
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
   searchInput:   { flex: 1 },
 
   // Sections
-  sections:      { paddingHorizontal: IS_WEB ? 0 : spacing.screen },
+  sections:      { paddingHorizontal: 0 },
   sectionsWeb:   { flexDirection: 'row' as any, flexWrap: 'wrap' as any, gap: spacing.md },
   sectionWebCol: { flex: 1 as any, minWidth: 360 as any },
 
