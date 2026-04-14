@@ -379,7 +379,7 @@ const MainTabs: React.FC = () => {
     <View style={[layoutStyles.content, showSidebar ? layoutStyles.contentWeb : IS_WEB ? layoutStyles.contentMobileWeb : undefined]}>
       {showSidebar && <WebTopBar />}
       {!showSidebar && IS_WEB && <WebTopBar />}
-      <View style={{ flex: 1, overflow: IS_WEB ? 'hidden' as any : undefined }}>
+      <View style={{ flex: 1, overflow: showSidebar ? 'hidden' as any : undefined }}>
         <Tab.Navigator
           initialRouteName="Dashboard"
           tabBar={(props) => showMobileTabBar ? <MobileTabBar {...props} /> : null}
