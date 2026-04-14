@@ -241,7 +241,7 @@ export const DashboardScreen: React.FC = () => {
       showsVerticalScrollIndicator={true}
     >
       {/* ── Mobile header ── */}
-      {!IS_WEB && (
+      {!hasSidebar && (
         <LinearGradient colors={['#0A0E1A', '#1E1B4B', '#312E81']} style={styles.mobileHeader}>
           <Text style={styles.mobileTitle}>StatusVault</Text>
           <Text style={styles.mobileSub}>Your Status Dashboard</Text>
@@ -249,7 +249,7 @@ export const DashboardScreen: React.FC = () => {
       )}
 
       {/* ── Email verified success banner ── */}
-      {IS_WEB && authUser && emailVerified && (
+      {authUser && emailVerified && (
         <View style={styles.verifiedBanner}>
           <Ionicons name="checkmark-circle" size={16} color="#28C76F" />
           <Text style={styles.verifiedBannerText}>
@@ -262,7 +262,7 @@ export const DashboardScreen: React.FC = () => {
       )}
 
       {/* ── Guest banner — always visible when not signed in ── */}
-      {IS_WEB && (!authUser || isGuestMode) && (
+      {(!authUser || isGuestMode) && (
         <TouchableOpacity
           style={styles.guestBanner}
           onPress={() => useStore.getState().openAuthModal('Sign in to sync your data and receive expiry alerts')}
@@ -277,7 +277,7 @@ export const DashboardScreen: React.FC = () => {
       )}
 
       {/* ── Profile chip — only when logged in and profile set ── */}
-      {IS_WEB && authUser && !isGuestMode && visaProfile && (
+      {authUser && !isGuestMode && visaProfile && (
         <View style={styles.topBanner}>
           <View style={styles.topBannerProfile}>
             <Ionicons name="shield-checkmark" size={16} color="#059669" />
@@ -693,7 +693,7 @@ const styles = StyleSheet.create({
   viewAllText:   { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#4F46E5' },
 
   // Empty state
-  emptyState:    { alignItems: 'center', paddingVertical: 32, gap: 8 },
+  emptyState:    { alignItems: 'center', paddingVertical: 20, gap: 8 },
   emptyIconWrap: { width: 64, height: 64, borderRadius: 18, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', marginBottom: 4, borderWidth: 1, borderColor: '#C7D2FE' },
   emptyTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A' },
   emptyDesc:     { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#64748B', textAlign: 'center', maxWidth: 280, lineHeight: 20 },
