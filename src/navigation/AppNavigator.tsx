@@ -23,6 +23,7 @@ import { NotificationBell } from '../components/NotificationBell';
 import { WelcomeModal } from '../components/WelcomeModal';
 import { PaywallModal } from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
+import { ContactScreen }    from '../screens/ContactScreen';
 import { FamilyScreen }     from '../screens/FamilyScreen';
 import { ChecklistScreen }  from '../screens/ChecklistScreen';
 import { CounterScreen }    from '../screens/CounterScreen';
@@ -47,12 +48,13 @@ const TAB_ITEMS: Array<{
   { name: 'Timers',     label: 'Timers',    active: 'timer',         inactive: 'timer-outline' },
   { name: 'VisaTools',  label: 'Links',      active: 'link',         inactive: 'link-outline' },
   { name: 'Help',       label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
+  { name: 'Contact',    label: 'Contact',   active: 'mail',          inactive: 'mail-outline' },
 ];
 
 const NAV_GROUPS = [
   { label: 'MAIN', items: ['Dashboard', 'Documents', 'Travel', 'Family'] },
   { label: 'TOOLS',   items: ['Checklist', 'Timers', 'VisaTools'] },
-  { label: 'ACCOUNT', items: ['Settings', 'Help'] },
+  { label: 'ACCOUNT', items: ['Settings', 'Help', 'Contact'] },
 ];
 
 // ─── Web Sidebar ─────────────────────────────────────────────
@@ -411,7 +413,9 @@ const MainTabs: React.FC = () => {
                 item.name === 'Checklist'  ? ChecklistScreen  :
                 item.name === 'VisaTools'  ? VisaToolsScreen  :
                 item.name === 'Timers'     ? CounterScreen    :
-                item.name === 'Help'       ? HelpScreen       : SettingsScreen
+                item.name === 'Help'       ? HelpScreen
+               : item.name === 'Contact'    ? ContactScreen
+               : SettingsScreen
               }
               options={{ tabBarLabel: item.label }}
             />

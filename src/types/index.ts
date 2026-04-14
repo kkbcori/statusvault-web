@@ -123,6 +123,7 @@ export type MainTabParamList = {
   Timers: undefined;
   Settings: undefined;
   Help: undefined;
+  Contact: undefined;
 };
 
 export interface FamilyMember {
