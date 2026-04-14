@@ -53,7 +53,7 @@
       "shortName": "StatusVault"
     },
     "experiments": {
-      "baseUrl": "/statusvault-web"
+      "baseUrl": "/"
     },
     "entryPoint": "./index.ts"
   }

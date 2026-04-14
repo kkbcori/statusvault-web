@@ -521,8 +521,8 @@ export const useStore = create<AppStore>()(
       sendMagicLink: async (email) => {
         const redirectTo = typeof window !== 'undefined'
           ? (window.location.hostname === 'localhost'
-              ? window.location.origin + '/statusvault-web'
-              : 'https://kkbcori.github.io/statusvault-web')
+              ? window.location.origin + (window.location.hostname === 'localhost' ? '/statusvault-web' : '')
+              : 'https://www.statusvault.org')
           : 'https://kkbcori.github.io/statusvault-web';
         const { error } = await supabase.auth.signInWithOtp({
           email,
