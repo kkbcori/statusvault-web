@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, shadows } from '../theme';
-import { IS_WEB } from '../utils/responsive';
+import { IS_WEB, IS_TABLET } from '../utils/responsive';
 import { useStore } from '../store';
 import { useNavigation } from '@react-navigation/native';
 import { CHECKLIST_TEMPLATES } from '../utils/checklists';

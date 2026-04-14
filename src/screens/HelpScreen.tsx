@@ -11,7 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
-import { IS_WEB } from '../utils/responsive';
+import { IS_WEB, IS_TABLET } from '../utils/responsive';
 
 // ─── SEO meta injection (web only) ───────────────────────────
 if (IS_WEB && typeof document !== 'undefined') {
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   statLabel:     { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: colors.text3, marginTop: 2, textAlign: 'center' },
 
   // Search
-  searchWrap:    { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1.5, borderColor: '#DBDADE', paddingHorizontal: 14, paddingVertical: Platform.OS === 'ios' ? 14 : 6, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginBottom: spacing.lg },
+  searchWrap:    { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1.5, borderColor: '#DBDADE', paddingHorizontal: 14, paddingVertical: Platform.OS === 'ios' ? 14 : 6, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : spacing.screen, marginBottom: spacing.lg },
   searchIcon:    { marginRight: 10 },
   searchInput:   { flex: 1 },
 
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
   noResultsText: { fontSize: 14, fontFamily: 'Inter_500Medium', color: colors.text3 },
 
   // Official links
-  linksCard:     { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: IS_WEB ? 0 : spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm, marginBottom: spacing.lg },
+  linksCard:     { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm, marginBottom: spacing.lg },
   linksHeader:   { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.md, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   linksTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
   linkRow:       { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
@@ -431,6 +431,6 @@ const styles = StyleSheet.create({
   linkText:      { flex: 1, fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.text2 },
 
   // Disclaimer
-  disclaimer:    { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: colors.warningLight, borderRadius: radius.lg, marginHorizontal: IS_WEB ? 0 : spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: colors.warning + '40' },
+  disclaimer:    { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: colors.warningLight, borderRadius: radius.lg, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: colors.warning + '40' },
   disclaimerText:{ flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#78350F', lineHeight: 19 },
 });

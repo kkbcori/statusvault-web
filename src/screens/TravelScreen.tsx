@@ -11,7 +11,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
-import { IS_WEB } from '../utils/responsive';
+import { IS_WEB, IS_TABLET } from '../utils/responsive';
 import { useDialog } from '../components/ConfirmDialog';
 import { useStore } from '../store';
 import { TravelTrip, TripPurpose } from '../types';

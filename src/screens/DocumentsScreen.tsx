@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore, FREE_LIMIT } from '../store';
-import { IS_WEB } from '../utils/responsive';
+import { IS_WEB, IS_TABLET } from '../utils/responsive';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';

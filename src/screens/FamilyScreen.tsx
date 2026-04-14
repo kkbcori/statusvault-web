@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius, typography, shadows } from '../theme';
-import { IS_WEB } from '../utils/responsive';
+import { IS_WEB, IS_TABLET } from '../utils/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { useStore } from '../store';
 import { useDialog } from '../components/ConfirmDialog';

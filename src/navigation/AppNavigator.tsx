@@ -23,6 +23,7 @@ import { NotificationBell } from '../components/NotificationBell';
 import { WelcomeModal } from '../components/WelcomeModal';
 import { PaywallModal } from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
+import { MobileTabBar }     from './MobileTabBar';
 import { ContactScreen }    from '../screens/ContactScreen';
 import { FamilyScreen }     from '../screens/FamilyScreen';
 import { ChecklistScreen }  from '../screens/ChecklistScreen';
@@ -373,32 +374,10 @@ const MainTabs: React.FC = () => {
       <View style={{ flex: 1, overflow: IS_WEB ? 'hidden' as any : undefined }}>
         <Tab.Navigator
           initialRouteName="Dashboard"
+          tabBar={(props) => IS_WEB ? null : <MobileTabBar {...props} />}
           screenOptions={({ route }) => ({
             headerShown: false,
-            tabBarStyle: IS_WEB ? { display: 'none' } : {
-              backgroundColor: colors.card,
-              borderTopColor: colors.border,
-              borderTopWidth: 1,
-              height: Platform.OS === 'ios' ? 84 : 64,
-              paddingTop: 6,
-              paddingBottom: Platform.OS === 'ios' ? 26 : 8,
-              elevation: 0,
-            },
-            tabBarIcon: ({ focused }) => {
-              const t = TAB_ITEMS.find((x) => x.name === route.name)!;
-              return (
-                <View style={focused ? mobileStyles.activeWrap : undefined}>
-                  <Ionicons
-                    name={focused ? t.active : t.inactive}
-                    size={22}
-                    color={focused ? colors.accent : colors.text3}
-                  />
-                </View>
-              );
-            },
-            tabBarActiveTintColor:   colors.accent,
-            tabBarInactiveTintColor: colors.text3,
-            tabBarLabelStyle: { fontSize: 10, fontFamily: 'Inter_600SemiBold', marginTop: -2 },
+            tabBarStyle: IS_WEB ? { display: 'none' } : { display: 'none' },
           })}
         >
           {TAB_ITEMS.map((item) => (
@@ -544,5 +523,5 @@ const topBarStyles = StyleSheet.create({
 });
 
 const mobileStyles = StyleSheet.create({
-  activeWrap: { width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(79,70,229,0.12)', alignItems: 'center', justifyContent: 'center' },
+  activeWrap: { width: 40, height: 32, borderRadius: 12, backgroundColor: 'rgba(79,70,229,0.10)', alignItems: 'center', justifyContent: 'center' },
 });

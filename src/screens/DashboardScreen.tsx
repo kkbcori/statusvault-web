@@ -15,7 +15,7 @@ import { colors, spacing, radius, typography, shadows } from '../theme';
 import { useStore, FREE_LIMIT } from '../store';
 import { generateDeadlines, getMostCritical, calculateDaysRemaining, formatDate } from '../utils/dates';
 import { TimelineItem } from '../components';
-import { IS_WEB } from '../utils/responsive';
+import { IS_WEB, IS_TABLET, useScreenSize } from '../utils/responsive';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
 import { UserDocument } from '../types';
 import { useDialog } from '../components/ConfirmDialog';
@@ -69,7 +69,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, icon, iconB
 );
 
 const statStyles = StyleSheet.create({
-  card:        { flex: 1, minWidth: IS_WEB ? 180 : '100%', backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, overflow: 'hidden', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(15,23,42,0.04)' } : shadows.md) } as any,
+  card:        { flex: IS_TABLET ? undefined : 1, width: IS_TABLET ? '48%' : undefined, minWidth: IS_WEB ? 180 : undefined, backgroundColor: '#FFFFFF', borderRadius: IS_TABLET ? 20 : 16, padding: IS_TABLET ? 22 : 20, overflow: 'hidden', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(15,23,42,0.04)' } : shadows.md) } as any,
   accentLine:  { position: 'absolute' as any, top: 0, left: 0, right: 0, height: 3, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
   inner:       { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 4 },
   left:        { flex: 1, gap: 4 },
@@ -641,7 +641,7 @@ const styles = StyleSheet.create({
 
   verifiedBanner:      { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#EAFFF4', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, marginBottom: 12, borderWidth: 1, borderColor: '#A3F0C4' },
   verifiedBannerText:  { flex: 1, fontSize: 13, fontFamily: 'Inter_400Regular', color: '#065F46' },
-  guestBanner:         { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#EEF2FF', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 12, borderWidth: 1, borderColor: '#C7D2FE' },
+  guestBanner:         { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#EEF2FF', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 12, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : 16, borderWidth: 1, borderColor: '#C7D2FE' },
   guestBannerText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#3730A3', lineHeight: 17 },
   guestBannerBtn:      { backgroundColor: '#4F46E5', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
   guestBannerBtnTxt:   { fontSize: 11, fontFamily: 'Inter_700Bold', color: '#fff' },
@@ -659,10 +659,10 @@ const styles = StyleSheet.create({
   topBannerEditText:   { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#8588A5' },
 
   // Stat cards
-  statRow:       { flexDirection: IS_WEB ? 'row' as any : 'column' as any, gap: 16, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : 16, marginTop: IS_WEB ? 0 : 16 },
+  statRow:       { flexDirection: IS_WEB ? 'row' as any : IS_TABLET ? 'row' as any : 'column' as any, flexWrap: IS_TABLET ? 'wrap' as any : undefined, gap: IS_TABLET ? 12 : 16, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : 16, marginTop: IS_WEB ? 0 : 16 },
 
   // Free strip
-  freeStrip:     { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 11, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : 16, borderWidth: 1, borderColor: '#E2E8F0', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(15,23,42,0.04)' } : {}) } as any,
+  freeStrip:     { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 11, marginBottom: 20, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : 16, borderWidth: 1, borderColor: '#E2E8F0', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(15,23,42,0.04)' } : {}) } as any,
   freeStripDots: { flexDirection: 'row', gap: 4 },
   freeStripDot:  { width: 10, height: 10, borderRadius: 5 },
   freeStripText: { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: '#334155' },
@@ -670,7 +670,7 @@ const styles = StyleSheet.create({
   freeStripBadgeText:{ fontSize: 11, fontFamily: 'Inter_700Bold' },
 
   // Grid layout
-  grid:          { gap: 16, marginHorizontal: IS_WEB ? 0 : 16 },
+  grid:          { gap: 16, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : 16 },
   gridWeb:       { flexDirection: 'row' as any, alignItems: 'flex-start' as any },
   col:           { gap: 16 },
   colLeft:       { flex: 2 as any, minWidth: 0 as any },
@@ -720,7 +720,7 @@ const styles = StyleSheet.create({
   statusCountText:{ fontSize: 11, fontFamily: 'Inter_700Bold' },
 
   // 4-card grid
-  cardGrid:            { gap: 16, marginHorizontal: IS_WEB ? 0 : 16 },
+  cardGrid:            { gap: 16, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : 16 },
   cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'flex-start' as any },
   gridCard:            { flex: IS_WEB ? '0 0 calc(50% - 8px)' as any : 1, minWidth: IS_WEB ? 280 : undefined } as any,
   cardFooterBtn:       { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F4F5FA' },

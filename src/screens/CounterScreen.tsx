@@ -7,7 +7,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { IS_WEB } from '../utils/responsive';
+import { IS_WEB, IS_TABLET } from '../utils/responsive';
 import { useStore } from '../store';
 import { useNavigation } from '@react-navigation/native';
 import { COUNTER_TEMPLATES } from '../utils/counters';
