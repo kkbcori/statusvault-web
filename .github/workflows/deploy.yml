@@ -43,6 +43,12 @@ jobs:
       - name: Add .nojekyll
         run: touch dist/.nojekyll
 
+      - name: Copy static HTML pages (privacy, terms)
+        run: |
+          cp web/privacy.html dist/privacy.html
+          cp web/terms.html dist/terms.html
+          echo "✓ Copied privacy.html and terms.html to dist/"
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
