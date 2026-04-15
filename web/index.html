@@ -54,14 +54,16 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- Legal footer — always visible for Google OAuth verification and crawlers -->
-    <div id="legal-footer" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(10,15,30,0.92);backdrop-filter:blur(8px);padding:8px 20px;display:flex;align-items:center;justify-content:center;gap:20px;font-family:system-ui,sans-serif;font-size:12px;border-top:1px solid rgba(255,255,255,0.08);">
-      <span style="color:rgba(203,213,225,0.4);">© 2025 StatusVault</span>
-      <a href="https://www.statusvault.org/privacy" style="color:rgba(165,180,252,0.7);text-decoration:none;">Privacy Policy</a>
-      <span style="color:rgba(255,255,255,0.15)">·</span>
-      <a href="https://www.statusvault.org/terms" style="color:rgba(165,180,252,0.7);text-decoration:none;">Terms of Service</a>
-      <span style="color:rgba(255,255,255,0.15)">·</span>
-      <span style="color:rgba(203,213,225,0.35);">Not affiliated with USCIS</span>
+    <!-- Legal footer — always present for Google OAuth verification.
+         Visible as a thin strip at the bottom; pointer-events allow app interaction through it.
+         Users can also find Privacy/Terms in the app Settings screen. -->
+    <div id="legal-footer" style="position:fixed;bottom:0;left:0;right:0;z-index:10000;background:rgba(10,15,30,0.88);backdrop-filter:blur(6px);padding:5px 20px;display:flex;align-items:center;justify-content:center;gap:16px;font-family:system-ui,sans-serif;font-size:11px;border-top:1px solid rgba(255,255,255,0.07);">
+      <span style="color:rgba(203,213,225,0.35);">© 2025 StatusVault</span>
+      <a href="https://www.statusvault.org/privacy" style="color:rgba(165,180,252,0.65);text-decoration:none;">Privacy Policy</a>
+      <span style="color:rgba(255,255,255,0.12)">·</span>
+      <a href="https://www.statusvault.org/terms" style="color:rgba(165,180,252,0.65);text-decoration:none;">Terms of Service</a>
+      <span style="color:rgba(255,255,255,0.12)">·</span>
+      <span style="color:rgba(203,213,225,0.25);">Not affiliated with USCIS</span>
     </div>
   </body>
 </html>
