@@ -70,6 +70,20 @@ export interface UnemploymentTracker {
 export type TripPurpose = 'vacation' | 'business' | 'family' | 'medical' | 'other';
 
 /** A single international travel entry for I-94 / N-400 tracking */
+export interface AddressEntry {
+  id: string;
+  street: string;
+  apt?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  dateFrom: string;  // YYYY-MM-DD
+  dateTo: string;    // YYYY-MM-DD or 'present'
+  isCurrentAddress: boolean;
+  createdAt: string;
+}
+
 export interface TravelTrip {
   id: string;
   departureDate: string;  // YYYY-MM-DD

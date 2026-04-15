@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { UserDocument, ChecklistItem, TravelTrip, AuthUser } from '../types';
+import { UserDocument, ChecklistItem, TravelTrip, AddressEntry, AuthUser } from '../types';
 import {
   scheduleDocumentNotifications,
   cancelDocumentNotifications,
@@ -67,6 +67,7 @@ interface AppStore {
   checklists: ChecklistInstance[];
   counters: ImmiCounter[];
   trips: TravelTrip[];
+  addressHistory: AddressEntry[];
   familyMembers: FamilyMember[];
   notificationsEnabled: boolean;
   notificationEmail: string | null;   // for email expiry alerts
@@ -118,6 +119,9 @@ interface AppStore {
 
   // Travel / I-94
   addTrip: (trip: TravelTrip) => void;
+  addAddress: (entry: AddressEntry) => void;
+  removeAddress: (id: string) => void;
+  updateAddress: (id: string, updates: Partial<AddressEntry>) => void;
   removeTrip: (id: string) => void;
   addFamilyMember: (member: FamilyMember) => void;
   removeFamilyMember: (id: string) => void;
@@ -206,6 +210,7 @@ export const useStore = create<AppStore>()(
       checklists: [],
       counters: [],
       trips: [],
+      addressHistory: [],
       familyMembers: [],
       anyModalOpen: false,
       showAuthModal: false,
@@ -431,6 +436,18 @@ export const useStore = create<AppStore>()(
       // ─── Travel / I-94 ─────────────────────────────────────
       addTrip: (trip) => {
         set((s) => ({ trips: [...s.trips, trip] }));
+        scheduleSync();
+      },
+      addAddress: (entry) => {
+        set((s) => ({ addressHistory: [entry, ...s.addressHistory] }));
+        scheduleSync();
+      },
+      removeAddress: (id) => {
+        set((s) => ({ addressHistory: s.addressHistory.filter((a) => a.id !== id) }));
+        scheduleSync();
+      },
+      updateAddress: (id, updates) => {
+        set((s) => ({ addressHistory: s.addressHistory.map((a) => a.id === id ? { ...a, ...updates } : a) }));
         scheduleSync();
       },
       addFamilyMember: (member) => {
@@ -734,7 +751,7 @@ export const useStore = create<AppStore>()(
           const key  = deriveKey(user.id, email);
           const { familyMembers, visaProfile } = get();
           const { notificationEmail, whatsappPhone } = get();
-          const blob = { documents, checklists, counters, trips, familyMembers, visaProfile, isPremium, notificationEmail, whatsappPhone, syncedAt: new Date().toISOString() };
+          const blob = { documents, checklists, counters, trips, addressHistory: get().addressHistory, familyMembers, visaProfile, isPremium, notificationEmail, whatsappPhone, syncedAt: new Date().toISOString() };
           const data_encrypted = encryptData(blob, key);
           // Try upsert first, fall back to update if upsert fails
           let { error } = await supabase
@@ -912,6 +929,7 @@ export const useStore = create<AppStore>()(
           checklists: [],
           counters: [],
           trips: [],
+      addressHistory: [],
           familyMembers: [],
           anyModalOpen: false,
           showAuthModal: false,
