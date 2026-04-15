@@ -648,7 +648,7 @@ export const TravelScreen: React.FC = () => {
                         <Text style={styles.addrCountryTxt}>{entry.country}</Text>
                       )}
                       <Text style={styles.addrDates}>
-                        {entry.dateFrom.slice(0,7).replace('-', '/')} → {entry.isCurrentAddress ? 'Present' : entry.dateTo.slice(0,7).replace('-', '/')}
+                        {entry.dateFrom.slice(5,7)}/{entry.dateFrom.slice(0,4)} → {entry.isCurrentAddress ? 'Present' : `${entry.dateTo.slice(5,7)}/${entry.dateTo.slice(0,4)}`}
                       </Text>
                     </View>
                     <TouchableOpacity
