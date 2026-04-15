@@ -92,6 +92,7 @@ export const DocumentsScreen: React.FC = () => {
       await updateDocument(editingDoc.id, {
         expiryDate: expiryDate.toISOString().split('T')[0],
         notes: notes.trim(),
+        documentNumber: docNumber.trim() || undefined,
       });
       setShowAddModal(false); setAnyModalOpen(false); setEditingDoc(null); resetAddFlow();
       return;
@@ -114,7 +115,6 @@ export const DocumentsScreen: React.FC = () => {
   };
 
   const handleEdit = (doc: UserDocument) => {
-    if (!canAddDocument() && !doc) return;
     resetAddFlow();
     setEditingDoc(doc);
     setSelectedTemplate(
@@ -302,7 +302,7 @@ export const DocumentsScreen: React.FC = () => {
                       <DateTimePicker
                         value={expiryDate} mode="date"
                         display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={handleDateChange} minimumDate={new Date()} style={styles.datePicker}
+                        onChange={handleDateChange} minimumDate={editingDoc ? undefined : new Date()} style={styles.datePicker}
                       />
                     )}
                     {Platform.OS === 'ios' && showDatePicker && (

@@ -217,7 +217,7 @@ const getNotificationSubtitle = (alertDay: number): string => {
 };
 
 const getNotificationTitle = (doc: UserDocument, alertDay: number): string => {
-  if (alertDay <= 7) return `⚠️ CRITICAL: ${doc.label} — ${alertDay} days left!`;
+  if (alertDay <= 15) return `⚠️ CRITICAL: ${doc.label} — ${alertDay} days left!`;
   if (alertDay <= 30) return `🔴 URGENT: ${doc.label}`;
   if (alertDay <= 60) return `🟡 Reminder: ${doc.label}`;
   return `📋 Heads Up: ${doc.label}`;
