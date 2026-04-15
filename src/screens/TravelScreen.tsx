@@ -224,34 +224,6 @@ export const TravelScreen: React.FC = () => {
   const addTrip    = useStore((s) => s.addTrip);
   const removeTrip = useStore((s) => s.removeTrip);
   const updateTrip = useStore((s) => s.updateTrip);
-  const addressHistory = useStore((s) => s.addressHistory);
-  const addAddress     = useStore((s) => s.addAddress);
-  const removeAddress  = useStore((s) => s.removeAddress);
-
-  const [showModal,      setShowModal]      = useState(false);
-  const [editingId,      setEditingId]      = useState<string | null>(null);
-  const [country,        setCountry]        = useState('');
-  const [portOfEntry,    setPortOfEntry]    = useState('');
-  const [notes,          setNotes]          = useState('');
-  const [purpose,        setPurpose]        = useState<TripPurpose>('vacation');
-  const [departure,      setDeparture]      = useState(new Date());
-  const [returnDate,     setReturnDate]     = useState(new Date());
-  const [activePicker,   setActivePicker]   = useState<'departure' | 'return' | null>(null);
-  const [showAll,        setShowAll]        = useState(false);
-  const [exporting,      setExporting]      = useState(false);
-  const [exportingAddr,  setExportingAddr]  = useState(false);
-  const [showAddrModal,  setShowAddrModal]  = useState(false);
-  const [addrStreet,     setAddrStreet]     = useState('');
-  const [addrApt,        setAddrApt]        = useState('');
-  const [addrCity,       setAddrCity]       = useState('');
-  const [addrState,      setAddrState]      = useState('');
-  const [addrZip,        setAddrZip]        = useState('');
-  const [addrCountry,    setAddrCountry]    = useState('United States');
-  const [addrFrom,       setAddrFrom]       = useState(new Date());
-  const [addrTo,         setAddrTo]         = useState(new Date());
-  const [addrCurrent,    setAddrCurrent]    = useState(false);
-  const [addrPicker,     setAddrPicker]     = useState<'from'|'to'|null>(null);
-  const dialog = useDialog();
 
   // Address history state
   const addressHistory = useStore((s) => s.addressHistory);
@@ -408,59 +380,6 @@ export const TravelScreen: React.FC = () => {
     } finally {
       setExporting(false);
     }
-  };
-
-  const resetAddrForm = () => {
-    setAddrStreet(''); setAddrApt(''); setAddrCity(''); setAddrState('');
-    setAddrZip(''); setAddrCountry('United States');
-    setAddrFrom(new Date()); setAddrTo(new Date()); setAddrCurrent(false);
-  };
-
-  const handleSaveAddress = () => {
-    if (!addrStreet.trim() || !addrCity.trim() || !addrCountry.trim()) {
-      dialog.alert('Missing Fields', 'Please enter at least a street address, city, and country.');
-      return;
-    }
-    const entry: AddressEntry = {
-      id: Date.now().toString(),
-      street: addrStreet.trim(),
-      apt: addrApt.trim() || undefined,
-      city: addrCity.trim(),
-      state: addrState.trim(),
-      zipCode: addrZip.trim(),
-      country: addrCountry.trim(),
-      dateFrom: addrFrom.toISOString().split('T')[0],
-      dateTo: addrCurrent ? 'present' : addrTo.toISOString().split('T')[0],
-      isCurrentAddress: addrCurrent,
-    };
-    addAddress(entry);
-    resetAddrForm();
-    setShowAddrModal(false);
-  };
-
-  const handleDeleteAddress = (id: string, city: string) => {
-    dialog.confirm({ title: 'Remove Address', message: `Remove ${city} from your address history?`,
-      type: 'danger', confirmLabel: 'Remove', onConfirm: () => removeAddress(id) });
-  };
-
-  const handleExportAddressPdf = async () => {
-    setExportingAddr(true);
-    try { await exportAddressPdf(addressHistory); } catch {}
-    setExportingAddr(false);
-  };
-
-  const handleAddrDateChange = (_event: any, date?: Date) => {
-    if (Platform.OS === 'android') setAddrPicker(null);
-    if (!date) return;
-    if (addrPicker === 'from') setAddrFrom(date);
-    else setAddrTo(date);
-  };
-
-  const handleDateChange = (_event: any, date?: Date) => {
-    if (Platform.OS === 'android') setActivePicker(null);
-    if (!date) return;
-    if (activePicker === 'departure') setDeparture(date);
-    else setReturnDate(date);
   };
 
   return (
