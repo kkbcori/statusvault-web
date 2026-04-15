@@ -649,6 +649,10 @@ export const TravelScreen: React.FC = () => {
                   <Text style={styles.saveBtnText}>{editingId ? 'Update Trip' : 'Add Trip'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
+
+            </View>{/* end form */}
+          </View>{/* end modalSheet */}
+        </View>{/* end modalOverlay */}
       </Modal>
 
       {/* ═══ ADD / EDIT ADDRESS MODAL ═══ */}

@@ -462,9 +462,20 @@ const MainTabs: React.FC = () => {
 };
 
 export const AppNavigator: React.FC = () => {
+  const linking = {
+    prefixes: ['https://www.statusvault.org', 'https://statusvault.org', 'statusvault://'],
+    config: {
+      screens: {
+        Main: '',
+        Auth: 'auth',
+      },
+    },
+  };
+
   return (
     <SafeAreaProvider>
     <NavigationContainer
+      linking={linking}
       documentTitle={{
         formatter: () => 'StatusVault — Your Personal Immigration Document Expiry Tracker',
       }}
