@@ -614,6 +614,7 @@ export const TravelScreen: React.FC = () => {
       <Modal visible={showAddrModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
+            {/* Cyan trim matching I-485 theme */}
             <View style={[styles.modalTrim, { backgroundColor: '#0891B2' }]} />
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Add Address</Text>
@@ -621,44 +622,107 @@ export const TravelScreen: React.FC = () => {
                 <Ionicons name="close" size={20} color={colors.text2} />
               </TouchableOpacity>
             </View>
-            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.modalBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+
+              {/* Street */}
               <Text style={styles.fieldLabel}>Street Address *</Text>
-              <TextInput style={styles.textInput} value={addrStreet} onChangeText={setAddrStreet} placeholder="123 Main Street" placeholderTextColor={colors.text4} />
+              <TextInput
+                style={styles.fieldInput}
+                value={addrStreet}
+                onChangeText={setAddrStreet}
+                placeholder="123 Main Street"
+                placeholderTextColor={colors.text3}
+                autoCapitalize="words"
+              />
 
-              <Text style={styles.fieldLabel}>Apt / Unit (optional)</Text>
-              <TextInput style={styles.textInput} value={addrApt} onChangeText={setAddrApt} placeholder="Apt 4B" placeholderTextColor={colors.text4} />
+              {/* Apt */}
+              <Text style={[styles.fieldLabel, { marginTop: 14 }]}>Apt / Unit <Text style={{ color: colors.text3, fontFamily: 'Inter_400Regular' }}>(optional)</Text></Text>
+              <TextInput
+                style={styles.fieldInput}
+                value={addrApt}
+                onChangeText={setAddrApt}
+                placeholder="Apt 4B"
+                placeholderTextColor={colors.text3}
+              />
 
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <View style={{ flex: 2 }}>
+              {/* City + State row */}
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
+                <View style={{ flex: 3 }}>
                   <Text style={styles.fieldLabel}>City *</Text>
-                  <TextInput style={styles.textInput} value={addrCity} onChangeText={setAddrCity} placeholder="New York" placeholderTextColor={colors.text4} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.fieldLabel}>State *</Text>
-                  <TextInput style={styles.textInput} value={addrState} onChangeText={setAddrState} placeholder="NY" placeholderTextColor={colors.text4} autoCapitalize="characters" maxLength={2} />
-                </View>
-              </View>
-
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.fieldLabel}>ZIP Code</Text>
-                  <TextInput style={styles.textInput} value={addrZip} onChangeText={setAddrZip} placeholder="10001" placeholderTextColor={colors.text4} keyboardType="numeric" maxLength={10} />
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={addrCity}
+                    onChangeText={setAddrCity}
+                    placeholder="New York"
+                    placeholderTextColor={colors.text3}
+                    autoCapitalize="words"
+                  />
                 </View>
                 <View style={{ flex: 2 }}>
-                  <Text style={styles.fieldLabel}>Country</Text>
-                  <TextInput style={styles.textInput} value={addrCountry} onChangeText={setAddrCountry} placeholder="United States" placeholderTextColor={colors.text4} />
+                  <Text style={styles.fieldLabel}>State *</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={addrState}
+                    onChangeText={setAddrState}
+                    placeholder="NY"
+                    placeholderTextColor={colors.text3}
+                    autoCapitalize="characters"
+                    maxLength={2}
+                  />
                 </View>
               </View>
 
+              {/* ZIP + Country row */}
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
+                <View style={{ flex: 2 }}>
+                  <Text style={styles.fieldLabel}>ZIP Code</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={addrZip}
+                    onChangeText={setAddrZip}
+                    placeholder="10001"
+                    placeholderTextColor={colors.text3}
+                    keyboardType="numeric"
+                    maxLength={10}
+                  />
+                </View>
+                <View style={{ flex: 3 }}>
+                  <Text style={styles.fieldLabel}>Country</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={addrCountry}
+                    onChangeText={setAddrCountry}
+                    placeholder="United States"
+                    placeholderTextColor={colors.text3}
+                  />
+                </View>
+              </View>
+
+              {/* Current address toggle */}
               <TouchableOpacity
-                style={[styles.purposeBtn, addrCurrent && styles.purposeBtnActive, { marginBottom: 16 }]}
+                style={[styles.addrCurrentToggle, addrCurrent && styles.addrCurrentToggleActive]}
                 onPress={() => setAddrCurrent(!addrCurrent)}
                 activeOpacity={0.8}
               >
-                <Ionicons name={addrCurrent ? 'checkmark-circle' : 'home-outline'} size={16} color={addrCurrent ? colors.primary : colors.text3} />
-                <Text style={[styles.purposeBtnText, addrCurrent && styles.purposeBtnTextActive]}>This is my current address</Text>
+                <View style={[styles.addrToggleBox, addrCurrent && styles.addrToggleBoxActive]}>
+                  <Ionicons
+                    name={addrCurrent ? 'checkmark' : 'home-outline'}
+                    size={14}
+                    color={addrCurrent ? '#fff' : colors.text3}
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.addrToggleLabel, addrCurrent && { color: '#0891B2' }]}>
+                    This is my current address
+                  </Text>
+                  {addrCurrent && (
+                    <Text style={styles.addrToggleSub}>Date To will be set to "Present"</Text>
+                  )}
+                </View>
               </TouchableOpacity>
 
+              {/* Dates */}
               <DateField label="Date From *" value={addrFrom} onPress={() => setAddrActivePicker('from')} onChange={(d) => setAddrFrom(d)} />
               {!addrCurrent && (
                 <DateField label="Date To *" value={addrTo} onPress={() => setAddrActivePicker('to')} onChange={(d) => setAddrTo(d)} />
@@ -667,7 +731,8 @@ export const TravelScreen: React.FC = () => {
               {!IS_WEB && addrActivePicker && (
                 <DateTimePicker
                   value={addrActivePicker === 'from' ? addrFrom : addrTo}
-                  mode="date" display="spinner"
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                   onChange={(_, date) => {
                     if (date) { addrActivePicker === 'from' ? setAddrFrom(date) : setAddrTo(date); }
                     setAddrActivePicker(null);
@@ -675,11 +740,13 @@ export const TravelScreen: React.FC = () => {
                 />
               )}
 
+              {/* Save */}
               <TouchableOpacity style={styles.saveBtn} onPress={handleSaveAddress}>
                 <LinearGradient colors={['#0891B2', '#06B6D4']} style={styles.saveBtnGrad}>
                   <Text style={styles.saveBtnText}>Save Address</Text>
                 </LinearGradient>
               </TouchableOpacity>
+
             </ScrollView>
           </View>
         </View>
@@ -787,6 +854,12 @@ const styles = StyleSheet.create({
   saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 20 },
   saveBtnGrad:     { paddingVertical: 16, alignItems: 'center', borderRadius: radius.md },
   saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#7367F0' },
+  addrCurrentToggle:     { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#F8FAFF', borderRadius: 12, padding: 14, marginTop: 16, marginBottom: 4, borderWidth: 1.5, borderColor: '#E2E8F0' },
+  addrCurrentToggleActive:{ backgroundColor: '#F0F9FF', borderColor: '#67E8F9' },
+  addrToggleBox:         { width: 26, height: 26, borderRadius: 8, backgroundColor: '#E2E8F0', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  addrToggleBoxActive:   { backgroundColor: '#0891B2' },
+  addrToggleLabel:       { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: colors.text2 },
+  addrToggleSub:         { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#0891B2', marginTop: 2 },
   addrCard:        { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14, gap: 10, borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden' as any } as any,
   addrStrip:       { width: 3, borderRadius: 2, position: 'absolute' as any, left: 0, top: 0, bottom: 0 } as any,
   addrStreet:      { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#0F172A', flex: 1 },
