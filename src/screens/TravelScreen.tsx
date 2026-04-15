@@ -401,9 +401,11 @@ export const TravelScreen: React.FC = () => {
 
         {/* Trip list */}
         <View style={{ gap: 8 }}>
-          <TouchableOpacity onPress={() => setShowAll(!showAll)} style={[styles.toggleChip, { alignSelf: 'flex-end', marginBottom: 4 }]}>
-            <Text style={styles.toggleChipText}>{showAll ? 'Show 5-yr' : 'Show all'}</Text>
-          </TouchableOpacity>
+          {trips.length > 0 && (
+            <TouchableOpacity onPress={() => setShowAll(!showAll)} style={[styles.toggleChip, { alignSelf: 'flex-end', marginBottom: 4 }]}>
+              <Text style={styles.toggleChipText}>{showAll ? 'Show 5-yr' : 'Show all'}</Text>
+            </TouchableOpacity>
+          )}
 
           {displayed.length === 0 ? (
             <View style={styles.emptyCard}>
@@ -549,9 +551,9 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Context card — mirrors address modal */}
-            <View style={styles.addrInfoCard}>
-              <View style={[styles.addrInfoIconCircle, { backgroundColor: '#F3EFFB', borderColor: 'rgba(115,103,240,0.25)' }]}>
+            {/* Context card — purple I-94 theme */}
+            <View style={[styles.addrInfoCard, { backgroundColor: '#F5F3FF', borderColor: '#DDD6FE' }]}>
+              <View style={[styles.addrInfoIconCircle, { backgroundColor: '#EDE9FE', borderColor: 'rgba(115,103,240,0.25)' }]}>
                 <Ionicons name="airplane-outline" size={22} color="#7367F0" />
               </View>
               <View style={{ flex: 1 }}>
