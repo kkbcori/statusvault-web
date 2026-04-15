@@ -180,6 +180,7 @@ export const TravelScreen: React.FC = () => {
   const [addrCurrent,      setAddrCurrent]      = useState(false);
   const [addrActivePicker, setAddrActivePicker] = useState<'from'|'to'|null>(null);
   const [exportingAddr,    setExportingAddr]    = useState(false);
+  const [addrError,       setAddrError]       = useState('');
 
   const resetAddrForm = () => {
     setAddrStreet(''); setAddrApt(''); setAddrCity('');
@@ -189,8 +190,9 @@ export const TravelScreen: React.FC = () => {
   };
 
   const handleSaveAddress = () => {
+    setAddrError('');
     if (!addrStreet.trim() || !addrCity.trim() || !addrState.trim()) {
-      dialog.alert('Missing Fields', 'Please fill in street, city, and state.');
+      setAddrError('Please fill in street address, city, and state.');
       return;
     }
     const entry: AddressEntry = {
@@ -413,7 +415,6 @@ export const TravelScreen: React.FC = () => {
               />
             ))
           )}
-        </View>
 
           </View>{/* end trip list */}
           </View>{/* end left col */}
@@ -655,7 +656,7 @@ export const TravelScreen: React.FC = () => {
             <View style={[styles.modalTrim, { backgroundColor: '#0891B2' }]} />
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Add Address</Text>
-              <TouchableOpacity onPress={() => { setShowAddrModal(false); resetAddrForm(); }} style={styles.modalClose}>
+              <TouchableOpacity onPress={() => { setShowAddrModal(false); resetAddrForm(); setAddrError(''); }} style={styles.modalClose}>
                 <Ionicons name="close" size={20} color={colors.text2} />
               </TouchableOpacity>
             </View>
@@ -738,6 +739,12 @@ export const TravelScreen: React.FC = () => {
               )}
 
               {/* Save */}
+              {addrError ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FEF2F2', borderRadius: 8, padding: 12, marginBottom: 12, borderWidth: 1, borderColor: '#FECACA' }}>
+                  <Ionicons name="alert-circle-outline" size={16} color="#DC2626" />
+                  <Text style={{ fontSize: 13, fontFamily: 'Inter_500Medium', color: '#DC2626', flex: 1 }}>{addrError}</Text>
+                </View>
+              ) : null}
               <TouchableOpacity style={styles.saveBtn} onPress={handleSaveAddress}>
                 <LinearGradient colors={['#0891B2', '#06B6D4']} style={styles.saveBtnGrad}>
                   <Text style={styles.saveBtnText}>Save Address</Text>
