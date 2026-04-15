@@ -423,7 +423,7 @@ export const TravelScreen: React.FC = () => {
               <Text style={styles.sectionTitle}>Address History</Text>
             </View>
             <TouchableOpacity
-              style={[styles.addBtn, { backgroundColor: '#0891B2' }]}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#0891B2', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 } as any}
               onPress={() => { resetAddrForm(); setShowAddrModal(true); }}
               activeOpacity={0.85}
             >

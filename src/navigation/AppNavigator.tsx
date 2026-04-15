@@ -203,7 +203,7 @@ const WebSidebar: React.FC = () => {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={sidebarStyles.upgradeRowTitle}>Upgrade to Premium</Text>
-            <Text style={sidebarStyles.upgradeRowSub}>Unlimited docs · $3.99/yr</Text>
+            <Text style={sidebarStyles.upgradeRowSub}>Unlimited docs · from $0.49/mo</Text>
           </View>
           <Ionicons name="chevron-forward" size={14} color={colors.primary} />
         </TouchableOpacity>
