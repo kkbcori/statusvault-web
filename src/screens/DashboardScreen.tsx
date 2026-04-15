@@ -98,7 +98,7 @@ const CardHeader: React.FC<{ title: string; subtitle?: string; right?: React.Rea
 );
 
 const cardStyles = StyleSheet.create({
-  card:     { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(15,23,42,0.04)' } : shadows.md) } as any,
+  card:     { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, flexDirection: 'column' as any, ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(15,23,42,0.04)' } : shadows.md) } as any,
   header:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 },
   title:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A' },
   subtitle: { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 2 },
@@ -375,6 +375,7 @@ export const DashboardScreen: React.FC = () => {
               </View>
             </View>
           ))}
+          <View style={styles.cardSpacer} />
           <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
             <Text style={styles.cardFooterText}>View Documents</Text>
             <Ionicons name="arrow-forward" size={13} color="#7367F0" />
@@ -469,6 +470,7 @@ export const DashboardScreen: React.FC = () => {
               )}
             </View>
           )}
+          <View style={styles.cardSpacer} />
           <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Checklist' })}>
             <Text style={styles.cardFooterText}>Manage Checklists</Text>
             <Ionicons name="arrow-forward" size={13} color="#7367F0" />
@@ -517,6 +519,7 @@ export const DashboardScreen: React.FC = () => {
               )}
             </View>
           )}
+          <View style={styles.cardSpacer} />
           <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Timers' })}>
             <Text style={styles.cardFooterText}>Manage Timers</Text>
             <Ionicons name="arrow-forward" size={13} color="#7367F0" />
@@ -733,7 +736,8 @@ const styles = StyleSheet.create({
   cardGrid:            { gap: 16 },
   cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'stretch' as any },
   gridCard:            { flex: 1 } as any,
-  cardFooterBtn:       { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
+  cardSpacer:          { flex: 1, minHeight: 8 },
+  cardFooterBtn:       { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 0, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
   cardFooterText:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#7367F0', flex: 1 },
 
   // Checklist

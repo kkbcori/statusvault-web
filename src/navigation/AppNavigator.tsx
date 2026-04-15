@@ -26,6 +26,7 @@ import { WelcomeModal } from '../components/WelcomeModal';
 import { PaywallModal } from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
 import { MobileTabBar }     from './MobileTabBar';
+import { StandaloneTabBar }  from './StandaloneTabBar';
 import { ContactScreen }    from '../screens/ContactScreen';
 import { FamilyScreen }     from '../screens/FamilyScreen';
 import { ChecklistScreen }  from '../screens/ChecklistScreen';
@@ -379,10 +380,11 @@ const MainTabs: React.FC = () => {
     <View style={[layoutStyles.content, showSidebar ? layoutStyles.contentWeb : IS_WEB ? layoutStyles.contentMobileWeb : undefined]}>
       {showSidebar && <WebTopBar />}
       {!showSidebar && IS_WEB && <WebTopBar />}
-      <View style={{ flex: 1, overflow: showSidebar ? 'hidden' as any : undefined }}>
+      <View style={{ flex: 1, flexDirection: 'column' as any, overflow: showSidebar ? 'hidden' as any : undefined } as any}>
+        <View style={{ flex: 1, minHeight: 0 }}>
         <Tab.Navigator
           initialRouteName="Dashboard"
-          tabBar={(props) => showMobileTabBar ? <MobileTabBar {...props} /> : null}
+          tabBar={() => null}
           screenOptions={({ route }) => ({
             headerShown: false,
           })}
@@ -407,6 +409,8 @@ const MainTabs: React.FC = () => {
             />
           ))}
         </Tab.Navigator>
+        </View>
+        {showMobileTabBar && <StandaloneTabBar />}
       </View>
     </View>
   </View>
