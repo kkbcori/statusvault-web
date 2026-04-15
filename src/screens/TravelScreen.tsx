@@ -304,15 +304,10 @@ export const TravelScreen: React.FC = () => {
         <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
           <View style={styles.header}>
             <View>
-              <Text style={styles.headerLabel}>TRAVEL HISTORY</Text>
-              <Text style={styles.headerTitle}>I-94 Tracker</Text>
-              <Text style={styles.headerSub}>{trips.length} trip{trips.length !== 1 ? 's' : ''} recorded · N-400 ready</Text>
+              <Text style={styles.headerLabel}>RESIDENCY & TRAVEL</Text>
+              <Text style={styles.headerTitle}>Travel & Address History</Text>
+              <Text style={styles.headerSub}>Ready for N-400 and I-485 applications</Text>
             </View>
-            <TouchableOpacity style={styles.addBtn} onPress={openAdd} activeOpacity={0.8}>
-              <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.addBtnGrad}>
-                <Text style={styles.addBtnText}>+ Trip</Text>
-              </LinearGradient>
-            </TouchableOpacity>
           </View>
         </LinearGradient>
 
@@ -355,44 +350,37 @@ export const TravelScreen: React.FC = () => {
 
           {/* ── LEFT COL: I-94 / N-400 Tracker ── */}
           <View style={[styles.twoColCard, isWideScreen && { flex: 1 } as any]}>
-            {/* Card header */}
-            <View style={styles.twoColCardHeader}>
-              <View style={styles.sectionLeft}>
-                <View style={styles.sectionIconBox}>
-                  <Ionicons name="airplane-outline" size={14} color={'#7367F0'} />
-                </View>
-                <Text style={styles.twoColCardTitle}>I-94 Travel History</Text>
+
+            {/* ── Card header — mirrored with Address card ── */}
+            <View style={styles.cardTopRow}>
+              <View style={styles.cardIconBox}>
+                <Ionicons name="airplane-outline" size={16} color="#7367F0" />
               </View>
-              {/* Small Export PDF button */}
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>I-94 Travel History</Text>
+                <Text style={styles.cardSub}>N-400 Part 8 · Naturalization</Text>
+              </View>
               <TouchableOpacity style={styles.miniExportBtn} onPress={handleExport} activeOpacity={0.8} disabled={exporting}>
-                <Ionicons name="document-text-outline" size={13} color={'#7367F0'} />
+                <Ionicons name="document-text-outline" size={12} color="#7367F0" />
                 <Text style={styles.miniExportTxt}>{exporting ? '…' : 'Export N-400'}</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Info banner */}
-            <View style={[styles.infoBanner, { margin: 0, marginBottom: 12 }]}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.infoBannerTitle}>N-400 Part 8 — Travel Outside the US</Text>
-                <Text style={styles.infoBannerDesc}>Record all trips abroad for the last 5 years for naturalization.</Text>
-              </View>
-            </View>
+            {/* Add Trip button — full width, teal-indigo style */}
+            <TouchableOpacity
+              style={styles.cardAddBtn}
+              onPress={openAdd}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="add-circle-outline" size={15} color="#7367F0" />
+              <Text style={[styles.cardAddBtnTxt, { color: '#7367F0' }]}>+ Add Trip</Text>
+            </TouchableOpacity>
 
         {/* Trip list */}
-        <View style={{ gap: 0 }}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionLeft}>
-              <View style={styles.sectionIconBox}>
-                <Ionicons name="airplane-outline" size={15} color={'#7367F0'} />
-              </View>
-              <Text style={styles.sectionTitle}>
-                {showAll ? 'All Trips' : 'Last 5 Years'}
-              </Text>
-            </View>
-            <TouchableOpacity onPress={() => setShowAll(!showAll)} style={styles.toggleChip}>
-              <Text style={styles.toggleChipText}>{showAll ? 'Show 5-yr' : 'Show all'}</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={{ gap: 8 }}>
+          <TouchableOpacity onPress={() => setShowAll(!showAll)} style={[styles.toggleChip, { alignSelf: 'flex-end', marginBottom: 4 }]}>
+            <Text style={styles.toggleChipText}>{showAll ? 'Show 5-yr' : 'Show all'}</Text>
+          </TouchableOpacity>
 
           {displayed.length === 0 ? (
             <View style={styles.emptyCard}>
@@ -421,60 +409,33 @@ export const TravelScreen: React.FC = () => {
 
           {/* ── RIGHT COL: Address History / I-485 ── */}
           <View style={[styles.twoColCard, isWideScreen && { flex: 1 } as any]}>
-            {/* Card header */}
-            <View style={styles.twoColCardHeader}>
-              <View style={styles.sectionLeft}>
-                <View style={[styles.sectionIconBox, { backgroundColor: '#F0F9FF' }]}>
-                  <Ionicons name="home-outline" size={14} color="#0891B2" />
-                </View>
-                <Text style={styles.twoColCardTitle}>Address History</Text>
+
+            {/* ── Card header — mirrored with I-94 card ── */}
+            <View style={styles.cardTopRow}>
+              <View style={[styles.cardIconBox, { backgroundColor: '#E0F7FA' }]}>
+                <Ionicons name="home-outline" size={16} color="#0891B2" />
               </View>
-              {/* Small Export PDF button */}
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>Address History</Text>
+                <Text style={styles.cardSub}>I-485 Part 3 · Adjustment of Status</Text>
+              </View>
               {addressHistory.length > 0 && (
                 <TouchableOpacity style={[styles.miniExportBtn, { borderColor: '#67E8F9' }]} onPress={handleExportAddressPdf} activeOpacity={0.8}>
-                  <Ionicons name="document-text-outline" size={13} color="#0891B2" />
+                  <Ionicons name="document-text-outline" size={12} color="#0891B2" />
                   <Text style={[styles.miniExportTxt, { color: '#0891B2' }]}>{exportingAddr ? '…' : 'Export I-485'}</Text>
                 </TouchableOpacity>
               )}
-              {/* Add Address button */}
-              <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#0891B2', borderRadius: 7, paddingHorizontal: 10, paddingVertical: 6 } as any}
-                onPress={() => { resetAddrForm(); setShowAddrModal(true); }}
-                activeOpacity={0.85}
-              >
-                <Ionicons name="add" size={13} color="#fff" />
-                <Text style={{ fontSize: 11, fontFamily: 'Inter_700Bold', color: '#fff' }}>Add</Text>
-              </TouchableOpacity>
             </View>
 
-            {/* I-485 info banner */}
-            <View style={[styles.infoBanner, { margin: 0, marginBottom: 12, backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.infoBannerTitle, { color: '#0C4A6E' }]}>I-485 Part 3 — Address History</Text>
-                <Text style={[styles.infoBannerDesc, { color: '#0369A1' }]}>All addresses for the last 5 years (or since age 14).</Text>
-              </View>
-            </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionLeft}>
-              <View style={[styles.sectionIconBox, { backgroundColor: '#F0F9FF' }]}>
-                <Ionicons name="home-outline" size={14} color="#0891B2" />
-              </View>
-              <Text style={styles.sectionTitle}>Address History</Text>
-            </View>
-
-          </View>
-
-          <View style={[styles.infoBanner, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
-            <Ionicons name="document-text-outline" size={16} color="#0891B2" style={{ marginTop: 1 }} />
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.infoBannerTitle, { color: '#0C4A6E' }]}>I-485 Part 3 — Address History</Text>
-              <Text style={[styles.infoBannerText, { color: '#0369A1' }]}>
-                List all addresses where you have lived for the last 5 years (or since age 14). Required for Form I-485 Adjustment of Status.
-              </Text>
-            </View>
-          </View>
+            {/* Add Address button — mirrored with Add Trip */}
+            <TouchableOpacity
+              style={[styles.cardAddBtn, { borderColor: '#67E8F9' }]}
+              onPress={() => { resetAddrForm(); setShowAddrModal(true); }}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="add-circle-outline" size={15} color="#0891B2" />
+              <Text style={[styles.cardAddBtnTxt, { color: '#0891B2' }]}>+ Add Address</Text>
+            </TouchableOpacity>
 
           {addressHistory.length === 0 ? (
             <View style={styles.emptyBox}>
@@ -521,15 +482,7 @@ export const TravelScreen: React.FC = () => {
             </View>
           )}
 
-          {addressHistory.length > 0 && (
-            <TouchableOpacity style={[styles.exportBtn, { marginTop: 16 }]} onPress={handleExportAddressPdf} activeOpacity={0.85}>
-              <LinearGradient colors={['#0891B2', '#06B6D4']} style={styles.exportBtnGrad}>
-                <Ionicons name="document-text-outline" size={16} color="#fff" />
-                <Text style={styles.exportBtnText}>{exportingAddr ? 'Generating PDF…' : 'Export PDF — I-485 Ready'}</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          )}
-          </View>{/* end address section */}
+
           </View>{/* end right col */}
         </View>{/* end twoColRow */}
 
@@ -786,9 +739,15 @@ const styles = StyleSheet.create({
   infoBannerDesc:  { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, lineHeight: 17 },
 
   // Export
+  cardTopRow:       { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 } as any,
+  cardIconBox:      { width: 36, height: 36, borderRadius: 10, backgroundColor: '#EDE9FE', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  cardTitle:        { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A', lineHeight: 19 },
+  cardSub:          { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 1 },
+  cardAddBtn:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1.5, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 10, paddingVertical: 9, marginBottom: 14, backgroundColor: '#FAFAFA' } as any,
+  cardAddBtnTxt:    { fontSize: 13, fontFamily: 'Inter_600SemiBold' },
   twoColRow:        { flexDirection: 'column', gap: 16, paddingHorizontal: spacing.screen, paddingBottom: 24 } as any,
   twoColRowWide:    { flexDirection: 'row' as any, alignItems: 'flex-start' as any } as any,
-  twoColCard:       { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#E2E8F0', minWidth: 0, ...Platform.select({ web: { boxShadow: '0 2px 12px rgba(15,23,42,0.06)' } as any }) } as any,
+  twoColCard:       { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#E2E8F0', minWidth: 0, minHeight: 320, ...Platform.select({ web: { boxShadow: '0 2px 12px rgba(15,23,42,0.06)' } as any }) } as any,
   twoColCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, flexWrap: 'wrap' as any } as any,
   twoColCardTitle:  { fontSize: 12, fontFamily: 'Inter_700Bold', color: '#0F172A', flex: 1 },
   miniExportBtn:    { flexDirection: 'row', alignItems: 'center', gap: 3, borderWidth: 1, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 4, backgroundColor: '#F8F8FF' } as any,
