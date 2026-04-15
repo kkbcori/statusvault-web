@@ -82,7 +82,8 @@ const s = StyleSheet.create({
     ...Platform.select({
       ios:     { shadowColor: '#0F172A', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.07, shadowRadius: 12 },
       android: { elevation: 12 },
-      web:     { boxShadow: '0 -2px 16px rgba(15,23,42,0.07)' } as any,
+      // On web (Chrome/Firefox/Safari): stick to bottom of viewport
+      web:     { position: 'sticky', bottom: 0, zIndex: 999, boxShadow: '0 -2px 16px rgba(15,23,42,0.07)' } as any,
     }),
   } as any,
   row:          { flexDirection: 'row', paddingHorizontal: IS_TABLET ? 24 : 0 },
