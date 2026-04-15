@@ -488,9 +488,11 @@ export const TravelScreen: React.FC = () => {
           )}
 
           {addressHistory.length > 0 && (
-            <TouchableOpacity style={[styles.exportBtn, { marginTop: 16, backgroundColor: '#0891B2' }]} onPress={handleExportAddressPdf} activeOpacity={0.85}>
-              <Ionicons name="document-text-outline" size={16} color="#fff" />
-              <Text style={styles.exportBtnText}>{exportingAddr ? 'Generating PDF…' : 'Export PDF — I-485 Ready'}</Text>
+            <TouchableOpacity style={[styles.exportBtn, { marginTop: 16 }]} onPress={handleExportAddressPdf} activeOpacity={0.85}>
+              <LinearGradient colors={['#0891B2', '#06B6D4']} style={styles.exportBtnGrad}>
+                <Ionicons name="document-text-outline" size={16} color="#fff" />
+                <Text style={styles.exportBtnText}>{exportingAddr ? 'Generating PDF…' : 'Export PDF — I-485 Ready'}</Text>
+              </LinearGradient>
             </TouchableOpacity>
           )}
         </View>
@@ -623,80 +625,40 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.modalBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <View style={{ padding: spacing.screen, paddingTop: 12, gap: 10 } as any}>
 
-              {/* Street */}
-              <Text style={styles.fieldLabel}>Street Address *</Text>
-              <TextInput
-                style={styles.fieldInput}
-                value={addrStreet}
-                onChangeText={setAddrStreet}
-                placeholder="123 Main Street"
-                placeholderTextColor={colors.text3}
-                autoCapitalize="words"
-              />
-
-              {/* Apt */}
-              <Text style={[styles.fieldLabel, { marginTop: 14 }]}>Apt / Unit <Text style={{ color: colors.text3, fontFamily: 'Inter_400Regular' }}>(optional)</Text></Text>
-              <TextInput
-                style={styles.fieldInput}
-                value={addrApt}
-                onChangeText={setAddrApt}
-                placeholder="Apt 4B"
-                placeholderTextColor={colors.text3}
-              />
-
-              {/* City + State row */}
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
+              {/* Street + Apt on same row */}
+              <View style={{ flexDirection: 'row', gap: 10 }}>
                 <View style={{ flex: 3 }}>
-                  <Text style={styles.fieldLabel}>City *</Text>
-                  <TextInput
-                    style={styles.fieldInput}
-                    value={addrCity}
-                    onChangeText={setAddrCity}
-                    placeholder="New York"
-                    placeholderTextColor={colors.text3}
-                    autoCapitalize="words"
-                  />
+                  <Text style={styles.addrFieldLabel}>Street *</Text>
+                  <TextInput style={styles.addrFieldInput} value={addrStreet} onChangeText={setAddrStreet} placeholder="123 Main Street" placeholderTextColor={colors.text3} autoCapitalize="words" />
                 </View>
                 <View style={{ flex: 2 }}>
-                  <Text style={styles.fieldLabel}>State *</Text>
-                  <TextInput
-                    style={styles.fieldInput}
-                    value={addrState}
-                    onChangeText={setAddrState}
-                    placeholder="NY"
-                    placeholderTextColor={colors.text3}
-                    autoCapitalize="characters"
-                    maxLength={2}
-                  />
+                  <Text style={styles.addrFieldLabel}>Apt / Unit</Text>
+                  <TextInput style={styles.addrFieldInput} value={addrApt} onChangeText={setAddrApt} placeholder="4B" placeholderTextColor={colors.text3} />
                 </View>
               </View>
 
-              {/* ZIP + Country row */}
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
-                <View style={{ flex: 2 }}>
-                  <Text style={styles.fieldLabel}>ZIP Code</Text>
-                  <TextInput
-                    style={styles.fieldInput}
-                    value={addrZip}
-                    onChangeText={setAddrZip}
-                    placeholder="10001"
-                    placeholderTextColor={colors.text3}
-                    keyboardType="numeric"
-                    maxLength={10}
-                  />
-                </View>
+              {/* City + State + ZIP on same row */}
+              <View style={{ flexDirection: 'row', gap: 10 }}>
                 <View style={{ flex: 3 }}>
-                  <Text style={styles.fieldLabel}>Country</Text>
-                  <TextInput
-                    style={styles.fieldInput}
-                    value={addrCountry}
-                    onChangeText={setAddrCountry}
-                    placeholder="United States"
-                    placeholderTextColor={colors.text3}
-                  />
+                  <Text style={styles.addrFieldLabel}>City *</Text>
+                  <TextInput style={styles.addrFieldInput} value={addrCity} onChangeText={setAddrCity} placeholder="Dallas" placeholderTextColor={colors.text3} autoCapitalize="words" />
                 </View>
+                <View style={{ flex: 2 }}>
+                  <Text style={styles.addrFieldLabel}>State *</Text>
+                  <TextInput style={styles.addrFieldInput} value={addrState} onChangeText={setAddrState} placeholder="TX" placeholderTextColor={colors.text3} autoCapitalize="characters" maxLength={2} />
+                </View>
+                <View style={{ flex: 2 }}>
+                  <Text style={styles.addrFieldLabel}>ZIP</Text>
+                  <TextInput style={styles.addrFieldInput} value={addrZip} onChangeText={setAddrZip} placeholder="75001" placeholderTextColor={colors.text3} keyboardType="numeric" maxLength={10} />
+                </View>
+              </View>
+
+              {/* Country */}
+              <View>
+                <Text style={styles.addrFieldLabel}>Country</Text>
+                <TextInput style={styles.addrFieldInput} value={addrCountry} onChangeText={setAddrCountry} placeholder="United States" placeholderTextColor={colors.text3} />
               </View>
 
               {/* Current address toggle */}
@@ -747,7 +709,7 @@ export const TravelScreen: React.FC = () => {
                 </LinearGradient>
               </TouchableOpacity>
 
-            </ScrollView>
+            </View>
           </View>
         </View>
       </Modal>
@@ -853,7 +815,9 @@ const styles = StyleSheet.create({
   durationText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
   saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 20 },
   saveBtnGrad:     { paddingVertical: 16, alignItems: 'center', borderRadius: radius.md },
-  saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#7367F0' },
+  saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF' },
+  addrFieldLabel:      { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: colors.text2, marginBottom: 4, letterSpacing: 0.2 },
+  addrFieldInput:      { backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1.5, borderColor: '#E2E8F0', paddingHorizontal: 10, paddingVertical: 9, fontSize: 13, fontFamily: 'Inter_400Regular', color: colors.text1 },
   addrCurrentToggle:     { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#F8FAFF', borderRadius: 12, padding: 14, marginTop: 16, marginBottom: 4, borderWidth: 1.5, borderColor: '#E2E8F0' },
   addrCurrentToggleActive:{ backgroundColor: '#F0F9FF', borderColor: '#67E8F9' },
   addrToggleBox:         { width: 26, height: 26, borderRadius: 8, backgroundColor: '#E2E8F0', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
