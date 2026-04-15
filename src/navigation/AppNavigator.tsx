@@ -477,12 +477,12 @@ export const AppNavigator: React.FC = () => {
 
 // ── Styles ───────────────────────────────────────────────────
 const layoutStyles = StyleSheet.create({
-  root:       { flex: 1, backgroundColor: colors.background },
+  root:       { flex: 1, backgroundColor: colors.background, display: 'flex' as any, flexDirection: 'column' as any } as any,
   rootBg:     { backgroundColor: colors.sidebar },
   rootWeb:    { flexDirection: 'row', width: '100%' as any, height: '100%' as any },
-  content:    { flex: 1 },
+  content:    { flex: 1, display: 'flex' as any, flexDirection: 'column' as any, minHeight: 0 as any } as any,
   contentWeb: { flexDirection: 'column', backgroundColor: '#F4F5FA', flex: 1, minWidth: 0, overflow: 'hidden' as any },
-  contentMobileWeb: { flexDirection: 'column', backgroundColor: '#F4F5FA', flex: 1 },
+  contentMobileWeb: { flexDirection: 'column', backgroundColor: '#F4F5FA', flex: 1, overflow: 'visible' as any } as any,
 });
 
 const sidebarStyles = StyleSheet.create({
