@@ -608,6 +608,17 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
+            {/* Context card — mirrors empty-state card style */}
+            <View style={styles.addrInfoCard}>
+              <View style={styles.addrInfoIconCircle}>
+                <Ionicons name="home-outline" size={24} color="#0891B2" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.addrInfoTitle}>Address History</Text>
+                <Text style={styles.addrInfoSub}>Required for I-485 — list all US addresses for the past 5 years</Text>
+              </View>
+            </View>
+
             <View style={{ padding: spacing.screen, paddingTop: 12, gap: 10 } as any}>
 
               {/* Street + Apt on same row */}
@@ -818,6 +829,10 @@ const styles = StyleSheet.create({
   saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 20 },
   saveBtnGrad:     { paddingVertical: 16, alignItems: 'center', borderRadius: radius.md },
   saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF' },
+  addrInfoCard:        { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#F0FDFF', borderRadius: 14, padding: 14, marginHorizontal: 16, marginTop: 4, borderWidth: 1.5, borderColor: '#A5F3FC' },
+  addrInfoIconCircle:  { width: 44, height: 44, borderRadius: 22, backgroundColor: '#CFFAFE', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(8,145,178,0.25)', flexShrink: 0 },
+  addrInfoTitle:       { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#0E7490', marginBottom: 2 },
+  addrInfoSub:         { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#0891B2', lineHeight: 15 },
   addrFieldLabel:      { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: colors.text2, marginBottom: 4, letterSpacing: 0.2 },
   addrFieldInput:      { backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1.5, borderColor: '#E2E8F0', paddingHorizontal: 10, paddingVertical: 9, fontSize: 13, fontFamily: 'Inter_400Regular', color: colors.text1 },
   addrCurrentToggle:     { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#F8FAFF', borderRadius: 12, padding: 14, marginTop: 16, marginBottom: 4, borderWidth: 1.5, borderColor: '#E2E8F0' },
