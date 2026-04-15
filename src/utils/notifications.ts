@@ -212,7 +212,7 @@ export const sendTestNotification = async (): Promise<void> => {
 const getNotificationSubtitle = (alertDay: number): string => {
   if (alertDay <= 15) return '⚠️ Critical Alert';
   if (alertDay <= 60) return '🔴 Urgent Reminder';
-  if (alertDay <= 60) return '🟡 Upcoming Deadline';
+  if (alertDay <= 90) return '🟡 Upcoming Deadline';
   return '📋 Advance Notice';
 };
 
@@ -226,17 +226,14 @@ const getNotificationTitle = (doc: UserDocument, alertDay: number): string => {
 const getNotificationBody = (doc: UserDocument, alertDay: number): string => {
   const label = doc.label;
 
-  if (alertDay <= 15) {
+  if (alertDay <= 7) {
     return `Your ${label} expires in ${alertDay} days! Take action immediately to protect your immigration status. Do not delay.`;
   }
-  if (alertDay <= 14) {
+  if (alertDay <= 15) {
     return `Your ${label} expires in ${alertDay} days. Start the renewal process now — processing times may be longer than expected.`;
   }
   if (alertDay <= 60) {
     return `Your ${label} expires in ${alertDay} days. Begin gathering documents and filing for renewal to avoid any gaps.`;
-  }
-  if (alertDay <= 60) {
-    return `Your ${label} expires in ${alertDay} days. Start planning your renewal — some applications need months of lead time.`;
   }
   if (alertDay <= 90) {
     return `Your ${label} expires in ${alertDay} days. Good time to review requirements and prepare your renewal timeline.`;

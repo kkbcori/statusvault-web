@@ -946,21 +946,31 @@ export const useStore = create<AppStore>()(
         });
       },
       exportData: () => {
-        const { documents, checklists, counters, trips, isPremium } = get();
+        const { documents, checklists, counters, trips, isPremium, familyMembers, addressHistory, visaProfile, immigrationProfile, notificationEmail, whatsappPhone } = get();
         return JSON.stringify({
           app: 'StatusVault', version: '2.0.0',
           exportedAt: new Date().toISOString(),
-          data: { documents, checklists, counters, trips, isPremium },
+          data: { documents, checklists, counters, trips, isPremium, familyMembers, addressHistory, visaProfile, immigrationProfile, notificationEmail, whatsappPhone },
         }, null, 2);
       },
       importData: (json) => {
         try {
           const p = JSON.parse(json);
           if (p.app !== 'StatusVault' || !p.data) return false;
+          const d = p.data;
           set({
-            documents: p.data.documents || [], checklists: p.data.checklists || [],
-            counters: p.data.counters || [], trips: p.data.trips || [],
-            isPremium: p.data.isPremium || false, hasOnboarded: true,
+            documents:          d.documents          ?? [],
+            checklists:         d.checklists         ?? [],
+            counters:           d.counters           ?? [],
+            trips:              d.trips              ?? [],
+            familyMembers:      d.familyMembers      ?? [],
+            addressHistory:     d.addressHistory     ?? [],
+            visaProfile:        d.visaProfile        ?? null,
+            immigrationProfile: d.immigrationProfile ?? null,
+            notificationEmail:  d.notificationEmail  ?? '',
+            whatsappPhone:      d.whatsappPhone      ?? '',
+            isPremium:          d.isPremium          || false,
+            hasOnboarded:       true,
           });
           scheduleSync();
           return true;

@@ -25,7 +25,6 @@ import { NotificationBell } from '../components/NotificationBell';
 import { WelcomeModal } from '../components/WelcomeModal';
 import { PaywallModal } from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
-import { MobileTabBar }     from './MobileTabBar';
 import { StandaloneTabBar }  from './StandaloneTabBar';
 import { ContactScreen }    from '../screens/ContactScreen';
 import { FamilyScreen }     from '../screens/FamilyScreen';

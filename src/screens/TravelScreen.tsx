@@ -608,6 +608,8 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
+
             {/* Context card — mirrors empty-state card style */}
             <View style={styles.addrInfoCard}>
               <View style={styles.addrInfoIconCircle}>
@@ -710,6 +712,7 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
 
             </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
