@@ -11,7 +11,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
-import { IS_WEB, IS_TABLET } from '../utils/responsive';
+import { IS_WEB } from '../utils/responsive';
 import { useDialog } from '../components/ConfirmDialog';
 import { useStore } from '../store';
 import { TravelTrip, TripPurpose } from '../types';
@@ -135,85 +135,6 @@ const TripCard: React.FC<TripCardProps> = ({ trip, index, onDelete, onEdit }) =>
         </View>
 
       </View>
-
-      {/* ═══ ADD ADDRESS MODAL ═══ */}
-      <Modal visible={showAddrModal} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
-            <View style={[styles.modalTrim, { backgroundColor: '#0891B2' }]} />
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Address History</Text>
-              <TouchableOpacity onPress={() => { setShowAddrModal(false); resetAddrForm(); }} style={styles.modalClose}>
-                <Ionicons name="close" size={20} color={colors.text2} />
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-
-              <Text style={styles.fieldLabel}>Street Address *</Text>
-              <TextInput style={styles.textInput} value={addrStreet} onChangeText={setAddrStreet} placeholder="123 Main Street" placeholderTextColor={colors.text4} />
-
-              <Text style={styles.fieldLabel}>Apt / Unit (optional)</Text>
-              <TextInput style={styles.textInput} value={addrApt} onChangeText={setAddrApt} placeholder="Apt 4B" placeholderTextColor={colors.text4} />
-
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <View style={{ flex: 2 }}>
-                  <Text style={styles.fieldLabel}>City *</Text>
-                  <TextInput style={styles.textInput} value={addrCity} onChangeText={setAddrCity} placeholder="New York" placeholderTextColor={colors.text4} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.fieldLabel}>State *</Text>
-                  <TextInput style={styles.textInput} value={addrState} onChangeText={setAddrState} placeholder="NY" placeholderTextColor={colors.text4} autoCapitalize="characters" maxLength={2} />
-                </View>
-              </View>
-
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.fieldLabel}>ZIP Code</Text>
-                  <TextInput style={styles.textInput} value={addrZip} onChangeText={setAddrZip} placeholder="10001" placeholderTextColor={colors.text4} keyboardType="numeric" maxLength={10} />
-                </View>
-                <View style={{ flex: 2 }}>
-                  <Text style={styles.fieldLabel}>Country</Text>
-                  <TextInput style={styles.textInput} value={addrCountry} onChangeText={setAddrCountry} placeholder="United States" placeholderTextColor={colors.text4} />
-                </View>
-              </View>
-
-              {/* Current address toggle */}
-              <TouchableOpacity
-                style={[styles.purposeBtn, addrCurrent && styles.purposeBtnActive, { marginBottom: 12 }]}
-                onPress={() => setAddrCurrent(!addrCurrent)}
-                activeOpacity={0.8}
-              >
-                <Ionicons name={addrCurrent ? 'checkmark-circle' : 'home-outline'} size={16} color={addrCurrent ? colors.primary : colors.text3} />
-                <Text style={[styles.purposeBtnText, addrCurrent && styles.purposeBtnTextActive]}>This is my current address</Text>
-              </TouchableOpacity>
-
-              <DateField label="Date From *" value={addrFrom} onPress={() => setAddrActivePicker('from')} onChange={(d) => setAddrFrom(d)} />
-              {!addrCurrent && (
-                <DateField label="Date To *" value={addrTo} onPress={() => setAddrActivePicker('to')} onChange={(d) => setAddrTo(d)} />
-              )}
-
-              {!IS_WEB && addrActivePicker && (
-                <DateTimePicker
-                  value={addrActivePicker === 'from' ? addrFrom : addrTo}
-                  mode="date" display="spinner"
-                  onChange={(_, date) => {
-                    if (date) { addrActivePicker === 'from' ? setAddrFrom(date) : setAddrTo(date); }
-                    setAddrActivePicker(null);
-                  }}
-                />
-              )}
-
-              <TouchableOpacity style={styles.saveBtn} onPress={handleSaveAddress}>
-                <LinearGradient colors={['#0891B2', '#06B6D4']} style={styles.saveBtnGrad}>
-                  <Text style={styles.saveBtnText}>Save Address</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
     </View>
   );
 };
@@ -221,28 +142,41 @@ const TripCard: React.FC<TripCardProps> = ({ trip, index, onDelete, onEdit }) =>
 // ─── Main Screen ─────────────────────────────────────────────
 export const TravelScreen: React.FC = () => {
   const trips     = useStore((s) => s.trips);
-  const addTrip    = useStore((s) => s.addTrip);
+  const addTrip   = useStore((s) => s.addTrip);
   const removeTrip = useStore((s) => s.removeTrip);
   const updateTrip = useStore((s) => s.updateTrip);
 
-  // Address history state
+  const [showModal,      setShowModal]      = useState(false);
+  const [editingId,      setEditingId]      = useState<string | null>(null);
+  const [country,        setCountry]        = useState('');
+  const [portOfEntry,    setPortOfEntry]    = useState('');
+  const [notes,          setNotes]          = useState('');
+  const [purpose,        setPurpose]        = useState<TripPurpose>('vacation');
+  const [departure,      setDeparture]      = useState(new Date());
+  const [returnDate,     setReturnDate]     = useState(new Date());
+  const [activePicker,   setActivePicker]   = useState<'departure' | 'return' | null>(null);
+  const [showAll,        setShowAll]        = useState(false);
+  const [exporting,      setExporting]      = useState(false);
+  const dialog = useDialog();
+
+  // ── Address History ────────────────────────────────────────
   const addressHistory = useStore((s) => s.addressHistory);
   const addAddress     = useStore((s) => s.addAddress);
   const removeAddress  = useStore((s) => s.removeAddress);
 
-  const [showAddrModal,  setShowAddrModal]  = useState(false);
-  const [editingAddrId,  setEditingAddrId]  = useState<string | null>(null);
-  const [addrStreet,     setAddrStreet]     = useState('');
-  const [addrApt,        setAddrApt]        = useState('');
-  const [addrCity,       setAddrCity]       = useState('');
-  const [addrState,      setAddrState]      = useState('');
-  const [addrZip,        setAddrZip]        = useState('');
-  const [addrCountry,    setAddrCountry]    = useState('United States');
-  const [addrFrom,       setAddrFrom]       = useState(new Date());
-  const [addrTo,         setAddrTo]         = useState(new Date());
-  const [addrCurrent,    setAddrCurrent]    = useState(false);
+  const [showAddrModal,    setShowAddrModal]    = useState(false);
+  const [editingAddrId,    setEditingAddrId]    = useState<string|null>(null);
+  const [addrStreet,       setAddrStreet]       = useState('');
+  const [addrApt,          setAddrApt]          = useState('');
+  const [addrCity,         setAddrCity]         = useState('');
+  const [addrState,        setAddrState]        = useState('');
+  const [addrZip,          setAddrZip]          = useState('');
+  const [addrCountry,      setAddrCountry]      = useState('United States');
+  const [addrFrom,         setAddrFrom]         = useState(new Date());
+  const [addrTo,           setAddrTo]           = useState(new Date());
+  const [addrCurrent,      setAddrCurrent]      = useState(false);
   const [addrActivePicker, setAddrActivePicker] = useState<'from'|'to'|null>(null);
-  const [exportingAddr,  setExportingAddr]  = useState(false);
+  const [exportingAddr,    setExportingAddr]    = useState(false);
 
   const resetAddrForm = () => {
     setAddrStreet(''); setAddrApt(''); setAddrCity('');
@@ -257,24 +191,24 @@ export const TravelScreen: React.FC = () => {
       return;
     }
     const entry: AddressEntry = {
-      id: editingAddrId ?? `addr_${Date.now()}`,
-      street: addrStreet.trim(),
-      apt: addrApt.trim() || undefined,
-      city: addrCity.trim(),
-      state: addrState.trim(),
-      zipCode: addrZip.trim(),
-      country: addrCountry.trim() || 'United States',
-      dateFrom: addrFrom.toISOString().split('T')[0],
-      dateTo: addrCurrent ? 'present' : addrTo.toISOString().split('T')[0],
+      id:               editingAddrId ?? `addr_${Date.now()}`,
+      street:           addrStreet.trim(),
+      apt:              addrApt.trim() || undefined,
+      city:             addrCity.trim(),
+      state:            addrState.trim(),
+      zipCode:          addrZip.trim(),
+      country:          addrCountry.trim() || 'United States',
+      dateFrom:         addrFrom.toISOString().split('T')[0],
+      dateTo:           addrCurrent ? 'present' : addrTo.toISOString().split('T')[0],
       isCurrentAddress: addrCurrent,
-      createdAt: new Date().toISOString(),
+      createdAt:        new Date().toISOString(),
     };
     addAddress(entry);
     setShowAddrModal(false);
     resetAddrForm();
   };
 
-  const handleExportAddressPdf = async () => {
+  const handleExportAddressPdf = () => {
     if (addressHistory.length === 0) {
       dialog.alert('No Addresses', 'Add at least one address before exporting.');
       return;
@@ -327,39 +261,7 @@ export const TravelScreen: React.FC = () => {
     if (editingId) {
       updateTrip(editingId, entry);
     } else {
-      addTrip({ id: Date.now().toString(), createdAt: new Date().toISOString(), ...entry 
-
-  // ── Address History styles ──────────────────────────────────
-  sectionDivider:    { height: 1, backgroundColor: '#E2E8F0', marginHorizontal: spacing.screen, marginVertical: spacing.xl },
-  addrSectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.screen, marginBottom: spacing.lg },
-  addrSectionLabel:  { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#059669', letterSpacing: 1.5, textTransform: 'uppercase' as any },
-  addrSectionTitle:  { fontSize: 18, fontFamily: 'Inter_700Bold', color: '#0F172A', marginTop: 2 },
-  addrSectionSub:    { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 2 },
-  emptyAddr:         { alignItems: 'center', paddingVertical: 36, gap: 8 },
-  emptyAddrTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#334155' },
-  emptyAddrSub:      { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#94A3B8', textAlign: 'center' as any, lineHeight: 20 },
-  addrCard:          { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: '#E2E8F0', ...Platform.select({ web: { boxShadow: '0 1px 4px rgba(15,23,42,0.06)' } as any }) } as any,
-  addrStrip:         { width: 4, alignSelf: 'stretch' },
-  addrContent:       { flex: 1, padding: 14, gap: 6 } as any,
-  addrTopRow:        { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
-  addrLine1:         { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#0F172A' },
-  addrLine2:         { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#475569', marginTop: 2 },
-  addrCountry:       { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#94A3B8', marginTop: 1 },
-  addrDates:         { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4 },
-  addrDatesText:     { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#64748B' },
-  addrDeleteBtn:     { padding: 14 },
-  currentBadge:      { backgroundColor: '#ECFDF5', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: '#6EE7B7' },
-  currentBadgeText:  { fontSize: 9, fontFamily: 'Inter_700Bold', color: '#059669', letterSpacing: 0.5 },
-
-  // Address modal extras
-  currentToggle:      { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F8FAFF', borderRadius: 12, padding: 14, marginBottom: 18, borderWidth: 1.5, borderColor: '#E2E8F0' },
-  currentToggleActive:{ backgroundColor: '#ECFDF5', borderColor: '#6EE7B7' },
-  currentToggleText:  { flex: 1, fontSize: 14, fontFamily: 'Inter_500Medium', color: '#64748B' },
-  toggleDot:          { width: 22, height: 22, borderRadius: 11, backgroundColor: '#E2E8F0', alignItems: 'center', justifyContent: 'center' },
-  toggleDotActive:    { backgroundColor: '#059669' },
-  presentBadge:       { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#ECFDF5', borderRadius: 10, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: '#6EE7B7' },
-  presentBadgeText:   { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#059669' },
-});
+      addTrip({ id: Date.now().toString(), createdAt: new Date().toISOString(), ...entry });
     }
     setShowModal(false);
     resetForm();
@@ -382,6 +284,13 @@ export const TravelScreen: React.FC = () => {
     }
   };
 
+  const handleDateChange = (_event: any, date?: Date) => {
+    if (Platform.OS === 'android') setActivePicker(null);
+    if (!date) return;
+    if (activePicker === 'departure') setDeparture(date);
+    else setReturnDate(date);
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: '#F4F5FA' }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={true}>
@@ -390,8 +299,8 @@ export const TravelScreen: React.FC = () => {
         <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
           <View style={styles.header}>
             <View>
-              <Text style={styles.headerLabel}>RESIDENCY & TRAVEL</Text>
-              <Text style={styles.headerTitle}>US Presence & Travel Log</Text>
+              <Text style={styles.headerLabel}>TRAVEL HISTORY</Text>
+              <Text style={styles.headerTitle}>I-94 Tracker</Text>
               <Text style={styles.headerSub}>{trips.length} trip{trips.length !== 1 ? 's' : ''} recorded · N-400 ready</Text>
             </View>
             <TouchableOpacity style={styles.addBtn} onPress={openAdd} activeOpacity={0.8}>
@@ -502,10 +411,8 @@ export const TravelScreen: React.FC = () => {
           )}
         </View>
 
-        {/* ══════════════════════════════════════════════════════
-            ADDRESS HISTORY — I-485 Part 3
-        ══════════════════════════════════════════════════════ */}
-        <View style={{ height: 1, backgroundColor: colors.borderLight, marginHorizontal: spacing.screen, marginVertical: 8 }} />
+        {/* ══ ADDRESS HISTORY — I-485 Part 3 ══ */}
+        <View style={{ height: 1, backgroundColor: '#E2E8F0', marginHorizontal: spacing.screen, marginVertical: spacing.xl }} />
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -525,7 +432,6 @@ export const TravelScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          {/* I-485 info banner */}
           <View style={[styles.infoBanner, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
             <Ionicons name="document-text-outline" size={16} color="#0891B2" style={{ marginTop: 1 }} />
             <View style={{ flex: 1 }}>
@@ -581,7 +487,6 @@ export const TravelScreen: React.FC = () => {
             </View>
           )}
 
-          {/* Export PDF button */}
           {addressHistory.length > 0 && (
             <TouchableOpacity style={[styles.exportBtn, { marginTop: 16, backgroundColor: '#0891B2' }]} onPress={handleExportAddressPdf} activeOpacity={0.85}>
               <Ionicons name="document-text-outline" size={16} color="#fff" />
@@ -589,95 +494,6 @@ export const TravelScreen: React.FC = () => {
             </TouchableOpacity>
           )}
         </View>
-
-
-        {/* ═══ ADDRESS HISTORY SECTION ═══ */}
-        <View style={styles.sectionDivider} />
-        <View style={styles.addrSectionHeader}>
-          <View>
-            <Text style={styles.addrSectionLabel}>I-485 GREEN CARD</Text>
-            <Text style={styles.addrSectionTitle}>Address History</Text>
-            <Text style={styles.addrSectionSub}>{addressHistory.length} address{addressHistory.length !== 1 ? 'es' : ''} · Part 3 ready</Text>
-          </View>
-          <TouchableOpacity style={styles.addBtn} onPress={() => { resetAddrForm(); setShowAddrModal(true); }} activeOpacity={0.8}>
-            <LinearGradient colors={['#059669','#10B981']} style={styles.addBtnGrad}>
-              <Text style={styles.addBtnText}>+ Address</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-
-        {/* Info banner */}
-        <View style={[styles.infoBanner, { marginHorizontal: spacing.screen }]}>
-          <Ionicons name="home-outline" size={16} color="#059669" />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.infoBannerTitle}>I-485 Part 3 — Address History</Text>
-            <Text style={styles.infoBannerBody}>List all addresses where you have lived for the past 5 years (or since birth if less than 5 years). Start with current address.</Text>
-          </View>
-        </View>
-
-        {/* Address list */}
-        <View style={{ marginHorizontal: spacing.screen, gap: 10 }}>
-          {addressHistory.length === 0 ? (
-            <View style={styles.emptyAddr}>
-              <Ionicons name="home-outline" size={36} color="#CBD5E1" />
-              <Text style={styles.emptyAddrTitle}>No addresses yet</Text>
-              <Text style={styles.emptyAddrSub}>Add your current and past addresses{'
-'}for the I-485 green card application</Text>
-            </View>
-          ) : (
-            [...addressHistory]
-              .sort((a, b) => {
-                if (a.isCurrentAddress) return -1;
-                if (b.isCurrentAddress) return 1;
-                return b.dateFrom.localeCompare(a.dateFrom);
-              })
-              .map((entry) => (
-                <View key={entry.id} style={styles.addrCard}>
-                  <View style={[styles.addrStrip, { backgroundColor: entry.isCurrentAddress ? '#059669' : '#4F46E5' }]} />
-                  <View style={styles.addrContent}>
-                    <View style={styles.addrTopRow}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.addrLine1}>{entry.street}{entry.apt ? `, ${entry.apt}` : ''}</Text>
-                        <Text style={styles.addrLine2}>{[entry.city, entry.state, entry.zipCode].filter(Boolean).join(', ')}</Text>
-                        <Text style={styles.addrCountry}>{entry.country}</Text>
-                      </View>
-                      {entry.isCurrentAddress && (
-                        <View style={styles.currentBadge}>
-                          <Text style={styles.currentBadgeText}>CURRENT</Text>
-                        </View>
-                      )}
-                    </View>
-                    <View style={styles.addrDates}>
-                      <Ionicons name="calendar-outline" size={12} color="#94A3B8" />
-                      <Text style={styles.addrDatesText}>
-                        {new Date(entry.dateFrom + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                        {' → '}
-                        {entry.dateTo === 'present' ? 'Present' : new Date(entry.dateTo + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                      </Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity onPress={() => handleDeleteAddress(entry.id, entry.city)} style={styles.addrDeleteBtn}>
-                    <Ionicons name="trash-outline" size={16} color="#DC2626" />
-                  </TouchableOpacity>
-                </View>
-              ))
-          )}
-        </View>
-
-        {/* Export PDF button */}
-        {addressHistory.length > 0 && (
-          <TouchableOpacity
-            style={[styles.exportBtn, { marginTop: 16 }]}
-            onPress={handleExportAddressPdf}
-            activeOpacity={0.85}
-          >
-            <LinearGradient colors={['#065F46','#059669']} style={styles.exportBtnGrad}>
-              <Ionicons name="document-text-outline" size={18} color="#fff" />
-              <Text style={styles.exportBtnText}>{exportingAddr ? 'Generating PDF…' : 'Export PDF — I-485 Part 3 Ready'}</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        )}
-        <View style={{ height: 32 }} />
 
       </ScrollView>
 
@@ -698,7 +514,7 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.modalBody}>
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.modalBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
               {/* Dates */}
               <DateField label="Departure Date" value={departure} onPress={() => setActivePicker('departure')} onChange={setDeparture} />
@@ -730,7 +546,7 @@ export const TravelScreen: React.FC = () => {
               />
 
               {/* Port of Entry */}
-              <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Port of Entry (on return)</Text>
+              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Port of Entry (on return)</Text>
               <TextInput
                 style={styles.fieldInput}
                 value={portOfEntry}
@@ -741,7 +557,7 @@ export const TravelScreen: React.FC = () => {
               />
 
               {/* Purpose */}
-              <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Purpose of Trip</Text>
+              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Purpose of Trip</Text>
               <View style={styles.purposeRow}>
                 {PURPOSES.map((p) => (
                   <TouchableOpacity
@@ -758,9 +574,9 @@ export const TravelScreen: React.FC = () => {
               </View>
 
               {/* Notes */}
-              <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Notes (optional)</Text>
+              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Notes (optional)</Text>
               <TextInput
-                style={[styles.fieldInput, { minHeight: 52, textAlignVertical: 'top' }]}
+                style={[styles.fieldInput, { minHeight: 72, textAlignVertical: 'top' }]}
                 value={notes}
                 onChangeText={setNotes}
                 placeholder="e.g., Extended family visit, work project in London"
@@ -789,7 +605,7 @@ export const TravelScreen: React.FC = () => {
                 </LinearGradient>
               </TouchableOpacity>
 
-            </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -800,13 +616,12 @@ export const TravelScreen: React.FC = () => {
           <View style={styles.modalSheet}>
             <View style={[styles.modalTrim, { backgroundColor: '#0891B2' }]} />
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Address History</Text>
+              <Text style={styles.modalTitle}>Add Address</Text>
               <TouchableOpacity onPress={() => { setShowAddrModal(false); resetAddrForm(); }} style={styles.modalClose}>
                 <Ionicons name="close" size={20} color={colors.text2} />
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-
               <Text style={styles.fieldLabel}>Street Address *</Text>
               <TextInput style={styles.textInput} value={addrStreet} onChangeText={setAddrStreet} placeholder="123 Main Street" placeholderTextColor={colors.text4} />
 
@@ -835,9 +650,8 @@ export const TravelScreen: React.FC = () => {
                 </View>
               </View>
 
-              {/* Current address toggle */}
               <TouchableOpacity
-                style={[styles.purposeBtn, addrCurrent && styles.purposeBtnActive, { marginBottom: 12 }]}
+                style={[styles.purposeBtn, addrCurrent && styles.purposeBtnActive, { marginBottom: 16 }]}
                 onPress={() => setAddrCurrent(!addrCurrent)}
                 activeOpacity={0.8}
               >
@@ -866,12 +680,10 @@ export const TravelScreen: React.FC = () => {
                   <Text style={styles.saveBtnText}>Save Address</Text>
                 </LinearGradient>
               </TouchableOpacity>
-
             </ScrollView>
           </View>
         </View>
       </Modal>
-
     </View>
   );
 };
@@ -950,7 +762,7 @@ const styles = StyleSheet.create({
 
   // Modal
   modalOverlay:    { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
-  modalSheet:      { backgroundColor: '#F4F5FA', maxWidth: IS_WEB ? 520 : undefined, width: IS_WEB ? 520 : '100%' as any, paddingBottom: 20, overflow: 'hidden', borderRadius: IS_WEB ? radius.xl : 20, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column' } as any,
+  modalSheet:      { backgroundColor: '#F4F5FA', borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '80%' as any : '92%', maxWidth: IS_WEB ? 520 : undefined, width: IS_WEB ? 520 : '100%' as any, paddingBottom: 40, overflow: 'hidden', borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column' } as any,
   modalTrim:       { height: 3, backgroundColor: '#7367F0' },
   modalHeader:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   modalCancel:     { fontSize: 14, fontFamily: 'Inter_500Medium', color: colors.text3 },
@@ -972,19 +784,19 @@ const styles = StyleSheet.create({
   purposeLabelActive:{ color: '#7367F0' },
   durationPreview: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#F0EEFF', borderRadius: radius.md, padding: 12, marginTop: 12, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   durationText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
-  saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 12 },
+  saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 20 },
   saveBtnGrad:     { paddingVertical: 16, alignItems: 'center', borderRadius: radius.md },
-  saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF' },
-  addrCard:        { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14, gap: 10, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' as any } as any,
+  saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#7367F0' },
+  addrCard:        { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14, gap: 10, borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden' as any } as any,
   addrStrip:       { width: 3, borderRadius: 2, position: 'absolute' as any, left: 0, top: 0, bottom: 0 } as any,
-  addrStreet:      { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: colors.text1, flex: 1 },
-  addrCity:        { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text2, marginTop: 2 },
-  addrCountryTxt:  { fontSize: 11, fontFamily: 'Inter_500Medium', color: colors.text3, marginTop: 1 },
+  addrStreet:      { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#0F172A', flex: 1 },
+  addrCity:        { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#475569', marginTop: 2 },
+  addrCountryTxt:  { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#94A3B8', marginTop: 1 },
   addrDates:       { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#0891B2', marginTop: 4 },
   addrDeleteBtn:   { width: 32, height: 32, borderRadius: 8, backgroundColor: '#FEF2F2', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   currentBadge:    { backgroundColor: '#ECFDF5', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: '#A7F3D0' },
   currentBadgeTxt: { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#059669' },
-  emptyBox:        { alignItems: 'center', paddingVertical: 28, gap: 6 },
-  emptyBoxTitle:   { fontSize: 14, fontFamily: 'Inter_700Bold', color: colors.text1 },
-  emptyBoxSub:     { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, textAlign: 'center', maxWidth: 260, lineHeight: 18 },
+  emptyBox:        { alignItems: 'center', paddingVertical: 28, gap: 6 } as any,
+  emptyBoxTitle:   { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#0F172A' },
+  emptyBoxSub:     { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#94A3B8', textAlign: 'center' as any, lineHeight: 18 },
 });
