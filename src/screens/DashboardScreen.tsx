@@ -731,7 +731,7 @@ const styles = StyleSheet.create({
 
   // 4-card grid
   cardGrid:            { gap: 16 },
-  cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'flex-start' as any },
+  cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'stretch' as any },
   gridCard:            { flex: 1 } as any,
   cardFooterBtn:       { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
   cardFooterText:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#7367F0', flex: 1 },
