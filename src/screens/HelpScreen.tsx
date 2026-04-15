@@ -50,7 +50,7 @@ const SECTIONS: Section[] = [
       { q: 'Is my data private and secure?', a: 'Yes. All data is stored locally on your device first. If you create an account and enable sync, your data is AES-256 encrypted on your device before it is uploaded — the server only receives ciphertext it cannot read. Not even StatusVault staff can access your immigration data.' },
       { q: 'Do I need to create an account?', a: 'No. StatusVault works completely offline without an account. Create a free account only if you want to sync data across multiple devices (phone + web browser). All core features work without signing in.' },
       { q: 'Does the app work without internet?', a: 'Yes — StatusVault is offline-first. All tracking, alerts, and document management work with no internet connection. Sync to the cloud happens when you are online, but the app never requires connectivity to function.' },
-      { q: 'Is StatusVault free?', a: 'The free tier allows up to 3 documents. Premium ($3.99/year — less than $0.34/month) unlocks unlimited document tracking, advanced alert windows, data export, and priority support.' },
+      { q: 'Is StatusVault free?', a: 'The free tier allows up to 3 documents. Premium ($0.49/month or $4.99/year) unlocks unlimited document tracking, advanced alert windows, data export, and priority support.' },
     ],
   },
   {

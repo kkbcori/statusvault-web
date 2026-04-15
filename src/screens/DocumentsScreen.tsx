@@ -20,8 +20,8 @@ import { DOCUMENT_TEMPLATES, CATEGORY_LABELS, getTemplatesByCategory, DocumentTe
 import { UserDocument, DocumentCategory } from '../types';
 import { useRoute } from '@react-navigation/native';
 
-const PRICE = '$3.99';
-const PRICE_LABEL = '$3.99/year';
+const PRICE = 'from $0.49';
+const PRICE_LABEL = '$0.49/mo or $4.99/yr';
 
 export const DocumentsScreen: React.FC = () => {
   const route              = useRoute<any>();

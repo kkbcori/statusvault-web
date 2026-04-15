@@ -18,8 +18,8 @@ import { useNavigation } from '@react-navigation/native';
 import { requestPermissions, cancelAllNotifications, sendTestNotification, getScheduledCount } from '../utils/notifications';
 import { PinSetupModal } from '../components/PinSetupModal';
 
-const PRICE      = '$3.99';
-const PRICE_YEAR = '$3.99/year';
+const PRICE      = 'from $0.49';
+const PRICE_YEAR = '$0.49/mo or $4.99/yr';
 
 // ─── Section Label with Ionicon ──────────────────────────────
 interface SectionLabelProps {

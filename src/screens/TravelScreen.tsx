@@ -22,8 +22,6 @@ import {
 import { exportTravelPdf } from '../utils/travelPdf';
 import { exportAddressPdf } from '../utils/addressPdf';
 import { AddressEntry } from '../types';
-import { exportAddressPdf } from '../utils/addressPdf';
-import { AddressEntry } from '../types';
 
 // ─── Purpose Picker ──────────────────────────────────────────
 const PURPOSES: TripPurpose[] = ['vacation', 'business', 'family', 'medical', 'other'];
