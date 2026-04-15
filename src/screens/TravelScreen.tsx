@@ -158,6 +158,7 @@ export const TravelScreen: React.FC = () => {
   const [activePicker,   setActivePicker]   = useState<'departure' | 'return' | null>(null);
   const [showAll,        setShowAll]        = useState(false);
   const [exporting,      setExporting]      = useState(false);
+  const [tripError,      setTripError]      = useState('');
   const dialog = useDialog();
   const { width: screenWidth } = useWindowDimensions();
   const isWideScreen = IS_WEB && screenWidth >= 1024;
@@ -257,7 +258,7 @@ export const TravelScreen: React.FC = () => {
     setCountry(''); setPortOfEntry(''); setNotes('');
     setPurpose('vacation');
     setDeparture(new Date()); setReturnDate(new Date());
-    setEditingId(null); setActivePicker(null);
+    setEditingId(null); setActivePicker(null); setTripError('');
   };
 
   const openAdd = () => { resetForm(); setShowModal(true); };
@@ -274,8 +275,9 @@ export const TravelScreen: React.FC = () => {
   };
 
   const handleSave = () => {
-    if (!country.trim()) { dialog.alert('Country required', 'Please enter the destination country.'); return; }
-    if (returnDate < departure) { dialog.alert('Invalid dates', 'Return date must be on or after departure date.'); return; }
+    setTripError('');
+    if (!country.trim()) { setTripError('Please enter the destination country.'); return; }
+    if (returnDate < departure) { setTripError('Return date must be on or after departure date.'); return; }
 
     const entry = {
       country:       country.trim(),
@@ -631,16 +633,22 @@ export const TravelScreen: React.FC = () => {
                 </View>
               )}
 
+              {/* Error — fixed-height slot so Save button never moves */}
+              <View style={styles.errorSlot}>
+                {tripError ? (
+                  <View style={styles.errorBanner}>
+                    <Ionicons name="alert-circle-outline" size={15} color="#DC2626" />
+                    <Text style={styles.errorBannerText}>{tripError}</Text>
+                  </View>
+                ) : null}
+              </View>
+
               {/* Save */}
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
                 <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
                   <Text style={styles.saveBtnText}>{editingId ? 'Update Trip' : 'Add Trip'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
-
-            </View>
-          </View>
-        </View>
       </Modal>
 
       {/* ═══ ADD / EDIT ADDRESS MODAL ═══ */}
@@ -744,13 +752,15 @@ export const TravelScreen: React.FC = () => {
                 />
               )}
 
-              {/* Error */}
-              {addrError ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FEF2F2', borderRadius: 8, padding: 12, borderWidth: 1, borderColor: '#FECACA' }}>
-                  <Ionicons name="alert-circle-outline" size={16} color="#DC2626" />
-                  <Text style={{ fontSize: 13, fontFamily: 'Inter_500Medium', color: '#DC2626', flex: 1 }}>{addrError}</Text>
-                </View>
-              ) : null}
+              {/* Error — fixed-height slot so Save button never moves */}
+              <View style={styles.errorSlot}>
+                {addrError ? (
+                  <View style={styles.errorBanner}>
+                    <Ionicons name="alert-circle-outline" size={15} color="#DC2626" />
+                    <Text style={styles.errorBannerText}>{addrError}</Text>
+                  </View>
+                ) : null}
+              </View>
 
               {/* Save */}
               <TouchableOpacity style={styles.saveBtn} onPress={handleSaveAddress}>
@@ -855,7 +865,7 @@ const styles = StyleSheet.create({
 
   // Modal
   modalOverlay:    { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
-  modalSheet:      { backgroundColor: '#F4F5FA', borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '80%' as any : '92%', maxWidth: IS_WEB ? 520 : undefined, width: IS_WEB ? 520 : '100%' as any, paddingBottom: 40, overflow: 'hidden', borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column' } as any,
+  modalSheet:      { backgroundColor: '#F4F5FA', borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '90%' as any : '92%', height: IS_WEB ? 620 : undefined, maxWidth: IS_WEB ? 520 : undefined, width: IS_WEB ? 520 : '100%' as any, paddingBottom: 40, overflow: 'hidden', borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column' } as any,
   modalTrim:       { height: 3, backgroundColor: '#7367F0' },
   modalHeader:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   modalClose:      { padding: 4 },
@@ -878,6 +888,9 @@ const styles = StyleSheet.create({
   purposeLabelActive:{ color: '#7367F0' },
   durationPreview: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#F0EEFF', borderRadius: radius.md, padding: 12, marginTop: 12, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   durationText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  errorSlot:       { minHeight: 36, justifyContent: 'center' } as any,
+  errorBanner:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FEF2F2', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#FECACA' },
+  errorBannerText: { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#DC2626', flex: 1 },
   saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 20 },
   saveBtnGrad:     { paddingVertical: 16, alignItems: 'center', borderRadius: radius.md },
   saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF' },
