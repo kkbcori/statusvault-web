@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB } from '../utils/responsive';
+import { useWindowDimensions } from 'react-native';
 import { useDialog } from '../components/ConfirmDialog';
 import { useStore } from '../store';
 import { TravelTrip, TripPurpose } from '../types';
@@ -158,6 +159,8 @@ export const TravelScreen: React.FC = () => {
   const [showAll,        setShowAll]        = useState(false);
   const [exporting,      setExporting]      = useState(false);
   const dialog = useDialog();
+  const { width: screenWidth } = useWindowDimensions();
+  const isWideScreen = IS_WEB && screenWidth >= 1024;
 
   // ── Address History ────────────────────────────────────────
   const addressHistory = useStore((s) => s.addressHistory);
@@ -345,35 +348,36 @@ export const TravelScreen: React.FC = () => {
           </View>
         )}
 
-        {/* N-400 info banner */}
-        <View style={styles.infoBanner}>
-          <View style={styles.infoBannerIcon}>
-            <Ionicons name="information-circle-outline" size={18} color={'#7367F0'} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.infoBannerTitle}>N-400 Part 8 — Travel Outside the US</Text>
-            <Text style={styles.infoBannerDesc}>
-              Record all trips abroad for the last 5 years, then export as PDF to attach to your naturalization application.
-            </Text>
-          </View>
-        </View>
+        {/* ══ TWO-COLUMN LAYOUT: I-94 Tracker | Address History ══ */}
+        <View style={[styles.twoColRow, isWideScreen && styles.twoColRowWide]}>
 
-        {/* Export button */}
-        <TouchableOpacity
-          style={styles.exportBtn}
-          onPress={handleExport}
-          activeOpacity={0.8}
-          disabled={exporting}
-        >
-          <LinearGradient colors={['#0E2137', '#0A1628']} style={styles.exportBtnGrad}>
-            <Ionicons name={exporting ? 'hourglass-outline' : 'document-text-outline'} size={18} color={'#7367F0'} />
-            <Text style={styles.exportBtnText}>{exporting ? 'Generating PDF…' : 'Export PDF — N-400 Ready'}</Text>
-            {!exporting && <Ionicons name="share-outline" size={16} color={'#7367F0'} />}
-          </LinearGradient>
-        </TouchableOpacity>
+          {/* ── LEFT COL: I-94 / N-400 Tracker ── */}
+          <View style={[styles.twoColCard, isWideScreen && { flex: 1 } as any]}>
+            {/* Card header */}
+            <View style={styles.twoColCardHeader}>
+              <View style={styles.sectionLeft}>
+                <View style={styles.sectionIconBox}>
+                  <Ionicons name="airplane-outline" size={14} color={'#7367F0'} />
+                </View>
+                <Text style={styles.twoColCardTitle}>I-94 Travel History</Text>
+              </View>
+              {/* Small Export PDF button */}
+              <TouchableOpacity style={styles.miniExportBtn} onPress={handleExport} activeOpacity={0.8} disabled={exporting}>
+                <Ionicons name="document-text-outline" size={13} color={'#7367F0'} />
+                <Text style={styles.miniExportTxt}>{exporting ? '…' : 'Export N-400'}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Info banner */}
+            <View style={[styles.infoBanner, { margin: 0, marginBottom: 12 }]}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.infoBannerTitle}>N-400 Part 8 — Travel Outside the US</Text>
+                <Text style={styles.infoBannerDesc}>Record all trips abroad for the last 5 years for naturalization.</Text>
+              </View>
+            </View>
 
         {/* Trip list */}
-        <View style={styles.section}>
+        <View style={{ gap: 0 }}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionLeft}>
               <View style={styles.sectionIconBox}>
@@ -411,8 +415,44 @@ export const TravelScreen: React.FC = () => {
           )}
         </View>
 
-        {/* ══ ADDRESS HISTORY — I-485 Part 3 ══ */}
-        <View style={{ height: 1, backgroundColor: '#E2E8F0', marginHorizontal: spacing.screen, marginVertical: spacing.xl }} />
+          </View>{/* end trip list */}
+          </View>{/* end left col */}
+
+          {/* ── RIGHT COL: Address History / I-485 ── */}
+          <View style={[styles.twoColCard, isWideScreen && { flex: 1 } as any]}>
+            {/* Card header */}
+            <View style={styles.twoColCardHeader}>
+              <View style={styles.sectionLeft}>
+                <View style={[styles.sectionIconBox, { backgroundColor: '#F0F9FF' }]}>
+                  <Ionicons name="home-outline" size={14} color="#0891B2" />
+                </View>
+                <Text style={styles.twoColCardTitle}>Address History</Text>
+              </View>
+              {/* Small Export PDF button */}
+              {addressHistory.length > 0 && (
+                <TouchableOpacity style={[styles.miniExportBtn, { borderColor: '#67E8F9' }]} onPress={handleExportAddressPdf} activeOpacity={0.8}>
+                  <Ionicons name="document-text-outline" size={13} color="#0891B2" />
+                  <Text style={[styles.miniExportTxt, { color: '#0891B2' }]}>{exportingAddr ? '…' : 'Export I-485'}</Text>
+                </TouchableOpacity>
+              )}
+              {/* Add Address button */}
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#0891B2', borderRadius: 7, paddingHorizontal: 10, paddingVertical: 6 } as any}
+                onPress={() => { resetAddrForm(); setShowAddrModal(true); }}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="add" size={13} color="#fff" />
+                <Text style={{ fontSize: 11, fontFamily: 'Inter_700Bold', color: '#fff' }}>Add</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* I-485 info banner */}
+            <View style={[styles.infoBanner, { margin: 0, marginBottom: 12, backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.infoBannerTitle, { color: '#0C4A6E' }]}>I-485 Part 3 — Address History</Text>
+                <Text style={[styles.infoBannerDesc, { color: '#0369A1' }]}>All addresses for the last 5 years (or since age 14).</Text>
+              </View>
+            </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -422,14 +462,7 @@ export const TravelScreen: React.FC = () => {
               </View>
               <Text style={styles.sectionTitle}>Address History</Text>
             </View>
-            <TouchableOpacity
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#0891B2', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 } as any}
-              onPress={() => { resetAddrForm(); setShowAddrModal(true); }}
-              activeOpacity={0.85}
-            >
-              <Ionicons name="add" size={14} color="#fff" />
-              <Text style={styles.addBtnText}>Add Address</Text>
-            </TouchableOpacity>
+
           </View>
 
           <View style={[styles.infoBanner, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
@@ -495,7 +528,9 @@ export const TravelScreen: React.FC = () => {
               </LinearGradient>
             </TouchableOpacity>
           )}
-        </View>
+          </View>{/* end address section */}
+          </View>{/* end right col */}
+        </View>{/* end twoColRow */}
 
       </ScrollView>
 
@@ -744,6 +779,13 @@ const styles = StyleSheet.create({
   infoBannerDesc:  { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, lineHeight: 17 },
 
   // Export
+  twoColRow:        { flexDirection: 'column', gap: 16, paddingHorizontal: spacing.screen, paddingBottom: 24 } as any,
+  twoColRowWide:    { flexDirection: 'row' as any, alignItems: 'flex-start' as any } as any,
+  twoColCard:       { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#E2E8F0', minWidth: 0, ...Platform.select({ web: { boxShadow: '0 2px 12px rgba(15,23,42,0.06)' } as any }) } as any,
+  twoColCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, flexWrap: 'wrap' as any } as any,
+  twoColCardTitle:  { fontSize: 12, fontFamily: 'Inter_700Bold', color: '#0F172A', flex: 1 },
+  miniExportBtn:    { flexDirection: 'row', alignItems: 'center', gap: 3, borderWidth: 1, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 4, backgroundColor: '#F8F8FF' } as any,
+  miniExportTxt:    { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
   exportBtn:       { marginHorizontal: spacing.screen, marginBottom: spacing.lg, borderRadius: radius.lg, overflow: 'hidden', ...shadows.sm },
   exportBtnGrad:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 15, paddingHorizontal: 20, borderRadius: radius.lg },
   exportBtnText:   { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
