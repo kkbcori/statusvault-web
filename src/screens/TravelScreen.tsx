@@ -419,12 +419,10 @@ export const TravelScreen: React.FC = () => {
                 <Text style={styles.cardTitle}>Address History</Text>
                 <Text style={styles.cardSub}>I-485 Part 3 · Adjustment of Status</Text>
               </View>
-              {addressHistory.length > 0 && (
-                <TouchableOpacity style={[styles.miniExportBtn, { borderColor: '#67E8F9' }]} onPress={handleExportAddressPdf} activeOpacity={0.8}>
-                  <Ionicons name="document-text-outline" size={12} color="#0891B2" />
-                  <Text style={[styles.miniExportTxt, { color: '#0891B2' }]}>{exportingAddr ? '…' : 'Export I-485'}</Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity style={[styles.miniExportBtn, { borderColor: '#67E8F9' }]} onPress={handleExportAddressPdf} activeOpacity={0.8}>
+                <Ionicons name="document-text-outline" size={12} color="#0891B2" />
+                <Text style={[styles.miniExportTxt, { color: '#0891B2' }]}>{exportingAddr ? '…' : 'Export I-485'}</Text>
+              </TouchableOpacity>
             </View>
 
             {/* Add Address button — mirrored with Add Trip */}
@@ -448,34 +446,45 @@ export const TravelScreen: React.FC = () => {
               {[...addressHistory]
                 .sort((a, b) => (a.isCurrentAddress ? -1 : b.isCurrentAddress ? 1 : b.dateFrom.localeCompare(a.dateFrom)))
                 .map((entry) => (
-                  <View key={entry.id} style={styles.addrCard}>
-                    <View style={[styles.addrStrip, { backgroundColor: entry.isCurrentAddress ? '#059669' : '#0891B2' }]} />
-                    <View style={{ flex: 1 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <View key={entry.id} style={styles.tripCard}>
+                    <View style={[styles.tripStrip, { backgroundColor: entry.isCurrentAddress ? '#059669' : '#0891B2' }]} />
+                    <View style={styles.tripContent}>
+                      <View style={styles.tripTopRow}>
+                        <View style={[styles.tripIconBox, { backgroundColor: (entry.isCurrentAddress ? '#059669' : '#0891B2') + '18', borderColor: (entry.isCurrentAddress ? '#059669' : '#0891B2') + '30' }]}>
+                          <Ionicons name="home-outline" size={18} color={entry.isCurrentAddress ? '#059669' : '#0891B2'} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.tripCountry} numberOfLines={1}>{entry.street}{entry.apt ? `, ${entry.apt}` : ''}</Text>
+                          <Text style={styles.tripPurpose}>{entry.city}, {entry.state} {entry.zipCode}{entry.country !== 'United States' ? ` · ${entry.country}` : ''}</Text>
+                        </View>
                         {entry.isCurrentAddress && (
-                          <View style={styles.currentBadge}>
-                            <Text style={styles.currentBadgeTxt}>Current</Text>
+                          <View style={[styles.tripDaysBadge, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0', paddingHorizontal: 8 }]}>
+                            <Text style={{ fontSize: 10, fontFamily: 'Inter_700Bold', color: '#059669' }}>Current</Text>
                           </View>
                         )}
-                        <Text style={styles.addrStreet} numberOfLines={1}>
-                          {entry.street}{entry.apt ? `, ${entry.apt}` : ''}
-                        </Text>
                       </View>
-                      <Text style={styles.addrCity}>{entry.city}, {entry.state} {entry.zipCode}</Text>
-                      {entry.country !== 'United States' && (
-                        <Text style={styles.addrCountryTxt}>{entry.country}</Text>
-                      )}
-                      <Text style={styles.addrDates}>
-                        {entry.dateFrom.slice(5,7)}/{entry.dateFrom.slice(0,4)} → {entry.isCurrentAddress ? 'Present' : `${entry.dateTo.slice(5,7)}/${entry.dateTo.slice(0,4)}`}
-                      </Text>
+                      <View style={styles.tripDateRow}>
+                        <View style={styles.tripDateItem}>
+                          <Text style={styles.tripDateHint}>FROM</Text>
+                          <Text style={styles.tripDateVal}>{entry.dateFrom.slice(5,7)}/{entry.dateFrom.slice(0,4)}</Text>
+                        </View>
+                        <Ionicons name="arrow-forward" size={14} color={colors.text3} style={{ marginTop: 14 }} />
+                        <View style={styles.tripDateItem}>
+                          <Text style={styles.tripDateHint}>TO</Text>
+                          <Text style={styles.tripDateVal}>{entry.isCurrentAddress ? 'Present' : `${entry.dateTo.slice(5,7)}/${entry.dateTo.slice(0,4)}`}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.tripActions}>
+                        <TouchableOpacity
+                          style={[styles.tripActionBtn, styles.tripActionDel]}
+                          onPress={() => dialog.confirm({ title: 'Delete Address', message: 'Remove this address?', type: 'danger', confirmLabel: 'Delete', cancelLabel: 'Cancel', onConfirm: () => removeAddress(entry.id) })}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons name="trash-outline" size={13} color={colors.danger} />
+                          <Text style={styles.tripActionDelText}>Remove</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                    <TouchableOpacity
-                      style={styles.addrDeleteBtn}
-                      onPress={() => dialog.confirm({ title: 'Delete Address', message: 'Remove this address entry?', type: 'danger', confirmLabel: 'Delete', cancelLabel: 'Cancel', onConfirm: () => removeAddress(entry.id) })}
-                      activeOpacity={0.7}
-                    >
-                      <Ionicons name="trash-outline" size={15} color="#DC2626" />
-                    </TouchableOpacity>
                   </View>
                 ))
               }
@@ -505,98 +514,83 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.modalBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <View style={{ padding: spacing.screen, paddingTop: 12, gap: 10 } as any}>
 
-              {/* Dates */}
-              <DateField label="Departure Date" value={departure} onPress={() => setActivePicker('departure')} onChange={setDeparture} />
-              <DateField label="Return Date"    value={returnDate} onPress={() => setActivePicker('return')} onChange={setReturnDate} />
+              {/* Dates — side by side */}
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.addrFieldLabel}>Departure *</Text>
+                  {IS_WEB ? (
+                    <input type="date" value={departure.toISOString().split('T')[0]}
+                      onChange={(e:any) => { if(e.target.value) setDeparture(new Date(e.target.value+'T12:00:00')); }}
+                      style={{ width:'100%', padding:'9px 10px', fontSize:'13px', fontFamily:'Inter_400Regular', border:'1.5px solid #E2E8F0', borderRadius:'8px', backgroundColor:'#fff', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
+                  ) : (
+                    <TouchableOpacity style={styles.dateButton} onPress={() => setActivePicker('departure')}>
+                      <Text style={styles.dateButtonText}>{departure.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.addrFieldLabel}>Return *</Text>
+                  {IS_WEB ? (
+                    <input type="date" value={returnDate.toISOString().split('T')[0]}
+                      onChange={(e:any) => { if(e.target.value) setReturnDate(new Date(e.target.value+'T12:00:00')); }}
+                      style={{ width:'100%', padding:'9px 10px', fontSize:'13px', fontFamily:'Inter_400Regular', border:'1.5px solid #E2E8F0', borderRadius:'8px', backgroundColor:'#fff', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
+                  ) : (
+                    <TouchableOpacity style={styles.dateButton} onPress={() => setActivePicker('return')}>
+                      <Text style={styles.dateButtonText}>{returnDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
 
               {!IS_WEB && activePicker && (
-                <DateTimePicker
-                  value={activePicker === 'departure' ? departure : returnDate}
-                  mode="date"
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                  onChange={handleDateChange}
-                />
-              )}
-              {Platform.OS === 'ios' && activePicker && (
-                <TouchableOpacity style={styles.pickerDone} onPress={() => setActivePicker(null)}>
-                  <Text style={{ color: '#7367F0', fontFamily: 'Inter_600SemiBold', fontSize: 14 }}>Done</Text>
-                </TouchableOpacity>
+                <DateTimePicker value={activePicker==='departure'?departure:returnDate} mode="date"
+                  display={Platform.OS==='ios'?'spinner':'default'} onChange={handleDateChange} />
               )}
 
-              {/* Country */}
-              <Text style={styles.fieldLabel}>Destination Country *</Text>
-              <TextInput
-                style={styles.fieldInput}
-                value={country}
-                onChangeText={setCountry}
-                placeholder="e.g., India, Mexico, Canada"
-                placeholderTextColor={colors.text3}
-                autoCapitalize="words"
-              />
+              {/* Country + Port on same row */}
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <View style={{ flex: 3 }}>
+                  <Text style={styles.addrFieldLabel}>Country *</Text>
+                  <TextInput style={styles.addrFieldInput} value={country} onChangeText={setCountry} placeholder="India, Mexico…" placeholderTextColor={colors.text3} autoCapitalize="words" />
+                </View>
+                <View style={{ flex: 2 }}>
+                  <Text style={styles.addrFieldLabel}>Port of Entry</Text>
+                  <TextInput style={styles.addrFieldInput} value={portOfEntry} onChangeText={setPortOfEntry} placeholder="JFK, LAX…" placeholderTextColor={colors.text3} autoCapitalize="characters" />
+                </View>
+              </View>
 
-              {/* Port of Entry */}
-              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Port of Entry (on return)</Text>
-              <TextInput
-                style={styles.fieldInput}
-                value={portOfEntry}
-                onChangeText={setPortOfEntry}
-                placeholder="e.g., JFK, LAX, Chicago O'Hare"
-                placeholderTextColor={colors.text3}
-                autoCapitalize="characters"
-              />
-
-              {/* Purpose */}
-              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Purpose of Trip</Text>
-              <View style={styles.purposeRow}>
-                {PURPOSES.map((p) => (
-                  <TouchableOpacity
-                    key={p}
-                    style={[styles.purposeChip, purpose === p && styles.purposeChipActive]}
-                    onPress={() => setPurpose(p)}
-                  >
-                    <Text style={styles.purposeIcon}>{PURPOSE_ICONS[p]}</Text>
-                    <Text style={[styles.purposeLabel, purpose === p && styles.purposeLabelActive]}>
-                      {p.charAt(0).toUpperCase() + p.slice(1)}
-                    </Text>
+              {/* Purpose chips */}
+              <Text style={styles.addrFieldLabel}>Purpose</Text>
+              <View style={[styles.purposeRow, { marginBottom: 0 }]}>
+                {PURPOSES.map((pu) => (
+                  <TouchableOpacity key={pu} style={[styles.purposeChip, purpose===pu && styles.purposeChipActive]} onPress={() => setPurpose(pu)}>
+                    <Text style={styles.purposeIcon}>{PURPOSE_ICONS[pu]}</Text>
+                    <Text style={[styles.purposeLabel, purpose===pu && styles.purposeLabelActive]}>{pu.charAt(0).toUpperCase()+pu.slice(1)}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
 
-              {/* Notes */}
-              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Notes (optional)</Text>
-              <TextInput
-                style={[styles.fieldInput, { minHeight: 72, textAlignVertical: 'top' }]}
-                value={notes}
-                onChangeText={setNotes}
-                placeholder="e.g., Extended family visit, work project in London"
-                placeholderTextColor={colors.text3}
-                multiline
-                maxLength={200}
-              />
-
               {/* Duration preview */}
               {returnDate >= departure && (
                 <View style={styles.durationPreview}>
-                  <Ionicons name="timer-outline" size={14} color={'#7367F0'} />
+                  <Ionicons name="timer-outline" size={13} color="#7367F0" />
                   <Text style={styles.durationText}>
                     {getTripDays({ departureDate: departure.toISOString().split('T')[0], returnDate: returnDate.toISOString().split('T')[0] } as TravelTrip)} days outside the US
-                    {getTripDays({ departureDate: departure.toISOString().split('T')[0], returnDate: returnDate.toISOString().split('T')[0] } as TravelTrip) >= 180
-                      ? ' ⚠️ Long absence'
-                      : ''}
+                    {getTripDays({ departureDate: departure.toISOString().split('T')[0], returnDate: returnDate.toISOString().split('T')[0] } as TravelTrip) >= 180 ? ' ⚠️ Long absence' : ''}
                   </Text>
                 </View>
               )}
 
-              {/* Save button */}
+              {/* Save */}
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
                 <LinearGradient colors={[colors.primary, colors.primaryLight]} style={styles.saveBtnGrad}>
                   <Text style={styles.saveBtnText}>{editingId ? 'Update Trip' : 'Add Trip'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
-            </ScrollView>
+            </View>
           </View>
         </View>
       </Modal>
@@ -746,8 +740,8 @@ const styles = StyleSheet.create({
   cardAddBtn:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1.5, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 10, paddingVertical: 9, marginBottom: 14, backgroundColor: '#FAFAFA' } as any,
   cardAddBtnTxt:    { fontSize: 13, fontFamily: 'Inter_600SemiBold' },
   twoColRow:        { flexDirection: 'column', gap: 16, paddingHorizontal: spacing.screen, paddingBottom: 24 } as any,
-  twoColRowWide:    { flexDirection: 'row' as any, alignItems: 'flex-start' as any } as any,
-  twoColCard:       { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#E2E8F0', minWidth: 0, minHeight: 320, ...Platform.select({ web: { boxShadow: '0 2px 12px rgba(15,23,42,0.06)' } as any }) } as any,
+  twoColRowWide:    { flexDirection: 'row' as any, alignItems: 'stretch' as any } as any,
+  twoColCard:       { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#E2E8F0', minWidth: 0, ...Platform.select({ web: { boxShadow: '0 2px 12px rgba(15,23,42,0.06)' } as any }) } as any,
   twoColCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, flexWrap: 'wrap' as any } as any,
   twoColCardTitle:  { fontSize: 12, fontFamily: 'Inter_700Bold', color: '#0F172A', flex: 1 },
   miniExportBtn:    { flexDirection: 'row', alignItems: 'center', gap: 3, borderWidth: 1, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 4, backgroundColor: '#F8F8FF' } as any,
