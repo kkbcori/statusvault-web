@@ -858,7 +858,8 @@ export const useStore = create<AppStore>()(
           } else if (event === 'SIGNED_OUT') {
             // Bug 45 fix: also clear isPremium so the next user doesn't inherit it
             set({ authUser: null, lastSyncedAt: null, syncError: null,
-                  emailVerified: false, isPremium: false, cloudBackupEnabled: true });
+                  emailVerified: false, isPremium: false, cloudBackupEnabled: true,
+                  lastAutoBackupAt: null });
           }
         });
 
@@ -1230,6 +1231,15 @@ export const useStore = create<AppStore>()(
           ...(suppressWelcome ? { hasOnboarded: true, showWelcomeModal: false } : {}),
         });
       },
+      // Explicit merge ensures new fields added to initial state are not
+      // lost when loading old persisted state that predates those fields
+      merge: (persisted: any, current: any) => ({
+        ...current,      // start with full initial state (all new fields with defaults)
+        ...persisted,    // overlay saved values on top
+        // Always keep these as their persisted values, never overwrite with initial
+        lastAutoBackupAt: persisted.lastAutoBackupAt ?? null,
+        lastSyncedAt:     persisted.lastSyncedAt     ?? null,
+      }),
       partialize: (s) => ({
         hasOnboarded: s.hasOnboarded, documents: s.documents, checklists: s.checklists,
         counters: s.counters, trips: s.trips, notificationsEnabled: s.notificationsEnabled,

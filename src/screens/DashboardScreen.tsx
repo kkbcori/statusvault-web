@@ -149,7 +149,7 @@ export const DashboardScreen: React.FC = () => {
   const [selectedDocIds,   setSelectedDocIds]   = useState<string[]>([]);
   const [savingProfile,    setSavingProfile]    = useState(false);
 
-  const lastAutoBackupAt = useStore((s) => s.lastAutoBackupAt);
+  const lastAutoBackupAt = useStore((s) => s.lastAutoBackupAt ?? null);
 
   const relativeTime = (iso: string | null) => {
     if (!iso) return null;

@@ -47,7 +47,7 @@ export const SettingsScreen: React.FC = () => {
   const cloudBackupEnabled   = useStore((s) => s.cloudBackupEnabled);
   const setCloudBackupEnabled = useStore((s) => s.setCloudBackupEnabled);
   const lastSyncedAt         = useStore((s) => s.lastSyncedAt);
-  const lastAutoBackupAt     = useStore((s) => s.lastAutoBackupAt);
+  const lastAutoBackupAt     = useStore((s) => s.lastAutoBackupAt ?? null);
   const isSyncing            = useStore((s) => s.isSyncing);
   const syncError            = useStore((s) => s.syncError);
   const { 
