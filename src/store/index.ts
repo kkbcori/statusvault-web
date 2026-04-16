@@ -126,6 +126,12 @@ interface AppStore {
   addFamilyMember: (member: FamilyMember) => void;
   removeFamilyMember: (id: string) => void;
   updateFamilyMember: (id: string, updates: Partial<FamilyMember>) => void;
+  addMemberTrip: (memberId: string, trip: TravelTrip) => void;
+  removeMemberTrip: (memberId: string, tripId: string) => void;
+  updateMemberTrip: (memberId: string, tripId: string, updates: Partial<TravelTrip>) => void;
+  addMemberAddress: (memberId: string, entry: AddressEntry) => void;
+  removeMemberAddress: (memberId: string, entryId: string) => void;
+  updateMemberAddress: (memberId: string, entryId: string, updates: Partial<AddressEntry>) => void;
   updateTrip: (id: string, updates: Partial<TravelTrip>) => void;
 
   // Auth actions
@@ -451,7 +457,7 @@ export const useStore = create<AppStore>()(
         scheduleSync();
       },
       addFamilyMember: (member) => {
-        set((s) => ({ familyMembers: [...s.familyMembers, member] }));
+        set((s) => ({ familyMembers: [...s.familyMembers, { trips: [], addressHistory: [], ...member }] }));
         scheduleSync();
       },
 
@@ -464,6 +470,31 @@ export const useStore = create<AppStore>()(
         set((s) => ({
           familyMembers: s.familyMembers.map((m) => m.id === id ? { ...m, ...updates } : m),
         }));
+        scheduleSync();
+      },
+
+      addMemberTrip: (memberId, trip) => {
+        set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, trips: [...(m.trips ?? []), trip] } : m) }));
+        scheduleSync();
+      },
+      removeMemberTrip: (memberId, tripId) => {
+        set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, trips: (m.trips ?? []).filter((t) => t.id !== tripId) } : m) }));
+        scheduleSync();
+      },
+      updateMemberTrip: (memberId, tripId, updates) => {
+        set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, trips: (m.trips ?? []).map((t) => t.id === tripId ? { ...t, ...updates } : t) } : m) }));
+        scheduleSync();
+      },
+      addMemberAddress: (memberId, entry) => {
+        set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, addressHistory: [entry, ...(m.addressHistory ?? [])] } : m) }));
+        scheduleSync();
+      },
+      removeMemberAddress: (memberId, entryId) => {
+        set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, addressHistory: (m.addressHistory ?? []).filter((a) => a.id !== entryId) } : m) }));
+        scheduleSync();
+      },
+      updateMemberAddress: (memberId, entryId, updates) => {
+        set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, addressHistory: (m.addressHistory ?? []).map((a) => a.id === entryId ? { ...a, ...updates } : a) } : m) }));
         scheduleSync();
       },
 
@@ -751,7 +782,7 @@ export const useStore = create<AppStore>()(
           const key  = deriveKey(user.id, email);
           const { familyMembers, visaProfile } = get();
           const { notificationEmail, whatsappPhone } = get();
-          const blob = { documents, checklists, counters, trips, addressHistory: get().addressHistory, familyMembers, visaProfile, isPremium, notificationEmail, whatsappPhone, syncedAt: new Date().toISOString() };
+          const blob = { documents, checklists, counters, trips, addressHistory: get().addressHistory, familyMembers, visaProfile, immigrationProfile: get().immigrationProfile, isPremium, notificationEmail, whatsappPhone, syncedAt: new Date().toISOString() };
           const data_encrypted = encryptData(blob, key);
           // Try upsert first, fall back to update if upsert fails
           let { error } = await supabase
@@ -1011,6 +1042,7 @@ export const useStore = create<AppStore>()(
         isPremium: s.isPremium, pinEnabled: s.pinEnabled, pinCode: s.pinCode,
         lastSyncedAt: s.lastSyncedAt,
         familyMembers: s.familyMembers,
+        addressHistory: s.addressHistory,
         visaProfile: s.visaProfile,
         immigrationProfile: s.immigrationProfile,
         notificationEmail: s.notificationEmail,

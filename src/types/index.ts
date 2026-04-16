@@ -146,6 +146,8 @@ export interface FamilyMember {
   relation: string; // spouse, child, parent, self
   visaType: string;
   documentIds: string[]; // references to UserDocument ids
+  trips: TravelTrip[];         // I-94 travel history for this member
+  addressHistory: AddressEntry[]; // Address history for this member
   createdAt: string;
 }
 

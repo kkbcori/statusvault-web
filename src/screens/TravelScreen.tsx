@@ -15,6 +15,7 @@ import { IS_WEB } from '../utils/responsive';
 import { useWindowDimensions } from 'react-native';
 import { useDialog } from '../components/ConfirmDialog';
 import { useStore } from '../store';
+import { FamilyMember } from '../types';
 import { TravelTrip, TripPurpose } from '../types';
 import {
   getTripDays, getTotalDaysAbroad, filterLast5Years, sortByDateDesc,
@@ -147,6 +148,18 @@ export const TravelScreen: React.FC = () => {
   const removeTrip = useStore((s) => s.removeTrip);
   const updateTrip = useStore((s) => s.updateTrip);
 
+  // ── Member selector ────────────────────────────────────────
+  const familyMembers       = useStore((s) => s.familyMembers);
+  const addMemberTrip       = useStore((s) => s.addMemberTrip);
+  const removeMemberTrip    = useStore((s) => s.removeMemberTrip);
+  const updateMemberTrip    = useStore((s) => s.updateMemberTrip);
+  const addMemberAddress    = useStore((s) => s.addMemberAddress);
+  const removeMemberAddress = useStore((s) => s.removeMemberAddress);
+  const updateMemberAddress = useStore((s) => s.updateMemberAddress);
+  const [selectedMemberId,  setSelectedMemberId] = useState<string | null>(null);
+  // null = owner; string = family member id
+  const activeMember = selectedMemberId ? familyMembers.find(m => m.id === selectedMemberId) ?? null : null;
+
   const [showModal,      setShowModal]      = useState(false);
   const [editingId,      setEditingId]      = useState<string | null>(null);
   const [country,        setCountry]        = useState('');
@@ -210,13 +223,15 @@ export const TravelScreen: React.FC = () => {
       dateTo:           addrCurrent ? 'present' : addrTo.toISOString().split('T')[0],
       isCurrentAddress: addrCurrent,
       createdAt:        editingAddrId
-        ? (addressHistory.find(a => a.id === editingAddrId)?.createdAt ?? new Date().toISOString())
+        ? (activeAddressHistory.find((a: AddressEntry) => a.id === editingAddrId)?.createdAt ?? new Date().toISOString())
         : new Date().toISOString(),
     };
     if (editingAddrId) {
-      updateAddress(editingAddrId, entry);
+      if (activeMember) updateMemberAddress(activeMember.id, editingAddrId, entry);
+      else updateAddress(editingAddrId, entry);
     } else {
-      addAddress(entry);
+      if (activeMember) addMemberAddress(activeMember.id, entry);
+      else addAddress(entry);
     }
     setShowAddrModal(false);
     resetAddrForm();
@@ -238,18 +253,22 @@ export const TravelScreen: React.FC = () => {
   };
 
   const handleExportAddressPdf = () => {
-    if (addressHistory.length === 0) {
+    if (activeAddressHistory.length === 0) {
       dialog.alert('No Addresses', 'Add at least one address before exporting.');
       return;
     }
     setExportingAddr(true);
-    try { exportAddressPdf(addressHistory); } finally { setExportingAddr(false); }
+    try { exportAddressPdf(activeAddressHistory); } finally { setExportingAddr(false); }
   };
 
-  const sorted    = sortByDateDesc(trips);
-  const last5     = filterLast5Years(trips);
+  // Active trips/addresses — owner or selected member
+  const activeTrips       = activeMember ? (activeMember.trips ?? []) : trips;
+  const activeAddressHistory = activeMember ? (activeMember.addressHistory ?? []) : addressHistory;
+
+  const sorted    = sortByDateDesc(activeTrips);
+  const last5     = filterLast5Years(activeTrips);
   const abroad5   = getTotalDaysAbroad(last5);
-  const abroadAll = getTotalDaysAbroad(trips);
+  const abroadAll = getTotalDaysAbroad(activeTrips);
   const inUS5     = Math.max(0, 5 * 365 - abroad5);
   const hasLong   = last5.some(isLongAbsence);
   const displayed = showAll ? sorted : sortByDateDesc(last5);
@@ -289,9 +308,12 @@ export const TravelScreen: React.FC = () => {
     };
 
     if (editingId) {
-      updateTrip(editingId, entry);
+      if (activeMember) updateMemberTrip(activeMember.id, editingId, entry);
+      else updateTrip(editingId, entry);
     } else {
-      addTrip({ id: Date.now().toString(), createdAt: new Date().toISOString(), ...entry });
+      const newTrip = { id: Date.now().toString(), createdAt: new Date().toISOString(), ...entry };
+      if (activeMember) addMemberTrip(activeMember.id, newTrip);
+      else addTrip(newTrip);
     }
     setShowModal(false);
     resetForm();
@@ -299,14 +321,17 @@ export const TravelScreen: React.FC = () => {
 
   const handleDelete = (id: string, country: string) => {
     dialog.confirm({ title: 'Remove Trip', message: `Remove trip to ${country}?`,
-      type: 'danger', confirmLabel: 'Remove', onConfirm: () => removeTrip(id) });
+      type: 'danger', confirmLabel: 'Remove', onConfirm: () => {
+        if (activeMember) removeMemberTrip(activeMember.id, id);
+        else removeTrip(id);
+      }});
   };
 
   const handleExport = async () => {
-    if (trips.length === 0) { dialog.alert('No trips', 'Add at least one trip before exporting.'); return; }
+    if (activeTrips.length === 0) { dialog.alert('No trips', 'Add at least one trip before exporting.'); return; }
     setExporting(true);
     try {
-      await exportTravelPdf(trips);
+      await exportTravelPdf(activeTrips);
     } catch (e) {
       dialog.alert('Export Failed', 'Could not generate PDF. Please try again.');
     } finally {
@@ -335,6 +360,31 @@ export const TravelScreen: React.FC = () => {
             </View>
           </View>
         </LinearGradient>
+
+        {/* Member Picker — owner + family members */}
+        {familyMembers.length > 0 && (
+          <View style={styles.memberPickerRow}>
+            <TouchableOpacity
+              style={[styles.memberChip, selectedMemberId === null && styles.memberChipActive]}
+              onPress={() => { setSelectedMemberId(null); setShowAll(false); setShowAllAddr(false); }}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="person-outline" size={13} color={selectedMemberId === null ? '#fff' : '#4F46E5'} />
+              <Text style={[styles.memberChipText, selectedMemberId === null && styles.memberChipTextActive]}>You</Text>
+            </TouchableOpacity>
+            {familyMembers.map((m) => (
+              <TouchableOpacity
+                key={m.id}
+                style={[styles.memberChip, selectedMemberId === m.id && styles.memberChipActive]}
+                onPress={() => { setSelectedMemberId(m.id); setShowAll(false); setShowAllAddr(false); }}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="people-outline" size={13} color={selectedMemberId === m.id ? '#fff' : '#4F46E5'} />
+                <Text style={[styles.memberChipText, selectedMemberId === m.id && styles.memberChipTextActive]} numberOfLines={1}>{m.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         {/* Stats strip */}
         <View style={styles.statsRow}>
@@ -382,7 +432,7 @@ export const TravelScreen: React.FC = () => {
                 <Ionicons name="airplane-outline" size={16} color="#7367F0" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.cardTitle}>I-94 Travel History</Text>
+                <Text style={styles.cardTitle}>{activeMember ? `${activeMember.name}'s I-94` : 'I-94 Travel History'}</Text>
                 <Text style={styles.cardSub}>N-400 Part 8 · Naturalization</Text>
               </View>
               <TouchableOpacity style={styles.miniExportBtn} onPress={handleExport} activeOpacity={0.8} disabled={exporting}>
@@ -443,7 +493,7 @@ export const TravelScreen: React.FC = () => {
                 <Ionicons name="home-outline" size={16} color="#0891B2" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.cardTitle}>Address History</Text>
+                <Text style={styles.cardTitle}>{activeMember ? `${activeMember.name}'s Addresses` : 'Address History'}</Text>
                 <Text style={styles.cardSub}>I-485 Part 3 · Adjustment of Status</Text>
               </View>
               <TouchableOpacity style={[styles.miniExportBtn, { borderColor: '#67E8F9' }]} onPress={handleExportAddressPdf} activeOpacity={0.8}>
@@ -464,13 +514,13 @@ export const TravelScreen: React.FC = () => {
 
           {/* Show all toggle — mirrored with trip card */}
           <View style={{ gap: 8 }}>
-            {addressHistory.length > 0 && (
+            {activeAddressHistory.length > 0 && (
               <TouchableOpacity onPress={() => setShowAllAddr(!showAllAddr)} style={[styles.toggleChip, { alignSelf: 'flex-end', marginBottom: 4, borderColor: '#A5F3FC', backgroundColor: showAllAddr ? '#CFFAFE' : '#F0FDFF' }]}>
                 <Text style={[styles.toggleChipText, { color: '#0891B2' }]}>{showAllAddr ? 'Show recent' : 'Show all'}</Text>
               </TouchableOpacity>
             )}
 
-          {addressHistory.length === 0 ? (
+          {activeAddressHistory.length === 0 ? (
             <View style={styles.emptyCard}>
               <View style={[styles.emptyIconCircle, { backgroundColor: '#F0FDFF', borderColor: 'rgba(8,145,178,0.25)' }]}>
                 <Text style={{ fontSize: 28 }}>🏠</Text>
@@ -479,10 +529,10 @@ export const TravelScreen: React.FC = () => {
               <Text style={styles.emptySubtitle}>Tap "+ Add Address" to log your US addresses for I-485 filing</Text>
             </View>
           ) : (
-            [...addressHistory]
+            [...activeAddressHistory]
               .sort((a, b) => (a.isCurrentAddress ? -1 : b.isCurrentAddress ? 1 : b.dateFrom.localeCompare(a.dateFrom)))
               .slice(0, showAllAddr ? undefined : 5)
-              .map((entry) => (
+              .map((entry: AddressEntry) => (
                 <View key={entry.id} style={styles.tripCard}>
                   <View style={[styles.tripStrip, { backgroundColor: entry.isCurrentAddress ? '#059669' : '#0891B2' }]} />
                   <View style={styles.tripContent}>
@@ -522,7 +572,10 @@ export const TravelScreen: React.FC = () => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[styles.tripActionBtn, styles.tripActionDel]}
-                        onPress={() => dialog.confirm({ title: 'Delete Address', message: 'Remove this address?', type: 'danger', confirmLabel: 'Delete', cancelLabel: 'Cancel', onConfirm: () => removeAddress(entry.id) })}
+                        onPress={() => dialog.confirm({ title: 'Delete Address', message: 'Remove this address?', type: 'danger', confirmLabel: 'Delete', cancelLabel: 'Cancel', onConfirm: () => {
+                        if (activeMember) removeMemberAddress(activeMember.id, entry.id);
+                        else removeAddress(entry.id);
+                      } })}
                         activeOpacity={0.7}
                       >
                         <Ionicons name="trash-outline" size={13} color={colors.danger} />
@@ -782,6 +835,11 @@ export const TravelScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  memberPickerRow:  { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: spacing.screen, paddingVertical: spacing.md, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: colors.borderLight },
+  memberChip:       { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.full, borderWidth: 1.5, borderColor: '#C7D2FE', backgroundColor: '#EEF2FF' },
+  memberChipActive: { backgroundColor: '#4F46E5', borderColor: '#4F46E5' },
+  memberChipText:   { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#4F46E5' },
+  memberChipTextActive: { color: '#fff' },
   // Header
   headerGradient:  { paddingBottom: 8 },
   header:          { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: spacing.screen, paddingTop: spacing.xxl + 20, paddingBottom: spacing.md },
