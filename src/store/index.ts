@@ -201,6 +201,15 @@ const scheduleSync = () => {
   }
 };
 
+// ─── Immediate sync for critical travel/address mutations ────
+const syncNow = () => {
+  const s = useStore.getState();
+  if (s.authUser && s.isPremium && s.cloudBackupEnabled) {
+    clearTimeout((scheduleSync as any)._t);
+    s.syncToCloud().catch(() => {});
+  }
+};
+
 export const useStore = create<AppStore>()(
   persist(
     (set, get) => ({
@@ -442,71 +451,71 @@ export const useStore = create<AppStore>()(
       // ─── Travel / I-94 ─────────────────────────────────────
       addTrip: (trip) => {
         set((s) => ({ trips: [...s.trips, trip] }));
-        scheduleSync();
+        syncNow();
       },
       addAddress: (entry) => {
         set((s) => ({ addressHistory: [entry, ...s.addressHistory] }));
-        scheduleSync();
+        syncNow();
       },
       removeAddress: (id) => {
         set((s) => ({ addressHistory: s.addressHistory.filter((a) => a.id !== id) }));
-        scheduleSync();
+        syncNow();
       },
       updateAddress: (id, updates) => {
         set((s) => ({ addressHistory: s.addressHistory.map((a) => a.id === id ? { ...a, ...updates } : a) }));
-        scheduleSync();
+        syncNow();
       },
       addFamilyMember: (member) => {
         set((s) => ({ familyMembers: [...s.familyMembers, { trips: [], addressHistory: [], ...member }] }));
-        scheduleSync();
+        syncNow();
       },
 
       removeFamilyMember: (id) => {
         set((s) => ({ familyMembers: s.familyMembers.filter((m) => m.id !== id) }));
-        scheduleSync();
+        syncNow();
       },
 
       updateFamilyMember: (id, updates) => {
         set((s) => ({
           familyMembers: s.familyMembers.map((m) => m.id === id ? { ...m, ...updates } : m),
         }));
-        scheduleSync();
+        syncNow();
       },
 
       addMemberTrip: (memberId, trip) => {
         set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, trips: [...(m.trips ?? []), trip] } : m) }));
-        scheduleSync();
+        syncNow();
       },
       removeMemberTrip: (memberId, tripId) => {
         set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, trips: (m.trips ?? []).filter((t) => t.id !== tripId) } : m) }));
-        scheduleSync();
+        syncNow();
       },
       updateMemberTrip: (memberId, tripId, updates) => {
         set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, trips: (m.trips ?? []).map((t) => t.id === tripId ? { ...t, ...updates } : t) } : m) }));
-        scheduleSync();
+        syncNow();
       },
       addMemberAddress: (memberId, entry) => {
         set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, addressHistory: [entry, ...(m.addressHistory ?? [])] } : m) }));
-        scheduleSync();
+        syncNow();
       },
       removeMemberAddress: (memberId, entryId) => {
         set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, addressHistory: (m.addressHistory ?? []).filter((a) => a.id !== entryId) } : m) }));
-        scheduleSync();
+        syncNow();
       },
       updateMemberAddress: (memberId, entryId, updates) => {
         set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, addressHistory: (m.addressHistory ?? []).map((a) => a.id === entryId ? { ...a, ...updates } : a) } : m) }));
-        scheduleSync();
+        syncNow();
       },
 
       removeTrip: (id) => {
         set((s) => ({ trips: s.trips.filter((t) => t.id !== id) }));
-        scheduleSync();
+        syncNow();
       },
       updateTrip: (id, updates) => {
         set((s) => ({
           trips: s.trips.map((t) => t.id === id ? { ...t, ...updates } : t),
         }));
-        scheduleSync();
+        syncNow();
       },
 
       // ─── Auth ──────────────────────────────────────────────
@@ -601,13 +610,18 @@ export const useStore = create<AppStore>()(
       },
 
       signOut: async () => {
+        // Flush any pending sync BEFORE signing out so latest data is in cloud
+        const s = useStore.getState();
+        if (s.authUser && s.isPremium && s.cloudBackupEnabled) {
+          clearTimeout((scheduleSync as any)._t);
+          try { await s.syncToCloud(); } catch {}
+        }
         await supabase.auth.signOut();
         set({
           authUser: null, lastSyncedAt: null, syncError: null,
           emailVerified: false, isGuestMode: false,
           hasOnboarded: true, showWelcomeModal: false,
         });
-        // Reload after a tick to let state settle
         if (typeof window !== 'undefined') {
           setTimeout(() => window.location.reload(), 100);
         }
