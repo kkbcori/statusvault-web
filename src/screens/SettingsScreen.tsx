@@ -47,6 +47,7 @@ export const SettingsScreen: React.FC = () => {
   const cloudBackupEnabled   = useStore((s) => s.cloudBackupEnabled);
   const setCloudBackupEnabled = useStore((s) => s.setCloudBackupEnabled);
   const lastSyncedAt         = useStore((s) => s.lastSyncedAt);
+  const lastAutoBackupAt     = useStore((s) => s.lastAutoBackupAt);
   const isSyncing            = useStore((s) => s.isSyncing);
   const syncError            = useStore((s) => s.syncError);
   const { 
@@ -69,6 +70,17 @@ export const SettingsScreen: React.FC = () => {
   const [importText,      setImportText]      = useState('');
   const [showPinSetup,       setShowPinSetup]       = useState(false);
   const [confirmAction,      setConfirmAction]      = useState<null|'signout'|'delete'|'reset'>(null);
+
+  // Format "2 minutes ago", "1 hour ago" etc. for backup status
+  const relativeTime = (iso: string | null): string => {
+    if (!iso) return 'Never';
+    const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (diff < 5)   return 'Just now';
+    if (diff < 60)  return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return new Date(iso).toLocaleDateString();
+  };
 
   const handleCloudBackupToggle = () => {
     if (cloudBackupEnabled) {
@@ -127,11 +139,36 @@ export const SettingsScreen: React.FC = () => {
 
   const handleImportPaste = () => {
     if (!importText.trim()) { dialog.alert('Nothing to import', 'Paste your backup JSON data first.'); return; }
-    const success = importData(importText.trim());
-    if (success) {
-      dialog.alert('Import Successful', 'Documents and settings have been restored.');
-      setShowImportModal(false); setImportText('');
-    } else { dialog.alert('Import Failed', 'Not a valid StatusVault backup. Please check the file and try again.'); }
+    try {
+      const parsed = JSON.parse(importText.trim());
+      if (parsed.app !== 'StatusVault' || !parsed.data) {
+        dialog.alert('Import Failed', 'Not a valid StatusVault backup. Please check the data and try again.');
+        return;
+      }
+      const d = parsed.data;
+      const docCount    = (d.documents    ?? []).length;
+      const memberCount = (d.familyMembers ?? []).length;
+      const tripCount   = (d.trips         ?? []).length;
+      const exportedAt  = parsed.exportedAt
+        ? new Date(parsed.exportedAt).toLocaleString()
+        : 'Unknown date';
+      setShowImportModal(false);
+      dialog.confirm({
+        title: 'Restore from Backup?',
+        message: `Backup from ${exportedAt}\n\n${docCount} document${docCount !== 1 ? 's' : ''} · ${memberCount} family member${memberCount !== 1 ? 's' : ''} · ${tripCount} trip${tripCount !== 1 ? 's' : ''}\n\nThis will merge with your current data.`,
+        confirmLabel: 'Restore',
+        cancelLabel:  'Cancel',
+        type: 'danger',
+        onConfirm: () => {
+          const success = importData(importText.trim());
+          setImportText('');
+          if (success) dialog.alert('Restored', 'All data has been restored successfully.');
+          else dialog.alert('Import Failed', 'Could not restore — file may be corrupted.');
+        },
+      });
+    } catch {
+      dialog.alert('Import Failed', 'Not a valid StatusVault backup. Please check the data and try again.');
+    }
   };
 
   // Open file picker to import JSON
@@ -147,10 +184,33 @@ export const SettingsScreen: React.FC = () => {
         reader.onload = (ev) => {
           const text = ev.target?.result as string;
           if (!text) return;
-          const success = importData(text.trim());
-          if (success) {
-            dialog.alert('Import Successful', 'Documents and settings have been restored.');
-          } else {
+          // Parse metadata first so user can confirm before overwriting
+          try {
+            const parsed = JSON.parse(text.trim());
+            if (parsed.app !== 'StatusVault' || !parsed.data) {
+              dialog.alert('Import Failed', 'Not a valid StatusVault backup file.');
+              return;
+            }
+            const d = parsed.data;
+            const docCount    = (d.documents    ?? []).length;
+            const memberCount = (d.familyMembers ?? []).length;
+            const tripCount   = (d.trips         ?? []).length;
+            const exportedAt  = parsed.exportedAt
+              ? new Date(parsed.exportedAt).toLocaleString()
+              : 'Unknown date';
+            dialog.confirm({
+              title: 'Restore from Backup?',
+              message: `Backup from ${exportedAt}\n\n${docCount} document${docCount !== 1 ? 's' : ''} · ${memberCount} family member${memberCount !== 1 ? 's' : ''} · ${tripCount} trip${tripCount !== 1 ? 's' : ''}\n\nThis will merge with your current data.`,
+              confirmLabel: 'Restore',
+              cancelLabel:  'Cancel',
+              type: 'danger',
+              onConfirm: () => {
+                const success = importData(text.trim());
+                if (success) dialog.alert('Restored', 'All data has been restored successfully.');
+                else dialog.alert('Import Failed', 'Could not restore — file may be corrupted.');
+              },
+            });
+          } catch {
             dialog.alert('Import Failed', 'Not a valid StatusVault backup file.');
           }
         };
@@ -357,19 +417,30 @@ export const SettingsScreen: React.FC = () => {
       {/* ── Cross-Device Sync via JSON ── */}
       <SectionLabel iconName="phone-portrait-outline" label="CROSS-DEVICE SYNC" />
       <View style={styles.card}>
+        {/* Auto-backup status pill */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, backgroundColor: '#F0FDF4', borderRadius: 10, margin: 4 } as any}>
+          <Ionicons name="checkmark-circle" size={18} color="#16A34A" />
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#166534' }}>Auto-saved to this device</Text>
+            <Text style={{ fontSize: 11, fontFamily: 'Inter_400Regular', color: '#15803D', marginTop: 1 }}>
+              Last saved: {relativeTime(lastAutoBackupAt)} · Data stays on your device even without cloud backup
+            </Text>
+          </View>
+        </View>
+        <View style={styles.div} />
         <View style={styles.infoBox2}>
-          <Ionicons name="shield-checkmark-outline" size={16} color="#7367F0" />
+          <Ionicons name="phone-portrait-outline" size={16} color="#7367F0" />
           <Text style={styles.infoBox2Text}>
-            <Text style={{ fontFamily: 'Inter_600SemiBold' }}>100% Private · On Your Device{'\n'}</Text>
-            {'Your data never leaves your device. To use on another device, export a JSON file and import it there.'}
+            <Text style={{ fontFamily: 'Inter_600SemiBold' }}>Switching phones?{'\n'}</Text>
+            {'Export your backup JSON, copy it to your new phone, then import it — all your data comes with you.'}
           </Text>
         </View>
         <View style={styles.div} />
         <TouchableOpacity style={styles.sRow} onPress={handleExport}>
           <View style={styles.rowIconBox}><Ionicons name="download-outline" size={16} color="#7367F0" /></View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.sText}>Export Data (JSON)</Text>
-            <Text style={styles.rDesc}>Download all docs, checklists, timers to a file</Text>
+            <Text style={styles.sText}>Export Backup (JSON)</Text>
+            <Text style={styles.rDesc}>Save all your data to a file — use this when switching phones</Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.text3} />
         </TouchableOpacity>
@@ -377,8 +448,8 @@ export const SettingsScreen: React.FC = () => {
         <TouchableOpacity style={styles.sRow} onPress={handleImport}>
           <View style={styles.rowIconBox}><Ionicons name="cloud-upload-outline" size={16} color="#7367F0" /></View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.sText}>Import Data (JSON)</Text>
-            <Text style={styles.rDesc}>Restore from a previously exported file</Text>
+            <Text style={styles.sText}>Import Backup (JSON)</Text>
+            <Text style={styles.rDesc}>Restore from your exported file — shows preview before overwriting</Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.text3} />
         </TouchableOpacity>

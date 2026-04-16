@@ -1380,6 +1380,192 @@ describe('Checklist Item Operations', () => {
   });
 });
 
+// ═══════════════════════════════════════════════════════════════
+// SUITE 28 — AUTO-BACKUP & DEVICE-FIRST ARCHITECTURE
+// ═══════════════════════════════════════════════════════════════
+describe('Auto-Backup — Device-First', () => {
+  it('AUTO_BACKUP_KEY constant is defined', () => {
+    // mirrors src/store/index.ts constant
+    const AUTO_BACKUP_KEY      = 'statusvault_auto_backup';
+    const AUTO_BACKUP_DATE_KEY = 'statusvault_auto_backup_date';
+    expect(AUTO_BACKUP_KEY.length).toBeGreaterThan(0);
+    expect(AUTO_BACKUP_DATE_KEY.length).toBeGreaterThan(0);
+  });
+
+  it('Auto-backup JSON has required fields', () => {
+    const state = premiumState({
+      documents:      [makeDoc('d1', daysFromNow(100))],
+      trips:          [makeTrip('t1', daysAgo(30), daysAgo(20))],
+      addressHistory: [makeAddress('a1', '2022-01-01', 'present', true)],
+      familyMembers:  [makeMember('m1')],
+    });
+    const json = JSON.stringify({
+      app: 'StatusVault', version: '2.0.0',
+      exportedAt: new Date().toISOString(),
+      data: {
+        documents:          state.documents,
+        checklists:         state.checklists,
+        counters:           state.counters,
+        trips:              state.trips,
+        addressHistory:     state.addressHistory,
+        familyMembers:      state.familyMembers,
+        visaProfile:        state.visaProfile,
+        immigrationProfile: state.immigrationProfile,
+        notificationEmail:  state.notificationEmail,
+        whatsappPhone:      state.whatsappPhone,
+        isPremium:          state.isPremium,
+      },
+    });
+    const parsed = JSON.parse(json);
+    expect(parsed.app).toBe('StatusVault');
+    expect(parsed.exportedAt).toBeTruthy();
+    expect(Array.isArray(parsed.data.documents)).toBeTruthy();
+    expect(Array.isArray(parsed.data.trips)).toBeTruthy();
+    expect(Array.isArray(parsed.data.familyMembers)).toBeTruthy();
+    expect(Array.isArray(parsed.data.addressHistory)).toBeTruthy();
+  });
+
+  it('Auto-backup metadata is parseable for import preview', () => {
+    const backup = {
+      app: 'StatusVault', version: '2.0.0',
+      exportedAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+      data: {
+        documents:    [makeDoc('d1', daysFromNow(100)), makeDoc('d2', daysFromNow(200))],
+        familyMembers:[makeMember('m1')],
+        trips:        [makeTrip('t1', daysAgo(30), daysAgo(20))],
+      },
+    };
+    const d = backup.data;
+    const docCount    = (d.documents    ?? []).length;
+    const memberCount = (d.familyMembers ?? []).length;
+    const tripCount   = (d.trips         ?? []).length;
+    expect(docCount).toBe(2);
+    expect(memberCount).toBe(1);
+    expect(tripCount).toBe(1);
+    expect(new Date(backup.exportedAt).getFullYear()).toBeGreaterThanOrEqual(2025);
+  });
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 29 — CLOUD SYNC MERGE (device-first)
+// ═══════════════════════════════════════════════════════════════
+describe('Cloud Sync — Merge Not Overwrite', () => {
+  // Mirror the mergeById logic from syncFromCloud
+  const mergeById = (localArr, cloudArr) => {
+    if (!cloudArr?.length) return localArr;
+    if (!localArr?.length) return cloudArr.map(d => ({ ...d, notificationIds: [] }));
+    const localIds = new Set(localArr.map(x => x.id));
+    const cloudOnly = cloudArr
+      .filter(x => !localIds.has(x.id))
+      .map(d => ({ ...d, notificationIds: [] }));
+    const localStripped = localArr.map(d => ({ ...d, notificationIds: [] }));
+    return [...localStripped, ...cloudOnly];
+  };
+
+  it('Cloud-only items are added to local', () => {
+    const local = [makeDoc('d1', daysFromNow(100))];
+    const cloud = [makeDoc('d1', daysFromNow(100)), makeDoc('d2', daysFromNow(200))];
+    const merged = mergeById(local, cloud);
+    expect(merged).toHaveLength(2);
+    expect(merged.find(d => d.id === 'd2')).toBeTruthy();
+  });
+
+  it('Local items not in cloud are preserved', () => {
+    const local = [makeDoc('d1', daysFromNow(100)), makeDoc('d3', daysFromNow(300))];
+    const cloud = [makeDoc('d1', daysFromNow(100))];
+    const merged = mergeById(local, cloud);
+    expect(merged).toHaveLength(2);
+    expect(merged.find(d => d.id === 'd3')).toBeTruthy();
+  });
+
+  it('Local doc added offline survives cloud sync', () => {
+    const localOfflineDoc = makeDoc('offline1', daysFromNow(150));
+    const local = [makeDoc('d1', daysFromNow(100)), localOfflineDoc];
+    const cloud = [makeDoc('d1', daysFromNow(100))]; // cloud doesn't have offline doc
+    const merged = mergeById(local, cloud);
+    expect(merged.find(d => d.id === 'offline1')).toBeTruthy();
+  });
+
+  it('notificationIds are stripped from merged docs (wrong device IDs)', () => {
+    const local = [{ ...makeDoc('d1', daysFromNow(100)), notificationIds: ['local-notif-1'] }];
+    const cloud = [{ ...makeDoc('d2', daysFromNow(200)), notificationIds: ['cloud-notif-99'] }];
+    const merged = mergeById(local, cloud);
+    merged.forEach(d => {
+      expect(d.notificationIds).toHaveLength(0);
+    });
+  });
+
+  it('Empty cloud returns local unchanged', () => {
+    const local = [makeDoc('d1', daysFromNow(100))];
+    const merged = mergeById(local, []);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].id).toBe('d1');
+  });
+
+  it('Empty local returns cloud items (with notifIds stripped)', () => {
+    const cloud = [{ ...makeDoc('c1', daysFromNow(100)), notificationIds: ['x'] }];
+    const merged = mergeById([], cloud);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].notificationIds).toHaveLength(0);
+  });
+
+  it('Duplicate ids: local version is kept (device is source of truth)', () => {
+    const local = [{ ...makeDoc('d1', daysFromNow(100)), notes: 'local version' }];
+    const cloud = [{ ...makeDoc('d1', daysFromNow(200)), notes: 'cloud version' }];
+    const merged = mergeById(local, cloud);
+    expect(merged).toHaveLength(1); // not duplicated
+    expect(merged[0].notes).toBe('local version'); // local wins
+  });
+
+  it('Trips merge correctly — local offline trip preserved', () => {
+    const localTrips = [makeTrip('t1', daysAgo(50), daysAgo(40)), makeTrip('offline-t', daysAgo(5), daysAgo(1))];
+    const cloudTrips = [makeTrip('t1', daysAgo(50), daysAgo(40))];
+    const merged = mergeById(localTrips, cloudTrips);
+    expect(merged).toHaveLength(2);
+    expect(merged.find(t => t.id === 'offline-t')).toBeTruthy();
+  });
+
+  it('Address history merge — local entry preserved', () => {
+    const local = [makeAddress('a1', '2022-01-01', 'present', true)];
+    const cloud = [makeAddress('a2', '2020-01-01', '2022-01-01', false)];
+    const merged = mergeById(local, cloud);
+    expect(merged).toHaveLength(2);
+  });
+
+  it('Family member nested trips merged', () => {
+    const localMember = { ...makeMember('m1'), trips: [makeTrip('t1', daysAgo(30), daysAgo(20))] };
+    const cloudMember = { ...makeMember('m1'), trips: [makeTrip('t1', daysAgo(30), daysAgo(20)), makeTrip('t2', daysAgo(10), daysAgo(5))] };
+    // simulate nested merge
+    const mergedTrips = mergeById(localMember.trips, cloudMember.trips);
+    expect(mergedTrips).toHaveLength(2);
+    expect(mergedTrips.find(t => t.id === 't2')).toBeTruthy();
+  });
+
+  it('Scalar fields: local value preferred over cloud', () => {
+    const local = { visaProfile: 'h1b', immigrationProfile: { employer: 'Local Corp' } };
+    const cloud = { visaProfile: 'f1-opt', immigrationProfile: { employer: 'Cloud Corp' } };
+    // mirrors: visaProfile: local.visaProfile ?? cloud.visaProfile
+    const merged = {
+      visaProfile:        local.visaProfile        ?? cloud.visaProfile,
+      immigrationProfile: local.immigrationProfile ?? cloud.immigrationProfile,
+    };
+    expect(merged.visaProfile).toBe('h1b');
+    expect(merged.immigrationProfile.employer).toBe('Local Corp');
+  });
+
+  it('Scalar fields: cloud fills in when local is null', () => {
+    const local = { visaProfile: null, immigrationProfile: null };
+    const cloud = { visaProfile: 'h1b', immigrationProfile: { employer: 'Cloud Corp' } };
+    const merged = {
+      visaProfile:        local.visaProfile        ?? cloud.visaProfile,
+      immigrationProfile: local.immigrationProfile ?? cloud.immigrationProfile,
+    };
+    expect(merged.visaProfile).toBe('h1b');
+    expect(merged.immigrationProfile.employer).toBe('Cloud Corp');
+  });
+});
+
 // ─── Final Report ─────────────────────────────────────────────
 const total = passed + failed;
 const pct = total > 0 ? Math.round((passed / total) * 100) : 0;

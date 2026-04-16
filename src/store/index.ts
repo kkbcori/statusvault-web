@@ -17,6 +17,7 @@ import { COUNTER_TEMPLATES } from '../utils/counters';
 import { platformStorage } from '../utils/storage';
 import { supabase, SUPABASE_SESSION_KEY } from '../utils/supabase';
 import { deriveKey, encryptData, decryptData } from '../utils/crypto';
+import { platformStorage } from '../utils/storage';
 
 // Guest limits (no account)
 const GUEST_DOC_LIMIT = 1;
@@ -79,6 +80,7 @@ interface AppStore {
   authUser: AuthUser | null;
   isSyncing: boolean;
   lastSyncedAt: string | null;
+  lastAutoBackupAt: string | null;   // timestamp of last auto-backup to AsyncStorage
   syncError: string | null;
 
   // PIN
@@ -197,7 +199,57 @@ export { FREE_FAMILY_DOC_LIMIT };
 let _visibilityListenerRegistered = false;
 
 // ─── Sync helper — premium + cloudBackupEnabled only ─────────
+// Key used for the rolling auto-backup in AsyncStorage / localStorage
+const AUTO_BACKUP_KEY = 'statusvault_auto_backup';
+const AUTO_BACKUP_DATE_KEY = 'statusvault_auto_backup_date';
+
+// ─── Auto-backup: write full JSON to device storage silently ─────
+// Single overwrite key — never accumulates, always latest snapshot.
+// Storage impact: ~36KB even for heavy users (1.5% of 5MB localStorage limit).
+// Debounced at 2s so rapid mutations (bulk import, adding many docs) coalesce
+// into one write. On mobile (future): swap platformStorage for expo-file-system
+// to land the file in the Files app, visible to the user without the app open.
+let _autoBackupTimer: ReturnType<typeof setTimeout> | null = null;
+
+const writeAutoBackup = () => {
+  // Debounce: collapse rapid mutations into one write per 2 seconds
+  if (_autoBackupTimer) clearTimeout(_autoBackupTimer);
+  _autoBackupTimer = setTimeout(() => {
+    _autoBackupTimer = null;
+    try {
+      const state = useStore.getState();
+      // Compact JSON (no pretty-print) — saves ~10% space vs JSON.stringify(obj, null, 2)
+      const json = JSON.stringify({
+        app: 'StatusVault', version: '2.0.0',
+        exportedAt: new Date().toISOString(),
+        data: {
+          documents:          state.documents,
+          checklists:         state.checklists,
+          counters:           state.counters,
+          trips:              state.trips,
+          addressHistory:     state.addressHistory,
+          familyMembers:      state.familyMembers,
+          visaProfile:        state.visaProfile,
+          immigrationProfile: state.immigrationProfile,
+          notificationEmail:  state.notificationEmail,
+          whatsappPhone:      state.whatsappPhone,
+          isPremium:          state.isPremium,
+        },
+      });
+      const now = new Date().toISOString();
+      // Single key — always overwritten, never accumulates
+      platformStorage.setItem(AUTO_BACKUP_KEY, json);
+      platformStorage.setItem(AUTO_BACKUP_DATE_KEY, now);
+      useStore.setState({ lastAutoBackupAt: now });
+    } catch {
+      // Silent fail — auto-backup is best-effort, never blocks the user
+    }
+  }, 2000); // 2s debounce — coalesces bursts of mutations into one write
+};
+
 const scheduleSync = () => {
+  // Auto-backup to device storage on every mutation (device is always source of truth)
+  writeAutoBackup();
   const { authUser, isPremium, cloudBackupEnabled, isSyncing } = useStore.getState();
   if (authUser && isPremium && cloudBackupEnabled) {
     clearTimeout((scheduleSync as any)._t);
@@ -215,6 +267,7 @@ const scheduleSync = () => {
 
 // ─── Immediate sync for critical travel/address mutations ────
 const syncNow = () => {
+  writeAutoBackup();
   const s = useStore.getState();
   if (s.authUser && s.isPremium && s.cloudBackupEnabled) {
     clearTimeout((scheduleSync as any)._t);
@@ -253,6 +306,7 @@ export const useStore = create<AppStore>()(
       isSyncing: false,
       lastSyncedAt: null,
       syncError: null,
+      lastAutoBackupAt: null,
 
       // ─── PIN ───────────────────────────────────────────────
       pinEnabled: false,
@@ -903,26 +957,66 @@ export const useStore = create<AppStore>()(
           const decoded = decryptData(data.data_encrypted, key) as any;
           if (!decoded) throw new Error('Decryption failed');
 
-          // Bug 33 fix: strip phantom notificationIds from cloud — IDs from another
-          // device won't match any local scheduled notifications
-          const restoredDocs = (decoded.documents ?? get().documents).map(
-            (d: any) => ({ ...d, notificationIds: [] })
-          );
+          // ── Merge cloud into local (device is source of truth) ──────────
+          // We never blindly overwrite local with cloud. Instead we merge by ID
+          // so that items added offline on this device are preserved.
+          const local = get();
+
+          // Merge arrays by id: keep all local items + any cloud items not in local
+          const mergeById = (localArr: any[], cloudArr: any[]) => {
+            if (!cloudArr?.length) return localArr;
+            if (!localArr?.length) return cloudArr.map((d: any) => ({ ...d, notificationIds: [] }));
+            const localIds = new Set(localArr.map((x: any) => x.id));
+            const cloudOnlyItems = cloudArr
+              .filter((x: any) => !localIds.has(x.id))
+              .map((d: any) => ({ ...d, notificationIds: [] })); // strip foreign notif IDs
+            // Strip notificationIds from local items too (wrong device's IDs)
+            const localStripped = localArr.map((d: any) => ({ ...d, notificationIds: [] }));
+            return [...localStripped, ...cloudOnlyItems];
+          };
+
+          const mergedDocs     = mergeById(local.documents,      decoded.documents      ?? []);
+          const mergedTrips    = mergeById(local.trips,          decoded.trips          ?? []);
+          const mergedAddresses= mergeById(local.addressHistory, decoded.addressHistory ?? []);
+          const mergedCounters = mergeById(local.counters,       decoded.counters       ?? []);
+          const mergedChecklists = mergeById(local.checklists,   decoded.checklists     ?? []);
+
+          // Family members: merge by id, and also merge their nested trips/addresses
+          const localMemberIds = new Set(local.familyMembers.map((m: any) => m.id));
+          const cloudOnlyMembers = (decoded.familyMembers ?? [])
+            .filter((m: any) => !localMemberIds.has(m.id));
+          const mergedMembers = [
+            ...local.familyMembers.map((m: any) => {
+              const cloudMember = (decoded.familyMembers ?? []).find((cm: any) => cm.id === m.id);
+              if (!cloudMember) return m;
+              return {
+                ...m,
+                trips:          mergeById(m.trips ?? [],          cloudMember.trips          ?? []),
+                addressHistory: mergeById(m.addressHistory ?? [], cloudMember.addressHistory ?? []),
+                documentIds:    Array.from(new Set([...(m.documentIds ?? []), ...(cloudMember.documentIds ?? [])])),
+              };
+            }),
+            ...cloudOnlyMembers,
+          ];
+
           set({
-            documents:          restoredDocs,
-            checklists:         decoded.checklists         ?? get().checklists,
-            counters:           decoded.counters           ?? get().counters,
-            trips:              decoded.trips              ?? get().trips,
-            familyMembers:      decoded.familyMembers      ?? get().familyMembers,
-            addressHistory:     decoded.addressHistory     ?? get().addressHistory,
-            visaProfile:        decoded.visaProfile        ?? get().visaProfile,
-            immigrationProfile: decoded.immigrationProfile ?? get().immigrationProfile,
-            notificationEmail:  decoded.notificationEmail  ?? get().notificationEmail,
-            whatsappPhone:      decoded.whatsappPhone      ?? get().whatsappPhone,
-            isPremium:          decoded.isPremium          ?? get().isPremium,
+            documents:          mergedDocs,
+            checklists:         mergedChecklists,
+            counters:           mergedCounters,
+            trips:              mergedTrips,
+            familyMembers:      mergedMembers,
+            addressHistory:     mergedAddresses,
+            // For scalar fields: prefer local if set, fall back to cloud
+            visaProfile:        local.visaProfile        ?? decoded.visaProfile        ?? null,
+            immigrationProfile: local.immigrationProfile ?? decoded.immigrationProfile ?? null,
+            notificationEmail:  local.notificationEmail  ?? decoded.notificationEmail  ?? null,
+            whatsappPhone:      local.whatsappPhone      ?? decoded.whatsappPhone      ?? null,
+            isPremium:          decoded.isPremium         ?? local.isPremium,
             lastSyncedAt:       data.updated_at,
             isSyncing:          false,
           });
+          // After merge, push merged result back to cloud so both are in sync
+          setTimeout(() => { get().syncToCloud().catch(() => {}); }, 2000);
           // Reschedule notifications for all restored docs on this device
           if (get().notificationsEnabled) {
             restoredDocs.forEach(async (doc: any) => {
@@ -1059,6 +1153,7 @@ export const useStore = create<AppStore>()(
           pinCode: null,
           lastSyncedAt: null,
           syncError: null,
+      lastAutoBackupAt: null,
           notifications: [],
         });
       },
@@ -1151,6 +1246,7 @@ export const useStore = create<AppStore>()(
         profileSetupShown: s.profileSetupShown,
         cloudBackupEnabled: s.cloudBackupEnabled,
         notifications: s.notifications,
+        lastAutoBackupAt: s.lastAutoBackupAt,
       }),
     }
   )

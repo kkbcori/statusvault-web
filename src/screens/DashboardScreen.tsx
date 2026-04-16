@@ -149,6 +149,16 @@ export const DashboardScreen: React.FC = () => {
   const [selectedDocIds,   setSelectedDocIds]   = useState<string[]>([]);
   const [savingProfile,    setSavingProfile]    = useState(false);
 
+  const relativeTime = (iso: string | null) => {
+    if (!iso) return null;
+    const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (diff < 5)    return 'Just now';
+    if (diff < 60)   return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return new Date(iso).toLocaleDateString();
+  };
+
   // Computed
   const deadlines    = generateDeadlines(documents);
   const mostCritical = getMostCritical(deadlines);
@@ -633,7 +643,14 @@ export const DashboardScreen: React.FC = () => {
 
 
 
-      <View style={{ height: 32 }} />
+      {/* Auto-backup status footer */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 8, opacity: 0.6 } as any}>
+        <Ionicons name="shield-checkmark-outline" size={12} color="#16A34A" />
+        <Text style={{ fontSize: 11, fontFamily: 'Inter_400Regular', color: '#15803D' }}>
+          {lastAutoBackupAt ? `Saved to device ${relativeTime(lastAutoBackupAt)}` : 'Saving to device...'}
+        </Text>
+      </View>
+      <View style={{ height: 16 }} />
     </ScrollView>
   );
 };
