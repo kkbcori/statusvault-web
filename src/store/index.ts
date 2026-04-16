@@ -17,7 +17,6 @@ import { COUNTER_TEMPLATES } from '../utils/counters';
 import { platformStorage } from '../utils/storage';
 import { supabase, SUPABASE_SESSION_KEY } from '../utils/supabase';
 import { deriveKey, encryptData, decryptData } from '../utils/crypto';
-import { platformStorage } from '../utils/storage';
 
 // Guest limits (no account)
 const GUEST_DOC_LIMIT = 1;
