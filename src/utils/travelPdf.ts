@@ -12,20 +12,19 @@ import {
 // ─── Table Row Builder ────────────────────────────────────────
 function buildRows(trips: TravelTrip[]): string {
   if (trips.length === 0) {
-    return `<tr><td colspan="5" style="text-align:center;color:#94A3B8;padding:20px 12px;font-style:italic;">No trips recorded in this period</td></tr>`;
+    return `<tr><td colspan="5" style="text-align:center;color:#0F172A;padding:20px 12px;font-style:italic;">No trips recorded in this period</td></tr>`;
   }
   return trips.map((trip, i) => {
     const days = getTripDays(trip);
     const isLong = days >= 180;
     const bg = i % 2 === 0 ? '#F8F7F2' : '#FFFFFF';
-    const daysColor = isLong ? '#DC2626' : days >= 60 ? '#D97706' : '#0F172A';
     return `
       <tr style="background:${bg};">
-        <td style="padding:9px 12px;color:#94A3B8;font-size:11px;width:32px;">${i + 1}</td>
-        <td style="padding:9px 12px;font-weight:600;">${formatDateFull(trip.departureDate)}</td>
-        <td style="padding:9px 12px;font-weight:600;">${formatDateFull(trip.returnDate)}</td>
-        <td style="padding:9px 12px;">${trip.country}</td>
-        <td style="padding:9px 12px;font-weight:800;color:${daysColor};">
+        <td style="padding:9px 12px;color:#0F172A;font-size:11px;width:32px;">${i + 1}</td>
+        <td style="padding:9px 12px;font-weight:600;color:#0F172A;">${formatDateFull(trip.departureDate)}</td>
+        <td style="padding:9px 12px;font-weight:600;color:#0F172A;">${formatDateFull(trip.returnDate)}</td>
+        <td style="padding:9px 12px;color:#0F172A;">${trip.country}</td>
+        <td style="padding:9px 12px;font-weight:800;color:#0F172A;">
           ${days} day${days !== 1 ? 's' : ''}${isLong ? ' &nbsp;<span style="background:#FEE2E2;color:#DC2626;font-size:9px;padding:1px 6px;border-radius:4px;font-weight:700;">LONG</span>' : ''}
         </td>
       </tr>`;
@@ -35,7 +34,7 @@ function buildRows(trips: TravelTrip[]): string {
 function totalRow(label: string, days: number): string {
   return `
     <tr style="background:#0A1628;">
-      <td colspan="4" style="padding:11px 12px;color:rgba(255,255,255,0.7);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${label}</td>
+      <td colspan="4" style="padding:11px 12px;color:rgba(255,255,255,0.9);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${label}</td>
       <td style="padding:11px 12px;color:#C9A351;font-size:16px;font-weight:900;letter-spacing:-0.5px;">${days} days</td>
     </tr>`;
 }
@@ -55,37 +54,38 @@ export function generateTravelHtml(allTrips: TravelTrip[]): string {
 <head>
 <meta charset="UTF-8">
 <style>
+  /* Remove browser print header/footer (date, URL) */
+  @page { size: A4; margin: 0; }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#0F172A; background:#fff; }
-  .page { padding:36px; max-width:760px; margin:0 auto; }
+  .page { padding:20mm 18mm; max-width:100%; }
 
   .hdr { background:linear-gradient(135deg,#0A1628 0%,#1B3A65 100%); border-radius:10px; padding:26px 28px; margin-bottom:24px; position:relative; overflow:hidden; }
   .hdr-trim { position:absolute; top:0; left:0; right:0; height:3px; background:#C9A351; }
-  .hdr-eye { font-size:9px; font-weight:700; color:#C9A351; letter-spacing:2.5px; text-transform:uppercase; margin-bottom:5px; }
   .hdr-ttl { font-size:22px; font-weight:900; color:#fff; margin-bottom:3px; letter-spacing:-0.3px; }
-  .hdr-sub { font-size:11px; color:rgba(255,255,255,0.45); }
-  .hdr-meta { margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.07); font-size:10px; color:rgba(255,255,255,0.3); }
+  .hdr-sub { font-size:11px; color:rgba(255,255,255,0.7); }
+  .hdr-meta { margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.15); font-size:10px; color:rgba(255,255,255,0.6); }
 
   .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:22px; }
   .stat { background:#F8F7F2; border:1px solid #E2E8F0; border-radius:8px; padding:14px; text-align:center; }
-  .stat-n { font-size:24px; font-weight:900; color:#0A1628; letter-spacing:-1px; }
-  .stat-l { font-size:9px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.5px; margin-top:3px; }
-  .stat-p { font-size:9px; color:#C9A351; font-weight:600; margin-top:2px; }
+  .stat-n { font-size:24px; font-weight:900; color:#0F172A; letter-spacing:-1px; }
+  .stat-l { font-size:9px; font-weight:700; color:#0F172A; text-transform:uppercase; letter-spacing:0.5px; margin-top:3px; }
+  .stat-p { font-size:9px; color:#0F172A; font-weight:600; margin-top:2px; }
 
   .alert-box { border-radius:7px; padding:10px 14px; margin-bottom:20px; font-size:11px; line-height:18px; }
-  .alert-warn { background:#FEF3C7; border:1px solid #F59E0B; color:#78350F; }
-  .alert-info  { background:#EFF6FF; border:1px solid #BFDBFE; color:#1E40AF; }
+  .alert-warn { background:#FEF3C7; border:1px solid #F59E0B; color:#0F172A; }
+  .alert-info  { background:#EFF6FF; border:1px solid #BFDBFE; color:#0F172A; }
 
-  .sec-ttl { font-size:11px; font-weight:800; color:#0A1628; text-transform:uppercase; letter-spacing:1.2px; padding-bottom:8px; border-bottom:2px solid #C9A351; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .sec-ttl { font-size:11px; font-weight:800; color:#0F172A; text-transform:uppercase; letter-spacing:1.2px; padding-bottom:8px; border-bottom:2px solid #C9A351; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
   .sec-badge { background:#C9A351; color:#0A1628; font-size:8px; font-weight:800; padding:2px 8px; border-radius:20px; letter-spacing:0.3px; }
 
   table { width:100%; border-collapse:collapse; margin-bottom:28px; font-size:12px; }
   thead tr { background:#0A1628; }
   th { padding:9px 12px; color:#C9A351; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; text-align:left; }
-  td { border-bottom:1px solid #F1F5F9; }
+  td { border-bottom:1px solid #F1F5F9; color:#0F172A; }
 
-  .footer { margin-top:28px; padding-top:16px; border-top:1px solid #E2E8F0; font-size:10px; color:#94A3B8; line-height:17px; }
-  .footer strong { color:#475569; }
+  .footer { margin-top:28px; padding-top:16px; border-top:1px solid #E2E8F0; font-size:10px; color:#0F172A; line-height:17px; }
+  .footer strong { color:#0F172A; }
 </style>
 </head>
 <body>
@@ -93,7 +93,6 @@ export function generateTravelHtml(allTrips: TravelTrip[]): string {
 
   <div class="hdr">
     <div class="hdr-trim"></div>
-    <div class="hdr-eye">StatusVault · I-94 Travel History</div>
     <div class="hdr-ttl">Travel History Report</div>
     <div class="hdr-sub">Prepared for N-400 Naturalization Application — Part 8</div>
     <div class="hdr-meta">Generated: ${genDate} &nbsp;|&nbsp; Verify all records at i94.cbp.dhs.gov</div>
@@ -142,8 +141,8 @@ export function generateTravelHtml(allTrips: TravelTrip[]): string {
   </table>
 
   <div class="footer">
-    <strong>⚠️ Disclaimer:</strong> This report is generated by StatusVault for personal record-keeping only. It is not an official government document and must not be submitted to USCIS without independent verification against CBP I-94 records at <strong>i94.cbp.dhs.gov</strong>. Days-in-US figures are estimates. Always consult a licensed immigration attorney for naturalization advice.<br><br>
-    <strong>StatusVault</strong> · 100% offline · No data leaves your device
+    <strong>StatusVault</strong> · statusvault.org · 100% private — data stored on your device only<br><br>
+    <strong>⚠️ Disclaimer:</strong> This report is generated by StatusVault for personal record-keeping only. It is not an official government document and must not be submitted to USCIS without independent verification against CBP I-94 records at <strong>i94.cbp.dhs.gov</strong>. Days-in-US figures are estimates. Always consult a licensed immigration attorney for naturalization advice.
   </div>
 
 </div>
@@ -156,7 +155,6 @@ export async function exportTravelPdf(trips: TravelTrip[]): Promise<void> {
   const html = generateTravelHtml(trips);
 
   if (typeof window !== 'undefined' && !window.ReactNative) {
-    // Web: open HTML in new tab and trigger browser print dialog
     const win = window.open('', '_blank');
     if (win) {
       win.document.write(html);
@@ -167,7 +165,6 @@ export async function exportTravelPdf(trips: TravelTrip[]): Promise<void> {
     return;
   }
 
-  // Native: expo-print → expo-sharing
   const Print   = require('expo-print');
   const Sharing = require('expo-sharing');
   const { uri } = await Print.printToFileAsync({ html, base64: false });
