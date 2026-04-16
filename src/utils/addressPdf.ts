@@ -57,6 +57,8 @@ export function generateAddressHtml(entries: AddressEntry[]): string {
 <style>
   /* Remove browser print header/footer (date, URL) */
   @page { size: A4; margin: 0; }
+  /* Force background colors/gradients to print */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#0F172A;background:#fff;}
   .page{padding:20mm 18mm;max-width:100%;}
