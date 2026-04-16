@@ -192,6 +192,10 @@ export const GUEST_LIMIT = GUEST_DOC_LIMIT;
 export { GUEST_CHECKLIST_LIMIT, GUEST_COUNTER_LIMIT, GUEST_FAMILY_LIMIT };
 export { FREE_FAMILY_DOC_LIMIT };
 
+// Module-level flag — prevents visibilitychange listener accumulating across
+// multiple initAuth calls (dev hot-reload, StrictMode double-invoke, etc.)
+let _visibilityListenerRegistered = false;
+
 // ─── Sync helper — premium + cloudBackupEnabled only ─────────
 const scheduleSync = () => {
   const { authUser, isPremium, cloudBackupEnabled, isSyncing } = useStore.getState();
@@ -703,11 +707,11 @@ export const useStore = create<AppStore>()(
       initAuth: async () => {
         let initialSyncDone = false;
 
-        // Bug 11 fix: register visibilitychange only once across all initAuth calls
-        // Bug 12 fix: only sync on tab focus for premium+cloudBackup users to avoid
-        //             wasted Supabase calls for free users (they get PGRST116 every time)
-        if (typeof document !== 'undefined' && !(initAuth as any)._visibilityRegistered) {
-          (initAuth as any)._visibilityRegistered = true;
+        // Bug 11 fix: register visibilitychange only once (module-level flag prevents
+        //             accumulation across hot-reloads / StrictMode double-invokes)
+        // Bug 12 fix: only sync on tab focus for premium+cloudBackup users
+        if (typeof document !== 'undefined' && !_visibilityListenerRegistered) {
+          _visibilityListenerRegistered = true;
           document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
               const s = useStore.getState();
@@ -718,59 +722,57 @@ export const useStore = create<AppStore>()(
           });
         }
 
-        // Handle email confirmation in URL (both token_hash and access_token formats)
+        // ── URL token handling ──────────────────────────────────────
+        // Supabase v2 + flowType:'pkce' + detectSessionInUrl:true automatically
+        // exchanges the ?code= param and fires onAuthStateChange(SIGNED_IN).
+        // We only need to clean the URL and suppress the welcome modal.
+        // Legacy formats (token_hash, access_token) are kept for older email templates.
         if (typeof window !== 'undefined') {
-          const hash = window.location.hash;
-          const search = window.location.search;
-          // Check both hash (#token_hash=) and query string (?token_hash=)
+          const hash         = window.location.hash;
+          const search       = window.location.search;
           const hashParams   = new URLSearchParams(hash.replace('#', '?'));
           const searchParams = new URLSearchParams(search);
-          const tokenHash    = hashParams.get('token_hash') || searchParams.get('token_hash');
-          const accessToken  = hashParams.get('access_token');
-          const type         = hashParams.get('type') || searchParams.get('type');
 
-          // Format 1: token_hash (older email template format)
-          if (tokenHash && (type === 'signup' || type === 'email' || type === 'magiclink')) {
+          const codeParam   = searchParams.get('code');
+          const tokenHash   = hashParams.get('token_hash') || searchParams.get('token_hash');
+          const accessToken = hashParams.get('access_token');
+          const type        = hashParams.get('type') || searchParams.get('type');
+
+          // Format A: PKCE code= (Supabase v2 default for magic links + Google OAuth)
+          // SDK exchanges automatically via detectSessionInUrl — DO NOT call
+          // exchangeCodeForSession manually (code is single-use, SDK already used it).
+          // Just suppress the welcome modal and clean the URL.
+          if (codeParam) {
+            set({ isGuestMode: false, hasOnboarded: true, showWelcomeModal: false, showAuthModal: false });
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+
+          // Format B: token_hash (legacy Supabase OTP email template)
+          if (!codeParam && tokenHash && (type === 'signup' || type === 'email' || type === 'magiclink')) {
             try {
-              const { data, error } = await supabase.auth.verifyOtp({
-                token_hash: tokenHash,
-                type: type as any,
-              });
+              const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as any });
               if (!error && data.session) {
-                const isFirstLogin = !get().profileSetupShown;
+                const isFirst = !get().profileSetupShown;
                 set({
-                  authUser: {
-                    id: data.session.user.id,
-                    email: data.session.user.email!,
-                    createdAt: data.session.user.created_at,
-                  },
+                  authUser: { id: data.session.user.id, email: data.session.user.email!, createdAt: data.session.user.created_at },
                   emailVerified: true,
                   isGuestMode: false,
                   hasOnboarded: true,
                   showWelcomeModal: false,
                   showAuthModal: false,
-                  profileSetupShown: true,  // mark shown so SIGNED_IN doesn't re-trigger
+                  profileSetupShown: true,
                 });
                 initialSyncDone = true;
                 try { await get().syncFromCloud(); } catch {}
-                // Show profile setup once after first magic link login
-                if (isFirstLogin && !get().immigrationProfile) {
-                  set({ pendingProfileSetup: true });
-                }
+                if (isFirst && !get().immigrationProfile) set({ pendingProfileSetup: true });
               }
             } catch {}
             window.history.replaceState(null, '', window.location.pathname);
           }
 
-          // Format 2: access_token (current Supabase email confirmation format)
-          // Supabase JS handles this automatically via onAuthStateChange,
-          // but we mark emailVerified and clean the URL here
-          if (accessToken && (type === 'signup' || type === 'magiclink')) {
-            const isFirstLoginOAuth = !get().profileSetupShown;
-            set({ emailVerified: true, isGuestMode: false, hasOnboarded: true, showWelcomeModal: false, showAuthModal: false, profileSetupShown: true });
-            if (isFirstLoginOAuth && !get().immigrationProfile) {
-              set({ pendingProfileSetup: true });
-            }
+          // Format C: access_token in hash (legacy implicit flow)
+          if (!codeParam && !tokenHash && accessToken) {
+            set({ isGuestMode: false, hasOnboarded: true, showWelcomeModal: false, showAuthModal: false });
             window.history.replaceState(null, '', window.location.pathname);
           }
         }
@@ -1128,10 +1130,11 @@ export const useStore = create<AppStore>()(
       name: 'statusvault-storage',
       storage: createJSONStorage(() => platformStorage),
       onRehydrateStorage: () => (state) => {
-        const hasMagicToken = typeof window !== 'undefined' &&
-          (window.location.hash.includes('access_token') ||
-           window.location.hash.includes('token_hash') ||
-           window.location.search.includes('token_hash'));
+        const hasMagicToken = typeof window !== 'undefined' && (
+          window.location.search.includes('code=')        ||  // PKCE (Supabase v2 default)
+          window.location.search.includes('token_hash=')  ||  // legacy OTP query string
+          window.location.hash.includes('token_hash=')    ||  // legacy OTP hash
+          window.location.hash.includes('access_token='));    // legacy implicit
 
         // Check Supabase session synchronously — logged-in users never see welcome modal
         const hasSupabaseSession = (() => {

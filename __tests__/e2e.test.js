@@ -182,13 +182,16 @@ const shouldScheduleNotification = (expiryDateStr, alertDay) => {
 };
 
 // ─── Mirror counter auto-increment ───────────────────────────
+// Parse a YYYY-MM-DD string as LOCAL date (new Date('YYYY-MM-DD') treats it as UTC)
+const parseLocalDate = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d, 0, 0, 0, 0); };
+
 const autoIncrementCounter = (counter, today = new Date()) => {
   if (!counter.isTracking || !counter.lastIncrementDate) return counter;
   const now = new Date(today); now.setHours(0, 0, 0, 0);
-  const last = new Date(counter.lastIncrementDate); last.setHours(0, 0, 0, 0);
+  const last = parseLocalDate(counter.lastIncrementDate); // local, not UTC midnight
   const diff = Math.floor((now.getTime() - last.getTime()) / 86400000);
   if (diff <= 0) return counter;
-  return { ...counter, daysUsed: Math.min(counter.maxDays, counter.daysUsed + diff), lastIncrementDate: today.toISOString().split('T')[0] };
+  return { ...counter, daysUsed: Math.min(counter.maxDays, counter.daysUsed + diff), lastIncrementDate: localDateStr(now) };
 };
 
 // ─── Mirror export/import ─────────────────────────────────────
@@ -312,14 +315,20 @@ const makeCounter = (id, templateId, daysUsed, maxDays, isTracking = true, lastI
   critAt: Math.floor(maxDays * 0.9),
   isTracking,
   startDate: isTracking ? '2024-01-01' : null,
-  lastIncrementDate: lastIncrementDate ?? (isTracking ? new Date().toISOString().split('T')[0] : null),
+  lastIncrementDate: lastIncrementDate ?? (isTracking ? localDateStr(new Date()) : null),
 });
 
 // Relative date helpers
+// Use local date (not UTC toISOString) to match store's dayjs().format('YYYY-MM-DD')
+const localDateStr = (d) => {
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+};
 const daysFromNow = (n) => {
   const d = new Date();
   d.setDate(d.getDate() + n);
-  return d.toISOString().split('T')[0];
+  return localDateStr(d);
 };
 const daysAgo = (n) => daysFromNow(-n);
 

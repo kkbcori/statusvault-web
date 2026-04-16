@@ -19,5 +19,8 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: Platform.OS === 'web',
+    // Supabase JS v2+ uses PKCE by default — magic links & OAuth land with ?code=
+    // detectSessionInUrl exchanges the code automatically when flowType = 'pkce'
+    flowType: 'pkce',
   },
 });

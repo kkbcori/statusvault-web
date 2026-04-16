@@ -5,7 +5,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { Platform, View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal } from 'react-native';
-import { NavigationContainer, useNavigation, useNavigationState } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, useNavigationState, createNavigationContainerRef } from '@react-navigation/native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useWindowDimensions } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -492,6 +492,7 @@ export const AppNavigator: React.FC = () => {
   return (
     <SafeAreaProvider>
     <NavigationContainer
+      ref={navigationRef}
       linking={linking}
       documentTitle={{
         formatter: () => 'StatusVault — Your Personal Immigration Document Expiry Tracker',
