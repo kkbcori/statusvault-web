@@ -52,10 +52,14 @@ jobs:
           mkdir -p dist/privacy dist/terms
           cp web/privacy.html dist/privacy/index.html
           cp web/terms.html dist/terms/index.html
+          # 404.html — GitHub Pages serves this for any unknown path.
+          # It redirects to root so refreshing any deep URL lands on the app.
+          cp web/404.html dist/404.html
           echo "=== dist/ contents ==="
           ls dist/
           echo "Privacy: $(wc -c < dist/privacy.html) bytes"
           echo "Terms:   $(wc -c < dist/terms.html) bytes"
+          echo "404:     $(wc -c < dist/404.html) bytes"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
