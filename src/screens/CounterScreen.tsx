@@ -7,8 +7,9 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { IS_WEB, IS_TABLET } from '../utils/responsive';
+import { IS_WEB } from '../utils/responsive';
 import { useStore } from '../store';
+import { useDialog } from '../components/ConfirmDialog';
 import { useNavigation } from '@react-navigation/native';
 import { COUNTER_TEMPLATES } from '../utils/counters';
 
@@ -20,12 +21,14 @@ export const CounterScreen: React.FC = () => {
   const isPremium      = useStore((s) => s.isPremium);
   const isGuestMode    = useStore((s) => s.isGuestMode);
   const removeCounter    = useStore((s) => s.removeCounter);
+  const resetCounter     = useStore((s) => s.resetCounter);
   const canAddCounter    = useStore((s) => s.canAddCounter);
   const incrementCounter = useStore((s) => s.incrementCounter);
   const decrementCounter = useStore((s) => s.decrementCounter);
   const toggleCounterTracking = useStore((s) => s.toggleCounterTracking);
   const autoIncrementCounters = useStore((s) => s.autoIncrementCounters);
 
+  const dialog = useDialog();
   const [showAdd, setShowAdd] = useState(false);
   const activeIds = counters.map((c) => c.templateId);
 
@@ -69,7 +72,7 @@ export const CounterScreen: React.FC = () => {
       ) : (
         <View style={styles.list}>
           {counters.map((ct) => {
-            const pct      = Math.min(100, (ct.daysUsed / ct.maxDays) * 100);
+            const pct      = ct.maxDays > 0 ? Math.min(100, (ct.daysUsed / ct.maxDays) * 100) : 0;
             const isCrit   = ct.daysUsed >= ct.critAt;
             const isWarn   = !isCrit && ct.daysUsed >= ct.warnAt;
             const barColor = isCrit ? '#EA5455' : isWarn ? '#FF9F43' : '#4F46E5';
@@ -83,7 +86,7 @@ export const CounterScreen: React.FC = () => {
                     <View style={{ flex: 1 }}>
                       <Text style={styles.cardTitle}>{ct.label}</Text>
                       <Text style={styles.cardSub}>
-                        {ct.isTracking ? '● Auto-tracking daily' : '○ Manual tracking'}
+                        {ct.isTracking ? '● Auto-tracking daily' : ct.startDate ? '○ Paused — days while paused not counted' : '○ Manual tracking'}
                       </Text>
                     </View>
                     <View style={[styles.daysBadge, { backgroundColor: barColor + '18' }]}>
@@ -112,10 +115,27 @@ export const CounterScreen: React.FC = () => {
                     >
                       <Ionicons name={ct.isTracking ? 'pause' : 'play'} size={13} color={ct.isTracking ? '#4F46E5' : '#64748B'} />
                       <Text style={[styles.trackBtnText, ct.isTracking && { color: '#4F46E5' }]}>
-                        {ct.isTracking ? 'Tracking' : 'Start'}
+                        {ct.isTracking ? 'Pause' : ct.startDate ? 'Resume' : 'Start'}
                       </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => removeCounter(ct.templateId)}>
+                    <TouchableOpacity onPress={() => dialog.confirm({
+                      title: 'Reset Counter',
+                      message: `Reset "${ct.label}" to 0 days? Tracking will stop and start date will be cleared.`,
+                      type: 'danger',
+                      confirmLabel: 'Reset',
+                      cancelLabel: 'Cancel',
+                      onConfirm: () => resetCounter(ct.templateId),
+                    })}>
+                      <Text style={[styles.removeText, { color: '#FF9F43' }]}>Reset</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => dialog.confirm({
+                      title: 'Remove Counter',
+                      message: `Remove "${ct.label}"? All tracking data will be lost.`,
+                      type: 'danger',
+                      confirmLabel: 'Remove',
+                      cancelLabel: 'Cancel',
+                      onConfirm: () => removeCounter(ct.templateId),
+                    })}>
                       <Text style={styles.removeText}>Remove</Text>
                     </TouchableOpacity>
                   </View>

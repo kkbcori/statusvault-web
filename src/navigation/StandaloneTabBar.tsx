@@ -28,7 +28,10 @@ const VISIBLE = IS_TABLET ? TABLET_TABS : TABS;
 
 export const StandaloneTabBar: React.FC = () => {
   const navigation = useNavigation<any>();
-  const scaleAnims = useRef(VISIBLE.map(() => new Animated.Value(1))).current;
+  // Key animations by route name, not index — immune to tab reordering (Bug 44 equivalent)
+  const scaleAnims = useRef<Record<string, Animated.Value>>(
+    Object.fromEntries(VISIBLE.map((tab) => [tab.name, new Animated.Value(1)]))
+  ).current;
 
   const currentRoute = useNavigationState((state) => {
     const main = state?.routes?.find((r: any) => r.name === 'Main');
@@ -36,10 +39,11 @@ export const StandaloneTabBar: React.FC = () => {
     return tabState?.routes?.[tabState?.index ?? 0]?.name ?? 'Dashboard';
   });
 
-  const onPress = (name: string, idx: number) => {
-    Animated.sequence([
-      Animated.timing(scaleAnims[idx], { toValue: 0.82, duration: 80, useNativeDriver: true }),
-      Animated.spring(scaleAnims[idx], { toValue: 1.0, friction: 4, useNativeDriver: true }),
+  const onPress = (name: string) => {
+    const anim = scaleAnims[name];
+    if (anim) Animated.sequence([
+      Animated.timing(anim, { toValue: 0.82, duration: 80, useNativeDriver: true }),
+      Animated.spring(anim, { toValue: 1.0, friction: 4, useNativeDriver: true }),
     ]).start();
     navigation.navigate('Main', { screen: name });
   };
@@ -50,8 +54,8 @@ export const StandaloneTabBar: React.FC = () => {
         {VISIBLE.map((tab, i) => {
           const focused = currentRoute === tab.name;
           return (
-            <Animated.View key={tab.name} style={[s.tabWrap, { transform: [{ scale: scaleAnims[i] }] }]}>
-              <TouchableOpacity style={s.tab} onPress={() => onPress(tab.name, i)} activeOpacity={1}>
+            <Animated.View key={tab.name} style={[s.tabWrap, { transform: [{ scale: scaleAnims[tab.name] ?? new Animated.Value(1) }] }]}>
+              <TouchableOpacity style={s.tab} onPress={() => onPress(tab.name)} activeOpacity={1}>
                 <View style={[s.iconBox, focused && s.iconBoxActive]}>
                   <Ionicons
                     name={focused ? tab.active : tab.inactive}

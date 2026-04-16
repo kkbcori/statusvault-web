@@ -3,6 +3,7 @@
 // Part 3: Address History for Green Card Application
 // ═══════════════════════════════════════════════════════════════
 
+import { Platform } from 'react-native';
 import { AddressEntry } from '../types';
 
 function formatDate(dateStr: string): string {
@@ -149,8 +150,16 @@ export function generateAddressHtml(entries: AddressEntry[]): string {
 export async function exportAddressPdf(entries: AddressEntry[]): Promise<void> {
   const html = generateAddressHtml(entries);
 
-  if (typeof window !== 'undefined' && !window.ReactNative) {
+  if (Platform.OS === 'web') {
     const win = window.open('', '_blank');
+    if (!win) {
+      // Popup blocked — fallback: create a data URI link
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'statusvault-export.html';
+      a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      return;
+    }
     if (win) {
       win.document.write(html);
       win.document.close();

@@ -11,7 +11,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
-import { IS_WEB, IS_TABLET } from '../utils/responsive';
+import { calculateDaysRemaining } from '../utils/dates';
+import { IS_WEB } from '../utils/responsive';
 import { useDialog } from '../components/ConfirmDialog';
 import { useStore } from '../store';
 import { useNavigation } from '@react-navigation/native';
@@ -47,21 +48,24 @@ export const SettingsScreen: React.FC = () => {
   const setCloudBackupEnabled = useStore((s) => s.setCloudBackupEnabled);
   const lastSyncedAt         = useStore((s) => s.lastSyncedAt);
   const isSyncing            = useStore((s) => s.isSyncing);
+  const syncError            = useStore((s) => s.syncError);
   const { 
     documents, counters, notificationsEnabled,
-    notificationEmail,
-    setNotificationsEnabled, setNotificationEmail, resetAllData, setPremium,
+    notificationEmail, setNotificationEmail,
+    setNotificationsEnabled, resetAllData, setPremium,
     exportData, importData,
     pinEnabled, setPin, removePin, verifyPin,
   } = useStore();
   const isPremium = isPremiumUser; // single source of truth
 
   const [showImportModal,    setShowImportModal]    = useState(false);
-  const [editingEmail,       setEditingEmail]       = useState(false);
-  const [editingPhone,       setEditingPhone]       = useState(false);
-  const [emailInput,         setEmailInput]         = useState('');
-  const [phoneInput,         setPhoneInput]         = useState('');
+  // Email/WhatsApp alert state removed — email notifications disabled pending edge function setup
   const dialog = useDialog();
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [emailInput,   setEmailInput]   = useState(notificationEmail ?? '');
+
+  // Keep emailInput in sync if store changes externally (cloud restore, import)
+  React.useEffect(() => { setEmailInput(notificationEmail ?? ''); }, [notificationEmail]);
   const [importText,      setImportText]      = useState('');
   const [showPinSetup,       setShowPinSetup]       = useState(false);
   const [confirmAction,      setConfirmAction]      = useState<null|'signout'|'delete'|'reset'>(null);
@@ -162,26 +166,28 @@ export const SettingsScreen: React.FC = () => {
     if (IS_WEB && typeof window !== 'undefined') {
       const { documents: docs, familyMembers } = useStore.getState();
       const rows = docs.map(d => {
-        const days = Math.floor((new Date(d.expiryDate).getTime() - Date.now()) / 86400000);
+        const days = calculateDaysRemaining(d.expiryDate);
         const status = days < 0 ? 'EXPIRED' : days < 30 ? 'CRITICAL' : days < 60 ? 'HIGH' : days < 180 ? 'MEDIUM' : 'LOW';
         const color  = days < 0 ? '#DC2626' : days < 30 ? '#DC2626' : days < 60 ? '#D97706' : days < 180 ? '#4F46E5' : '#059669';
         return `<tr><td>${d.icon} ${d.label}</td><td>${d.expiryDate}</td><td>${d.documentNumber || '—'}</td><td style="color:${color};font-weight:700">${status} (${days}d)</td><td>${d.notes || ''}</td></tr>`;
       }).join('');
       const famRows = familyMembers.flatMap(m =>
         docs.filter(d => m.documentIds?.includes(d.id)).map(d => {
-          const days = Math.floor((new Date(d.expiryDate).getTime() - Date.now()) / 86400000);
+          const days = calculateDaysRemaining(d.expiryDate);
           const status = days < 0 ? 'EXPIRED' : days < 30 ? 'CRITICAL' : days < 60 ? 'HIGH' : 'OK';
           const color  = days < 0 ? '#DC2626' : days < 30 ? '#DC2626' : days < 60 ? '#D97706' : '#059669';
           return `<tr><td>${m.name}</td><td>${d.icon} ${d.label}</td><td>${d.expiryDate}</td><td style="color:${color};font-weight:700">${status} (${days}d)</td></tr>`;
         })
       ).join('');
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>StatusVault Documents</title>
-        <style>body{font-family:Arial,sans-serif;padding:24px;color:#1e293b}h1{color:#4F46E5;font-size:22px}h2{color:#334155;font-size:16px;margin-top:24px}
+        <style>@page{size:A4;margin:0}
+        *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+        body{font-family:Arial,sans-serif;padding:20mm 18mm;color:#0F172A}h1{color:#4F46E5;font-size:22px}h2{color:#0F172A;font-size:16px;margin-top:24px}
         table{width:100%;border-collapse:collapse;margin-top:8px}th{background:#EEF2FF;color:#4F46E5;padding:8px 10px;text-align:left;font-size:12px}
-        td{padding:7px 10px;border-bottom:1px solid #f1f5f9;font-size:12px}.footer{margin-top:32px;font-size:10px;color:#94a3b8}</style>
+        td{padding:7px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#0F172A}.footer{margin-top:32px;font-size:10px;color:#0F172A}</style>
         </head><body>
         <h1>📋 StatusVault — Document Export</h1>
-        <p style="color:#64748b;font-size:13px">Generated: ${new Date().toLocaleString()}</p>
+        <p style="color:#0F172A;font-size:13px">Generated: ${new Date().toLocaleString()}</p>
         <h2>Your Documents (${docs.length})</h2>
         <table><thead><tr><th>Document</th><th>Expiry</th><th>Doc #</th><th>Status</th><th>Notes</th></tr></thead><tbody>${rows}</tbody></table>
         ${famRows ? `<h2>Family Member Documents</h2><table><thead><tr><th>Member</th><th>Document</th><th>Expiry</th><th>Status</th></tr></thead><tbody>${famRows}</tbody></table>` : ''}
@@ -212,11 +218,13 @@ export const SettingsScreen: React.FC = () => {
         </div>`;
       }).join('');
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>StatusVault Checklists</title>
-        <style>body{font-family:Arial,sans-serif;padding:24px;color:#1e293b}h1{color:#4F46E5;font-size:22px}h2{color:#334155;font-size:15px}
-        .footer{margin-top:32px;font-size:10px;color:#94a3b8}</style>
+        <style>@page{size:A4;margin:0}
+        *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+        body{font-family:Arial,sans-serif;padding:20mm 18mm;color:#0F172A}h1{color:#4F46E5;font-size:22px}h2{color:#0F172A;font-size:15px}
+        .footer{margin-top:32px;font-size:10px;color:#0F172A}</style>
         </head><body>
         <h1>✅ StatusVault — Checklist Export</h1>
-        <p style="color:#64748b;font-size:13px">Generated: ${new Date().toLocaleString()} · ${checklists.length} checklist(s)</p>
+        <p style="color:#0F172A;font-size:13px">Generated: ${new Date().toLocaleString()} · ${checklists.length} checklist(s)</p>
         ${sections}
         <div class="footer">StatusVault · All data stored locally · AES-256 encrypted</div>
         </body></html>`;
@@ -277,8 +285,10 @@ export const SettingsScreen: React.FC = () => {
             </TouchableOpacity>
             <View style={styles.div} />
             <TouchableOpacity style={styles.sRow} onPress={async () => {
-              const c = await getScheduledCount();
-              dialog.alert('Scheduled Alerts', `${c} notification${c !== 1 ? 's' : ''} currently scheduled.`);
+              try {
+                const count = await getScheduledCount();
+                dialog.alert('Scheduled Alerts', `${count} notification${count !== 1 ? 's' : ''} currently scheduled.`);
+              } catch { dialog.alert('Error', 'Could not retrieve scheduled alerts.'); }
             }}>
               <View style={styles.rowIconBox}><Ionicons name="stats-chart-outline" size={16} color="#4F46E5" /></View>
               <Text style={styles.sText}>View Scheduled Alerts</Text>
@@ -286,6 +296,7 @@ export const SettingsScreen: React.FC = () => {
             </TouchableOpacity>
           </>
         )}
+
       </View>
 
       {/* ── Cloud Backup (Premium only) ── */}
@@ -317,9 +328,11 @@ export const SettingsScreen: React.FC = () => {
                 {cloudBackupEnabled
                   ? isSyncing
                     ? 'Syncing to cloud...'
-                    : lastSyncedAt
-                      ? `Last backed up: ${new Date(lastSyncedAt).toLocaleString()}`
-                      : 'Enabled — backs up after every change'
+                    : syncError
+                      ? `⚠️ Sync failed: ${syncError}`
+                      : lastSyncedAt
+                        ? `Last backed up: ${new Date(lastSyncedAt).toLocaleString()}`
+                        : 'Enabled — backs up after every change'
                   : '⚠️ Off — your data will be lost if you switch devices'}
               </Text>
             </View>
@@ -459,8 +472,8 @@ export const SettingsScreen: React.FC = () => {
               <Text style={styles.premTitle}>Upgrade to Premium</Text>
             </View>
           </View>
-          {['Unlimited docs · checklists · timers · family', 'PDF & JSON export for all your data', 'Smart alerts at 6mo · 3mo · 1mo · 7d'].map((f, i) => (
-            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+          {['Unlimited docs · checklists · timers · family', 'PDF & JSON export for all your data', 'Smart alerts at 6mo · 3mo · 2mo · 1mo · 15d · 7d'].map((f) => (
+            <View key={f} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: 'rgba(79,70,229,0.25)', alignItems: 'center', justifyContent: 'center' }}>
                 <Ionicons name="checkmark" size={11} color="#818CF8" />
               </View>
@@ -540,7 +553,7 @@ export const SettingsScreen: React.FC = () => {
       {/* ── Legal ── */}
       <SectionLabel iconName="document-text-outline" label="LEGAL" />
       <View style={styles.card}>
-        <TouchableOpacity style={styles.sRow} onPress={() => Linking.openURL('https://www.statusvault.org/privacy')} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.sRow} onPress={() => Linking.openURL('https://www.statusvault.org/privacy').catch(() => {})} activeOpacity={0.7}>
           <View style={styles.rowIconBox}><Ionicons name="shield-checkmark-outline" size={16} color="#4F46E5" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.sText}>Privacy Policy</Text>
@@ -549,7 +562,7 @@ export const SettingsScreen: React.FC = () => {
           <Ionicons name="open-outline" size={16} color={colors.text3} />
         </TouchableOpacity>
         <View style={styles.div} />
-        <TouchableOpacity style={styles.sRow} onPress={() => Linking.openURL('https://www.statusvault.org/terms')} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.sRow} onPress={() => Linking.openURL('https://www.statusvault.org/terms').catch(() => {})} activeOpacity={0.7}>
           <View style={styles.rowIconBox}><Ionicons name="document-text-outline" size={16} color="#4F46E5" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.sText}>Terms of Service</Text>
@@ -650,7 +663,7 @@ export const SettingsScreen: React.FC = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.confirmOk, { backgroundColor: cfg.btnColor }]}
-                  onPress={async () => { setConfirmAction(null); await cfg.onConfirm(); }}
+                  onPress={async () => { setConfirmAction(null); try { await cfg.onConfirm(); } catch { dialog.alert('Error', 'Action failed. Please try again.'); } }}
                   activeOpacity={0.85}
                 >
                   <Text style={styles.confirmOkTxt}>{cfg.btnLabel}</Text>
@@ -669,8 +682,6 @@ export const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container:       { flex: 1, backgroundColor: '#F4F5FA' },
   cc:              { paddingBottom: 20 },
-  headerGradient:  { paddingBottom: 8 },
-  header:          { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: spacing.screen, paddingTop: spacing.xl, paddingBottom: spacing.lg },
   headerGradient:  { paddingBottom: 0 },
   headerIcon:      { width: 40, height: 40, borderRadius: 12, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#C7D2FE' },
   headerTitle:     { fontSize: 17, fontFamily: 'Inter_700Bold', color: '#0F172A' },

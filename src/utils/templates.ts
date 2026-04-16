@@ -9,7 +9,7 @@ import { DocumentTemplate, DocumentCategory } from '../types';
 /**
  * Alert windows are customized per document type based on real-world urgency:
  * - H1B visa renewal: 180, 90, 60, 30, 7 days (long lead time needed)
- * - OPT/EAD: 90, 60, 30, 14, 7 days (unemployment limit pressure)
+ * - OPT/EAD: 90, 60, 30, 15, 7 days (unemployment limit pressure)
  * - Passport: 180, 90, 30 days (6-month validity rule for travel)
  * - I-20: 90, 60, 30, 7 days (DSO processing time)
  * - Green Card: 180, 90, 30 days (renewal takes months)
@@ -94,7 +94,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
     id: 'cpt',
     label: 'CPT Authorization',
     category: 'employment',
-    alertDays: [60, 30, 14, 7],
+    alertDays: [60, 30, 15, 7],
     icon: '📝',
     description: 'Curricular Practical Training',
   },
@@ -152,7 +152,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
     id: 'travel-signature',
     label: 'I-20 Travel Signature',
     category: 'travel',
-    alertDays: [30, 14, 7],
+    alertDays: [30, 15, 7],
     icon: '✍️',
     description: 'DSO travel endorsement — valid 6 months (F-1) or 1 year',
   },

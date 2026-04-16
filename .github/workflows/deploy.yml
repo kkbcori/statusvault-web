@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════
 # StatusVault — GitHub Pages Auto-Deploy
-# Live URL: https://kkbcori.github.io/statusvault-web
+# Live URL: https://www.statusvault.org
 # ═══════════════════════════════════════════════════════════════
 
 name: Deploy Web App
@@ -55,6 +55,8 @@ jobs:
           # 404.html — GitHub Pages serves this for any unknown path.
           # It redirects to root so refreshing any deep URL lands on the app.
           cp web/404.html dist/404.html
+          # OG image for social sharing
+          cp web/og-image.png dist/og-image.png
           echo "=== dist/ contents ==="
           ls dist/
           echo "Privacy: $(wc -c < dist/privacy.html) bytes"

@@ -30,19 +30,19 @@ export function useScreenSize() {
   };
 }
 
-/** Responsive value — pick based on screen width */
+/** @deprecated — not currently used in web build */
 export function rval<T>(phone: T, tablet?: T, desktop?: T): T {
   if (IS_WEB) return desktop ?? tablet ?? phone;
   if (IS_TABLET && tablet !== undefined) return tablet;
   return phone;
 }
 
-/** Web-only style */
+/** @deprecated — not currently used in web build */
 export function webStyle<T extends object>(style: T): T | Record<string, never> {
   return IS_WEB ? style : {};
 }
 
-/** Native-only style */
+/** @deprecated — not currently used in web build */
 export function nativeStyle<T extends object>(style: T): T | Record<string, never> {
   return !IS_WEB ? style : {};
 }

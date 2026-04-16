@@ -3,17 +3,19 @@
 // Auth + cloud sync added. Offline-first: local always written first.
 // ═══════════════════════════════════════════════════════════════
 
+import { Platform } from 'react-native';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { UserDocument, ChecklistItem, TravelTrip, AddressEntry, AuthUser } from '../types';
 import {
   scheduleDocumentNotifications,
   cancelDocumentNotifications,
+  cancelAllNotifications,
 } from '../utils/notifications';
 import { CHECKLIST_TEMPLATES } from '../utils/checklists';
 import { COUNTER_TEMPLATES } from '../utils/counters';
 import { platformStorage } from '../utils/storage';
-import { supabase } from '../utils/supabase';
+import { supabase, SUPABASE_SESSION_KEY } from '../utils/supabase';
 import { deriveKey, encryptData, decryptData } from '../utils/crypto';
 
 // Guest limits (no account)
@@ -27,7 +29,6 @@ const FREE_FAMILY_LIMIT_STORE = 1;
 const FREE_FAMILY_DOC_LIMIT = 1;
 const FREE_CHECKLIST_LIMIT = 2;
 const FREE_COUNTER_LIMIT = 2;
-const PRE_AUTH_DOC_LIMIT = 1;       // kept for canAddDocument compat
 
 // ─── Checklist Instance ──────────────────────────────────────
 export interface ChecklistInstance {
@@ -39,7 +40,7 @@ export interface ChecklistInstance {
 
 // ─── Immi Counter Instance ───────────────────────────────────
 export interface ImmiCounter {
-  templateId: string;
+  templateId: string;  // for template-based; also serves as unique key
   label: string;
   icon: string;
   maxDays: number;
@@ -92,6 +93,9 @@ interface AppStore {
   removeDocument: (id: string) => Promise<void>;
   updateDocument: (id: string, updates: Partial<UserDocument>) => Promise<void>;
   canAddDocument: () => boolean;
+  canAddChecklist: () => boolean;
+  canAddCounter: () => boolean;
+  canAddFamilyMember: () => boolean;
   forceAddDocument: (doc: UserDocument) => void; // bypasses free limit — for profile setup
   getRemainingFreeSlots: () => number;
   setPremium: (v: boolean) => void;
@@ -104,6 +108,7 @@ interface AppStore {
   removeChecklist: (templateId: string) => void;
   toggleChecklistItem: (templateId: string, itemId: string) => void;
   addCustomChecklistItem: (templateId: string, text: string) => void;
+  removeChecklistItem: (templateId: string, itemId: string) => void;
   hasChecklist: (templateId: string) => boolean;
 
   // Immi Counters
@@ -115,6 +120,7 @@ interface AppStore {
   decrementCounter: (templateId: string, days?: number) => void;
   resetCounter: (templateId: string) => void;
   setCounterTracking: (templateId: string, isTracking: boolean) => void;
+  toggleCounterTracking: (templateId: string) => void;
   autoIncrementCounters: () => void;
 
   // Travel / I-94
@@ -149,6 +155,8 @@ interface AppStore {
 
   // Settings
   setNotificationsEnabled: (v: boolean) => void;
+  setInAppNotifications: (notifs: any[]) => void;
+  dismissEmailVerified: () => void;
   setOnboarded: () => void;
   anyModalOpen: boolean;
   setAnyModalOpen: (v: boolean) => void;
@@ -158,7 +166,6 @@ interface AppStore {
   closeAuthModal: () => void;
   showPaywallModal: boolean;
   emailVerified: boolean;
-  preAuthDocCount: number;
   profileSetupShown: boolean;  // true after profile modal shown once
   pendingProfileSetup: boolean; // true if profile modal should show when MainTabs mounts
   cloudBackupEnabled: boolean;  // premium only — auto-sync to Supabase
@@ -167,10 +174,10 @@ interface AppStore {
   isGuestMode: boolean;       // true = using without account
   showWelcomeModal: boolean;  // first-visit chooser
   setGuestMode: (v: boolean) => void;
-  setWelcomeModalShown: () => void;
   openPaywall: () => void;
   closePaywall: () => void;
   openProfileModal: () => void;  // set by MainTabs after mount
+  openSearch: () => void;           // set by MainTabs after mount
   setVisaProfile: (profile: string) => void;
   resetAllData: () => Promise<void>;
   deleteAccount: () => Promise<{ error: string | null }>;
@@ -183,6 +190,7 @@ const today = () => new Date().toISOString().split('T')[0];
 export const FREE_LIMIT = FREE_DOCUMENT_LIMIT;
 export const GUEST_LIMIT = GUEST_DOC_LIMIT;
 export { GUEST_CHECKLIST_LIMIT, GUEST_COUNTER_LIMIT, GUEST_FAMILY_LIMIT };
+export { FREE_FAMILY_DOC_LIMIT };
 
 // ─── Sync helper — premium + cloudBackupEnabled only ─────────
 const scheduleSync = () => {
@@ -245,14 +253,18 @@ export const useStore = create<AppStore>()(
       // ─── PIN ───────────────────────────────────────────────
       pinEnabled: false,
       pinCode: null,
-      setPin: (pin) => set({ pinEnabled: true, pinCode: pin }),
-      removePin: () => set({ pinEnabled: false, pinCode: null }),
+      setPin: (pin) => { set({ pinEnabled: true, pinCode: pin }); scheduleSync(); },
+      removePin: () => { set({ pinEnabled: false, pinCode: null }); scheduleSync(); },
       verifyPin: (pin) => get().pinCode === pin,
 
       // ─── Paywall ───────────────────────────────────────────
-      forceAddDocument: (doc) => {
-        // Bypasses free limit — used by profile setup wizard
-        set((s) => ({ documents: [...s.documents, doc] }));
+      forceAddDocument: async (doc) => {
+        // Bypasses free limit — used by profile setup wizard and family member docs
+        let notificationIds: string[] = [];
+        if (get().notificationsEnabled) {
+          try { notificationIds = await scheduleDocumentNotifications(doc); } catch {}
+        }
+        set((s) => ({ documents: [...s.documents, { ...doc, notificationIds }] }));
         scheduleSync();
       },
       canAddChecklist: () => {
@@ -304,7 +316,6 @@ export const useStore = create<AppStore>()(
         }
         set((s) => ({
           documents: [...s.documents, { ...doc, notificationIds }],
-          // preAuthDocCount deprecated — limit enforced via documents.length in canAddDocument
         }));
         scheduleSync();
         return true;
@@ -334,6 +345,8 @@ export const useStore = create<AppStore>()(
       addChecklist: (templateId) => {
         const t = CHECKLIST_TEMPLATES.find((x) => x.id === templateId);
         if (!t || get().checklists.some((c) => c.templateId === templateId)) return;
+        // Bug 30 fix: enforce tier limit inside the action, not just in UI
+        if (!get().canAddChecklist()) return;
         set((s) => ({
           checklists: [...s.checklists, {
             templateId: t.id, label: t.label, icon: t.icon,
@@ -360,7 +373,17 @@ export const useStore = create<AppStore>()(
         set((s) => ({
           checklists: s.checklists.map((cl) =>
             cl.templateId === templateId
-              ? { ...cl, items: [...cl.items, { id: `c-${Date.now()}`, text, done: false, category: 'Custom' }] }
+              ? { ...cl, items: [...cl.items, { id: `c-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, text, done: false, category: 'Custom' }] }
+              : cl
+          ),
+        }));
+        scheduleSync();
+      },
+      removeChecklistItem: (templateId, itemId) => {
+        set((s) => ({
+          checklists: s.checklists.map((cl) =>
+            cl.templateId === templateId
+              ? { ...cl, items: cl.items.filter((i) => i.id !== itemId) }
               : cl
           ),
         }));
@@ -372,6 +395,8 @@ export const useStore = create<AppStore>()(
       addCounter: (templateId) => {
         const t = COUNTER_TEMPLATES.find((x) => x.id === templateId);
         if (!t || get().counters.some((c) => c.templateId === templateId)) return;
+        // Bug 30 fix: enforce tier limit inside the action
+        if (!get().canAddCounter()) return;
         set((s) => ({
           counters: [...s.counters, {
             templateId: t.id, label: t.label, icon: t.icon,
@@ -382,7 +407,9 @@ export const useStore = create<AppStore>()(
         scheduleSync();
       },
       addCustomCounter: (label, maxDays) => {
-        const id = `custom-${Date.now()}`;
+        // Bug 30 fix: enforce tier limit for custom counters too
+        if (!get().canAddCounter()) return;
+        const id = `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
         set((s) => ({
           counters: [...s.counters, {
             templateId: id, label, icon: '🔢', maxDays,
@@ -433,6 +460,12 @@ export const useStore = create<AppStore>()(
         }));
         scheduleSync();
       },
+      // Bug 1 fix: toggleCounterTracking was called in CounterScreen but missing from store
+      toggleCounterTracking: (templateId) => {
+        const counter = get().counters.find((c) => c.templateId === templateId);
+        if (!counter) return;
+        get().setCounterTracking(templateId, !counter.isTracking);
+      },
       autoIncrementCounters: () => {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
@@ -466,6 +499,8 @@ export const useStore = create<AppStore>()(
         syncNow();
       },
       addFamilyMember: (member) => {
+        // Bug 34 fix: enforce tier limit inside the action
+        if (!get().canAddFamilyMember()) return;
         set((s) => ({ familyMembers: [...s.familyMembers, { trips: [], addressHistory: [], ...member }] }));
         syncNow();
       },
@@ -578,9 +613,9 @@ export const useStore = create<AppStore>()(
       sendMagicLink: async (email) => {
         const redirectTo = typeof window !== 'undefined'
           ? (window.location.hostname === 'localhost'
-              ? window.location.origin + (window.location.hostname === 'localhost' ? '/statusvault-web' : '')
+              ? window.location.origin   // local dev — no subpath
               : 'https://www.statusvault.org')
-          : 'https://kkbcori.github.io/statusvault-web';
+          : 'https://www.statusvault.org';
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
@@ -616,13 +651,17 @@ export const useStore = create<AppStore>()(
           clearTimeout((scheduleSync as any)._t);
           try { await s.syncToCloud(); } catch {}
         }
-        await supabase.auth.signOut();
+        // Bug 62 fix: always clear local state even if signOut API call fails (offline)
+        try { await supabase.auth.signOut(); } catch {}
+        // Bug 60a: clear isPremium so next user on same device doesn't inherit it
         set({
           authUser: null, lastSyncedAt: null, syncError: null,
           emailVerified: false, isGuestMode: false,
           hasOnboarded: true, showWelcomeModal: false,
+          isPremium: false, cloudBackupEnabled: true,
         });
-        if (typeof window !== 'undefined') {
+        // Bug 60b: reload only on web — window exists in RN Web but reload is browser-only
+        if (Platform.OS === 'web' && typeof window !== 'undefined') {
           setTimeout(() => window.location.reload(), 100);
         }
       },
@@ -631,10 +670,30 @@ export const useStore = create<AppStore>()(
         try {
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
+            // Delete all cloud data rows for this user
             await supabase.from('user_data').delete().eq('user_id', user.id);
+            await supabase.from('user_alerts').delete().eq('user_id', user.id);
+            // Call edge function to hard-delete the Supabase auth user
+            // (supabase.auth.admin is server-side only; we use an edge function instead)
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              if (session?.access_token) {
+                await fetch(
+                  'https://gekhrdqkaadqeeebzvlu.supabase.co/functions/v1/delete-user',
+                  {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${session.access_token}`,
+                    },
+                    body: JSON.stringify({ userId: user.id }),
+                  }
+                );
+              }
+            } catch { /* Edge fn unavailable — auth row remains but data is cleared */ }
           }
           await supabase.auth.signOut();
-          get().resetAllData();
+          await get().resetAllData();
           return { error: null };
         } catch (e: any) {
           return { error: e.message ?? 'Failed to delete account' };
@@ -644,13 +703,16 @@ export const useStore = create<AppStore>()(
       initAuth: async () => {
         let initialSyncDone = false;
 
-        // Re-sync from cloud when tab becomes visible (handles cross-device updates)
-        if (typeof document !== 'undefined') {
+        // Bug 11 fix: register visibilitychange only once across all initAuth calls
+        // Bug 12 fix: only sync on tab focus for premium+cloudBackup users to avoid
+        //             wasted Supabase calls for free users (they get PGRST116 every time)
+        if (typeof document !== 'undefined' && !(initAuth as any)._visibilityRegistered) {
+          (initAuth as any)._visibilityRegistered = true;
           document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
-              const { authUser } = useStore.getState();
-              if (authUser) {
-                useStore.getState().syncFromCloud().catch(() => {});
+              const s = useStore.getState();
+              if (s.authUser && s.isPremium && s.cloudBackupEnabled) {
+                s.syncFromCloud().catch(() => {});
               }
             }
           });
@@ -709,9 +771,7 @@ export const useStore = create<AppStore>()(
             if (isFirstLoginOAuth && !get().immigrationProfile) {
               set({ pendingProfileSetup: true });
             }
-            setTimeout(() => {
-              window.history.replaceState(null, '', window.location.pathname);
-            }, 1000);
+            window.history.replaceState(null, '', window.location.pathname);
           }
         }
 
@@ -757,7 +817,9 @@ export const useStore = create<AppStore>()(
               }
             }
           } else if (event === 'SIGNED_OUT') {
-            set({ authUser: null, lastSyncedAt: null, syncError: null, emailVerified: false });
+            // Bug 45 fix: also clear isPremium so the next user doesn't inherit it
+            set({ authUser: null, lastSyncedAt: null, syncError: null,
+                  emailVerified: false, isPremium: false, cloudBackupEnabled: true });
           }
         });
 
@@ -791,6 +853,8 @@ export const useStore = create<AppStore>()(
         if (!user) return;
         const { authUser: storeAuth, documents, checklists, counters, trips } = get();
         const email = storeAuth?.email ?? user.email ?? '';
+        // Bug 85 fix: never encrypt with empty key — would use same key for all no-email accounts
+        if (!email) { set({ isSyncing: false, syncError: 'Cannot sync: email not available' }); return; }
         set({ isSyncing: true, syncError: null });
         try {
           const key  = deriveKey(user.id, email);
@@ -820,9 +884,9 @@ export const useStore = create<AppStore>()(
       },
 
       syncFromCloud: async () => {
-        const { cloudBackupEnabled } = get();
-        // If user explicitly turned off backup, respect that
-        if (cloudBackupEnabled === false) return;
+        const { cloudBackupEnabled, isPremium } = get();
+        // Only premium users with backup enabled have cloud data
+        if (!isPremium || cloudBackupEnabled === false) return;
 
         const { data: { session } } = await supabase.auth.getSession();
         const user = session?.user;
@@ -830,6 +894,8 @@ export const useStore = create<AppStore>()(
 
         const { authUser: storeAuth } = get();
         const email = storeAuth?.email ?? user.email ?? '';
+        // Bug 85 fix: never decrypt with empty key
+        if (!email) return;
 
         // Silently check if cloud data exists — no loading spinner for free users
         // This is a lightweight SELECT that costs nothing if no row exists
@@ -851,8 +917,13 @@ export const useStore = create<AppStore>()(
           const decoded = decryptData(data.data_encrypted, key) as any;
           if (!decoded) throw new Error('Decryption failed');
 
+          // Bug 33 fix: strip phantom notificationIds from cloud — IDs from another
+          // device won't match any local scheduled notifications
+          const restoredDocs = (decoded.documents ?? get().documents).map(
+            (d: any) => ({ ...d, notificationIds: [] })
+          );
           set({
-            documents:          decoded.documents          ?? get().documents,
+            documents:          restoredDocs,
             checklists:         decoded.checklists         ?? get().checklists,
             counters:           decoded.counters           ?? get().counters,
             trips:              decoded.trips              ?? get().trips,
@@ -866,26 +937,39 @@ export const useStore = create<AppStore>()(
             lastSyncedAt:       data.updated_at,
             isSyncing:          false,
           });
+          // Reschedule notifications for all restored docs on this device
+          if (get().notificationsEnabled) {
+            restoredDocs.forEach(async (doc: any) => {
+              try {
+                const ids = await scheduleDocumentNotifications(doc);
+                set((s) => ({
+                  documents: s.documents.map((d) => d.id === doc.id ? { ...d, notificationIds: ids } : d),
+                }));
+              } catch {}
+            });
+          }
         } catch (e: any) {
           set({ isSyncing: false, syncError: e.message ?? 'Sync failed' });
         }
       },
 
-      // ─── Alert sync ────────────────────────────────────────
-      // Writes contact info + expiring docs to user_alerts table
-      // Then fires edge function immediately if any doc is < 180 days
-      syncAlerts: async (triggerImmediate = false) => {
+      // ─── Alert sync (DISABLED — email/WhatsApp alerts pending edge function setup)
+      syncAlerts: async (_triggerImmediate = false) => {
+        // Email/WhatsApp notifications disabled. Local push notifications (iOS/Android)
+        // are still fully functional via scheduleDocumentNotifications.
+        return;
+        // Dead code below preserved for future re-enablement:
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) return;
         const { documents, notificationEmail, whatsappPhone } = get();
         if (!notificationEmail && !whatsappPhone) return;
 
         // Find docs expiring within 180 days
-        const today = new Date();
+        const nowTs = new Date(); // Bug 93 fix: renamed from 'today' to avoid shadowing module-level today()
         const expiringDocs = documents
           .map(d => {
             const expiry = new Date(d.expiryDate);
-            const days = Math.floor((expiry.getTime() - today.getTime()) / 86400000);
+            const days = Math.floor((expiry.getTime() - nowTs.getTime()) / 86400000);
             return { id: d.id, label: d.label, icon: d.icon, expiryDate: d.expiryDate, days };
           })
           .filter(d => d.days <= 180);
@@ -922,17 +1006,13 @@ export const useStore = create<AppStore>()(
       },
 
       // ─── Settings ──────────────────────────────────────────
-      setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
+      setNotificationsEnabled: (v) => { set({ notificationsEnabled: v }); scheduleSync(); },
+      setInAppNotifications: (notifs) => { set({ notifications: notifs }); },  // no sync — in-app only
+      dismissEmailVerified: () => set({ emailVerified: false }),
       setAnyModalOpen: (v) => set({ anyModalOpen: v }),
-      setGuestMode: (v) => set({ isGuestMode: v }),
-      setCloudBackupEnabled: (v) => set({ cloudBackupEnabled: v }),
-      setWelcomeModalShown: () => {
-        // Only show on very first visit (hasOnboarded===false AND no documents)
-        const { hasOnboarded, documents } = useStore.getState();
-        if (!hasOnboarded && documents.length === 0) {
-          set({ showWelcomeModal: true });
-        }
-      },
+      setGuestMode: (v) => { set({ isGuestMode: v }); scheduleSync(); },
+      setCloudBackupEnabled: (v) => { set({ cloudBackupEnabled: v }); scheduleSync(); },
+
       openAuthModal: (message) => set({ showAuthModal: true, authModalMessage: message ?? 'Sign in to continue' }),
       closeAuthModal: () => set({ showAuthModal: false, authModalMessage: '' }),
       openPaywall: () => {
@@ -946,11 +1026,14 @@ export const useStore = create<AppStore>()(
       },
       closePaywall: () => set({ showPaywallModal: false }),
       openProfileModal: () => { /* overridden by MainTabs */ },
+      openSearch: () => { /* overridden by MainTabs */ },
       setOnboarded: () => set({ hasOnboarded: true }),
-      setVisaProfile: (profile) => set({ visaProfile: profile }),
+      setVisaProfile: (profile) => { set({ visaProfile: profile }); scheduleSync(); },
       setImmigrationProfile: (p) => { set({ immigrationProfile: p }); scheduleSync(); },
 
       resetAllData: async () => {
+        // Bug 64 fix: cancel all scheduled push notifications before wiping documents
+        try { await cancelAllNotifications(); } catch {}
         // Delete cloud data from Supabase (keep user logged in)
         try {
           const { data: { session } } = await supabase.auth.getSession();
@@ -977,7 +1060,7 @@ export const useStore = create<AppStore>()(
           checklists: [],
           counters: [],
           trips: [],
-      addressHistory: [],
+          addressHistory: [],
           familyMembers: [],
           anyModalOpen: false,
           showAuthModal: false,
@@ -985,11 +1068,11 @@ export const useStore = create<AppStore>()(
           showPaywallModal: false,
           notificationsEnabled: true,
           notificationEmail: null,
+          whatsappPhone: null,
           pinEnabled: false,
           pinCode: null,
           lastSyncedAt: null,
           syncError: null,
-          preAuthDocCount: 0,
           notifications: [],
         });
       },
@@ -1006,8 +1089,13 @@ export const useStore = create<AppStore>()(
           const p = JSON.parse(json);
           if (p.app !== 'StatusVault' || !p.data) return false;
           const d = p.data;
+          // Bug 33 fix: strip phantom notificationIds from import — IDs from
+          // another device won't match any locally scheduled notifications
+          const importedDocs = (d.documents ?? []).map(
+            (doc: any) => ({ ...doc, notificationIds: [] })
+          );
           set({
-            documents:          d.documents          ?? [],
+            documents:          importedDocs,
             checklists:         d.checklists         ?? [],
             counters:           d.counters           ?? [],
             trips:              d.trips              ?? [],
@@ -1020,6 +1108,17 @@ export const useStore = create<AppStore>()(
             isPremium:          d.isPremium          || false,
             hasOnboarded:       true,
           });
+          // Reschedule notifications for imported docs
+          if (get().notificationsEnabled) {
+            importedDocs.forEach(async (doc: any) => {
+              try {
+                const ids = await scheduleDocumentNotifications(doc);
+                set((s) => ({
+                  documents: s.documents.map((d2) => d2.id === doc.id ? { ...d2, notificationIds: ids } : d2),
+                }));
+              } catch {}
+            });
+          }
           scheduleSync();
           return true;
         } catch { return false; }
@@ -1037,7 +1136,7 @@ export const useStore = create<AppStore>()(
         // Check Supabase session synchronously — logged-in users never see welcome modal
         const hasSupabaseSession = (() => {
           try {
-            const raw = localStorage.getItem('sb-gekhrdqkaadqeeebzvlu-auth-token');
+            const raw = localStorage.getItem(SUPABASE_SESSION_KEY);
             if (!raw) return false;
             const parsed = JSON.parse(raw);
             return !!(parsed?.access_token || parsed?.session?.access_token);
@@ -1061,7 +1160,6 @@ export const useStore = create<AppStore>()(
         immigrationProfile: s.immigrationProfile,
         notificationEmail: s.notificationEmail,
         whatsappPhone: s.whatsappPhone,
-        preAuthDocCount: s.preAuthDocCount,
         isGuestMode: s.isGuestMode,
         profileSetupShown: s.profileSetupShown,
         cloudBackupEnabled: s.cloudBackupEnabled,

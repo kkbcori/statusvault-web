@@ -44,9 +44,9 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
     try {
       const redirectTo = typeof window !== 'undefined'
         ? (window.location.hostname === 'localhost'
-            ? window.location.origin + (window.location.hostname === 'localhost' ? '/statusvault-web' : '')
+            ? window.location.origin  // local dev — no subpath
             : 'https://www.statusvault.org')
-        : 'https://kkbcori.github.io/statusvault-web';
+        : 'https://www.statusvault.org';
       const { error: err } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
       if (err) setError(err.message);
       else onClose();
@@ -169,7 +169,7 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
         {mode === 'magic' && !sent && (
           <>
             <Text style={s.label}>Email address</Text>
-            {IS_WEB && <input type="email" value={email} onChange={(e:any)=>setEmail(e.target.value)} onKeyDown={(e:any)=>{if(e.key==='Enter')handleMagicLink();}} placeholder="you@email.com" autoFocus style={inputStyle} />}
+            {IS_WEB && <input type="email" value={email} onChange={(e:any)=>setEmail(e.target.value)} onKeyDown={(e:any)=>{if(e.key==='Enter')handleMagicLink();}} placeholder="you@email.com" autoFocus maxLength={254} style={inputStyle} />}
             <TouchableOpacity style={s.submitBtn} onPress={handleMagicLink} disabled={loading} activeOpacity={0.85}>
               <LinearGradient colors={['#4F46E5','#7C3AED']} style={s.submitGrad}>
                 {loading ? <ActivityIndicator color="#fff" size="small"/> : (
@@ -201,7 +201,7 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
         {mode === 'password' && (
           <>
             <Text style={s.label}>Email address</Text>
-            {IS_WEB && <input type="email" value={email} onChange={(e:any)=>setEmail(e.target.value)} placeholder="you@email.com" autoFocus style={inputStyle}/>}
+            {IS_WEB && <input type="email" value={email} onChange={(e:any)=>setEmail(e.target.value)} placeholder="you@email.com" autoFocus maxLength={254} style={inputStyle}/>}
             <Text style={s.label}>Password</Text>
             <View style={{position:'relative' as any}}>
               {IS_WEB && <input type={showPwd?'text':'password'} value={password} onChange={(e:any)=>setPassword2(e.target.value)} onKeyDown={(e:any)=>{if(e.key==='Enter')handlePasswordLogin();}} placeholder="Your password" style={{...inputStyle, paddingRight:'40px'} as any}/>}

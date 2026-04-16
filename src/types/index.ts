@@ -55,17 +55,6 @@ export interface DeadlineItem {
   urgency: UrgencyLevel;
 }
 
-/** OPT unemployment tracking */
-export interface UnemploymentTracker {
-  daysUsed: number;
-  /** Date tracking started */
-  startDate: string | null;
-  /** Whether currently unemployed (auto-increment mode) */
-  isTracking: boolean;
-  /** Last date the counter was auto-incremented */
-  lastIncrementDate: string | null;
-}
-
 /** Purpose of an international trip */
 export type TripPurpose = 'vacation' | 'business' | 'family' | 'medical' | 'other';
 
@@ -90,7 +79,7 @@ export interface TravelTrip {
   returnDate: string;     // YYYY-MM-DD
   country: string;
   purpose: TripPurpose;
-  portOfEntry: string;
+  portOfEntry?: string;  // optional — not always recorded
   notes?: string;
   createdAt: string;
 }
@@ -103,28 +92,10 @@ export interface ChecklistItem {
   category: string;
 }
 
-/** Root app state — persisted via AsyncStorage */
-export interface AppState {
-  /** Has user completed onboarding */
-  hasOnboarded: boolean;
-  /** User's documents */
-  documents: UserDocument[];
-  /** OPT unemployment counter */
-  unemployment: UnemploymentTracker;
-  /** Process checklists */
-  checklists: ChecklistItem[];
-  /** Notifications globally enabled */
-  notificationsEnabled: boolean;
-  /** Premium status (for future paywall) */
-  isPremium: boolean;
-}
-
 /** Navigation param types */
 export type RootStackParamList = {
   Auth: { mode?: 'login' | 'register' } | undefined;
-  Main: undefined;
-  AddDocument: undefined;
-  Premium: undefined;
+  Main: undefined | { screen: keyof MainTabParamList; params?: object };
 };
 
 export type MainTabParamList = {
@@ -143,7 +114,7 @@ export type MainTabParamList = {
 export interface FamilyMember {
   id: string;
   name: string;
-  relation: string; // spouse, child, parent, self
+  relation: string; // spouse, child, parent, sibling, other
   visaType: string;
   documentIds: string[]; // references to UserDocument ids
   trips: TravelTrip[];         // I-94 travel history for this member

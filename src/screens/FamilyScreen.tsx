@@ -10,16 +10,15 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius, typography, shadows } from '../theme';
-import { IS_WEB, IS_TABLET } from '../utils/responsive';
+import { IS_WEB } from '../utils/responsive';
 import { useNavigation } from '@react-navigation/native';
-import { useStore } from '../store';
+import { useStore, FREE_FAMILY_DOC_LIMIT } from '../store';
 import { useDialog } from '../components/ConfirmDialog';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
 import { UserDocument, FamilyMember } from '../types';
 import { calculateDaysRemaining, getUrgencyColor } from '../utils/dates';
 
 const RELATIONS = [
-  { id: 'self',    label: 'Myself',  icon: '👤' },
   { id: 'spouse',  label: 'Spouse',  icon: '💑' },
   { id: 'child',   label: 'Child',   icon: '👶' },
   { id: 'parent',  label: 'Parent',  icon: '👨‍👩‍👧' },
@@ -50,7 +49,7 @@ export const FamilyScreen: React.FC = () => {
   const setAnyModalOpen  = useStore((s) => s.setAnyModalOpen);
 
   const FREE_FAMILY_LIMIT = 1;   // free account: 1 family member
-  const FREE_DOC_LIMIT    = 1;   // free account: 1 doc per family member
+  const FREE_DOC_LIMIT    = FREE_FAMILY_DOC_LIMIT;   // imported from store — single source of truth
 
   const [showAddMember,    setShowAddMember]    = useState(false);
   const [showAddDoc,       setShowAddDoc]       = useState(false);
@@ -61,11 +60,14 @@ export const FamilyScreen: React.FC = () => {
   const [editRelation,     setEditRelation]     = useState('');
   const [editVisaType,     setEditVisaType]     = useState('');
   const [editNameError,    setEditNameError]    = useState(false);
+  // Bug 3 fix: pending delete stores {memberId, docId, label} so we can close the
+  // add-doc modal first, then confirm outside it (dialog behind modal issue)
+  const [pendingDocDelete, setPendingDocDelete] = useState<{memberId: string; docId: string; label: string} | null>(null);
 
   // Add member form
   const [name,      setName]      = useState('');
   const [nameError, setNameError] = useState(false);
-  const [relation,  setRelation]  = useState(RELATIONS[1].id);
+  const [relation,  setRelation]  = useState(RELATIONS[0].id);
   const [visaType,  setVisaType]  = useState(VISA_TYPES[0]);
 
   // Add doc for member
@@ -99,15 +101,15 @@ export const FamilyScreen: React.FC = () => {
     }
     setNameError(false);
     addFamilyMember({
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
       name: name.trim(),
       relation,
       visaType,
       documentIds: [],
       createdAt: new Date().toISOString(),
     });
-    setName(''); setRelation(RELATIONS[1].id); setVisaType(VISA_TYPES[0]); setNameError(false);
-setShowAddMember(false); setAnyModalOpen(false);
+    setName(''); setRelation(RELATIONS[0].id); setVisaType(VISA_TYPES[0]); setNameError(false);
+    setShowAddMember(false); setAnyModalOpen(false);
   };
 
   const handleAddDoc = async () => {
@@ -134,11 +136,12 @@ setShowAddMember(false); setAnyModalOpen(false);
     if (!template) return;
 
     const doc: UserDocument = {
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
       templateId: template.id,
       label: `${selectedMember.name} — ${template.label}`,
       category: template.category,
-      expiryDate: docExpiry,
+      // Bug 2 fix: normalize with T12:00:00 to prevent timezone-shift off-by-one
+      expiryDate: docExpiry.includes('T') ? docExpiry.split('T')[0] : docExpiry,
       alertDays: template.alertDays,
       icon: template.icon,
       notes: docNotes.trim(),
@@ -166,6 +169,28 @@ setShowAddMember(false); setAnyModalOpen(false);
       },
     });
   };
+
+  // Bug 3 fix: fire delete confirmation after state settles (outside any open modal)
+  React.useEffect(() => {
+    if (!pendingDocDelete) return;
+    const { memberId, docId, label } = pendingDocDelete;
+    const member = familyMembers.find(m => m.id === memberId);
+    setPendingDocDelete(null);
+    if (!member) return;
+    dialog.confirm({
+      title: 'Remove Document',
+      message: `Remove "${label}" from ${member.name}? This will also cancel any expiry alerts.`,
+      type: 'danger',
+      confirmLabel: 'Remove',
+      cancelLabel: 'Cancel',
+      onConfirm: () => {
+        removeDocument(docId);
+        updateFamilyMember(memberId, {
+          documentIds: member.documentIds.filter((id) => id !== docId),
+        });
+      },
+    });
+  }, [pendingDocDelete]);
 
   const getMemberDocs = (member: FamilyMember) =>
     documents.filter((d) => member.documentIds.includes(d.id));
@@ -334,11 +359,8 @@ setShowAddMember(false); setAnyModalOpen(false);
                               </View>
                               <TouchableOpacity
                                 onPress={() => {
-                                  // Direct delete — dialog.confirm appears behind modal
-                                  removeDocument(doc.id);
-                                  updateFamilyMember(member.id, {
-                                    documentIds: member.documentIds.filter((id) => id !== doc.id),
-                                  });
+                                  // Bug 3 fix: queue deletion so dialog renders outside modal
+                                  setPendingDocDelete({ memberId: member.id, docId: doc.id, label: doc.label.replace(`${member.name} — `, '') });
                                 }}
                                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                 style={{ padding: 4 }}
@@ -424,6 +446,7 @@ setShowAddMember(false); setAnyModalOpen(false);
                 onChangeText={(v) => { setName(v); if (v.trim()) setNameError(false); }}
                 placeholder="e.g., Sarah Johnson"
                 placeholderTextColor={colors.text3}
+                maxLength={60}
                 autoFocus
               />
               {nameError && (

@@ -10,7 +10,9 @@ import { colors } from '../theme';
 
 /** Calculate days remaining from today to a target date */
 export const calculateDaysRemaining = (targetDate: string): number => {
+  if (!targetDate) return -999;
   const target = dayjs(targetDate).startOf('day');
+  if (!target.isValid()) return -999; // Bug 70 fix: invalid date treated as expired
   const today = dayjs().startOf('day');
   return target.diff(today, 'day');
 };
@@ -150,18 +152,4 @@ export const countByUrgency = (
     counts[d.urgency]++;
   });
   return counts;
-};
-
-/**
- * Check if unemployment counter should auto-increment
- * Called on app open — adds days since last check
- */
-export const calculateUnemploymentIncrement = (
-  lastIncrementDate: string | null
-): number => {
-  if (!lastIncrementDate) return 0;
-  const last = dayjs(lastIncrementDate).startOf('day');
-  const now = dayjs().startOf('day');
-  const diff = now.diff(last, 'day');
-  return Math.max(0, diff);
 };

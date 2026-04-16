@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, radius, typography } from '../theme';
+import { colors, spacing } from '../theme';
 
 const EMAIL_GENERAL  = 'contact@kkbcori.com';
 const EMAIL_SUPPORT  = 'statusvault@kkbcori.com';
@@ -76,7 +76,7 @@ export const ContactScreen: React.FC = () => {
       <View style={s.legalCard}>
         <TouchableOpacity
           style={s.legalRow}
-          onPress={() => Linking.openURL('https://www.statusvault.org/privacy')}
+          onPress={() => Linking.openURL('https://www.statusvault.org/privacy').catch(() => {})}
           activeOpacity={0.7}
         >
           <Ionicons name="document-text-outline" size={16} color="#64748B" />
@@ -86,7 +86,7 @@ export const ContactScreen: React.FC = () => {
         <View style={s.div} />
         <TouchableOpacity
           style={s.legalRow}
-          onPress={() => Linking.openURL('https://www.statusvault.org/terms')}
+          onPress={() => Linking.openURL('https://www.statusvault.org/terms').catch(() => {})}
           activeOpacity={0.7}
         >
           <Ionicons name="document-text-outline" size={16} color="#64748B" />

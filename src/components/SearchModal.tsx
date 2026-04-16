@@ -76,7 +76,7 @@ export const SearchModal: React.FC<Props> = ({ visible, onClose }) => {
         const done = cl.items.filter((i: any) => i.done).length;
         out.push({ id: cl.templateId, type: 'checklist', icon: cl.icon || '✅',
           title: cl.label, subtitle: `${done}/${cl.items.length} steps done`,
-          badge: `${Math.round((done/cl.items.length)*100)}%`,
+          badge: cl.items.length > 0 ? `${Math.round((done / cl.items.length) * 100)}%` : '0%',
           badgeColor: done === cl.items.length ? '#059669' : '#4F46E5', screen: 'Checklist' });
       }
     });

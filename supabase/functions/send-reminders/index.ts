@@ -13,7 +13,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const REMINDER_WINDOWS = [180, 90, 60, 30, 14, 7]; // days before expiry
+const REMINDER_WINDOWS = [180, 90, 60, 30, 15, 7]; // must match app template alertDays // days before expiry
 
 serve(async (req) => {
   try {
@@ -71,7 +71,7 @@ serve(async (req) => {
                   You haven't checked your immigration documents in ${daysSinceSync} days. 
                   Missing a visa or permit expiry can have serious consequences.
                 </p>
-                <a href="https://kkbcori.github.io/statusvault-web" 
+                <a href="https://www.statusvault.org" 
                    style="display: block; background: #0099A8; color: #fff; text-align: center; 
                           padding: 14px; border-radius: 10px; text-decoration: none; 
                           font-weight: 600; font-size: 15px;">
@@ -80,7 +80,7 @@ serve(async (req) => {
               </div>
               <p style="color: #9CA3AF; font-size: 11px; text-align: center; margin-top: 20px;">
                 StatusVault · AES-256 encrypted · 
-                <a href="https://kkbcori.github.io/statusvault-web" style="color: #9CA3AF;">Unsubscribe</a>
+                <a href="https://www.statusvault.org" style="color: #9CA3AF;">Unsubscribe</a>
               </p>
             </div>
           `,

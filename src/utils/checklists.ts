@@ -271,5 +271,3 @@ export const CHECKLIST_TEMPLATES: ChecklistTemplate[] = [
 ];
 
 /** Get template by ID */
-export const getChecklistTemplate = (id: string): ChecklistTemplate | undefined =>
-  CHECKLIST_TEMPLATES.find((t) => t.id === id);

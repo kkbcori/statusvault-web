@@ -47,8 +47,9 @@ export function generateAlerts(docs: any[], family: any[], existing: AppNotifica
 export const NotificationBell: React.FC = () => {
   const documents      = useStore(s => s.documents);
   const familyMembers  = useStore(s => s.familyMembers);
-  const notifications  = useStore(s => (s as any).notifications ?? []) as AppNotification[];
-  const setNotifs      = (n: AppNotification[]) => useStore.setState({ notifications: n } as any);
+  const notifications         = useStore(s => s.notifications ?? []) as AppNotification[];
+  const setInAppNotifications   = useStore(s => s.setInAppNotifications);
+  const setNotifs              = (n: AppNotification[]) => setInAppNotifications(n);
 
   const [open, setOpen]   = useState(false);
   const [pos,  setPos]    = useState({ top: 56, right: 8 });

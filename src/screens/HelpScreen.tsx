@@ -221,7 +221,7 @@ const SectionCard: React.FC<{ section: Section }> = ({ section }) => {
       </TouchableOpacity>
       {expanded && (
         <View style={sectionStyles.faqs}>
-          {section.faqs.map((faq, i) => <FAQItem key={i} item={faq} index={i} />)}
+          {section.faqs.map((faq, i) => <FAQItem key={faq.q.slice(0,40)} item={faq} index={i} />)}
         </View>
       )}
     </View>
@@ -361,7 +361,7 @@ export const HelpScreen: React.FC = () => {
           <TouchableOpacity
             key={i}
             style={styles.linkRow}
-            onPress={() => Linking.openURL(url)}
+            onPress={() => Linking.openURL(url).catch(() => {})}
             activeOpacity={0.7}
           >
             <View style={styles.linkDot} />

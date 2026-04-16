@@ -78,6 +78,3 @@ export const COUNTER_TEMPLATES: CounterTemplate[] = [
     critAt: 26,
   },
 ];
-
-export const getCounterTemplate = (id: string): CounterTemplate | undefined =>
-  COUNTER_TEMPLATES.find((t) => t.id === id);

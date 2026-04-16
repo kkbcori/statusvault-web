@@ -111,10 +111,10 @@ export default function App() {
     );
   }
 
-  if (pinEnabled && isLocked && Platform.OS !== 'web') {
+  if (pinEnabled && isLocked) {
     return (
       <SafeAreaProvider>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+        {Platform.OS !== 'web' && <StatusBar barStyle="dark-content" backgroundColor={colors.background} />}
         <PinLockScreen onUnlock={() => setIsLocked(false)} verifyPin={verifyPin} />
       </SafeAreaProvider>
     );

@@ -72,9 +72,21 @@ const WebSidebar: React.FC = () => {
   const isPremium  = useStore((s) => s.isPremium);
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
   const [showProfile, setShowProfile] = React.useState(false);
-  const dragging = useRef(false);
-  const startX   = useRef(0);
-  const startW   = useRef(DEFAULT_WIDTH);
+  const dragging  = useRef(false);
+  const startX    = useRef(0);
+  const startW    = useRef(DEFAULT_WIDTH);
+  const cleanupFn = useRef<(() => void) | null>(null);
+
+  // Bug 55 fix: cleanup drag listeners if component unmounts mid-drag
+  React.useEffect(() => {
+    return () => {
+      cleanupFn.current?.();
+      if (typeof document !== 'undefined') {
+        document.body.style.cursor     = '';
+        document.body.style.userSelect = '';
+      }
+    };
+  }, []);
 
   const onMouseDown = useCallback((e: any) => {
     if (typeof document === 'undefined') return;
@@ -93,6 +105,11 @@ const WebSidebar: React.FC = () => {
       dragging.current = false;
       document.body.style.cursor    = '';
       document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      cleanupFn.current = null;
+    };
+    cleanupFn.current = () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
     };
@@ -154,7 +171,7 @@ const WebSidebar: React.FC = () => {
       {authUser ? (
         <TouchableOpacity
           style={sidebarStyles.profileCard}
-          onPress={() => (useStore.getState() as any).openProfileModal?.()}
+          onPress={() => useStore.getState().openProfileModal()}
           activeOpacity={0.8}
         >
           <View style={sidebarStyles.profileAvatar}>
@@ -258,7 +275,7 @@ const WebTopBar: React.FC = () => {
 
         <TouchableOpacity
           style={topBarStyles.avatarBtn}
-          onPress={() => (useStore.getState() as any).openSearch?.()}
+          onPress={() => useStore.getState().openSearch()}
           activeOpacity={0.8}
         >
           <Ionicons name="search-outline" size={16} color={colors.text2} />
@@ -285,7 +302,7 @@ const WebTopBar: React.FC = () => {
         )}
         <TouchableOpacity
           style={topBarStyles.avatarBtn}
-          onPress={() => authUser ? (useStore.getState() as any).openProfileModal?.() : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')}
+          onPress={() => authUser ? useStore.getState().openProfileModal() : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')}
           activeOpacity={0.8}
         >
           <Ionicons name={authUser ? 'person' : 'log-in-outline'} size={16} color={colors.text2} />
@@ -327,7 +344,7 @@ const MainTabs: React.FC = () => {
     // Check Supabase session synchronously from localStorage — no async race
     const hasSupabaseSession = (() => {
       try {
-        const key = 'sb-gekhrdqkaadqeeebzvlu-auth-token';
+        const key = SUPABASE_SESSION_KEY;
         const raw = localStorage.getItem(key);
         if (!raw) return false;
         const parsed = JSON.parse(raw);

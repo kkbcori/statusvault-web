@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Alert, Vibration } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Alert, Vibration, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius, typography } from '../theme';
 
@@ -50,7 +50,7 @@ export const PinSetupModal: React.FC<PinSetupModalProps> = ({
       if (verifyPin(entered)) {
         if (isRemoveFlow) {
           onRemovePin();
-          Alert.alert('PIN Removed', 'App PIN has been disabled.');
+          if (Platform.OS !== 'web') Alert.alert('PIN Removed', 'App PIN has been disabled.');
           handleClose();
         } else {
           setStep('enter');
@@ -62,13 +62,23 @@ export const PinSetupModal: React.FC<PinSetupModalProps> = ({
         setPin('');
       }
     } else if (step === 'enter') {
+      // Bug 42 fix: reject obviously weak PINs
+      const allSame = entered.split('').every((d) => d === entered[0]);
+      const sequential = ['0123','1234','2345','3456','4567','5678','6789',
+                          '9876','8765','7654','6543','5432','4321','3210'].includes(entered);
+      if (allSame || sequential) {
+        Vibration.vibrate(200);
+        setError('PIN too simple — avoid repeated or sequential digits.');
+        setPin('');
+        return;
+      }
       setFirstPin(entered);
       setStep('confirm');
       setPin('');
     } else if (step === 'confirm') {
       if (entered === firstPin) {
         onSetPin(entered);
-        Alert.alert('PIN Set', 'Your 4-digit PIN is now active.');
+        if (Platform.OS !== 'web') Alert.alert('PIN Set', 'Your 4-digit PIN is now active.');
         handleClose();
       } else {
         Vibration.vibrate(200);

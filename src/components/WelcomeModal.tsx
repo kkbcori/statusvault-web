@@ -62,7 +62,7 @@ export const WelcomeModal: React.FC<Props> = ({ visible, onGuest, onCreateAccoun
                 </View>
                 <Text style={s.accountDesc}>Email login link · no password needed</Text>
                 <View style={s.chips}>
-                  {['2 documents','1 family + 1 doc','1 checklist','1 timer'].map(l => (
+                  {['2 documents','1 family + 1 doc','2 checklists','2 timers'].map(l => (
                     <View key={l} style={s.chipWhite}><Text style={s.chipWhiteTxt}>{l}</Text></View>
                   ))}
                 </View>

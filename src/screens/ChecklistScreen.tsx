@@ -7,9 +7,10 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, radius, shadows } from '../theme';
-import { IS_WEB, IS_TABLET } from '../utils/responsive';
+import { shadows } from '../theme';
+import { IS_WEB } from '../utils/responsive';
 import { useStore } from '../store';
+import { useDialog } from '../components/ConfirmDialog';
 import { useNavigation } from '@react-navigation/native';
 import { CHECKLIST_TEMPLATES } from '../utils/checklists';
 
@@ -24,6 +25,7 @@ export const ChecklistScreen: React.FC = () => {
   const canAddChecklist    = useStore((s) => s.canAddChecklist);
   const toggleChecklistItem= useStore((s) => s.toggleChecklistItem);
 
+  const dialog = useDialog();
   const [showAdd,   setShowAdd]   = useState(false);
   const [expanded,  setExpanded]  = useState<string | null>(null);
 
@@ -107,7 +109,14 @@ export const ChecklistScreen: React.FC = () => {
                     ))}
                     <TouchableOpacity
                       style={styles.removeBtn}
-                      onPress={() => removeChecklist(cl.templateId)}
+                      onPress={() => dialog.confirm({
+                        title: 'Remove Checklist',
+                        message: `Remove "${cl.label}"? All your progress (${done}/${total} steps) will be lost.`,
+                        type: 'danger',
+                        confirmLabel: 'Remove',
+                        cancelLabel: 'Cancel',
+                        onConfirm: () => removeChecklist(cl.templateId),
+                      })}
                     >
                       <Text style={styles.removeBtnText}>Remove checklist</Text>
                     </TouchableOpacity>

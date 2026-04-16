@@ -29,16 +29,22 @@ const VISIBLE = IS_TABLET ? TABLET_TABS : PRIMARY_TABS;
 interface Props { state: any; descriptors: any; navigation: any; }
 
 export const MobileTabBar: React.FC<Props> = ({ state, navigation }) => {
-  const scaleAnims = useRef(VISIBLE.map(() => new Animated.Value(1))).current;
+  // Bug 44 fix: key animations by route name, not index — immune to reordering
+  const scaleAnims = useRef(
+    Object.fromEntries(VISIBLE.map((name) => [name, new Animated.Value(1)]))
+  ).current;
 
   const visibleRoutes = state.routes.filter((r: any) => VISIBLE.includes(r.name));
   const currentRoute  = state.routes[state.index]?.name;
 
-  const onPress = (routeName: string, routeKey: string, idx: number) => {
-    Animated.sequence([
-      Animated.timing(scaleAnims[idx], { toValue: 0.82, duration: 80, useNativeDriver: true }),
-      Animated.spring(scaleAnims[idx],  { toValue: 1.0,  friction: 4, useNativeDriver: true }),
-    ]).start();
+  const onPress = (routeName: string, _routeKey: string) => {
+    const anim = (scaleAnims as any)[routeName];
+    if (anim) {
+      Animated.sequence([
+        Animated.timing(anim, { toValue: 0.82, duration: 80, useNativeDriver: true }),
+        Animated.spring(anim, { toValue: 1.0,  friction: 4, useNativeDriver: true }),
+      ]).start();
+    }
     navigation.navigate(routeName);
   };
 
@@ -50,8 +56,9 @@ export const MobileTabBar: React.FC<Props> = ({ state, navigation }) => {
           const meta    = TAB_META[route.name];
           const focused = currentRoute === route.name;
           if (!meta) return null;
+          const anim = (scaleAnims as any)[route.name];
           return (
-            <Animated.View key={route.key} style={[s.tabWrap, { transform: [{ scale: scaleAnims[i] }] }]}>
+            <Animated.View key={route.key} style={[s.tabWrap, { transform: [{ scale: anim ?? 1 }] }]}>
               <TouchableOpacity style={s.tab} onPress={() => onPress(route.name, route.key, i)} activeOpacity={1}>
                 <View style={[s.iconBox, focused && s.iconBoxActive]}>
                   <Ionicons

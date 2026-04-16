@@ -112,7 +112,7 @@ export const VisaToolsScreen: React.FC = () => (
             <TouchableOpacity
               key={link.url}
               style={[s.linkRow, idx < section.links.length - 1 && s.linkRowBorder]}
-              onPress={() => Linking.openURL(link.url)}
+              onPress={() => Linking.openURL(link.url).catch(() => {})}
               activeOpacity={0.7}
             >
               <View style={s.linkText}>

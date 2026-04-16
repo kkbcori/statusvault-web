@@ -212,7 +212,7 @@ export const TravelScreen: React.FC = () => {
       return;
     }
     const entry: AddressEntry = {
-      id:               editingAddrId ?? `addr_${Date.now()}`,
+      id:               editingAddrId ?? `addr_${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
       street:           addrStreet.trim(),
       apt:              addrApt.trim() || undefined,
       city:             addrCity.trim(),
@@ -311,7 +311,7 @@ export const TravelScreen: React.FC = () => {
       if (activeMember) updateMemberTrip(activeMember.id, editingId, entry);
       else updateTrip(editingId, entry);
     } else {
-      const newTrip = { id: Date.now().toString(), createdAt: new Date().toISOString(), ...entry };
+      const newTrip = { id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`, createdAt: new Date().toISOString(), ...entry };
       if (activeMember) addMemberTrip(activeMember.id, newTrip);
       else addTrip(newTrip);
     }
@@ -656,7 +656,7 @@ export const TravelScreen: React.FC = () => {
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <View style={{ flex: 3 }}>
                   <Text style={styles.addrFieldLabel}>Country *</Text>
-                  <TextInput style={styles.addrFieldInput} value={country} onChangeText={setCountry} placeholder="India, Mexico…" placeholderTextColor={colors.text3} autoCapitalize="words" />
+                  <TextInput style={styles.addrFieldInput} value={country} onChangeText={setCountry} placeholder="India, Mexico…" placeholderTextColor={colors.text3} autoCapitalize="words" maxLength={60} />
                 </View>
                 <View style={{ flex: 2 }}>
                   <Text style={styles.addrFieldLabel}>Port of Entry</Text>

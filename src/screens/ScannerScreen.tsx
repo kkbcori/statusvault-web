@@ -48,7 +48,7 @@ export const ScannerScreen: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleScan = async () => {
+  const handleScan = async () => { return; // DISABLED — scanner not yet production-ready
     if (!imageData) return;
     setScanning(true); setError(null);
     try {
@@ -101,7 +101,7 @@ Do not include any PII warnings or disclaimers — just the JSON.`,
     }
   };
 
-  const handleSaveDoc = async () => {
+  const handleSaveDoc = async () => { return; // DISABLED
     if (!result?.expiryDate) return;
     // Find best matching template
     const lower = result.documentType.toLowerCase();
@@ -121,32 +121,42 @@ Do not include any PII warnings or disclaimers — just the JSON.`,
       ?? DOCUMENT_TEMPLATES.find((t) => t.id === 'custom')!;
 
     const doc: UserDocument = {
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
       templateId: template.id,
       label: result.documentType || template.label,
       category: template.category,
       expiryDate: result.expiryDate,
       alertDays: template.alertDays,
       icon: template.icon,
-      notes: [
-        result.documentNumber ? `Document #: ${result.documentNumber}` : '',
-        result.notes || '',
-        'Added via document scanner',
-      ].filter(Boolean).join(' · '),
+      documentNumber: result.documentNumber ?? undefined,
+      notes: [result.notes || '', 'Added via document scanner'].filter(Boolean).join(' · '),
       notificationIds: [],
       createdAt: new Date().toISOString(),
     };
 
-    await addDocument(doc);
-    setSaved(true);
+    // Bug 21 fix: check return value — addDocument returns false if tier limit hit
+    const saved = await addDocument(doc);
+    if (saved) {
+      setSaved(true);
+    } else {
+      setError('Document limit reached. Upgrade to Premium to add more documents.');
+    }
   };
 
+  // SCANNER DISABLED — API key cannot be in client bundle; needs edge function proxy
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={[styles.content, IS_WEB && styles.contentWeb]}
       showsVerticalScrollIndicator={true}
     >
+      <View style={{ margin: 20, padding: 20, backgroundColor: '#FEF3C7', borderRadius: 12, borderWidth: 1, borderColor: '#F59E0B', alignItems: 'center', gap: 10 } as any}>
+        <Ionicons name="construct-outline" size={28} color="#D97706" />
+        <Text style={{ fontSize: 16, fontFamily: 'Inter_700Bold', color: '#92400E', textAlign: 'center' }}>Scanner Coming Soon</Text>
+        <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: '#B45309', textAlign: 'center', lineHeight: 20 }}>
+          Document scanning is being upgraded. In the meantime, add documents manually from the Documents tab.
+        </Text>
+      </View>
       {!IS_WEB && (
         <View style={styles.header}>
           <Text style={styles.headerEye}>AI-POWERED</Text>

@@ -3,7 +3,7 @@
 // Shows on app launch when PIN is enabled
 // ═══════════════════════════════════════════════════════════════
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius, typography } from '../theme';
@@ -14,11 +14,27 @@ interface PinLockScreenProps {
 }
 
 export const PinLockScreen: React.FC<PinLockScreenProps> = ({ onUnlock, verifyPin }) => {
-  const [pin, setPin] = useState('');
-  const [error, setError] = useState(false);
-  const [attempts, setAttempts] = useState(0);
+  const [pin, setPin]           = useState('');
+  const [error, setError]         = useState(false);
+  const [attempts, setAttempts]   = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const [now, setNow] = useState(Date.now());
+  const isLocked = lockedUntil !== null && now < lockedUntil;
+  const lockSecondsLeft = isLocked ? Math.ceil((lockedUntil! - now) / 1000) : 0;
+
+  // Tick every second while locked so countdown updates live
+  useEffect(() => {
+    if (!lockedUntil) return;
+    const id = setInterval(() => {
+      const t = Date.now();
+      setNow(t);
+      if (t >= lockedUntil) { setLockedUntil(null); clearInterval(id); }
+    }, 1000);
+    return () => clearInterval(id);
+  }, [lockedUntil]);
 
   const handlePress = (digit: string) => {
+    if (isLocked) return;
     if (pin.length >= 4) return;
     setError(false);
     const newPin = pin + digit;
@@ -31,7 +47,11 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = ({ onUnlock, verifyPi
         } else {
           Vibration.vibrate(200);
           setError(true);
-          setAttempts((a) => a + 1);
+          setAttempts((a) => {
+            const next = a + 1;
+            if (next >= 5) setLockedUntil(Date.now() + 30_000); // 30s lockout after 5 fails
+            return next;
+          });
           setPin('');
         }
       }, 150);
@@ -72,7 +92,7 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = ({ onUnlock, verifyPi
 
         {error && (
           <Text style={styles.errorText}>
-            {attempts >= 5 ? 'Too many attempts. Try again.' : 'Incorrect PIN. Try again.'}
+            {isLocked ? `Too many attempts. Wait ${lockSecondsLeft}s.` : attempts >= 5 ? 'Too many attempts.' : 'Incorrect PIN. Try again.'}
           </Text>
         )}
 

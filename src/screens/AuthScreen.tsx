@@ -22,7 +22,6 @@ export const AuthScreen: React.FC = () => {
   const route       = useRoute<any>();
   const signIn      = useStore((s) => s.signIn);
   const signUp      = useStore((s) => s.signUp);
-  const setNotificationEmail = useStore((s) => s.setNotificationEmail);
 
   // 'register' mode comes from Get Started on landing page
   const [tab, setTab] = useState<Tab>((route?.params as any)?.mode === 'register' ? 'register' : 'login');
@@ -53,8 +52,6 @@ export const AuthScreen: React.FC = () => {
       } else {
         const { error } = await signUp(email.trim(), password);
         if (error) { setMessage({ text: error, type: 'error' }); return; }
-        // Save notification contacts immediately after registration
-        setNotificationEmail(email.trim());
         setMessage({ text: 'Account created! Check your email to verify, then sign in.', type: 'success' });
         setTab('login');
       }
@@ -67,7 +64,7 @@ export const AuthScreen: React.FC = () => {
       const redirectTo = Platform.OS === 'web'
         ? (typeof window !== 'undefined' && window.location.hostname === 'localhost'
             ? window.location.origin
-            : 'https://kkbcori.github.io/statusvault-web')
+            : 'https://www.statusvault.org')
         : 'statusvault://auth/callback';
 
       const { error } = await supabase.auth.signInWithOAuth({
@@ -385,6 +382,9 @@ const styles = StyleSheet.create({
   inputWrap:     { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border, paddingHorizontal: 14, paddingVertical: Platform.OS === 'ios' ? 14 : 4 },
   inputIcon:     { marginRight: 10 },
   input:         { flex: 1, fontSize: 15, fontFamily: 'Inter_400Regular', color: colors.text1 },
+  inputGroup:    { marginTop: 16 },
+  inputLabel:    { ...typography.captionBold, color: colors.text2, marginBottom: 3, letterSpacing: 0.3 },
+  inputHint:     { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3, marginBottom: 6, lineHeight: 15 },
 
   // Submit
   submitBtn:     { borderRadius: radius.md, overflow: 'hidden', marginTop: 24, marginBottom: 12 },

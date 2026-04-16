@@ -11,11 +11,10 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, radius, typography, shadows } from '../theme';
+import { colors, typography, shadows } from '../theme';
 import { useStore, FREE_LIMIT } from '../store';
-import { generateDeadlines, getMostCritical, calculateDaysRemaining, formatDate } from '../utils/dates';
-import { TimelineItem } from '../components';
-import { IS_WEB, IS_TABLET, useScreenSize } from '../utils/responsive';
+import { generateDeadlines, getMostCritical, formatDate, addDaysToDate, today } from '../utils/dates';
+import { IS_WEB, IS_TABLET } from '../utils/responsive';
 import { useWindowDimensions } from 'react-native';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
 import { UserDocument } from '../types';
@@ -117,6 +116,7 @@ const StatusBadge: React.FC<{ label: string; color: string; bg: string }> = ({ l
 export const DashboardScreen: React.FC = () => {
   const navigation   = useNavigation<any>();
   const dialog       = useDialog();
+  const dismissEmailVerified = useStore((s) => s.dismissEmailVerified);
   const { width: screenWidth } = useWindowDimensions();
   // On web, only suppress padding when sidebar is visible (wide screen)
   const hasSidebar = IS_WEB && screenWidth >= 768;
@@ -206,9 +206,7 @@ export const DashboardScreen: React.FC = () => {
     }
     setSavingProfile(true);
     try {
-      const defaultExpiry = new Date();
-      defaultExpiry.setFullYear(defaultExpiry.getFullYear() + 1);
-      const expiry = defaultExpiry.toISOString().split('T')[0];
+      const expiry = addDaysToDate(today(), 365); // Bug 56 fix: use today() for timezone-safe local date
       for (const docId of selectedDocIds) {
         const template = DOCUMENT_TEMPLATES.find((t) => t.id === docId);
         if (!template) continue;
@@ -255,7 +253,7 @@ export const DashboardScreen: React.FC = () => {
           <Text style={styles.verifiedBannerText}>
             <Text style={{ fontFamily: 'Inter_700Bold' }}>Email verified!</Text> You're now signed in to StatusVault.
           </Text>
-          <TouchableOpacity onPress={() => useStore.setState({ emailVerified: false })}>
+          <TouchableOpacity onPress={dismissEmailVerified}>
             <Ionicons name="close" size={14} color="#28C76F" />
           </TouchableOpacity>
         </View>
@@ -585,7 +583,7 @@ export const DashboardScreen: React.FC = () => {
                     {overLimit && (
                       <TouchableOpacity
                         style={styles.upgradeDocBtn}
-                        onPress={() => { setShowProfileSetup(false); navigation.navigate('Main', { screen: 'Documents', params: { openPaywall: true } }); }}
+                        onPress={() => { setShowProfileSetup(false); setAnyModalOpen(false); navigation.navigate('Main', { screen: 'Documents', params: { openPaywall: true } }); }}
                       >
                         <Text style={styles.upgradeDocBtnText}>⭐ Upgrade for unlimited documents</Text>
                       </TouchableOpacity>
@@ -603,7 +601,7 @@ export const DashboardScreen: React.FC = () => {
                 }
                 renderItem={({ item }) => {
                   if (item.id === '__add__') return (
-                    <TouchableOpacity style={styles.addDocRow} onPress={() => { setShowProfileSetup(false); navigation.navigate('Main', { screen: 'Documents' }); }}>
+                    <TouchableOpacity style={styles.addDocRow} onPress={() => { setShowProfileSetup(false); setAnyModalOpen(false); navigation.navigate('Main', { screen: 'Documents' }); }}>
                       <Text style={styles.addDocText}>+ Add more documents manually</Text>
                     </TouchableOpacity>
                   );

@@ -2,6 +2,7 @@
 // ExpiryCard v2 — Premium document card
 // ═══════════════════════════════════════════════════════════════
 
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, spacing, radius, typography, shadows } from '../theme';
@@ -64,6 +65,12 @@ export const ExpiryCard: React.FC<ExpiryCardProps> = ({ document, onDelete, onEd
           </View>
         )}
 
+        {document.documentNumber ? (
+          <View style={styles.docNumRow}>
+            <Ionicons name="barcode-outline" size={12} color={colors.text3} />
+            <Text style={styles.docNum} numberOfLines={1}># {document.documentNumber}</Text>
+          </View>
+        ) : null}
         {document.notes ? <Text style={styles.notes} numberOfLines={2}>{document.notes}</Text> : null}
       </View>
     </TouchableOpacity>
@@ -94,5 +101,7 @@ const styles = StyleSheet.create({
   alertRow: { flexDirection: 'row', alignItems: 'center', paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.borderLight },
   alertLabel: { fontSize: 12, color: colors.text3 },
   alertDays: { ...typography.caption, color: colors.text2, fontSize: 12, fontWeight: '600' },
+  docNumRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
+  docNum: { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3, flex: 1 },
   notes: { ...typography.caption, color: colors.text3, marginTop: spacing.sm, fontStyle: 'italic' },
 });

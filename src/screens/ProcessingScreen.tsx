@@ -146,7 +146,7 @@ export const ProcessingScreen: React.FC = () => {
           </View>
           <TouchableOpacity
             style={styles.liveBtn}
-            onPress={() => Linking.openURL('https://egov.uscis.gov/processing-times/')}
+            onPress={() => Linking.openURL('https://egov.uscis.gov/processing-times/').catch(() => {})}
           >
             <Ionicons name="open-outline" size={14} color={colors.primary} />
             <Text style={styles.liveBtnText}>Check Live</Text>
@@ -159,7 +159,7 @@ export const ProcessingScreen: React.FC = () => {
         <Ionicons name="information-circle-outline" size={14} color={colors.warning} />
         <Text style={styles.disclaimerText}>
           These are estimates based on published USCIS data. Actual times vary. Always check{' '}
-          <Text style={{ color: '#7367F0' }} onPress={() => Linking.openURL('https://egov.uscis.gov/processing-times/')}>
+          <Text style={{ color: '#7367F0' }} onPress={() => Linking.openURL('https://egov.uscis.gov/processing-times/').catch(() => {})}>
             egov.uscis.gov
           </Text>{' '}
           for your specific case.
@@ -219,7 +219,7 @@ export const ProcessingScreen: React.FC = () => {
                   ))}
                   <TouchableOpacity
                     style={styles.checkLiveBtn}
-                    onPress={() => Linking.openURL(entry.officialUrl)}
+                    onPress={() => Linking.openURL(entry.officialUrl).catch(() => {})}
                   >
                     <Ionicons name="open-outline" size={13} color={'#7367F0'} />
                     <Text style={styles.checkLiveText}>Check live times on USCIS.gov</Text>

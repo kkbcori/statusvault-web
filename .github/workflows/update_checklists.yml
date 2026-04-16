@@ -12,6 +12,10 @@ on:
     - cron: '0 9 1 * *'   # 1st of every month at 9am UTC
   workflow_dispatch:        # manual trigger for testing
 
+permissions:
+  contents: write
+  issues: write
+
 jobs:
   check-updates:
     runs-on: ubuntu-latest
@@ -37,4 +41,4 @@ jobs:
           git config --global user.name "StatusVault Bot"
           git add src/utils/checklists.ts
           git diff --staged --quiet || git commit -m "chore: auto-update checklists $(date +%Y-%m)"
-          git push origin main || echo "Nothing to push"
+          git diff --staged --quiet && echo "Nothing to push" || git push origin main

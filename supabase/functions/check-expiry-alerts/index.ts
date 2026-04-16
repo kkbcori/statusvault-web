@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const ALERT_WINDOWS = [180, 90, 30, 15, 7];
+const ALERT_WINDOWS = [180, 90, 60, 30, 15, 7]; // must match app template alertDays
 
 function daysUntil(dateStr: string): number {
   const expiry = new Date(dateStr);
@@ -11,6 +11,13 @@ function daysUntil(dateStr: string): number {
 }
 
 serve(async (req) => {
+  // ── 0. Verify caller is Supabase cron or authorised internal call ──
+  const cronSecret = Deno.env.get('CRON_SECRET');
+  const reqSecret  = req.headers.get('x-cron-secret') ?? req.headers.get('authorization')?.replace('Bearer ', '');
+  if (cronSecret && reqSecret !== cronSecret) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
   const debug: any = { steps: [], errors: [] };
 
   // Support single-user immediate invocation (when app calls after doc add)
@@ -95,7 +102,7 @@ serve(async (req) => {
         html: `<h2>StatusVault Expiry Alert</h2>
           <p>${alertDocs.length} document(s) need your attention:</p>
           ${alertDocs.map((d: any) => `<p>• <b>${d.icon} ${d.label}</b> — expires ${d.expiryDate} (${d.days < 0 ? 'EXPIRED' : d.days + ' days left'})</p>`).join('')}
-          <p><a href="https://kkbcori.github.io/statusvault-web">View in StatusVault →</a></p>`,
+          <p><a href="https://www.statusvault.org">View in StatusVault →</a></p>`,
       };
 
       try {
@@ -118,7 +125,7 @@ serve(async (req) => {
 
     // ── Send WhatsApp ─────────────────────────────────────────
     if (row.whatsapp_phone && alertDocs.length > 0 && TWILIO_SID && TWILIO_TOKEN && WA_FROM) {
-      const msgBody = `⏰ StatusVault Alert\n\n${alertDocs.map((d: any) => `• ${d.label}: expires ${d.expiryDate} (${d.days < 0 ? 'EXPIRED' : d.days + 'd left'})`).join('\n')}\n\nhttps://kkbcori.github.io/statusvault-web`;
+      const msgBody = `⏰ StatusVault Alert\n\n${alertDocs.map((d: any) => `• ${d.label}: expires ${d.expiryDate} (${d.days < 0 ? 'EXPIRED' : d.days + 'd left'})`).join('\n')}\n\nhttps://www.statusvault.org`;
       try {
         const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
           method: 'POST',

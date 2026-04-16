@@ -19,7 +19,8 @@
       "bundleIdentifier": "com.statusvault.app",
       "infoPlist": {
         "NSUserNotificationsUsageDescription": "StatusVault needs notifications to alert you before visa deadlines expire."
-      }
+      },
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
@@ -30,7 +31,8 @@
       "permissions": [
         "NOTIFICATIONS",
         "SCHEDULE_EXACT_ALARM"
-      ]
+      ],
+      "versionCode": 1
     },
     "plugins": [
       [
@@ -55,6 +57,7 @@
     "experiments": {
       "baseUrl": "/"
     },
-    "entryPoint": "./index.ts"
+    "entryPoint": "./index.ts",
+    "scheme": "statusvault"
   }
 }

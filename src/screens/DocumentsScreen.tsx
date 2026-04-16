@@ -38,7 +38,6 @@ export const DocumentsScreen: React.FC = () => {
   const dialog = useDialog();
 
   const [showAddModal,    setShowAddModal]    = useState(false);
-  const [showPaywall,     setShowPaywall]     = useState(false);
   const [addStep,         setAddStep]         = useState<'type' | 'date'>('type');
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
   const [expiryDate,      setExpiryDate]      = useState(new Date());
@@ -47,7 +46,6 @@ export const DocumentsScreen: React.FC = () => {
   const [docNumber,       setDocNumber]       = useState('');
   const [filterCategory,  setFilterCategory]  = useState<DocumentCategory | 'all'>('all');
   const [editingDoc,      setEditingDoc]      = useState<UserDocument | null>(null);
-  const [templateSearch,  setTemplateSearch]  = useState('');
 
   const templatesByCategory = getTemplatesByCategory();
   const remaining = getRemainingFreeSlots();
@@ -61,7 +59,7 @@ export const DocumentsScreen: React.FC = () => {
   const resetAddFlow = () => {
     setAddStep('type'); setSelectedTemplate(null);
     setExpiryDate(new Date()); setNotes(''); setShowDatePicker(false);
-    setEditingDoc(null); setTemplateSearch('');
+    setEditingDoc(null);
   };
 
   const isGuestMode      = useStore((s) => s.isGuestMode);
@@ -79,7 +77,6 @@ export const DocumentsScreen: React.FC = () => {
     resetAddFlow(); setShowAddModal(true); setAnyModalOpen(true);
   };
 
-  const openPaywallDirect = () => { openPaywall(); };
 
   const selectTemplate = (template: DocumentTemplate) => {
     setSelectedTemplate(template); setAddStep('date');
@@ -93,14 +90,13 @@ export const DocumentsScreen: React.FC = () => {
       await updateDocument(editingDoc.id, {
         expiryDate: expiryDate.toISOString().split('T')[0],
         notes: notes.trim(),
-        documentNumber: docNumber.trim() || undefined,
       });
       setShowAddModal(false); setAnyModalOpen(false); setEditingDoc(null); resetAddFlow();
       return;
     }
     if (!selectedTemplate) return;
     const doc: UserDocument = {
-      id: Date.now().toString(), templateId: selectedTemplate.id, label: selectedTemplate.label,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`, templateId: selectedTemplate.id, label: selectedTemplate.label,
       category: selectedTemplate.category, expiryDate: expiryDate.toISOString().split('T')[0],
       alertDays: selectedTemplate.alertDays, icon: selectedTemplate.icon,
       notes: notes.trim(), notificationIds: [], createdAt: new Date().toISOString(),
@@ -116,6 +112,7 @@ export const DocumentsScreen: React.FC = () => {
   };
 
   const handleEdit = (doc: UserDocument) => {
+    if (!canAddDocument() && !doc) return;
     resetAddFlow();
     setEditingDoc(doc);
     setSelectedTemplate(
@@ -150,7 +147,7 @@ export const DocumentsScreen: React.FC = () => {
                   {documents.length} tracked{isPremium ? ' · Premium ⭐' : isGuestMode ? ' · 1 of 1 (guest)' : ` · ${remaining} of 2 free`}
                 </Text>
                 {!isPremium && (
-                  <TouchableOpacity onPress={openPaywallDirect} style={{ backgroundColor: '#EEF2FF', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
+                  <TouchableOpacity onPress={openPaywall} style={{ backgroundColor: '#EEF2FF', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
                     <Text style={{ fontSize: 11, fontFamily: 'Inter_700Bold', color: '#4F46E5' }}>Upgrade</Text>
                   </TouchableOpacity>
                 )}
@@ -192,7 +189,7 @@ export const DocumentsScreen: React.FC = () => {
               <Text style={styles.emptySubtitle}>Tap "+ Add" to track your first visa or document</Text>
             </View>
           ) : (
-            filteredDocs
+            [...filteredDocs]
               .sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime())
               .map((doc) => <ExpiryCard key={doc.id} document={doc} onDelete={() => handleDelete(doc.id, doc.label)} onEdit={() => handleEdit(doc)} />)
           )}
@@ -225,82 +222,41 @@ export const DocumentsScreen: React.FC = () => {
               <View style={{ width: 60 }} />
             </View>
 
-            {addStep === 'type' && (() => {
-              const q = templateSearch.toLowerCase().trim();
-              const filtered = q
-                ? Object.entries(templatesByCategory).reduce((acc, [cat, tmpls]) => {
-                    const matches = tmpls.filter(t =>
-                      t.label.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)
-                    );
-                    if (matches.length) acc.push([cat, matches] as any);
-                    return acc;
-                  }, [] as [string, typeof templatesByCategory[string]][])
-                : Object.entries(templatesByCategory);
-
-              return (
-                <>
-                  {/* Search bar */}
-                  <View style={styles.templateSearchWrap}>
-                    <Ionicons name="search-outline" size={16} color={colors.text3} style={{ marginRight: 8 }} />
-                    <TextInput
-                      style={styles.templateSearchInput}
-                      value={templateSearch}
-                      onChangeText={setTemplateSearch}
-                      placeholder="Search documents…"
-                      placeholderTextColor={colors.text3}
-                      autoCorrect={false}
-                      clearButtonMode="while-editing"
-                    />
-                    {templateSearch.length > 0 && (
-                      <TouchableOpacity onPress={() => setTemplateSearch('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                        <Ionicons name="close-circle" size={16} color={colors.text3} />
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                  <FlatList style={{ flex: 1 }}
-                    data={filtered}
-                    keyExtractor={([c]) => c}
-                    showsVerticalScrollIndicator={true}
-                    keyboardShouldPersistTaps="handled"
-                    ListEmptyComponent={
-                      <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-                        <Text style={{ fontSize: 28, marginBottom: 8 }}>🔍</Text>
-                        <Text style={{ fontSize: 14, fontFamily: 'Inter_600SemiBold', color: colors.text2 }}>No results</Text>
-                        <Text style={{ fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 4 }}>Try a different search term</Text>
-                      </View>
-                    }
-                    renderItem={({ item: [category, templates] }) => {
-                      if (templates.length === 0) return null;
-                      return (
-                        <View style={styles.templateSection}>
-                          {!q && <Text style={styles.templateSectionTitle}>{CATEGORY_LABELS[category as DocumentCategory]}</Text>}
-                          {templates.map((tmpl: typeof templatesByCategory[string][number]) => {
-                            const alreadyAdded = documents.some((d) => d.templateId === tmpl.id);
-                            return (
-                              <TouchableOpacity
-                                key={tmpl.id}
-                                style={[styles.templateRow, alreadyAdded && styles.templateRowDisabled]}
-                                onPress={() => !alreadyAdded && selectTemplate(tmpl)}
-                                activeOpacity={alreadyAdded ? 1 : 0.6}
-                              >
-                                <View style={styles.tIconBox}><Text style={{ fontSize: 22 }}>{tmpl.icon}</Text></View>
-                                <View style={styles.templateInfo}>
-                                  <Text style={styles.templateLabel}>{tmpl.label}</Text>
-                                  <Text style={styles.templateDesc}>{tmpl.description}</Text>
-                                </View>
-                                {alreadyAdded
-                                  ? <Text style={styles.addedBadge}>Added ✓</Text>
-                                  : <Ionicons name="chevron-forward" size={20} color={colors.text3} />}
-                              </TouchableOpacity>
-                            );
-                          })}
-                        </View>
-                      );
-                    }}
-                  />
-                </>
-              );
-            })()}
+            {addStep === 'type' && (
+              <FlatList style={{ flex: 1 }}
+                data={Object.entries(templatesByCategory)}
+                keyExtractor={([c]) => c}
+                showsVerticalScrollIndicator={true}
+                renderItem={({ item: [category, templates] }) => {
+                  if (templates.length === 0) return null;
+                  return (
+                    <View style={styles.templateSection}>
+                      <Text style={styles.templateSectionTitle}>{CATEGORY_LABELS[category as DocumentCategory]}</Text>
+                      {templates.map((tmpl) => {
+                        const alreadyAdded = documents.some((d) => d.templateId === tmpl.id);
+                        return (
+                          <TouchableOpacity
+                            key={tmpl.id}
+                            style={[styles.templateRow, alreadyAdded && styles.templateRowDisabled]}
+                            onPress={() => !alreadyAdded && selectTemplate(tmpl)}
+                            activeOpacity={alreadyAdded ? 1 : 0.6}
+                          >
+                            <View style={styles.tIconBox}><Text style={{ fontSize: 22 }}>{tmpl.icon}</Text></View>
+                            <View style={styles.templateInfo}>
+                              <Text style={styles.templateLabel}>{tmpl.label}</Text>
+                              <Text style={styles.templateDesc}>{tmpl.description}</Text>
+                            </View>
+                            {alreadyAdded
+                              ? <Text style={styles.addedBadge}>Added ✓</Text>
+                              : <Ionicons name="chevron-forward" size={20} color={colors.text3} />}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  );
+                }}
+              />
+            )}
 
             {(addStep === 'date' && selectedTemplate) || (editingDoc && addStep === 'date') ? (
               <ScrollView style={styles.dateStep} showsVerticalScrollIndicator={true}>
@@ -344,7 +300,7 @@ export const DocumentsScreen: React.FC = () => {
                       <DateTimePicker
                         value={expiryDate} mode="date"
                         display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={handleDateChange} minimumDate={editingDoc ? undefined : new Date()} style={styles.datePicker}
+                        onChange={handleDateChange} minimumDate={new Date()} style={styles.datePicker}
                       />
                     )}
                     {Platform.OS === 'ios' && showDatePicker && (
@@ -360,12 +316,13 @@ export const DocumentsScreen: React.FC = () => {
                     value={docNumber}
                     onChange={(e: any) => setDocNumber(e.target.value)}
                     placeholder="e.g., A123456789 · WAC2512345678"
+                    maxLength={30}
                     style={{ width: '100%', padding: '12px 14px', fontSize: '14px', fontFamily: 'Inter', color: '#111827', border: '1.5px solid #E5E7EB', borderRadius: '10px', backgroundColor: '#fff', outline: 'none', boxSizing: 'border-box', marginBottom: '16px' } as any}
                   />
                 ) : (
                   <TextInput
                     style={[styles.notesInput, { minHeight: 42 }]} value={docNumber} onChangeText={setDocNumber}
-                    placeholder="e.g., A123456789" placeholderTextColor={colors.text3}
+                    placeholder="e.g., A123456789" placeholderTextColor={colors.text3} maxLength={30}
                   />
                 )}
                 <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>Notes (optional)</Text>
@@ -386,9 +343,10 @@ export const DocumentsScreen: React.FC = () => {
       </Modal>
 
       {/* ═══ PAYWALL — CENTERED DIALOG ═══ */}
-      <Modal visible={showPaywall} animationType="fade" transparent statusBarTranslucent>
+      {/* Bug 82: duplicate paywall — always hidden, kept for potential future use */}
+      <Modal visible={false} animationType="fade" transparent statusBarTranslucent>
         <View style={styles.paywallOverlay}>
-          <TouchableOpacity style={StyleSheet.absoluteFillObject as any} activeOpacity={1} onPress={() => { setShowPaywall(false); setAnyModalOpen(false); }} />
+          <TouchableOpacity style={StyleSheet.absoluteFillObject as any} activeOpacity={1} onPress={() => { setAnyModalOpen(false); }} />
           <LinearGradient
             colors={['#060E1A', '#0A1628', '#0F2040']}
             style={styles.paywallCard}
@@ -398,7 +356,7 @@ export const DocumentsScreen: React.FC = () => {
 
           <View style={styles.paywallScroll}>
             {/* Close */}
-            <TouchableOpacity style={styles.paywallCloseBtn} onPress={() => { setShowPaywall(false); setAnyModalOpen(false); }}>
+            <TouchableOpacity style={styles.paywallCloseBtn} onPress={() => { setAnyModalOpen(false); }}>
               <View style={styles.paywallCloseCircle}>
                 <Ionicons name="close" size={20} color="rgba(255,255,255,0.6)" />
               </View>
@@ -452,7 +410,7 @@ export const DocumentsScreen: React.FC = () => {
               style={styles.paywallCTA}
               onPress={() => dialog.confirm({ title: 'Coming Soon', message: 'In-app purchase will be available in the next update.',
                 type: 'confirm', confirmLabel: 'Unlock for Testing', cancelLabel: 'Cancel',
-                onConfirm: () => { useStore.getState().setPremium(true); setShowPaywall(false); setAnyModalOpen(false); } })}
+                onConfirm: () => { useStore.getState().setPremium(true); setAnyModalOpen(false); } })}
               activeOpacity={0.85}
             >
               <LinearGradient colors={[colors.primary, colors.primaryLight, colors.primary]} style={styles.paywallCTAGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
@@ -501,8 +459,6 @@ const styles = StyleSheet.create({
   modalHeader:        { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   modalBack:          { ...typography.bodySemibold, color: '#4F46E5', fontSize: 14 },
   modalTitle:         { ...typography.h3, color: colors.text1, fontSize: 16 },
-  templateSearchWrap:  { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, borderWidth: 1.5, borderColor: '#E2E8F0', marginHorizontal: spacing.screen, marginTop: 12, marginBottom: 4, paddingHorizontal: 12, paddingVertical: 10 },
-  templateSearchInput: { flex: 1, fontSize: 14, fontFamily: 'Inter_400Regular', color: colors.text1 },
   templateSection:    { paddingTop: spacing.lg },
   templateSectionTitle:{ ...typography.micro, color: colors.text3, letterSpacing: 1, paddingHorizontal: spacing.screen, marginBottom: spacing.sm },
   templateRow:        { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: spacing.screen, borderBottomWidth: 1, borderBottomColor: colors.borderLight, gap: spacing.md },
