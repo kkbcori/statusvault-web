@@ -4,11 +4,25 @@
     <meta charset="utf-8" />
     <title>StatusVault</title>
     <!--
-      GitHub Pages SPA: any unknown path → redirect to root.
-      The app always opens at / and React Navigation handles routing internally.
+      GitHub Pages SPA redirect — preserves ?code=, token_hash=, access_token= etc.
+      Auth callbacks from Supabase land here when the path is unknown; we must
+      forward the full query string and hash to the root so initAuth can process them.
     -->
     <script>
-      window.location.replace('https://www.statusvault.org/');
+      (function() {
+        var url = window.location.href;
+        var origin = window.location.origin;
+        var search = window.location.search;
+        var hash   = window.location.hash;
+
+        // Auth callback — preserve code/token params so Supabase can exchange them
+        if (search.includes('code=') || search.includes('token_hash=') ||
+            hash.includes('access_token=') || hash.includes('token_hash=')) {
+          window.location.replace(origin + '/' + search + hash);
+        } else {
+          window.location.replace(origin + '/');
+        }
+      })();
     </script>
   </head>
   <body></body>
