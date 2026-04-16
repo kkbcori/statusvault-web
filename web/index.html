@@ -8,17 +8,6 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>StatusVault — Your Personal Immigration Document Expiry Tracker</title>
-    <!-- GitHub Pages SPA: restore path encoded by 404.html -->
-    <script>
-      (function() {
-        var params = new URLSearchParams(window.location.search);
-        var p = params.get('p');
-        if (p) {
-          var h = params.get('h') || '';
-          window.history.replaceState(null, null, decodeURIComponent(p) + decodeURIComponent(h));
-        }
-      })();
-    </script>
     <meta name="description" content="Never miss a visa or document expiry. StatusVault tracks your immigration documents, sends timely alerts, and keeps your status secure — 100% private, AES-256 encrypted." />
     <meta name="application-name" content="StatusVault" />
     <meta property="og:title" content="StatusVault — Immigration Document Tracker" />
@@ -54,16 +43,11 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- Legal footer — always present for Google OAuth verification.
-         Visible as a thin strip at the bottom; pointer-events allow app interaction through it.
-         Users can also find Privacy/Terms in the app Settings screen. -->
-    <div id="legal-footer" style="position:fixed;bottom:0;left:0;right:0;z-index:10000;background:rgba(10,15,30,0.88);backdrop-filter:blur(6px);padding:5px 20px;display:flex;align-items:center;justify-content:center;gap:16px;font-family:system-ui,sans-serif;font-size:11px;border-top:1px solid rgba(255,255,255,0.07);">
-      <span style="color:rgba(203,213,225,0.35);">© 2025 StatusVault</span>
-      <a href="https://www.statusvault.org/privacy" style="color:rgba(165,180,252,0.65);text-decoration:none;">Privacy Policy</a>
-      <span style="color:rgba(255,255,255,0.12)">·</span>
-      <a href="https://www.statusvault.org/terms" style="color:rgba(165,180,252,0.65);text-decoration:none;">Terms of Service</a>
-      <span style="color:rgba(255,255,255,0.12)">·</span>
-      <span style="color:rgba(203,213,225,0.25);">Not affiliated with USCIS</span>
+    <!-- Privacy links for Google OAuth crawler verification — not visible to app users.
+         Users access Privacy Policy and Terms via Settings → Legal inside the app. -->
+    <div aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;">
+      <a href="https://www.statusvault.org/privacy">Privacy Policy</a>
+      <a href="https://www.statusvault.org/terms">Terms of Service</a>
     </div>
   </body>
 </html>

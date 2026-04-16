@@ -542,7 +542,7 @@ setShowAddMember(false); setAnyModalOpen(false);
                   type="date"
                   value={docExpiry}
                   onChange={(e: any) => { setDocExpiry(e.target.value); setDocExpiryError(false); }}
-                  style={{ width: '100%', padding: '12px 14px', fontSize: '14px', border: `1.5px solid ${docExpiryError ? '#EA5455' : '#E2E8F0'}`, borderRadius: '8px', backgroundColor: '#F4F5FA', outline: 'none', marginBottom: '16px', boxSizing: 'border-box', fontFamily: 'Inter' } as any}
+                  style={{ width: '100%', padding: '12px 14px', fontSize: '15px', fontFamily: 'Inter_400Regular', color: '#111827', border: `1.5px solid ${docExpiryError ? '#EA5455' : '#E5E7EB'}`, borderRadius: '10px', backgroundColor: '#fff', outline: 'none', cursor: 'pointer', marginBottom: '16px', boxSizing: 'border-box' } as any}
                 />
               ) : (
                 <TextInput

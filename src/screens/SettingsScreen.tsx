@@ -540,7 +540,25 @@ export const SettingsScreen: React.FC = () => {
       {/* ── Legal ── */}
       <SectionLabel iconName="document-text-outline" label="LEGAL" />
       <View style={styles.card}>
-        <Text style={styles.legalText}>
+        <TouchableOpacity style={styles.sRow} onPress={() => Linking.openURL('https://www.statusvault.org/privacy')} activeOpacity={0.7}>
+          <View style={styles.rowIconBox}><Ionicons name="shield-checkmark-outline" size={16} color="#4F46E5" /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.sText}>Privacy Policy</Text>
+            <Text style={styles.rDesc}>How we handle and protect your data</Text>
+          </View>
+          <Ionicons name="open-outline" size={16} color={colors.text3} />
+        </TouchableOpacity>
+        <View style={styles.div} />
+        <TouchableOpacity style={styles.sRow} onPress={() => Linking.openURL('https://www.statusvault.org/terms')} activeOpacity={0.7}>
+          <View style={styles.rowIconBox}><Ionicons name="document-text-outline" size={16} color="#4F46E5" /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.sText}>Terms of Service</Text>
+            <Text style={styles.rDesc}>Usage terms and conditions</Text>
+          </View>
+          <Ionicons name="open-outline" size={16} color={colors.text3} />
+        </TouchableOpacity>
+        <View style={styles.div} />
+        <Text style={[styles.legalText, { marginTop: 12 }]}>
           StatusVault is an informational tool only and does not provide legal advice. Always consult your DSO, immigration attorney, or USCIS for official guidance. Not affiliated with any government agency.
         </Text>
       </View>

@@ -73,9 +73,9 @@ const Select = ({ value, options, onChange }: { value: string; options: string[]
 const DateInput = ({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) =>
   IS_WEB ? (
     <input type="date" value={value} onChange={(e: any) => onChange(e.target.value)} style={{
-      width: '100%', padding: '9px 12px', fontSize: '13px', fontFamily: 'Inter, sans-serif',
-      border: '1px solid #DBDADE', borderRadius: '8px', background: '#FAFAFE',
-      outline: 'none', boxSizing: 'border-box', color: '#0F172A',
+      width: '100%', padding: '12px 14px', fontSize: '15px', fontFamily: 'Inter_400Regular',
+      border: '1.5px solid #E5E7EB', borderRadius: '10px', backgroundColor: '#fff',
+      outline: 'none', cursor: 'pointer', boxSizing: 'border-box', color: '#111827',
     } as any} />
   ) : (
     <TextInput style={s.input} value={value} onChangeText={onChange}

@@ -4,20 +4,11 @@
     <meta charset="utf-8" />
     <title>StatusVault</title>
     <!--
-      GitHub Pages SPA redirect trick.
-      When GitHub Pages returns a 404 for a deep link (e.g. /auth),
-      this page captures the path and redirects to index.html with
-      the path encoded as a query param. index.html then restores it.
+      GitHub Pages SPA: any unknown path → redirect to root.
+      The app always opens at / and React Navigation handles routing internally.
     -->
     <script>
-      // Encode the current path/query/hash into a redirect query param
-      var l = window.location;
-      l.replace(
-        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        l.pathname.split('/').slice(0, 1).join('/') +
-        '/?p=' + encodeURIComponent(l.pathname + l.search) +
-        (l.hash ? '&h=' + encodeURIComponent(l.hash) : '')
-      );
+      window.location.replace('https://www.statusvault.org/');
     </script>
   </head>
   <body></body>
