@@ -72,6 +72,7 @@ export const FamilyScreen: React.FC = () => {
   const [docTemplateId,    setDocTemplateId]    = useState('');
   const [docExpiry,        setDocExpiry]        = useState('');
   const [docNotes,         setDocNotes]         = useState('');
+  const [docSearch,        setDocSearch]        = useState('');
   const [docTemplateError, setDocTemplateError] = useState(false);
   const [docExpiryError,   setDocExpiryError]   = useState(false);
   const [docLimitError,    setDocLimitError]    = useState(false);
@@ -149,7 +150,7 @@ setShowAddMember(false); setAnyModalOpen(false);
     updateFamilyMember(selectedMember!.id, {
       documentIds: [...selectedMember!.documentIds, doc.id],
     });
-    setDocTemplateId(''); setDocExpiry(''); setDocNotes('');
+    setDocTemplateId(''); setDocExpiry(''); setDocNotes(''); setDocSearch('');
     setShowAddDoc(false); setAnyModalOpen(false);
   };
 
@@ -502,8 +503,31 @@ setShowAddMember(false); setAnyModalOpen(false);
                 style={[styles.docTypeList, docTemplateError && { borderColor: '#EA5455' }]}
                 showsVerticalScrollIndicator={true}
                 nestedScrollEnabled={true}
+                keyboardShouldPersistTaps="handled"
               >
-                {DOCUMENT_TEMPLATES.map((t) => {
+                {/* Search bar */}
+                <View style={styles.docSearchWrap}>
+                  <Ionicons name="search-outline" size={15} color={colors.text3} style={{ marginRight: 8 }} />
+                  <TextInput
+                    style={styles.docSearchInput}
+                    value={docSearch}
+                    onChangeText={setDocSearch}
+                    placeholder="Search documents…"
+                    placeholderTextColor={colors.text3}
+                    autoCorrect={false}
+                  />
+                  {docSearch.length > 0 && (
+                    <TouchableOpacity onPress={() => setDocSearch('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                      <Ionicons name="close-circle" size={15} color={colors.text3} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                {DOCUMENT_TEMPLATES
+                  .filter(t => {
+                    const q = docSearch.toLowerCase().trim();
+                    return !q || t.label.toLowerCase().includes(q) || t.description.toLowerCase().includes(q);
+                  })
+                  .map((t) => {
                   const alreadyAdded = selectedMember
                     ? getMemberDocs(selectedMember).some((d) => d.templateId === t.id)
                     : false;
@@ -525,6 +549,14 @@ setShowAddMember(false); setAnyModalOpen(false);
                     </TouchableOpacity>
                   );
                 })}
+                {DOCUMENT_TEMPLATES.filter(t => {
+                  const q = docSearch.toLowerCase().trim();
+                  return !q || t.label.toLowerCase().includes(q) || t.description.toLowerCase().includes(q);
+                }).length === 0 && (
+                  <View style={{ alignItems: 'center', paddingVertical: 24 }}>
+                    <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: colors.text3 }}>No results for "{docSearch}"</Text>
+                  </View>
+                )}
               </ScrollView>
 
               <View style={styles.fieldLabelRow}>
@@ -715,6 +747,8 @@ const styles = StyleSheet.create({
   visaGrid:         { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: spacing.md } as any,
   visaGridChip:     { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#E2E8F0' },
   docTypeList:      { borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0', height: 260, marginBottom: spacing.md },
+  docSearchWrap:    { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFF', borderBottomWidth: 1, borderBottomColor: '#E2E8F0', paddingHorizontal: 12, paddingVertical: 8 },
+  docSearchInput:   { flex: 1, fontSize: 13, fontFamily: 'Inter_400Regular', color: colors.text1 },
   templateRow:      { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
   templateRowActive:{ backgroundColor: '#EEF2FF' },
   templateRowAdded: { backgroundColor: '#F9FAFB', opacity: 0.7 },

@@ -24,9 +24,13 @@ export const CounterScreen: React.FC = () => {
   const incrementCounter = useStore((s) => s.incrementCounter);
   const decrementCounter = useStore((s) => s.decrementCounter);
   const toggleCounterTracking = useStore((s) => s.toggleCounterTracking);
+  const autoIncrementCounters = useStore((s) => s.autoIncrementCounters);
 
   const [showAdd, setShowAdd] = useState(false);
   const activeIds = counters.map((c) => c.templateId);
+
+  // Auto-increment on mount so counters stay accurate even if Dashboard wasn't visited
+  React.useEffect(() => { autoIncrementCounters(); }, []);
 
   return (
     <ScrollView

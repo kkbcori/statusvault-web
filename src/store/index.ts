@@ -807,16 +807,19 @@ export const useStore = create<AppStore>()(
           if (!decoded) throw new Error('Decryption failed');
 
           set({
-            documents:         decoded.documents      ?? get().documents,
-            checklists:        decoded.checklists     ?? get().checklists,
-            counters:          decoded.counters       ?? get().counters,
-            trips:             decoded.trips          ?? get().trips,
-            familyMembers:     decoded.familyMembers  ?? get().familyMembers,
-            visaProfile:       decoded.visaProfile    ?? get().visaProfile,
-            notificationEmail: decoded.notificationEmail ?? get().notificationEmail,
-            isPremium:         decoded.isPremium      ?? get().isPremium,
-            lastSyncedAt:      data.updated_at,
-            isSyncing:         false,
+            documents:          decoded.documents          ?? get().documents,
+            checklists:         decoded.checklists         ?? get().checklists,
+            counters:           decoded.counters           ?? get().counters,
+            trips:              decoded.trips              ?? get().trips,
+            familyMembers:      decoded.familyMembers      ?? get().familyMembers,
+            addressHistory:     decoded.addressHistory     ?? get().addressHistory,
+            visaProfile:        decoded.visaProfile        ?? get().visaProfile,
+            immigrationProfile: decoded.immigrationProfile ?? get().immigrationProfile,
+            notificationEmail:  decoded.notificationEmail  ?? get().notificationEmail,
+            whatsappPhone:      decoded.whatsappPhone      ?? get().whatsappPhone,
+            isPremium:          decoded.isPremium          ?? get().isPremium,
+            lastSyncedAt:       data.updated_at,
+            isSyncing:          false,
           });
         } catch (e: any) {
           set({ isSyncing: false, syncError: e.message ?? 'Sync failed' });
