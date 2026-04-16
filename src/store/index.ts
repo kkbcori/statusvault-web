@@ -723,32 +723,23 @@ export const useStore = create<AppStore>()(
         }
 
         // ── URL token handling ──────────────────────────────────────
-        // Supabase v2 + flowType:'pkce' + detectSessionInUrl:true automatically
-        // exchanges the ?code= param and fires onAuthStateChange(SIGNED_IN).
-        // We only need to clean the URL and suppress the welcome modal.
-        // Legacy formats (token_hash, access_token) are kept for older email templates.
+        // detectSessionInUrl:true handles both implicit (#access_token=) and PKCE
+        // (?code=) automatically — it fires onAuthStateChange(SIGNED_IN, session).
+        // We must NOT touch the URL before the SDK reads it, so we only clean up
+        // AFTER onAuthStateChange fires (handled in that listener below).
+        //
+        // The one exception: token_hash (legacy OTP email format) requires a manual
+        // verifyOtp call because it's not handled by detectSessionInUrl.
         if (typeof window !== 'undefined') {
           const hash         = window.location.hash;
           const search       = window.location.search;
           const hashParams   = new URLSearchParams(hash.replace('#', '?'));
           const searchParams = new URLSearchParams(search);
+          const tokenHash    = hashParams.get('token_hash') || searchParams.get('token_hash');
+          const type         = hashParams.get('type') || searchParams.get('type');
 
-          const codeParam   = searchParams.get('code');
-          const tokenHash   = hashParams.get('token_hash') || searchParams.get('token_hash');
-          const accessToken = hashParams.get('access_token');
-          const type        = hashParams.get('type') || searchParams.get('type');
-
-          // Format A: PKCE code= (Supabase v2 default for magic links + Google OAuth)
-          // SDK exchanges automatically via detectSessionInUrl — DO NOT call
-          // exchangeCodeForSession manually (code is single-use, SDK already used it).
-          // Just suppress the welcome modal and clean the URL.
-          if (codeParam) {
-            set({ isGuestMode: false, hasOnboarded: true, showWelcomeModal: false, showAuthModal: false });
-            window.history.replaceState(null, '', window.location.pathname);
-          }
-
-          // Format B: token_hash (legacy Supabase OTP email template)
-          if (!codeParam && tokenHash && (type === 'signup' || type === 'email' || type === 'magiclink')) {
+          // Legacy token_hash OTP format — not handled by detectSessionInUrl
+          if (tokenHash && (type === 'signup' || type === 'email' || type === 'magiclink')) {
             try {
               const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as any });
               if (!error && data.session) {
@@ -769,12 +760,6 @@ export const useStore = create<AppStore>()(
             } catch {}
             window.history.replaceState(null, '', window.location.pathname);
           }
-
-          // Format C: access_token in hash (legacy implicit flow)
-          if (!codeParam && !tokenHash && accessToken) {
-            set({ isGuestMode: false, hasOnboarded: true, showWelcomeModal: false, showAuthModal: false });
-            window.history.replaceState(null, '', window.location.pathname);
-          }
         }
 
         // Listen for ALL auth changes — covers OAuth redirects, sign in, sign out
@@ -787,13 +772,12 @@ export const useStore = create<AppStore>()(
                 createdAt: session.user.created_at,
               },
             });
-            // Clean URL after OAuth redirect
-            if (
-              event === 'SIGNED_IN' &&
-              typeof window !== 'undefined' &&
-              window.location.hash.includes('access_token')
-            ) {
-              window.history.replaceState(null, '', window.location.pathname);
+            // Clean auth params from URL after successful sign-in
+            // Covers both implicit (#access_token=) and PKCE (?code=) formats
+            if (event === 'SIGNED_IN' && typeof window !== 'undefined') {
+              const needsClean = window.location.hash.includes('access_token') ||
+                                 window.location.search.includes('code=');
+              if (needsClean) window.history.replaceState(null, '', window.location.pathname);
             }
             // Only sync from auth listener if getSession didn't already do it
             if (!initialSyncDone) {
