@@ -43,7 +43,13 @@ export const ChecklistScreen: React.FC = () => {
             <Text style={styles.pageTitle}>Immi Checklist</Text>
             <Text style={styles.pageSub}>Track every step of your immigration process</Text>
           </View>
-          <TouchableOpacity style={styles.addBtn} onPress={() => setShowAdd(true)}>
+          <TouchableOpacity style={styles.addBtn} onPress={() => {
+            if (!canAddChecklist()) {
+              authUser && !isGuestMode ? useStore.getState().openPaywall() : useStore.getState().openAuthModal('Create a free account for up to 2 checklists');
+              return;
+            }
+            setShowAdd(true);
+          }}>
             <Ionicons name="add" size={16} color="#fff" />
             <Text style={styles.addBtnText}>Add Checklist</Text>
           </TouchableOpacity>

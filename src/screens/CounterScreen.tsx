@@ -47,7 +47,13 @@ export const CounterScreen: React.FC = () => {
             <Text style={styles.pageTitle}>Immi Timers</Text>
             <Text style={styles.pageSub}>Track unemployment days, grace periods, and deadlines</Text>
           </View>
-          <TouchableOpacity style={styles.addBtn} onPress={() => setShowAdd(true)}>
+          <TouchableOpacity style={styles.addBtn} onPress={() => {
+            if (!canAddCounter()) {
+              authUser && !isGuestMode ? useStore.getState().openPaywall() : useStore.getState().openAuthModal('Create a free account for up to 2 timers');
+              return;
+            }
+            setShowAdd(true);
+          }}>
             <Ionicons name="add" size={16} color="#fff" />
             <Text style={styles.addBtnText}>Add Timer</Text>
           </TouchableOpacity>

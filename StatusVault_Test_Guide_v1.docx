@@ -1,0 +1,745 @@
+const {
+  Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+  HeadingLevel, AlignmentType, BorderStyle, WidthType, ShadingType,
+  LevelFormat, Footer,
+} = require('docx');
+const fs = require('fs');
+
+const C = {
+  navy:'1E3A5F', purple:'4F46E5', green:'166534', greenBg:'DCFCE7',
+  amber:'92400E', amberBg:'FEF3C7', blue:'1E40AF', blueBg:'DBEAFE',
+  red:'991B1B', redBg:'FEE2E2', gray:'374151', grayBg:'F9FAFB',
+  lightGray:'E5E7EB', white:'FFFFFF', teal:'0F766E', tealBg:'CCFBF1',
+  orange:'9A3412', orangeBg:'FFEDD5',
+};
+const b1 = { style:BorderStyle.SINGLE, size:1, color:C.lightGray };
+const bord = { top:b1, bottom:b1, left:b1, right:b1 };
+const noB = { style:BorderStyle.NONE, size:0, color:'FFFFFF' };
+const noBord = { top:noB, bottom:noB, left:noB, right:noB };
+
+const sp = (b=60,a=60)=>({ before:b, after:a });
+const font = 'Arial';
+
+const h1 = t => new Paragraph({ heading:HeadingLevel.HEADING_1, spacing:sp(360,160),
+  children:[new TextRun({text:t, bold:true, size:36, color:C.navy, font})] });
+const h2 = t => new Paragraph({ heading:HeadingLevel.HEADING_2, spacing:sp(280,120),
+  children:[new TextRun({text:t, bold:true, size:28, color:C.purple, font})] });
+const h3 = t => new Paragraph({ heading:HeadingLevel.HEADING_3, spacing:sp(200,80),
+  children:[new TextRun({text:t, bold:true, size:24, color:C.navy, font})] });
+const body = (t,opts={}) => new Paragraph({ spacing:sp(60,60),
+  children:[new TextRun({text:t, size:22, color:C.gray, font, ...opts})] });
+const spaces = (n=1) => Array.from({length:n}, ()=>
+  new Paragraph({spacing:sp(0,0), children:[new TextRun({text:''})]}));
+const divider = () => new Paragraph({ spacing:sp(160,160),
+  border:{ bottom:{style:BorderStyle.SINGLE, size:4, color:C.lightGray} },
+  children:[new TextRun({text:''})] });
+
+const note = (emoji, text, bg=C.blueBg, col=C.blue) => new Table({
+  width:{size:9360, type:WidthType.DXA}, columnWidths:[9360],
+  rows:[new TableRow({ children:[new TableCell({
+    borders:noBord, shading:{fill:bg, type:ShadingType.CLEAR},
+    margins:{top:120, bottom:120, left:180, right:180},
+    children:[new Paragraph({ spacing:sp(0,0), children:[
+      new TextRun({text:`${emoji}  `, size:22, font}),
+      new TextRun({text, size:22, color:col, font}),
+    ]})],
+  })]})],
+});
+
+const band = (emoji, title, sub, bg=C.navy) => new Table({
+  width:{size:9360, type:WidthType.DXA}, columnWidths:[9360],
+  rows:[new TableRow({ children:[new TableCell({
+    borders:noBord, shading:{fill:bg, type:ShadingType.CLEAR},
+    margins:{top:180, bottom:180, left:240, right:240},
+    children:[
+      new Paragraph({spacing:sp(0,60), children:[new TextRun({text:`${emoji}  ${title}`, bold:true, size:32, color:C.white, font})]}),
+      new Paragraph({spacing:sp(0,0), children:[new TextRun({text:sub, size:20, color:'C7D2FE', font})]}),
+    ],
+  })]})],
+});
+
+const badges = items => {
+  const w = Math.floor(9360/items.length);
+  return new Table({
+    width:{size:9360, type:WidthType.DXA},
+    columnWidths:items.map(()=>w),
+    rows:[new TableRow({ children:items.map(({label,color,bg})=>new TableCell({
+      borders:noBord, shading:{fill:bg, type:ShadingType.CLEAR},
+      margins:{top:80, bottom:80, left:120, right:120},
+      children:[new Paragraph({ alignment:AlignmentType.CENTER,
+        children:[new TextRun({text:label, bold:true, size:20, color, font})] })],
+    }))})],
+  });
+};
+
+const testTable = rows => new Table({
+  width:{size:9360, type:WidthType.DXA},
+  columnWidths:[620, 3200, 5540],
+  rows:[
+    new TableRow({ children:[
+      new TableCell({ borders:bord, shading:{fill:C.purple, type:ShadingType.CLEAR}, margins:{top:100,bottom:100,left:100,right:100},
+        children:[new Paragraph({children:[new TextRun({text:'#', bold:true, size:20, color:C.white, font})]})] }),
+      new TableCell({ borders:bord, shading:{fill:C.purple, type:ShadingType.CLEAR}, margins:{top:100,bottom:100,left:120,right:120},
+        children:[new Paragraph({children:[new TextRun({text:'What to do', bold:true, size:20, color:C.white, font})]})] }),
+      new TableCell({ borders:bord, shading:{fill:C.purple, type:ShadingType.CLEAR}, margins:{top:100,bottom:100,left:120,right:120},
+        children:[new Paragraph({children:[new TextRun({text:'What you should see ✅', bold:true, size:20, color:C.white, font})]})] }),
+    ]}),
+    ...rows.map((row,i) => new TableRow({ children:[
+      new TableCell({ borders:bord, shading:{fill:i%2===0?C.white:C.grayBg, type:ShadingType.CLEAR}, margins:{top:80,bottom:80,left:100,right:100},
+        children:[new Paragraph({alignment:AlignmentType.CENTER, children:[new TextRun({text:String(row[0]), bold:true, size:20, color:C.purple, font})]})] }),
+      new TableCell({ borders:bord, shading:{fill:i%2===0?C.white:C.grayBg, type:ShadingType.CLEAR}, margins:{top:80,bottom:80,left:120,right:120},
+        children:[new Paragraph({children:[new TextRun({text:row[1], bold:true, size:20, color:C.gray, font})]})] }),
+      new TableCell({ borders:bord, shading:{fill:i%2===0?C.white:C.grayBg, type:ShadingType.CLEAR}, margins:{top:80,bottom:80,left:120,right:120},
+        children:[new Paragraph({children:[new TextRun({text:row[2], size:20, color:C.gray, font})]})] }),
+    ]})),
+  ],
+});
+
+// ── Build document ─────────────────────────────────────────
+const doc = new Document({
+  numbering:{ config:[
+    { reference:'bullets', levels:[
+      {level:0, format:LevelFormat.BULLET, text:'•', alignment:AlignmentType.LEFT, style:{paragraph:{indent:{left:720,hanging:360}}}},
+      {level:1, format:LevelFormat.BULLET, text:'◦', alignment:AlignmentType.LEFT, style:{paragraph:{indent:{left:1080,hanging:360}}}},
+    ]},
+  ]},
+  styles:{
+    default:{ document:{ run:{font:'Arial', size:22} } },
+    paragraphStyles:[
+      {id:'Heading1',name:'Heading 1',basedOn:'Normal',next:'Normal',quickFormat:true,
+        run:{size:36,bold:true,font,color:C.navy}, paragraph:{spacing:sp(360,160),outlineLevel:0}},
+      {id:'Heading2',name:'Heading 2',basedOn:'Normal',next:'Normal',quickFormat:true,
+        run:{size:28,bold:true,font,color:C.purple}, paragraph:{spacing:sp(280,120),outlineLevel:1}},
+      {id:'Heading3',name:'Heading 3',basedOn:'Normal',next:'Normal',quickFormat:true,
+        run:{size:24,bold:true,font,color:C.navy}, paragraph:{spacing:sp(200,80),outlineLevel:2}},
+    ],
+  },
+  sections:[{
+    properties:{ page:{ size:{width:12240,height:15840}, margin:{top:1080,right:1080,bottom:1080,left:1080} } },
+    footers:{ default:new Footer({ children:[new Paragraph({
+      alignment:AlignmentType.CENTER,
+      children:[new TextRun({text:'StatusVault Complete Test Guide  •  statusvault.org', size:18, color:'9CA3AF', font})],
+    })] }) },
+    children:[
+
+    // ── COVER ──────────────────────────────────────────────
+    band('🛡️', 'StatusVault — Complete Testing Guide', 'All features · All user types · All edge cases  •  statusvault.org'),
+
+
+    ...spaces(2),
+    badges([
+      {label:'👤  GUEST MODE  (No account)', color:C.amber, bg:C.amberBg},
+      {label:'🔓  FREE ACCOUNT', color:C.blue, bg:C.blueBg},
+      {label:'⭐  PREMIUM ACCOUNT', color:C.green, bg:C.greenBg},
+    ]),
+    ...spaces(1),
+    note('📌', 'HOW TO USE THIS GUIDE: Work through each section in order. Every test case has a step number and tells you exactly what you should see. If the app does something different — that is a bug. Write it down using the template at the end.'),
+    ...spaces(1),
+    note('💻', 'SETUP: Open Chrome or Edge on your laptop. Go to https://www.statusvault.org. Use a fresh private/incognito window for each section so old sessions do not interfere.', C.greenBg, C.green),
+    ...spaces(2),
+    divider(),
+
+    // ════════════════════════════════════════════════════════
+    // SECTION 1 — GUEST MODE
+    // ════════════════════════════════════════════════════════
+    ...spaces(1),
+    band('👤', 'SECTION 1 — GUEST MODE', 'No account · 1 doc · 1 checklist · 1 timer · no family'),
+    ...spaces(1),
+    body('Guest Mode is a try-before-you-sign-up experience. No email required. Everything is saved on your device. You get one of each major feature to try.'),
+    ...spaces(1),
+
+    h3('TC-G-01  First visit — Welcome Screen'),
+    testTable([
+      [1,'Open statusvault.org in incognito window','A welcome modal pops up with two buttons: "Continue as Guest" and "Create Free Account"'],
+      [2,'Read the Guest section carefully','Shows exactly: 1 document · 1 checklist · 1 timer · No family'],
+      [3,'Click "Continue as Guest"','Welcome modal closes. You land on the Dashboard.'],
+      [4,'Look at the top bar or sidebar','It says "Guest mode" — NOT your name. No PRO or FREE badge.'],
+      [5,'Look at bottom of dashboard','A small green pill: "Saving to device..." or "Saved to device Just now"'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-G-02  Immigration Profile Setup (appears once after Guest selection)'),
+    note('ℹ️', 'After selecting Guest mode for the first time, a Profile Setup screen may appear. This is optional — you can skip it or fill it in. It personalises the dashboard.'),
+    ...spaces(1),
+    testTable([
+      [1,'After the welcome modal closes, watch for a profile setup screen','A multi-step form may slide in: Personal Info, Visa & Work, Green Card'],
+      [2,'If it appears — click through all 3 tabs without filling anything in','Each tab shows optional fields. Save & Continue works even with empty fields.'],
+      [3,'Click Save & Close on the last tab','Profile setup closes. Dashboard is shown.'],
+      [4,'If the profile setup does NOT appear — that is also fine','Some accounts skip it on first load. You can access it from the profile icon.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-G-03  Adding a Document'),
+    testTable([
+      [1,'Go to Documents tab','Empty screen with an + Add Document button'],
+      [2,'Click Add Document','A picker shows 25+ document types: H-1B Visa, Passport, OPT EAD, Green Card, etc.'],
+      [3,'Pick "Passport"','Template is selected (highlighted)'],
+      [4,'Set expiry date to any future date (e.g. 2028-06-01)','Date picker accepts the date'],
+      [5,'Type a document number: P12345678','Document number field accepts the input'],
+      [6,'Add a note: "UK passport"','Notes field accepts text'],
+      [7,'Click Save','Card appears showing: passport icon, label, expiry date, days remaining, # P12345678'],
+      [8,'Look at the card carefully','Document number is shown on the card as "# P12345678"'],
+      [9,'Go to Dashboard','Countdown card shows your passport with days remaining'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-G-04  Custom Document Type'),
+    testTable([
+      [1,'Click Add Document again — BUT you should be blocked (1 doc limit)','Paywall/upgrade popup appears. Close it.'],
+      [2,'Delete the Passport document (trash icon → confirm)','Passport card is removed'],
+      [3,'Now click Add Document → scroll to the very bottom of the list','You see "Custom Document" as an option'],
+      [4,'Pick Custom Document → set label: "Work Authorization Letter" → expiry: 2026-12-31','Custom card appears with the label you typed'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-G-05  Document Limit — Cannot Add Second'),
+    testTable([
+      [1,'You have 1 document. Click Add Document again','A popup appears: limit reached. Mentions creating a free account.'],
+      [2,'The popup should NOT have a form for a new document','Only shows the upgrade/account prompt'],
+      [3,'Click anywhere outside or press Cancel','Popup closes. Your 1 document is safe.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-G-06  Adding a Checklist'),
+    testTable([
+      [1,'Go to Checklists tab','Empty screen with Add Checklist button'],
+      [2,'Click Add Checklist','A picker shows 9 types: OPT Application, STEM OPT, H-1B Petition, H-1B Stamping, Passport Renewal (2 types), F-1 Visa, Green Card AOS, Indian Passport in USA'],
+      [3,'Pick "OPT Application"','Checklist card appears with progress bar 0/18 steps'],
+      [4,'Click the card to expand it','You see all 18 steps as checkboxes'],
+      [5,'Check off 3 steps','Each checkbox turns purple/filled. Progress bar shows 3/18.'],
+      [6,'Click "Add custom step" at the bottom (if visible)','A text field appears. Type: "Email advisor appointment" and save.'],
+      [7,'Your custom step appears at the bottom of the list','It has a checkbox just like the built-in steps'],
+      [8,'Try to add a second checklist','Blocked — limit popup appears'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-G-07  Adding a Timer (Counter) — All Types'),
+    note('⏱️', 'Timers count how many days you have used out of a legal maximum. For example, OPT allows 90 days of unemployment — this timer tracks how many days you have used.'),
+    ...spaces(1),
+    testTable([
+      [1,'Go to Timers tab','Empty screen with Add Timer button'],
+      [2,'Click Add Timer','A picker shows 7 types: OPT Unemployment (90d), STEM OPT Unemployment (150d), H-1B Grace Period (60d), F-1 Grace Period (60d), B-1/B-2 Visitor Stay (180d), Days in US Tax Year (183d), J-1 Grace Period (30d)'],
+      [3,'Pick "OPT Unemployment Days"','Timer card appears: 0/90 days used. Progress bar is empty.'],
+      [4,'Click the Start button','Button changes to "Pause". Status line says "● Auto-tracking daily".'],
+      [5,'Click the + button on the timer card','Days used goes up by 1'],
+      [6,'Click the − button','Days used goes down by 1'],
+      [7,'Click "Pause"','Button changes to "Resume". Status says "○ Paused — days while paused not counted"'],
+      [8,'Click "Resume"','Button changes to "Pause" again. Tracking restarts.'],
+      [9,'Try to add a second timer','Blocked — limit popup'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-G-08  Family Tab — Blocked for Guests'),
+    testTable([
+      [1,'Go to Family tab','Empty screen'],
+      [2,'Click Add Family Member (or + button)','Popup: "Create a free account first". NO family member form appears.'],
+      [3,'Close the popup','Back to empty Family screen. Nothing happened.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-G-09  Search'),
+    testTable([
+      [1,'Click the 🔍 search icon in the top bar','Search modal opens with a text field'],
+      [2,'Type "pass" (if you have a Passport doc)','Passport document appears in results immediately'],
+      [3,'Type "opt" (if you have OPT timer)','OPT Unemployment timer appears in results'],
+      [4,'Type "uscis"','Government links section shows USCIS.gov link'],
+      [5,'Type "xyz999notreal"','Results are empty. App does not crash.'],
+      [6,'Click on any result','App navigates to that screen/item'],
+      [7,'Press Escape or click X','Search modal closes'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-G-10  Help Screen and Government Links'),
+    testTable([
+      [1,'Click the Help tab (? icon or "Help" in navigation)','Help screen opens with FAQ sections'],
+      [2,'Click on any FAQ question','Answer expands below the question'],
+      [3,'Scroll down to "Government Resources" section','You see links: USCIS, CBP I-94, Study in the States, State Dept, IRS International'],
+      [4,'Click any government link','Link opens in a new browser tab on the correct .gov website'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-G-11  Device Auto-Save Verification'),
+    testTable([
+      [1,'Add a document, checklist, and timer','3 items added'],
+      [2,'Look at bottom of Dashboard','Green pill: "Saved to device X seconds ago"'],
+      [3,'Refresh the page (press F5)','ALL 3 items are still there after page refresh — saved to device'],
+      [4,'Close the browser tab completely. Re-open statusvault.org','All 3 items are still there — device storage persists across browser sessions'],
+      [5,'The green pill still shows a recent timestamp','Auto-backup is working'],
+    ]),
+    ...spaces(2),
+    divider(),
+
+    // ════════════════════════════════════════════════════════
+    // SECTION 2 — FREE ACCOUNT
+    // ════════════════════════════════════════════════════════
+    ...spaces(1),
+    band('🔓', 'SECTION 2 — FREE ACCOUNT', 'Magic link / Google login · 2 docs · 1 family member + 1 doc · 2 checklists · 2 timers'),
+    ...spaces(1),
+    badges([
+      {label:'2 Documents', color:C.blue, bg:C.blueBg},
+      {label:'1 Family Member + 1 Doc', color:C.blue, bg:C.blueBg},
+      {label:'2 Checklists + 2 Timers', color:C.blue, bg:C.blueBg},
+      {label:'Local + Cloud sync OFF', color:C.blue, bg:C.blueBg},
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-01  Magic Link Sign Up'),
+    testTable([
+      [1,'Open a fresh incognito window → go to statusvault.org','Welcome screen appears'],
+      [2,'Click "Create Free Account"','Login screen appears'],
+      [3,'Enter your email address','Email field accepts it'],
+      [4,'Click "Send Magic Link"','Success message: "Check your email for a login link"'],
+      [5,'Open your email inbox','Email from StatusVault with a clickable link'],
+      [6,'Click the link in the email','Browser opens statusvault.org. You are logged in automatically.'],
+      [7,'Look at the sidebar/top bar','FREE badge visible. NOT "Guest mode".'],
+      [8,'Wait 2 seconds and look at the bottom of Dashboard','Auto-save pill still shows — data is saved locally AND you are logged in'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-02  Google Sign-In'),
+    testTable([
+      [1,'Sign out first (Settings → Sign Out)','Signed out. Welcome screen or Guest mode.'],
+      [2,'Click Sign In → "Continue with Google"','Google sign-in popup or redirect'],
+      [3,'Select your Google account','Google redirects back to statusvault.org'],
+      [4,'Dashboard loads — no error page','No "Something went wrong" message'],
+      [5,'FREE badge is visible','You are logged in via Google'],
+      [6,'Refresh the page','You are STILL logged in — session persists across refresh'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-03  Session Persists Across Page Refresh'),
+    testTable([
+      [1,'Log in with magic link or Google','Logged in with FREE badge'],
+      [2,'Add a document','Document card visible'],
+      [3,'Press F5 to refresh the page','Page reloads'],
+      [4,'After reload: still logged in, document still there','Session and data both preserved'],
+      [5,'Close the tab. Open statusvault.org in the same browser (NOT incognito)','Still logged in, data still there'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-04  Profile Setup After First Login'),
+    testTable([
+      [1,'Log in for the very first time with a new account','After successful login, profile setup screen slides in automatically'],
+      [2,'Fill in Tab 1 (Personal): First Name = "Alex", Country = USA','Fields accept input'],
+      [3,'Fill in Tab 2 (Visa & Work): Visa Type = H-1B, Employer = "Acme Corp"','Fields accept input. Click Save & Continue.'],
+      [4,'Fill in Tab 3 (Green Card): Green Card Stage = "EB-2 Priority Date"','Click Save & Close'],
+      [5,'Profile is saved. Dashboard updates to reflect your visa type','Dashboard may show personalised checklist suggestions'],
+      [6,'Click the profile icon (top bar) or access profile from navigation','Profile screen opens with your saved data pre-filled'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-05  Two Documents (Limit Testing)'),
+    testTable([
+      [1,'Go to Documents tab. Add first doc: H-1B Visa, expiry 2027-10-01','H-1B card appears'],
+      [2,'Add second doc: Passport, expiry 2029-06-01, doc# A12345678','Passport card appears. Total: 2 documents.'],
+      [3,'Try to add a third document','Paywall popup: "Upgrade to Premium for unlimited documents"'],
+      [4,'Close popup. Both docs still visible','No data lost'],
+      [5,'Edit the H-1B Visa: change expiry to 2028-10-01, add note "Stamped at Chennai"','Edit form opens with existing data. Save updates the card.'],
+      [6,'Confirm document number shows on the Passport card','The # A12345678 is visible on the card'],
+      [7,'Delete the Passport: click trash icon','Confirmation popup: "Are you sure?" — Confirm. Card removed.'],
+      [8,'Now you have 1 doc. You can add another.','Add button works again'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-06  In-App Notification Bell'),
+    note('🔔', 'The notification bell (top right) shows alerts when documents are within 180, 90, 60, 30, 15, or 7 days of expiry. It checks automatically when the page loads.'),
+    ...spaces(1),
+    testTable([
+      [1,'Add a document with expiry exactly 30 days from today','Card shows Critical/Urgent badge'],
+      [2,'Look at the top bar — click the 🔔 bell icon','Bell has a red badge showing number of alerts. Panel opens.'],
+      [3,'Alert panel shows the document name and days remaining','e.g. "H-1B Visa — 30 days left" with a red CRITICAL label'],
+      [4,'Click on the alert','App navigates to the Documents screen (or highlights the doc)'],
+      [5,'Go back to bell. Click "Mark all as read"','All alerts are now greyed out. Red badge disappears.'],
+      [6,'Click the dot on one alert to mark it unread','Dot fills in again. Badge count updates.'],
+      [7,'Delete an alert (X button)','Alert is removed from the panel'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-07  Family Member with Document and Trip'),
+    testTable([
+      [1,'Go to Family tab. Click Add Family Member','Form: Name, Relation, Visa Type'],
+      [2,'Enter: Name=Jane, Relation=Spouse, Visa=H-4. Click Save','Jane\'s card appears'],
+      [3,'On Jane\'s card click "Add document"','Document form appears'],
+      [4,'Add "H-4 Visa" expiry 2027-10-01','Doc appears under Jane. Total doc count for free plan: 1 family doc.'],
+      [5,'Try to add a second doc to Jane','Paywall: "Upgrade for unlimited family documents"'],
+      [6,'Delete Jane\'s doc (trash icon on doc)','Confirmation popup appears — confirm — doc removed'],
+      [7,'Try to add a second family member','Paywall: "Upgrade to Premium for more family members"'],
+      [8,'Delete Jane entirely (Remove member button)','Confirmation: "Remove Jane? This will also remove all their tracked documents." Confirm. Jane is gone.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-08  I-94 Travel Log'),
+    testTable([
+      [1,'Go to Travel tab','Two sections: I-94 Travel Log and Address History'],
+      [2,'Click Add Trip','Modal: Country, Port of Entry, Departure Date, Return Date, Purpose (dropdown)'],
+      [3,'Add: Country=India, Port=JFK, Departure=2024-12-20, Return=2025-01-10, Purpose=Family Visit','Trip card shows 21 days'],
+      [4,'Add a second trip: Mexico, Departure=2025-03-01, Return=2025-03-07','7 days. Stats at top update.'],
+      [5,'Look at stats bar at top: total trips, total days abroad last 5 years','Numbers are correct (21 + 7 = 28 days)'],
+      [6,'Try to add a trip where Return Date is BEFORE Departure Date','Error message appears: "Return date must be on or after departure date". Saves nothing.'],
+      [7,'Click Edit on a trip. Change the country to "Canada". Save.','Card updates to show Canada'],
+      [8,'Click Delete on a trip. Confirm.','Trip removed. Stats update.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-09  Address History'),
+    testTable([
+      [1,'Still on Travel tab. Scroll to Address History section','Add Address button visible'],
+      [2,'Click Add Address','Form: Street, City, State, Zip, Country, Date From, Date To, Current Address checkbox'],
+      [3,'Enter: 100 Main St, Dallas, TX 75001, USA, From: 2022-01-01, check "Current Address"','Save → card shows "Current" badge and "2 yrs X mos" duration'],
+      [4,'Add a past address: 50 Oak Ave, Houston, TX, From: 2020-01-01, To: 2022-01-01','Second card shows duration "2 yrs"'],
+      [5,'Click Edit on an address. Change city to Austin. Save.','Card updates to Austin'],
+      [6,'Click Delete on an address. Confirm.','Address removed'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-10  Export and Import (JSON Backup)'),
+    testTable([
+      [1,'Go to Settings → "Cross-Device Sync" section','Green auto-save pill visible: "Auto-saved to device — Last saved: Xm ago"'],
+      [2,'Click "Export Backup (JSON)"','File downloads: "statusvault-backup-YYYY-MM-DD.json"'],
+      [3,'Open the file in Notepad/TextEdit','Valid JSON. You can read your documents, trips, family members inside.'],
+      [4,'Back in Settings, click "Import Backup (JSON)"','File picker opens'],
+      [5,'Select the file you just exported','Preview popup appears: "Backup from [date] — X documents · Y family members · Z trips — Restore?"'],
+      [6,'Click Restore','Success: "All data has been restored successfully"'],
+      [7,'All your data is still there','No data was lost — merge worked'],
+      [8,'Try importing a file that is NOT a StatusVault backup (e.g. a random .json file)','Error: "Not a valid StatusVault backup file." Nothing is imported.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-F-11  Sign Out and Sign Back In'),
+    testTable([
+      [1,'Settings → Sign Out','Confirmation: "You will be signed out. Your data stays on this device." Confirm.'],
+      [2,'You are signed out','Dashboard shows Guest mode or Welcome screen'],
+      [3,'Sign back in with same email via magic link','Check email, click link — logged back in'],
+      [4,'All your previous documents/trips are still there','Data persists from device storage even while logged out'],
+    ]),
+    ...spaces(2),
+    divider(),
+
+    // ════════════════════════════════════════════════════════
+    // SECTION 3 — PREMIUM ACCOUNT
+    // ════════════════════════════════════════════════════════
+    ...spaces(1),
+    band('⭐', 'SECTION 3 — PREMIUM ACCOUNT', 'Unlimited everything · AES-256 cloud backup · PDF export · All family features'),
+    ...spaces(1),
+    badges([
+      {label:'Unlimited Docs & Family', color:C.green, bg:C.greenBg},
+      {label:'Encrypted Cloud Backup', color:C.green, bg:C.greenBg},
+      {label:'PDF Export (All Types)', color:C.green, bg:C.greenBg},
+      {label:'All Timers & Checklists', color:C.green, bg:C.greenBg},
+    ]),
+    ...spaces(1),
+    note('🔑', 'TO ACTIVATE PREMIUM FOR TESTING: Log in → Settings → scroll to Subscription → click "Upgrade to Premium". In test mode this activates instantly. Look for the PRO badge after activation.', C.amberBg, C.amber),
+    ...spaces(1),
+
+    h3('TC-P-01  Activating Premium'),
+    testTable([
+      [1,'Log in to a free account','FREE badge visible'],
+      [2,'Settings → Subscription section → click "Upgrade to Premium"','Paywall modal appears with Monthly and Yearly options'],
+      [3,'Select Monthly ($0.49/mo). Click "Unlock Premium"','(Test mode) Premium activates. Badge changes from FREE to PRO.'],
+      [4,'Go to Documents tab. Click Add Document.','No paywall popup — add works freely'],
+      [5,'Go to Family tab. Click Add Family Member.','No paywall popup'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-P-02  Unlimited Documents'),
+    testTable([
+      [1,'Add 5 documents of different types','All 5 add without any paywall. You can scroll through them all.'],
+      [2,'Edit doc #3: change expiry, add doc number, add notes. Save.','Card updates correctly'],
+      [3,'Verify the doc number shows on the card','# XXXXXXX visible on the card face'],
+      [4,'Delete doc #4','Confirmation popup → confirm → removed'],
+      [5,'Add a document with expiry date of TODAY','Card shows red "Expired" or "Critical: 0 days" badge. Days remaining = 0.'],
+      [6,'Add a document with expiry in the PAST (2020-01-01)','Card shows red "Expired" badge with "X days overdue"'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-P-03  Multiple Family Members with I-94 and Address'),
+    testTable([
+      [1,'Add 3 family members: Jane (Spouse, H-4), Tim (Child, F-2), Mom (Parent, B-2)','All 3 cards appear'],
+      [2,'Add 3 documents to each member','No limit — all 9 docs add successfully'],
+      [3,'Go to Travel tab. Look at the member selector chips at the top.','You see chips: "You" · "Jane" · "Tim" · "Mom"'],
+      [4,'Click "Jane" chip','Travel section switches to Jane\'s data. Stats show Jane\'s trips.'],
+      [5,'Add a trip for Jane: India, Dec 2024, 3 weeks','Trip appears under Jane\'s I-94'],
+      [6,'Click "You" chip','Your own trips shown. Jane\'s trip is NOT mixed in.'],
+      [7,'Click "Jane" again','Jane\'s trip is still there — data is completely isolated per member'],
+      [8,'Click "Jane" → scroll to Address History → Add Address for Jane','Address appears under Jane. NOT under your address history.'],
+      [9,'Switch to "Tim". Add a trip for Tim.','Tim\'s trips are separate from Jane\'s and yours.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-P-04  Cloud Backup (Enable, Sync, Verify)'),
+    testTable([
+      [1,'Settings → Cloud Backup section. Toggle ON.','Sync starts. "Last backed up: just now" appears after a few seconds.'],
+      [2,'Add a new document','Within 5 seconds, "Last backed up:" timestamp refreshes'],
+      [3,'Sign out then sign back in','After login, your data is automatically restored from cloud'],
+      [4,'Toggle Cloud Backup OFF','Warning popup: "No backup — your data will be lost if you switch devices." Confirm.'],
+      [5,'Toggle Cloud Backup back ON','Sync runs again immediately'],
+      [6,'Sign out → sign in on a DIFFERENT browser (e.g. Firefox instead of Chrome)','After login, ALL your data appears — restored from encrypted cloud'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-P-05  Cloud Merge (Device-First Sync)'),
+    note('🔄', 'This tests the merge behavior: if you add a document on this device while cloud is off, then turn cloud back on — the offline doc should NOT be lost.', C.tealBg, C.teal),
+    ...spaces(1),
+    testTable([
+      [1,'Turn Cloud Backup OFF (Settings → Cloud Backup toggle → Off)','Cloud backup disabled'],
+      [2,'Add a new document: "Offline Doc", expiry 2030-01-01','Document appears. Was NOT synced to cloud.'],
+      [3,'Turn Cloud Backup back ON','Sync runs. Watch: "Offline Doc" should STILL be there after sync.'],
+      [4,'"Offline Doc" is still in your document list','Merge worked — cloud did not overwrite your local data'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-P-06  PDF Exports'),
+    testTable([
+      [1,'Settings → scroll to Premium Features → click "Export Documents PDF"','Browser print dialog opens. Document shows a table with all docs, expiry dates, status colors, doc numbers.'],
+      [2,'Confirm the text in the PDF is BLACK (not grey)','All text should be dark and readable when printed'],
+      [3,'Cancel the print dialog','Returns to settings normally'],
+      [4,'Click "Export Checklists PDF"','Print dialog: shows checklists with checkboxes and completion %'],
+      [5,'Go to Travel tab → click "Export PDF" button','Travel report: trips table + total days abroad. For N-400 use.'],
+      [6,'On Travel tab → switch to a family member chip → click Export PDF','PDF shows THAT member\'s trips (not yours)'],
+      [7,'Scroll to Address History → click Export PDF','Address history PDF for I-485 Part 3 form'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-P-07  Unlimited Checklists and Timers'),
+    testTable([
+      [1,'Checklists tab → Add 4 different checklists','All 4 add. No paywall.'],
+      [2,'Try to add a checklist you already added (e.g. OPT Application twice)','Second OPT Application cannot be added — already added indicator shows ("Added" badge on that template)'],
+      [3,'Remove a checklist: click Remove → confirmation shows progress','Popup: "Remove OPT Application? All your progress (X/Y steps) will be lost." Confirm.'],
+      [4,'Timers tab → Add all 7 timer types','All 7 add successfully. No paywall.'],
+      [5,'Start tracking on all 7 timers','All show "● Auto-tracking daily"'],
+      [6,'Reset one timer (Reset button)','Confirmation → Days used goes back to 0. isTracking = false. Start date cleared.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-P-08  PIN Lock — Full Flow'),
+    testTable([
+      [1,'Settings → App Lock section → toggle PIN Lock ON','PIN Setup screen appears. Enter "1234". Re-enter "1234" to confirm.'],
+      [2,'PIN is enabled. Toggle shows ON.','Description: "PIN is enabled — app is locked on launch"'],
+      [3,'Go to Settings → "Change PIN" button','PIN change form: enter current PIN (1234), enter new PIN (5678), confirm (5678). Save.'],
+      [4,'Close the browser tab completely','Tab closed'],
+      [5,'Re-open statusvault.org','PIN entry screen appears BEFORE dashboard loads. Enter 5678.'],
+      [6,'Dashboard loads after correct PIN','Unlocked successfully'],
+      [7,'Re-open the tab and enter WRONG PIN 5 times','After 5th wrong attempt: "Too many attempts. Wait 30s." Keypad is locked for 30 seconds.'],
+      [8,'Wait 30 seconds and try again with correct PIN','Unlocks successfully after lockout period ends'],
+      [9,'Settings → PIN Lock → toggle OFF','Asks to verify current PIN. Enter 5678. PIN disabled.'],
+      [10,'Close and re-open tab','Dashboard loads directly — no PIN screen'],
+    ]),
+    ...spaces(2),
+    divider(),
+
+    // ════════════════════════════════════════════════════════
+    // SECTION 4 — ACCOUNT MANAGEMENT
+    // ════════════════════════════════════════════════════════
+    ...spaces(1),
+    band('⚙️', 'SECTION 4 — ACCOUNT MANAGEMENT', 'Profile · Notification email · Reset · Delete account'),
+    ...spaces(1),
+
+    h3('TC-A-01  Notification Email'),
+    testTable([
+      [1,'Settings → Notifications section → look for "Alert Email" row','Shows current email or "Not set"'],
+      [2,'Click "Edit" (or "Add") next to Alert Email','Text field + Save button appear inline'],
+      [3,'Type: alerts@myemail.com → click Save','Email saved. Row shows alerts@myemail.com.'],
+      [4,'Click Edit again. Clear the field. Click Save.','Email cleared. Row shows "Not set".'],
+      [5,'Type an invalid email (no @ symbol) → click Save','Error: "Please enter a valid email address." Email not saved.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-A-02  Reset All Data'),
+    note('⚠️', 'WARNING: This deletes everything on the device. Export a backup JSON first (TC-F-10) before running this test!', C.redBg, C.red),
+    ...spaces(1),
+    testTable([
+      [1,'Export backup JSON first','File downloaded to your computer'],
+      [2,'Settings → Danger Zone → "Reset All Data" (red button)','Serious confirmation popup with red warning text'],
+      [3,'Confirm the reset','All data wiped. Documents, trips, family, checklists gone. You stay logged in.'],
+      [4,'Dashboard is empty','No documents, no trips, no timers'],
+      [5,'Import your backup JSON (Settings → Import Backup)','Preview shows your data. Restore → all data comes back.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-A-03  Delete Account'),
+    note('🗑️', 'Only test on a throwaway account. This permanently deletes the Supabase auth account. Cannot be undone.', C.redBg, C.red),
+    ...spaces(1),
+    testTable([
+      [1,'Settings → Danger Zone → "Delete Account"','Popup: "This permanently deletes your Supabase account and all cloud data. Local data is cleared. This cannot be undone."'],
+      [2,'Confirm deletion','Signed out. Welcome screen appears.'],
+      [3,'Try to log in with the same email','New magic link is sent → creates a BRAND NEW account. No data carries over.'],
+    ]),
+    ...spaces(2),
+    divider(),
+
+    // ════════════════════════════════════════════════════════
+    // SECTION 5 — EDGE CASES & GREY SCENARIOS
+    // ════════════════════════════════════════════════════════
+    ...spaces(1),
+    band('🧪', 'SECTION 5 — EDGE CASES & GREY SCENARIOS', 'The tricky situations that reveal hidden bugs'),
+    ...spaces(1),
+    body('These tests cover the boundaries and unusual scenarios. Normal users may never hit these, but they are the most likely places for bugs to hide.'),
+    ...spaces(1),
+
+    h3('TC-E-01  Document Expiry Boundaries'),
+    testTable([
+      [1,'Add doc expiring EXACTLY TODAY','Badge: "Critical" — 0 days remaining (not expired, not safe)'],
+      [2,'Add doc expiring TOMORROW','Badge: "Critical" — 1 day remaining'],
+      [3,'Add doc expiring in 29 days','Badge: "Critical" (0–29 days = Critical)'],
+      [4,'Add doc expiring in 30 days','Badge: "Urgent" (30–59 days = Urgent — different from Critical)'],
+      [5,'Add doc expiring in 59 days','Badge: "Urgent"'],
+      [6,'Add doc expiring in 60 days','Badge: "Upcoming" (60–179 days = Upcoming)'],
+      [7,'Add doc expiring in 180 days','Badge: "Low / Safe" (180+ days = Low risk)'],
+      [8,'Add doc expiring YESTERDAY (in the past)','Badge: "Expired" — shows "X days overdue" in red'],
+      [9,'Add doc expiring in 2030 (far future)','Badge: "Low" — green color. No alerts.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-E-02  Counter Boundary Behaviors'),
+    testTable([
+      [1,'Add OPT Unemployment timer (90 days max). Use + button to reach exactly 90.','Progress bar is full. Days shows 90/90.'],
+      [2,'Click + one more time when at 90/90','Days stays at 90. Cannot exceed maximum.'],
+      [3,'Click − button when at 0/90','Days stays at 0. Cannot go below zero.'],
+      [4,'Start tracking (click Start). Click Pause.','Status: "Paused — days while paused not counted." Days do NOT auto-increment while paused.'],
+      [5,'Check the next day (or wait a few minutes for visual check)','While Paused: days remain the same. While Tracking: days auto-increment by 1 per day.'],
+      [6,'Click Reset on a tracking counter','Confirmation popup. Confirm. Days go to 0, tracking stops, start date cleared.'],
+      [7,'Tracking counter: button shows "Pause" when tracking, "Resume" when paused (not "Start")','After first start, pausing shows "Resume" — not "Start"'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-E-03  I-94 Trip Boundary — 180-Day Long Absence Rule'),
+    testTable([
+      [1,'Add trip: Departure Jan 1, Return Jun 29 (179 days)','Card shows 179 days in blue/normal color. NO red warning.'],
+      [2,'Edit that trip: change return date to Jul 1 (181 days)','Card NOW shows red warning indicator — long absence flag. 181 days breaks N-400 continuous residence.'],
+      [3,'Edit to exactly Jul 1 from Jan 1 = 181 days','Red warning visible on card'],
+      [4,'Try adding a trip where return is before departure','Error: "Return date must be on or after departure date." No save.'],
+      [5,'Add a trip from 6 years ago (e.g. 2018-01-01 to 2018-02-01)','Trip is added. But in the 5-year N-400 stats — this trip should NOT count toward days abroad.'],
+      [6,'Look at "Last 5 years" stats','Only trips within last 5 years counted. The 2018 trip is excluded from the N-400 total.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-E-04  Family Member Data Isolation'),
+    testTable([
+      [1,'(Premium) Add family members: Jane and Tim. Add trips to each.','Jane has her own trips. Tim has his own trips.'],
+      [2,'On Travel tab — select "Jane" chip. See Jane\'s trips.','ONLY Jane\'s trips shown. Tim\'s trips not visible.'],
+      [3,'Select "Tim" chip. See Tim\'s trips.','ONLY Tim\'s trips. Jane\'s not visible.'],
+      [4,'Select "You" chip. See your trips.','ONLY your own trips. Neither Jane nor Tim appear.'],
+      [5,'Delete a trip on Jane\'s view. Switch to Tim.','Tim\'s trips are unchanged. Deleting Jane\'s trip only affected Jane.'],
+      [6,'Add an address for Jane. Switch to "You".','Your address history does not contain Jane\'s address.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-E-05  Import Backup — Various Scenarios'),
+    testTable([
+      [1,'Have 2 documents. Import a backup that has 3 DIFFERENT documents (no ID overlap)','After import: you have 5 documents — merge added cloud items to local items'],
+      [2,'Import a backup that has 1 doc with THE SAME ID as one you already have','After import: still only 1 copy of that doc — no duplicates. Local version kept.'],
+      [3,'Import a file that is just random text (not JSON at all)','Error: "Not a valid StatusVault backup file." Nothing imported.'],
+      [4,'Import a file that IS valid JSON but not a StatusVault backup','Error: "Not a valid StatusVault backup." Nothing imported.'],
+      [5,'Import a backup file that has 0 documents','Preview shows "0 documents · 0 family members · 0 trips". You can still restore (nothing changes).'],
+      [6,'Import backup file then immediately import another backup file','Both merges work. Data from both files is combined. No crashes.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-E-06  Notification Bell — Alert Window Timing'),
+    note('🔔', 'Alerts fire when a document is within exactly 180, 90, 60, 30, 15, or 7 days of expiry. Test each threshold separately.'),
+    ...spaces(1),
+    testTable([
+      [1,'Add a doc expiring in 7 days. Click the bell.','Alert shows "CRITICAL: 7 days left!" in red'],
+      [2,'Add a doc expiring in 15 days','Alert shows "CRITICAL: 15 days left!" in red'],
+      [3,'Add a doc expiring in 30 days','Alert shows "URGENT" in orange/amber'],
+      [4,'Add a doc expiring in 60 days','Alert shows "MEDIUM" or reminder in purple'],
+      [5,'Add a doc expiring in 90 days','Alert shows in the bell panel'],
+      [6,'Add a doc expiring in 180 days','Alert shows as informational'],
+      [7,'(Premium) Add a document to a family member expiring soon. Check the bell.','Alert shows the family member\'s name: e.g. "Jane — H-4 Visa: 7 days left"'],
+      [8,'Add a doc expiring in 200 days (not at any alert window)','NO alert for this doc. Only the exact windows trigger alerts.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-E-07  Auto-Backup Debounce'),
+    testTable([
+      [1,'(Premium) Add 10 documents one right after another as fast as you can','All 10 add successfully'],
+      [2,'Watch the "Saved to device" pill at the bottom of Dashboard','It does NOT update after every single doc. It waits 2 seconds after the LAST action, then updates.'],
+      [3,'Stop adding. Wait 2–3 seconds.','Pill updates: "Saved to device Just now"'],
+      [4,'This confirms debounce is working','If it updated 10 times for 10 docs, the debounce would be broken'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-E-08  Sign Out While Premium → Sign Back In'),
+    testTable([
+      [1,'Have premium + cloud backup ON + several documents','PRO badge, documents visible, cloud synced'],
+      [2,'Sign out','Signed out. Guest mode or welcome screen.'],
+      [3,'Sign back in with same email','After login...'],
+      [4,'PRO badge is visible again','Premium status restored from cloud'],
+      [5,'All your documents are there','Cloud restore worked on login'],
+      [6,'Cloud Backup is still ON','Setting persisted in cloud'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-E-09  Checklist Progress Edge Cases'),
+    testTable([
+      [1,'Add a checklist with items. Check ALL items.','Progress bar reaches 100%. Color changes to green.'],
+      [2,'Uncheck one item','Progress drops back. Color changes back to purple.'],
+      [3,'Remove the checklist when it is 50% complete','Confirmation popup shows progress: "Remove? All your progress (9/18 steps) will be lost."'],
+      [4,'Confirm removal','Checklist gone. No crash.'],
+      [5,'Try to add the same checklist type again','It should be available again (since you deleted it). Add works.'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-E-10  Rapid Sign Out / Sign In Cycle'),
+    testTable([
+      [1,'Sign in → sign out → sign in again with magic link (same session)','Each sign-in should work cleanly. No "Something went wrong" errors.'],
+      [2,'Sign in via Google → sign out → sign in via magic link (same email)','Both auth methods lead to the same account. Same documents present.'],
+      [3,'Sign in → open a second browser tab to statusvault.org','Both tabs show same account and data. No conflicts.'],
+      [4,'Add a document in Tab 1. Switch to Tab 2 and refresh.','Tab 2 should show the document added in Tab 1 (especially with cloud sync on).'],
+    ]),
+    ...spaces(1),
+
+    h3('TC-E-11  Guest → Free Account Upgrade Flow'),
+    testTable([
+      [1,'In Guest mode: add 1 document (the maximum)','Document added. Limit reached.'],
+      [2,'Now create a free account (from the Sign In button)','Account created. Now logged in as Free user.'],
+      [3,'The guest document should still be there','Data persists through the account creation flow'],
+      [4,'Now you can add a SECOND document (free limit = 2)','Second document adds successfully'],
+      [5,'Guest mode has ended — no "Guest mode" label visible','FREE badge shown instead'],
+    ]),
+    ...spaces(2),
+    divider(),
+
+    // ════════════════════════════════════════════════════════
+    // BUG REPORT TEMPLATE
+    // ════════════════════════════════════════════════════════
+    ...spaces(1),
+    band('📝', 'BUG REPORT TEMPLATE', 'Use this format when something doesn\'t match what the guide says you should see', 'C8102E'),
+    ...spaces(1),
+    body('Copy this template for each bug you find. Include as much detail as possible.'),
+    ...spaces(1),
+
+    new Table({
+      width:{size:9360, type:WidthType.DXA},
+      columnWidths:[2400, 6960],
+      rows:[
+        ...['Test Case ID|e.g. TC-E-03 Step 2',
+            'User Type|e.g. Premium account (PRO badge visible)',
+            'What I did|e.g. Added a trip with return date before departure date',
+            'What I expected|e.g. An error message — trip should not save',
+            'What actually happened|e.g. Trip saved with negative days (-5 shown on card)',
+            'How to reproduce|e.g. 1. Go to Travel tab  2. Click Add Trip  3. Set return = 2024-01-01, departure = 2024-01-10  4. Click Save',
+            'Browser & OS|e.g. Chrome 124, Windows 11',
+            'Screenshot?|e.g. Attached / Not taken',
+        ].map((row, i) => {
+          const [label, example] = row.split('|');
+          return new TableRow({ children:[
+            new TableCell({ borders:bord, shading:{fill:i===0?C.purple:C.grayBg, type:ShadingType.CLEAR}, margins:{top:100,bottom:100,left:140,right:140},
+              children:[new Paragraph({children:[new TextRun({text:label, bold:true, size:20, color:i===0?C.white:C.navy, font})]})] }),
+            new TableCell({ borders:bord, shading:{fill:i===0?C.purple:C.white, type:ShadingType.CLEAR}, margins:{top:100,bottom:100,left:140,right:140},
+              children:[new Paragraph({children:[new TextRun({text:example, size:20, color:i===0?C.white:C.gray, font, italics:i>0})]})] }),
+          ]});
+        }),
+      ],
+    }),
+
+    ...spaces(2),
+    note('✅', 'TESTING COMPLETE! You have covered: Guest Mode (11 tests) · Free Account (11 tests) · Premium (8 tests) · Account Management (3 tests) · Edge Cases & Grey Scenarios (11 tests) = 44 test cases total covering every feature in StatusVault.', C.greenBg, C.green),
+
+  ]}],
+});
+
+Packer.toBuffer(doc).then(buf => {
+  fs.writeFileSync('/mnt/user-data/outputs/StatusVault_Test_Guide.docx', buf);
+  console.log('Done:', Math.round(buf.length/1024), 'KB');
+});
