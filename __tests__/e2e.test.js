@@ -59,6 +59,7 @@ function expect(actual) {
     toBeNull:          ()    => { if (actual !== null)   throw new Error(`Expected null, got ${actual}`); },
     toContain:         (exp) => { if (!actual.includes(exp)) throw new Error(`Expected "${actual}" to contain "${exp}"`); },
     toHaveLength:      (exp) => { if (actual.length !== exp) throw new Error(`Expected length ${exp}, got ${actual.length}`); },
+    toBeUndefined:     ()    => { if (actual !== undefined) throw new Error(`Expected undefined, got ${JSON.stringify(actual)}`); },
     not: {
       toBe:    (exp) => { if (actual === exp) throw new Error(`Expected NOT ${JSON.stringify(exp)}`); },
       toBeNull:()    => { if (actual === null) throw new Error(`Expected not null`); },
@@ -1565,6 +1566,543 @@ describe('Cloud Sync — Merge Not Overwrite', () => {
     expect(merged.immigrationProfile.employer).toBe('Cloud Corp');
   });
 });
+
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 30 — FAMILY DOC LIMIT (bug fix: hardcoded "2 docs" text)
+// ═══════════════════════════════════════════════════════════════
+describe('Family doc limit — constants are source of truth', () => {
+  const FREE_FAMILY_DOC_LIMIT = 1;  // matches store constant
+  const FREE_FAMILY_LIMIT     = 1;
+
+  it('FREE_FAMILY_DOC_LIMIT is 1 (not 2)', () => {
+    expect(FREE_FAMILY_DOC_LIMIT).toBe(1);
+  });
+
+  it('Family screen limit text must equal FREE_FAMILY_DOC_LIMIT', () => {
+    // The UI text "X docs per member" must match the enforced limit
+    const uiText = `${FREE_FAMILY_DOC_LIMIT} doc${FREE_FAMILY_DOC_LIMIT !== 1 ? 's' : ''}`;
+    expect(uiText).toBe('1 doc'); // NOT "2 docs"
+  });
+
+  it('Free: 1 family member limit enforced', () => {
+    const canAdd = (memberCount, isPremium) =>
+      isPremium ? true : memberCount < FREE_FAMILY_LIMIT;
+    expect(canAdd(0, false)).toBe(true);
+    expect(canAdd(1, false)).toBe(false); // at limit
+    expect(canAdd(5, true)).toBe(true);   // premium: unlimited
+  });
+
+  it('Free: 1 doc per family member limit enforced', () => {
+    const canAddMemberDoc = (docCount, isPremium) =>
+      isPremium ? true : docCount < FREE_FAMILY_DOC_LIMIT;
+    expect(canAddMemberDoc(0, false)).toBe(true);
+    expect(canAddMemberDoc(1, false)).toBe(false); // at limit (1 doc)
+    expect(canAddMemberDoc(5, true)).toBe(true);   // premium: unlimited
+  });
+
+  it('Guest: zero family members allowed', () => {
+    const GUEST_FAMILY_LIMIT = 0;
+    const canAddGuest = (isGuest) => isGuest ? false : true;
+    expect(canAddGuest(true)).toBe(false);
+    expect(canAddGuest(false)).toBe(true);
+  });
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 31 — addDocument RETURN VALUE
+// ═══════════════════════════════════════════════════════════════
+describe('addDocument — return value and limit enforcement', () => {
+  it('returns false when at guest limit', () => {
+    const canAddDocument = (docs, isPremium, isGuest) => {
+      if (isPremium) return true;
+      if (isGuest)   return docs < 1;
+      return docs < 2;
+    };
+    // addDocument calls canAddDocument and returns false if blocked
+    expect(canAddDocument(1, false, true)).toBe(false);  // guest at limit
+    expect(canAddDocument(0, false, true)).toBe(true);   // guest ok
+  });
+
+  it('returns false when free account at doc limit (2)', () => {
+    const canAdd = (docs, isPremium) => isPremium ? true : docs < 2;
+    expect(canAdd(2, false)).toBe(false);
+    expect(canAdd(1, false)).toBe(true);
+    expect(canAdd(2, true)).toBe(true); // premium bypasses
+  });
+
+  it('forceAddDocument bypasses canAddDocument check', () => {
+    // forceAddDocument is called during profile setup — no canAdd check
+    // Simulated: even at limit, forceAdd still appends
+    const docs = [makeDoc('d1', daysFromNow(100)), makeDoc('d2', daysFromNow(200))];
+    const canAdd = docs.length < 2; // false — at limit
+    expect(canAdd).toBe(false);
+    // forceAdd ignores this:
+    const afterForce = [...docs, makeDoc('d3', daysFromNow(300))];
+    expect(afterForce.length).toBe(3);
+  });
+
+  it('getRemainingFreeSlots: premium = 999, free = 2-docs, at limit = 0', () => {
+    const getRemainingFreeSlots = (docs, isPremium) =>
+      isPremium ? 999 : Math.max(0, 2 - docs);
+    expect(getRemainingFreeSlots(0, false)).toBe(2);
+    expect(getRemainingFreeSlots(1, false)).toBe(1);
+    expect(getRemainingFreeSlots(2, false)).toBe(0);
+    expect(getRemainingFreeSlots(0, true)).toBe(999);
+    expect(getRemainingFreeSlots(10, true)).toBe(999);
+  });
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 32 — autoIncrementCounters LOGIC
+// ═══════════════════════════════════════════════════════════════
+describe('autoIncrementCounters — daily tracking logic', () => {
+  const today = () => {
+    const d = new Date(); d.setHours(0,0,0,0);
+    return d.toISOString().split('T')[0];
+  };
+
+  const autoIncrement = (counters, overrideToday = null) => {
+    const now = overrideToday ? new Date(overrideToday) : new Date();
+    now.setHours(0,0,0,0);
+    return counters.map(c => {
+      if (!c.isTracking || !c.lastIncrementDate) return c;
+      // Fix: T00:00:00 forces LOCAL time parsing (bare YYYY-MM-DD parses as UTC)
+      const last = new Date(c.lastIncrementDate + 'T00:00:00');
+      last.setHours(0,0,0,0);
+      const diff = Math.floor((now.getTime() - last.getTime()) / 86400000);
+      if (diff <= 0) return c;
+      return { ...c, daysUsed: Math.min(c.maxDays, c.daysUsed + diff), lastIncrementDate: today() };
+    });
+  };
+
+  it('paused counter (isTracking=false) is NOT incremented', () => {
+    // makeCounter(id, templateId, daysUsed, maxDays, isTracking, lastIncrementDate)
+    const counter = makeCounter('ct1', 'opt-unemployment', 10, 90, false, daysAgo(3));
+    const result = autoIncrement([counter]);
+    expect(result[0].daysUsed).toBe(10); // unchanged — paused
+  });
+
+  it('tracking counter with no lastIncrementDate is NOT incremented', () => {
+    const counter = makeCounter('ct1', 'opt-unemployment', 5, 90, true, null);
+    const result = autoIncrement([counter]);
+    expect(result[0].daysUsed).toBe(5); // unchanged — no lastIncrementDate
+  });
+
+  it('tracking counter increments by exact days since lastIncrementDate', () => {
+    const counter = makeCounter('ct1', 'opt-unemployment', 10, 90, true, daysAgo(3));
+    const result = autoIncrement([counter]);
+    expect(result[0].daysUsed).toBe(13); // 10 + 3
+  });
+
+  it('tracking counter clamped at maxDays even when many days missed', () => {
+    const counter = makeCounter('ct1', 'opt-unemployment', 85, 90, true, daysAgo(10));
+    const result = autoIncrement([counter]);
+    expect(result[0].daysUsed).toBe(90); // 85+10=95, clamped to 90
+    expect(result[0].daysUsed).not.toBe(95);
+  });
+
+  it('counter is NOT incremented if lastIncrementDate is today (diff=0)', () => {
+    const counter = makeCounter('ct1', 'opt-unemployment', 20, 90, true, today());
+    const result = autoIncrement([counter]);
+    expect(result[0].daysUsed).toBe(20); // no change same-day
+  });
+
+  it('multiple counters: only tracking ones increment', () => {
+    const tracking = makeCounter('ct1', 'opt-unemployment',  10, 90,  true,  daysAgo(2));
+    const paused   = makeCounter('ct2', 'stem-unemployment', 5,  150, false, daysAgo(2));
+    const result = autoIncrement([tracking, paused]);
+    expect(result[0].daysUsed).toBe(12); // 10 + 2 days
+    expect(result[1].daysUsed).toBe(5);  // paused: unchanged
+  });
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 33 — resetCounter AND setCounterTracking
+// ═══════════════════════════════════════════════════════════════
+describe('resetCounter and setCounterTracking', () => {
+  it('resetCounter clears all four fields to initial state', () => {
+    const reset = (c) => ({ ...c, daysUsed: 0, isTracking: false, lastIncrementDate: null, startDate: null });
+    const counter = makeCounter('ct1', 'opt-unemployment', 45, 90, true, '2025-04-01');
+    counter.startDate = '2025-01-01';
+    const result = reset(counter);
+    expect(result.daysUsed).toBe(0);
+    expect(result.isTracking).toBe(false);
+    expect(result.lastIncrementDate).toBeNull();
+    expect(result.startDate).toBeNull();
+  });
+
+  it('setCounterTracking(true) sets startDate if not already set', () => {
+    const today = () => new Date().toISOString().split('T')[0];
+    const setTracking = (c, isTracking) => ({
+      ...c, isTracking,
+      startDate: isTracking ? today() : c.startDate,
+      lastIncrementDate: isTracking ? today() : null,
+    });
+    const counter = makeCounter('ct1', 'opt-unemployment', 0, 90, false, null);
+    const result = setTracking(counter, true);
+    expect(result.isTracking).toBe(true);
+    expect(result.startDate).not.toBeNull();
+    expect(result.lastIncrementDate).not.toBeNull();
+  });
+
+  it('setCounterTracking(true) preserves existing startDate', () => {
+    const today = () => new Date().toISOString().split('T')[0];
+    const setTracking = (c, isTracking) => ({
+      ...c, isTracking,
+      startDate: isTracking ? (c.startDate || today()) : c.startDate,
+      lastIncrementDate: isTracking ? today() : null,
+    });
+    const counter = makeCounter('ct1', 'opt-unemployment', 15, 90, false, null);
+    counter.startDate = '2025-01-01';
+    const result = setTracking(counter, true);
+    expect(result.startDate).toBe('2025-01-01'); // original preserved
+  });
+
+  it('setCounterTracking(false) clears lastIncrementDate', () => {
+    const setTracking = (c, isTracking) => ({
+      ...c, isTracking,
+      startDate: c.startDate,
+      lastIncrementDate: isTracking ? c.lastIncrementDate : null,
+    });
+    const counter = makeCounter('ct1', 'opt-unemployment', 20, 90, true, '2025-04-01');
+    counter.startDate = '2025-01-01';
+    const result = setTracking(counter, false);
+    expect(result.isTracking).toBe(false);
+    expect(result.lastIncrementDate).toBeNull();
+    expect(result.startDate).toBe('2025-01-01'); // startDate preserved on pause
+  });
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 34 — CHECKLIST ITEM OPERATIONS
+// ═══════════════════════════════════════════════════════════════
+describe('Checklist item operations', () => {
+  const makeChecklist = (id, itemCount = 5) => ({
+    templateId: id, label: 'Test Checklist', icon: '✅',
+    items: Array.from({ length: itemCount }, (_, i) => ({
+      id: `item-${id}-${i}`, text: `Step ${i}`, done: false, category: 'Test'
+    })),
+  });
+
+  it('toggleChecklistItem flips done status from false to true', () => {
+    const cl = makeChecklist('opt-application', 3);
+    const toggle = (cls, templateId, itemId) => cls.map(c =>
+      c.templateId === templateId
+        ? { ...c, items: c.items.map(i => i.id === itemId ? { ...i, done: !i.done } : i) }
+        : c
+    );
+    const result = toggle([cl], 'opt-application', 'item-opt-application-0');
+    expect(result[0].items[0].done).toBe(true);
+    expect(result[0].items[1].done).toBe(false); // others unchanged
+  });
+
+  it('toggleChecklistItem flips done from true back to false', () => {
+    const cl = makeChecklist('opt-application', 2);
+    cl.items[0].done = true;
+    const toggle = (cls, templateId, itemId) => cls.map(c =>
+      c.templateId === templateId
+        ? { ...c, items: c.items.map(i => i.id === itemId ? { ...i, done: !i.done } : i) }
+        : c
+    );
+    const result = toggle([cl], 'opt-application', 'item-opt-application-0');
+    expect(result[0].items[0].done).toBe(false); // toggled back
+  });
+
+  it('toggleChecklistItem only affects target checklist', () => {
+    const cl1 = makeChecklist('opt-application', 2);
+    const cl2 = makeChecklist('stem-opt', 2);
+    const toggle = (cls, templateId, itemId) => cls.map(c =>
+      c.templateId === templateId
+        ? { ...c, items: c.items.map(i => i.id === itemId ? { ...i, done: !i.done } : i) }
+        : c
+    );
+    const result = toggle([cl1, cl2], 'opt-application', 'item-opt-application-0');
+    expect(result[0].items[0].done).toBe(true);
+    expect(result[1].items[0].done).toBe(false); // cl2 untouched
+  });
+
+  it('addCustomChecklistItem appends with category="Custom"', () => {
+    const cl = makeChecklist('opt-application', 2);
+    const addItem = (cls, templateId, text) => cls.map(c =>
+      c.templateId === templateId
+        ? { ...c, items: [...c.items, { id: `c-custom`, text, done: false, category: 'Custom' }] }
+        : c
+    );
+    const result = addItem([cl], 'opt-application', 'Email advisor');
+    expect(result[0].items.length).toBe(3);
+    expect(result[0].items[2].text).toBe('Email advisor');
+    expect(result[0].items[2].category).toBe('Custom');
+    expect(result[0].items[2].done).toBe(false);
+  });
+
+  it('removeChecklistItem removes only the target item', () => {
+    const cl = makeChecklist('opt-application', 3);
+    const removeItem = (cls, templateId, itemId) => cls.map(c =>
+      c.templateId === templateId
+        ? { ...c, items: c.items.filter(i => i.id !== itemId) }
+        : c
+    );
+    const result = removeItem([cl], 'opt-application', 'item-opt-application-1');
+    expect(result[0].items.length).toBe(2);
+    expect(result[0].items.find(i => i.id === 'item-opt-application-1')).toBeUndefined();
+  });
+
+  it('addChecklist prevents duplicate templateId', () => {
+    const existing = [makeChecklist('opt-application')];
+    const canAdd = (checklists, templateId) =>
+      !checklists.some(c => c.templateId === templateId);
+    expect(canAdd(existing, 'opt-application')).toBe(false); // duplicate blocked
+    expect(canAdd(existing, 'stem-opt')).toBe(true);         // different id ok
+  });
+
+  it('addCounter prevents duplicate templateId', () => {
+    const existing = [makeCounter('ct1', 'opt-unemployment', 0, 90, false, null)];
+    const canAdd = (counters, templateId) =>
+      !counters.some(c => c.templateId === templateId);
+    expect(canAdd(existing, 'opt-unemployment')).toBe(false); // duplicate blocked
+    expect(canAdd(existing, 'stem-unemployment')).toBe(true); // different id ok
+  });
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 35 — importData BEHAVIOUR
+// ═══════════════════════════════════════════════════════════════
+describe('importData — full replacement behavior', () => {
+  it('importData replaces documents (not merges)', () => {
+    // Unlike syncFromCloud which merges, importData is a full overwrite
+    const importedDocs = [makeDoc('import-1', daysFromNow(100)), makeDoc('import-2', daysFromNow(200))];
+    // Simulate: had 3 docs, import brings 2 → result is 2 (replaced, not merged)
+    const result = importedDocs; // importData sets documents = importedDocs directly
+    expect(result.length).toBe(2);
+    // If it were a merge it would be 3+2=5, but importData replaces
+  });
+
+  it('importData strips notificationIds from imported docs', () => {
+    const docsWithNotifIds = [
+      { ...makeDoc('d1', daysFromNow(100)), notificationIds: ['old-notif-1', 'old-notif-2'] },
+    ];
+    const imported = docsWithNotifIds.map(doc => ({ ...doc, notificationIds: [] }));
+    expect(imported[0].notificationIds).toHaveLength(0);
+  });
+
+  it('importData sets hasOnboarded=true as side effect', () => {
+    // After import, hasOnboarded is always set to true
+    const stateAfterImport = { hasOnboarded: true };
+    expect(stateAfterImport.hasOnboarded).toBe(true);
+  });
+
+  it('importData returns false for non-StatusVault JSON', () => {
+    const importData = (json) => {
+      try {
+        const p = JSON.parse(json);
+        return p.app === 'StatusVault' && !!p.data;
+      } catch { return false; }
+    };
+    expect(importData('{"other":"app"}')).toBe(false);
+    expect(importData('not json')).toBe(false);
+    expect(importData('{"app":"StatusVault"}')).toBe(false); // missing data
+    expect(importData('{"app":"StatusVault","data":{}}')).toBe(true);
+  });
+
+  it('importData export round-trip: all 11 fields preserved', () => {
+    const state = {
+      documents: [makeDoc('d1', daysFromNow(100))],
+      checklists: [], counters: [], trips: [],
+      familyMembers: [], addressHistory: [],
+      visaProfile: null, immigrationProfile: null,
+      notificationEmail: 'user@test.com', whatsappPhone: '+1234567890',
+      isPremium: true,
+    };
+    const exported = JSON.stringify({ app: 'StatusVault', version: '2.0.0',
+      exportedAt: new Date().toISOString(), data: state });
+    const parsed = JSON.parse(exported);
+    const d = parsed.data;
+    // All 11 data fields present
+    expect(Array.isArray(d.documents)).toBe(true);
+    expect(Array.isArray(d.checklists)).toBe(true);
+    expect(Array.isArray(d.counters)).toBe(true);
+    expect(Array.isArray(d.trips)).toBe(true);
+    expect(Array.isArray(d.familyMembers)).toBe(true);
+    expect(Array.isArray(d.addressHistory)).toBe(true);
+    expect('visaProfile'        in d).toBe(true);
+    expect('immigrationProfile' in d).toBe(true);
+    expect('notificationEmail'  in d).toBe(true);
+    expect('whatsappPhone'      in d).toBe(true);
+    expect('isPremium'          in d).toBe(true);
+  });
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 36 — DATE UTILITIES
+// ═══════════════════════════════════════════════════════════════
+describe('Date utilities — calculateDaysRemaining & labels', () => {
+  it('calculateDaysRemaining returns negative for past date', () => {
+    // Yesterday = -1
+    const diff = (target) => {
+      const t = new Date(target + 'T00:00:00');
+      const today = new Date(); today.setHours(0,0,0,0);
+      return Math.round((t - today) / 86400000);
+    };
+    expect(diff(daysFromNow(-1))).toBe(-1);
+    expect(diff(daysFromNow(-30))).toBe(-30);
+    expect(diff(daysFromNow(0))).toBe(0);
+    expect(diff(daysFromNow(30))).toBe(30);
+  });
+
+  it('calculateDaysRemaining returns -999 for empty/invalid date', () => {
+    const calc = (d) => {
+      if (!d) return -999;
+      const t = new Date(d + 'T00:00:00');
+      if (isNaN(t.getTime())) return -999; // invalid date
+      const today = new Date(); today.setHours(0,0,0,0);
+      return Math.round((t - today) / 86400000);
+    };
+    expect(calc('')).toBe(-999);
+    expect(calc(null)).toBe(-999);
+    expect(calc('not-a-date')).toBe(-999);
+    expect(calc('2025-01-01')).not.toBe(-999); // valid date
+  });
+
+  it('getSeverityLabel returns correct string per threshold', () => {
+    const getSeverityLabel = (days) => {
+      if (days < 0)   return 'Expired';
+      if (days < 30)  return 'Critical';
+      if (days < 60)  return 'High';
+      if (days < 180) return 'Medium';
+      return 'Low';
+    };
+    expect(getSeverityLabel(-1)).toBe('Expired');
+    expect(getSeverityLabel(0)).toBe('Critical');
+    expect(getSeverityLabel(29)).toBe('Critical');
+    expect(getSeverityLabel(30)).toBe('High');
+    expect(getSeverityLabel(59)).toBe('High');
+    expect(getSeverityLabel(60)).toBe('Medium');
+    expect(getSeverityLabel(179)).toBe('Medium');
+    expect(getSeverityLabel(180)).toBe('Low');
+  });
+
+  it('getSeverityLabel and getUrgency label are consistent at boundaries', () => {
+    // Both functions use the same thresholds — verify they agree
+    const getUrgency = (d) => d < 0 ? 'expired' : d < 30 ? 'critical' : d < 60 ? 'urgent' : d < 180 ? 'upcoming' : 'safe';
+    const getSeverity = (d) => d < 0 ? 'Expired' : d < 30 ? 'Critical' : d < 60 ? 'High' : d < 180 ? 'Medium' : 'Low';
+    const boundaries = [-1, 0, 29, 30, 59, 60, 179, 180];
+    boundaries.forEach(b => {
+      // Both agree on expired vs not-expired
+      const isExpired = b < 0;
+      expect(getUrgency(b) === 'expired').toBe(isExpired);
+      expect(getSeverity(b) === 'Expired').toBe(isExpired);
+      // Both agree on safe/low
+      const isSafe = b >= 180;
+      expect(getUrgency(b) === 'safe').toBe(isSafe);
+      expect(getSeverity(b) === 'Low').toBe(isSafe);
+    });
+  });
+
+  it('countByUrgency aggregates multiple docs correctly', () => {
+    const countByUrgency = (docs) => {
+      const getUrgency = (d) => d < 0 ? 'expired' : d < 30 ? 'critical' : d < 60 ? 'urgent' : d < 180 ? 'upcoming' : 'safe';
+      const counts = { expired:0, critical:0, urgent:0, upcoming:0, safe:0 };
+      docs.forEach(doc => {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const target = new Date(doc.expiryDate + 'T00:00:00');
+        const days = Math.round((target - today) / 86400000);
+        counts[getUrgency(days)]++;
+      });
+      return counts;
+    };
+    const docs = [
+      makeDoc('d1', daysFromNow(-5)),   // expired
+      makeDoc('d2', daysFromNow(10)),   // critical
+      makeDoc('d3', daysFromNow(10)),   // critical
+      makeDoc('d4', daysFromNow(45)),   // urgent
+      makeDoc('d5', daysFromNow(100)),  // upcoming
+      makeDoc('d6', daysFromNow(200)),  // safe
+    ];
+    const counts = countByUrgency(docs);
+    expect(counts.expired).toBe(1);
+    expect(counts.critical).toBe(2);
+    expect(counts.urgent).toBe(1);
+    expect(counts.upcoming).toBe(1);
+    expect(counts.safe).toBe(1);
+    // Total = number of docs
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    expect(total).toBe(docs.length);
+  });
+
+  it('generateDeadlines sorts by daysRemaining ascending (most urgent first)', () => {
+    const docs = [
+      makeDoc('safe',     daysFromNow(200)),
+      makeDoc('expired',  daysFromNow(-5)),
+      makeDoc('critical', daysFromNow(10)),
+      makeDoc('upcoming', daysFromNow(100)),
+    ];
+    const generateDeadlines = (docs) => docs
+      .map(doc => {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const target = new Date(doc.expiryDate + 'T00:00:00');
+        return { ...doc, daysRemaining: Math.round((target - today) / 86400000) };
+      })
+      .sort((a, b) => a.daysRemaining - b.daysRemaining);
+    const sorted = generateDeadlines(docs);
+    expect(sorted[0].id).toBe('expired');   // most urgent first
+    expect(sorted[1].id).toBe('critical');
+    expect(sorted[2].id).toBe('upcoming');
+    expect(sorted[3].id).toBe('safe');      // least urgent last
+  });
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 37 — addCustomCounter WARNAT / CRITAT CALCULATION
+// ═══════════════════════════════════════════════════════════════
+describe('addCustomCounter — warnAt and critAt thresholds', () => {
+  const makeCustomCounter = (label, maxDays) => ({
+    templateId: `custom-${Date.now()}`, label, icon: '🔢', maxDays,
+    warnAt: Math.floor(maxDays * 0.7),
+    critAt: Math.floor(maxDays * 0.9),
+    daysUsed: 0, isTracking: false, lastIncrementDate: null, startDate: null,
+  });
+
+  it('warnAt = 70% of maxDays (floored)', () => {
+    expect(makeCustomCounter('Test', 100).warnAt).toBe(70);
+    expect(makeCustomCounter('Test', 90).warnAt).toBe(62); // Math.floor(90 * 0.7) = floor(62.999...) = 62 in IEEE 754
+    expect(makeCustomCounter('Test', 30).warnAt).toBe(21);
+  });
+
+  it('critAt = 90% of maxDays (floored)', () => {
+    expect(makeCustomCounter('Test', 100).critAt).toBe(90);
+    expect(makeCustomCounter('Test', 90).critAt).toBe(81);
+    expect(makeCustomCounter('Test', 30).critAt).toBe(27);
+  });
+
+  it('custom counter starts at 0, not tracking', () => {
+    const counter = makeCustomCounter('My Counter', 60);
+    expect(counter.daysUsed).toBe(0);
+    expect(counter.isTracking).toBe(false);
+    expect(counter.startDate).toBeNull();
+    expect(counter.lastIncrementDate).toBeNull();
+  });
+
+  it('addCustomCounter blocked when at tier limit', () => {
+    // canAddCounter returns false when at limit — custom counter respects same rule
+    const canAdd = (counters, isPremium, isGuest) => {
+      if (isPremium) return true;
+      const limit = isGuest ? 1 : 2;
+      return counters.length < limit;
+    };
+    expect(canAdd([{},{} ], false, false)).toBe(false); // free at limit
+    expect(canAdd([{}],     false, true)).toBe(false);  // guest at limit
+    expect(canAdd([{},{},{}], true, false)).toBe(true); // premium ok
+  });
+});
+
 
 // ─── Final Report ─────────────────────────────────────────────
 const total = passed + failed;

@@ -293,7 +293,7 @@ export const FamilyScreen: React.FC = () => {
             <View style={styles.freePlanBanner}>
               <Ionicons name="information-circle-outline" size={14} color="#4F46E5" />
               <Text style={styles.freePlanBannerText}>
-                Free plan: <Text style={{ fontFamily: 'Inter_700Bold' }}>1 family member</Text> · <Text style={{ fontFamily: 'Inter_700Bold' }}>2 docs</Text> per member
+                Free plan: <Text style={{ fontFamily: 'Inter_700Bold' }}>1 family member</Text> · <Text style={{ fontFamily: 'Inter_700Bold' }}>{FREE_DOC_LIMIT} doc{FREE_DOC_LIMIT !== 1 ? 's' : ''}</Text> per member
               </Text>
               <Text style={styles.freePlanUpgrade}>Upgrade →</Text>
             </View>

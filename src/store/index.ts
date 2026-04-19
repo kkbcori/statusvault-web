@@ -529,7 +529,10 @@ export const useStore = create<AppStore>()(
         set((s) => ({
           counters: s.counters.map((c) => {
             if (!c.isTracking || !c.lastIncrementDate) return c;
-            const last = new Date(c.lastIncrementDate);
+            // Fix: append T00:00:00 to force LOCAL time parsing.
+            // Without it, 'YYYY-MM-DD' parses as UTC midnight, which in
+            // UTC-5 (CDT) becomes yesterday, causing an off-by-1 increment.
+            const last = new Date(c.lastIncrementDate + 'T00:00:00');
             last.setHours(0, 0, 0, 0);
             const diff = Math.floor((now.getTime() - last.getTime()) / 86400000);
             if (diff <= 0) return c;

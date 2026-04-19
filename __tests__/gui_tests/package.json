@@ -1,0 +1,19 @@
+{
+  "name": "statusvault-e2e",
+  "version": "1.0.0",
+  "description": "Playwright E2E test suite for StatusVault",
+  "scripts": {
+    "test":          "playwright test",
+    "test:headed":   "playwright test --headed",
+    "test:guest":    "playwright test tests/guest.spec.ts",
+    "test:free":     "playwright test tests/free.spec.ts",
+    "test:premium":  "playwright test tests/premium.spec.ts",
+    "test:edge":     "playwright test tests/edge.spec.ts",
+    "test:ui":       "playwright test --ui",
+    "report":        "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "typescript": "^5.4.0"
+  }
+}
