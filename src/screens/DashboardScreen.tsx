@@ -752,9 +752,9 @@ const styles = StyleSheet.create({
   // 4-card grid
   cardGrid:            { gap: 16 },
   cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'stretch' as any },
-  gridCard:            { flex: 1 } as any,
-  cardSpacer:          { flex: 1, minHeight: 12 },
-  cardFooterBtn:       { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 12, marginHorizontal: -20, paddingHorizontal: 20, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
+  gridCard:            {} as any,  // no flex — cards size to content on mobile; desktop overrides per-card
+  cardSpacer:          { height: 16 },
+  cardFooterBtn:       { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
   cardFooterText:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#7367F0', flex: 1 },
 
   // Checklist
