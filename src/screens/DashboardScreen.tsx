@@ -444,6 +444,12 @@ export const DashboardScreen: React.FC = () => {
           <CardHeader
             title="Immi Checklist"
             subtitle={checklists.length > 0 ? `${checklists.length} active checklist${checklists.length !== 1 ? 's' : ''}` : 'Track your immigration steps'}
+            right={
+              <TouchableOpacity onPress={() => navigation.navigate('Main', { screen: 'Checklist' })} style={styles.headerLink}>
+                <Text style={styles.headerLinkText}>Manage</Text>
+                <Ionicons name="arrow-forward" size={12} color="#7367F0" />
+              </TouchableOpacity>
+            }
           />
           {checklists.length === 0 ? (
             <View style={styles.emptyState}>
@@ -480,11 +486,6 @@ export const DashboardScreen: React.FC = () => {
               )}
             </View>
           )}
-          <View style={styles.cardSpacer} />
-          <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Checklist' })}>
-            <Text style={styles.cardFooterText}>Manage Checklists</Text>
-            <Ionicons name="arrow-forward" size={13} color="#7367F0" />
-          </TouchableOpacity>
         </Card>
 
         {/* Card 4: Immi Timers */}
@@ -492,6 +493,12 @@ export const DashboardScreen: React.FC = () => {
           <CardHeader
             title="Immi Timers"
             subtitle={counters.length > 0 ? `${counters.length} timer${counters.length !== 1 ? 's' : ''} active` : 'Track unemployment & stay days'}
+            right={
+              <TouchableOpacity onPress={() => navigation.navigate('Main', { screen: 'Timers' })} style={styles.headerLink}>
+                <Text style={styles.headerLinkText}>Manage</Text>
+                <Ionicons name="arrow-forward" size={12} color="#7367F0" />
+              </TouchableOpacity>
+            }
           />
           {counters.length === 0 ? (
             <View style={styles.emptyState}>
@@ -529,11 +536,6 @@ export const DashboardScreen: React.FC = () => {
               )}
             </View>
           )}
-          <View style={styles.cardSpacer} />
-          <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Timers' })}>
-            <Text style={styles.cardFooterText}>Manage Timers</Text>
-            <Ionicons name="arrow-forward" size={13} color="#7367F0" />
-          </TouchableOpacity>
         </Card>
 
       </View>
@@ -754,6 +756,8 @@ const styles = StyleSheet.create({
   cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'stretch' as any },
   gridCard:            {} as any,  // no flex — cards size to content on mobile; desktop overrides per-card
   cardSpacer:          { height: 16 },
+  headerLink:          { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  headerLinkText:      { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
   cardFooterBtn:       { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
   cardFooterText:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#7367F0', flex: 1 },
 
