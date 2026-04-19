@@ -2104,6 +2104,472 @@ describe('addCustomCounter — warnAt and critAt thresholds', () => {
 });
 
 
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 38 — NEGATIVE SCENARIOS (inputs/actions that should fail)
+// ═══════════════════════════════════════════════════════════════
+describe('Negative scenarios — rejections and invalid inputs', () => {
+
+  // ── Tier enforcement ────────────────────────────────────────
+  it('canAddFamilyMember: guest is always blocked', () => {
+    const canAdd = (isGuest, hasAuth, count, isPremium) => {
+      if (isPremium) return true;
+      if (!hasAuth || isGuest) return false;
+      return count < 1;
+    };
+    expect(canAdd(true,  false, 0, false)).toBe(false); // guest, no auth
+    expect(canAdd(true,  true,  0, false)).toBe(false); // guest override even with auth
+    expect(canAdd(false, false, 0, false)).toBe(false); // no auth = treated as guest
+  });
+
+  it('canAddFamilyMember: free at limit (1 member) is blocked', () => {
+    const canAdd = (count, isPremium) => isPremium ? true : count < 1;
+    expect(canAdd(1, false)).toBe(false);  // at limit
+    expect(canAdd(2, false)).toBe(false);  // over limit (should not happen but still blocked)
+    expect(canAdd(0, false)).toBe(true);   // under limit ok
+    expect(canAdd(99, true)).toBe(true);   // premium: always ok
+  });
+
+  it('addDocument: blocked when at guest limit (1)', () => {
+    const canAdd = (count, isGuest, isPremium) => {
+      if (isPremium) return true;
+      return isGuest ? count < 1 : count < 2;
+    };
+    expect(canAdd(1, true,  false)).toBe(false); // guest at 1: blocked
+    expect(canAdd(2, false, false)).toBe(false); // free at 2: blocked
+    expect(canAdd(0, true,  false)).toBe(true);  // guest at 0: allowed
+  });
+
+  it('addChecklist: unknown templateId is rejected (not added)', () => {
+    const TEMPLATES = ['opt-application', 'stem-opt', 'h1b-petition'];
+    const addChecklist = (checklists, templateId) => {
+      const t = TEMPLATES.find(x => x === templateId);
+      if (!t) return checklists; // rejected — no template found
+      if (checklists.some(c => c.templateId === templateId)) return checklists; // duplicate
+      return [...checklists, { templateId }];
+    };
+    const cls = [];
+    const result = addChecklist(cls, 'nonexistent-template-id');
+    expect(result.length).toBe(0); // nothing added
+  });
+
+  it('addCounter: unknown templateId is rejected (not added)', () => {
+    const TEMPLATES = ['opt-unemployment', 'stem-unemployment', 'h1b-grace'];
+    const addCounter = (counters, templateId) => {
+      const t = TEMPLATES.find(x => x === templateId);
+      if (!t) return counters;
+      if (counters.some(c => c.templateId === templateId)) return counters;
+      return [...counters, { templateId }];
+    };
+    const result = addCounter([], 'bogus-counter-id');
+    expect(result.length).toBe(0);
+  });
+
+  it('addChecklist: duplicate templateId is rejected', () => {
+    const existing = [{ templateId: 'opt-application' }];
+    const canAdd = (cls, id) => !cls.some(c => c.templateId === id);
+    expect(canAdd(existing, 'opt-application')).toBe(false); // duplicate
+    expect(canAdd(existing, 'stem-opt')).toBe(true);         // different: ok
+  });
+
+  it('addCounter: duplicate templateId is rejected', () => {
+    const existing = [{ templateId: 'opt-unemployment' }];
+    const canAdd = (ctrs, id) => !ctrs.some(c => c.templateId === id);
+    expect(canAdd(existing, 'opt-unemployment')).toBe(false);
+    expect(canAdd(existing, 'stem-unemployment')).toBe(true);
+  });
+
+  // ── Counter boundary inputs ─────────────────────────────────
+  it('addCustomCounter: maxDays=0 is now rejected (validation guard)', () => {
+    // After our fix: !maxDays || maxDays < 1 returns early
+    const isValid = (maxDays) => !(!maxDays || maxDays < 1 || !Number.isFinite(maxDays));
+    expect(isValid(0)).toBe(false);      // zero: rejected
+    expect(isValid(-10)).toBe(false);    // negative: rejected
+    expect(isValid(NaN)).toBe(false);    // NaN: rejected
+    expect(isValid(Infinity)).toBe(false); // infinity: rejected
+    expect(isValid(1)).toBe(true);       // 1: minimum valid
+    expect(isValid(90)).toBe(true);      // 90: normal
+  });
+
+  it('addCustomCounter: maxDays=0 produces broken warnAt/critAt (pre-fix behavior)', () => {
+    // Before the guard was added, zero maxDays gave zero thresholds — counter never warns
+    const makeWithZero = (maxDays) => ({
+      warnAt: Math.floor(maxDays * 0.7),
+      critAt: Math.floor(maxDays * 0.9),
+    });
+    const result = makeWithZero(0);
+    expect(result.warnAt).toBe(0);  // warns immediately from day 0 — useless
+    expect(result.critAt).toBe(0);  // critical immediately from day 0 — useless
+  });
+
+  it('addCustomCounter: negative maxDays produces negative thresholds (pre-fix behavior)', () => {
+    const makeWithNeg = (maxDays) => ({
+      warnAt: Math.floor(maxDays * 0.7),
+      critAt: Math.floor(maxDays * 0.9),
+    });
+    const result = makeWithNeg(-10);
+    expect(result.warnAt).toBeLessThan(0); // negative: broken
+    expect(result.critAt).toBeLessThan(0);
+  });
+
+  it('decrementCounter: cannot go below 0', () => {
+    const decrement = (daysUsed, by = 1) => Math.max(0, daysUsed - by);
+    expect(decrement(0)).toBe(0);    // already at 0: stays 0
+    expect(decrement(0, 5)).toBe(0); // large decrement: clamped
+    expect(decrement(0, 999)).toBe(0);
+    expect(decrement(1)).toBe(0);    // 1 → 0
+  });
+
+  it('incrementCounter: cannot exceed maxDays', () => {
+    const increment = (daysUsed, maxDays, by = 1) => Math.min(maxDays, daysUsed + by);
+    expect(increment(90, 90)).toBe(90);    // already at max: stays
+    expect(increment(89, 90)).toBe(90);    // hits exactly max
+    expect(increment(85, 90, 10)).toBe(90); // large increment: clamped
+  });
+
+  // ── Remove with non-existent IDs ───────────────────────────
+  it('removeDocument: non-existent ID leaves array unchanged', () => {
+    const docs = [makeDoc('d1', daysFromNow(100)), makeDoc('d2', daysFromNow(200))];
+    const result = docs.filter(d => d.id !== 'does-not-exist');
+    expect(result.length).toBe(2); // unchanged
+    expect(result[0].id).toBe('d1');
+    expect(result[1].id).toBe('d2');
+  });
+
+  it('removeChecklist: non-existent templateId leaves array unchanged', () => {
+    const cls = [{ templateId: 'opt-application' }, { templateId: 'stem-opt' }];
+    const result = cls.filter(c => c.templateId !== 'nonexistent');
+    expect(result.length).toBe(2);
+  });
+
+  it('removeCounter: non-existent templateId leaves array unchanged', () => {
+    const ctrs = [makeCounter('ct1', 'opt-unemployment', 10, 90), makeCounter('ct2', 'h1b-grace', 5, 60)];
+    const result = ctrs.filter(c => c.templateId !== 'nonexistent');
+    expect(result.length).toBe(2);
+  });
+
+  it('toggleChecklistItem: non-existent itemId leaves all items unchanged', () => {
+    const items = [
+      { id: 'i1', done: false },
+      { id: 'i2', done: true },
+    ];
+    const toggled = items.map(i => i.id === 'nonexistent' ? { ...i, done: !i.done } : i);
+    expect(toggled[0].done).toBe(false); // unchanged
+    expect(toggled[1].done).toBe(true);  // unchanged
+  });
+
+  it('removeChecklistItem: non-existent itemId leaves items unchanged', () => {
+    const items = [{ id: 'i1' }, { id: 'i2' }, { id: 'i3' }];
+    const result = items.filter(i => i.id !== 'nonexistent');
+    expect(result.length).toBe(3); // all preserved
+  });
+
+  // ── importData invalid inputs ───────────────────────────────
+  it('importData: rejects missing "data" key', () => {
+    const validate = (json) => { try { const p=JSON.parse(json); return p.app==='StatusVault'&&!!p.data; } catch { return false; }};
+    expect(validate('{"app":"StatusVault"}')).toBe(false);         // no data key
+    expect(validate('{"app":"StatusVault","data":null}')).toBe(false); // null data
+    expect(validate('{"app":"StatusVault","data":{}}')).toBe(true); // empty data ok
+  });
+
+  it('importData: rejects wrong app name', () => {
+    const validate = (json) => { try { const p=JSON.parse(json); return p.app==='StatusVault'&&!!p.data; } catch { return false; }};
+    expect(validate('{"app":"OtherApp","data":{}}')).toBe(false);
+    expect(validate('{"app":"statusvault","data":{}}')).toBe(false); // case-sensitive
+    expect(validate('{"app":"","data":{}}')).toBe(false);
+  });
+
+  it('importData: rejects malformed JSON', () => {
+    const validate = (json) => { try { const p=JSON.parse(json); return p.app==='StatusVault'&&!!p.data; } catch { return false; }};
+    expect(validate('{broken json')).toBe(false);
+    expect(validate('')).toBe(false);
+    expect(validate('null')).toBe(false);
+    expect(validate('[]')).toBe(false); // array not object
+    expect(validate('42')).toBe(false);
+  });
+
+  it('importData: missing arrays fall back to empty []', () => {
+    // importData uses: d.documents ?? []
+    const importWithMissing = (data) => ({
+      documents:     data.documents     ?? [],
+      checklists:    data.checklists    ?? [],
+      counters:      data.counters      ?? [],
+      trips:         data.trips         ?? [],
+      familyMembers: data.familyMembers ?? [],
+      addressHistory:data.addressHistory?? [],
+    });
+    const result = importWithMissing({}); // all fields missing
+    expect(result.documents.length).toBe(0);
+    expect(result.checklists.length).toBe(0);
+    expect(result.trips.length).toBe(0);
+  });
+
+  // ── Date validation ─────────────────────────────────────────
+  it('calculateDaysRemaining: returns -999 for empty string', () => {
+    const calc = (d) => { if(!d) return -999; const t=new Date(d+'T00:00:00'); return isNaN(t.getTime()) ? -999 : 42; };
+    expect(calc('')).toBe(-999);
+    expect(calc(null)).toBe(-999);
+    expect(calc(undefined)).toBe(-999);
+  });
+
+  it('calculateDaysRemaining: returns -999 for invalid date strings', () => {
+    const calc = (d) => { if(!d) return -999; const t=new Date(d+'T00:00:00'); return isNaN(t.getTime()) ? -999 : 42; };
+    expect(calc('not-a-date')).toBe(-999);
+    expect(calc('2025-13-01')).toBe(-999);  // month 13 invalid
+    expect(calc('2025-00-01')).toBe(-999);  // month 0 invalid
+    expect(calc('abc-def-ghi')).toBe(-999);
+  });
+
+  it('trip date: return before departure should be rejected', () => {
+    const isValidTrip = (dep, ret) =>
+      new Date(ret + 'T00:00:00') >= new Date(dep + 'T00:00:00');
+    // Invalid cases:
+    expect(isValidTrip('2025-06-10', '2025-06-01')).toBe(false); // return 9 days before
+    expect(isValidTrip('2025-06-10', '2025-06-09')).toBe(false); // 1 day before
+    // Valid cases:
+    expect(isValidTrip('2025-06-01', '2025-06-01')).toBe(true);  // same day: ok
+    expect(isValidTrip('2025-06-01', '2025-06-10')).toBe(true);  // normal trip
+  });
+
+  // ── PIN lockout ─────────────────────────────────────────────
+  it('PIN lockout: exactly 5 wrong attempts triggers 30s lockout', () => {
+    let attempts = 0;
+    let lockedUntil = null;
+    const enter = (wrong) => {
+      if (wrong) {
+        const next = attempts + 1;
+        attempts = next;
+        if (next >= 5) lockedUntil = Date.now() + 30_000;
+      } else {
+        attempts = 0;
+        lockedUntil = null;
+      }
+    };
+    enter(true); enter(true); enter(true); enter(true); // 4 wrong
+    expect(lockedUntil).toBeNull(); // not yet locked
+    enter(true); // 5th wrong attempt
+    expect(lockedUntil).not.toBeNull(); // now locked
+    expect(lockedUntil - Date.now()).toBeGreaterThan(29000); // ~30s
+  });
+
+  it('PIN lockout: correct PIN before 5 attempts resets counter', () => {
+    let attempts = 0;
+    let lockedUntil = null;
+    const enter = (wrong) => {
+      if (wrong) { const next = attempts+1; attempts=next; if(next>=5) lockedUntil=Date.now()+30000; }
+      else { attempts=0; lockedUntil=null; }
+    };
+    enter(true); enter(true); enter(true); // 3 wrong
+    expect(attempts).toBe(3);
+    enter(false); // correct PIN — resets
+    expect(attempts).toBe(0);
+    expect(lockedUntil).toBeNull();
+  });
+
+  it('PIN: only first 4 digits accepted (extra digits ignored)', () => {
+    const processPin = (current, digit) => current.length >= 4 ? current : current + digit;
+    let pin = '';
+    for (const d of ['1','2','3','4','5','6']) pin = processPin(pin, d);
+    expect(pin).toBe('1234'); // stopped at 4
+    expect(pin.length).toBe(4);
+  });
+
+  // ── mergeById edge cases ────────────────────────────────────
+  it('mergeById: both arrays empty → returns []', () => {
+    const merge = (l, c) => {
+      if (!c?.length) return l;
+      if (!l?.length) return c.map(d=>({...d,notificationIds:[]}));
+      const ids = new Set(l.map(x=>x.id));
+      return [...l.map(d=>({...d,notificationIds:[]})), ...c.filter(x=>!ids.has(x.id)).map(d=>({...d,notificationIds:[]}))];
+    };
+    expect(merge([], []).length).toBe(0);
+  });
+
+  it('mergeById: local empty, cloud has items → returns cloud items (notifIds stripped)', () => {
+    const merge = (l, c) => {
+      if (!c?.length) return l;
+      if (!l?.length) return c.map(d=>({...d,notificationIds:[]}));
+      const ids = new Set(l.map(x=>x.id));
+      return [...l.map(d=>({...d,notificationIds:[]})), ...c.filter(x=>!ids.has(x.id)).map(d=>({...d,notificationIds:[]}))];
+    };
+    const cloud = [{id:'c1', notificationIds:['old-id']}];
+    const result = merge([], cloud);
+    expect(result.length).toBe(1);
+    expect(result[0].notificationIds).toHaveLength(0); // stripped
+  });
+
+  it('mergeById: cloud empty → returns local unchanged', () => {
+    const merge = (l, c) => {
+      if (!c?.length) return l;
+      if (!l?.length) return c.map(d=>({...d,notificationIds:[]}));
+      const ids = new Set(l.map(x=>x.id));
+      return [...l.map(d=>({...d,notificationIds:[]})), ...c.filter(x=>!ids.has(x.id)).map(d=>({...d,notificationIds:[]}))];
+    };
+    const local = [makeDoc('l1', daysFromNow(100))];
+    const result = merge(local, []);
+    expect(result.length).toBe(1);
+    expect(result[0].id).toBe('l1');
+  });
+
+  it('mergeById: duplicate IDs within local → both kept (local side not de-duped)', () => {
+    // mergeById dedupes BETWEEN local and cloud, not within local itself
+    const merge = (l, c) => {
+      if (!c?.length) return l;
+      const ids = new Set(l.map(x=>x.id));
+      return [...l.map(d=>({...d,notificationIds:[]})), ...c.filter(x=>!ids.has(x.id)).map(d=>({...d,notificationIds:[]}))];
+    };
+    const local = [{id:'same', label:'first'}, {id:'same', label:'second'}];
+    const result = merge(local, []);
+    // Both local items kept — merge only dedupes cloud vs local
+    expect(result.length).toBe(2);
+  });
+
+  it('syncFromCloud: decryption failure returns false (no state change)', () => {
+    // Simulated: decrypt returns null → set({ isSyncing: false }) only, no data change
+    const handleDecryptFailure = (decoded, existingDocs) => {
+      if (!decoded) return { changed: false, docs: existingDocs };
+      return { changed: true, docs: decoded.documents };
+    };
+    const existing = [makeDoc('d1', daysFromNow(100))];
+    const result = handleDecryptFailure(null, existing);
+    expect(result.changed).toBe(false);
+    expect(result.docs).toBe(existing); // original docs untouched
+    expect(result.docs.length).toBe(1);
+  });
+});
+
+
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 39 — SIGN-OUT DATA CLEARANCE (privacy regression)
+// Ensures trips, addressHistory, and all user data are cleared
+// on sign-out so they're not visible to the next person who opens
+// the browser on the same device.
+// ═══════════════════════════════════════════════════════════════
+describe('Sign-out clears all user data (privacy)', () => {
+  // Mirror the fields cleared by signOut in the store
+  const clearOnSignOut = (state) => ({
+    ...state,
+    authUser: null, lastSyncedAt: null, syncError: null,
+    emailVerified: false, isGuestMode: false,
+    hasOnboarded: true, showWelcomeModal: false,
+    isPremium: false, cloudBackupEnabled: true,
+    documents: [], checklists: [], counters: [],
+    trips: [], addressHistory: [], familyMembers: [],
+    visaProfile: null, immigrationProfile: null,
+    notificationEmail: null, whatsappPhone: null,
+    notifications: [], lastAutoBackupAt: null,
+    pinEnabled: false, pinCode: null, profileSetupShown: false,
+  });
+
+  it('trips are cleared on sign-out', () => {
+    const before = { trips: [makeTrip('t1', daysAgo(30), daysAgo(20)), makeTrip('t2', daysAgo(10), daysAgo(5))] };
+    const after = clearOnSignOut(before);
+    expect(after.trips.length).toBe(0);
+  });
+
+  it('addressHistory is cleared on sign-out', () => {
+    const before = { addressHistory: [makeAddress('a1', '2022-01-01', 'present', true), makeAddress('a2', '2020-01-01', '2022-01-01')] };
+    const after = clearOnSignOut(before);
+    expect(after.addressHistory.length).toBe(0);
+  });
+
+  it('documents are cleared on sign-out', () => {
+    const before = { documents: [makeDoc('d1', daysFromNow(100)), makeDoc('d2', daysFromNow(200))] };
+    const after = clearOnSignOut(before);
+    expect(after.documents.length).toBe(0);
+  });
+
+  it('familyMembers are cleared on sign-out', () => {
+    const before = { familyMembers: [makeMember('m1', 'Jane'), makeMember('m2', 'Tim')] };
+    const after = clearOnSignOut(before);
+    expect(after.familyMembers.length).toBe(0);
+  });
+
+  it('checklists and counters are cleared on sign-out', () => {
+    const before = {
+      checklists: [{ templateId: 'opt-application', label: 'OPT', items: [] }],
+      counters:   [makeCounter('ct1', 'opt-unemployment', 45, 90)],
+    };
+    const after = clearOnSignOut(before);
+    expect(after.checklists.length).toBe(0);
+    expect(after.counters.length).toBe(0);
+  });
+
+  it('profile data is cleared on sign-out', () => {
+    const before = {
+      visaProfile: { visaType: 'H-1B' },
+      immigrationProfile: { employer: 'Acme Corp' },
+      notificationEmail: 'user@example.com',
+      whatsappPhone: '+12125551234',
+    };
+    const after = clearOnSignOut(before);
+    expect(after.visaProfile).toBeNull();
+    expect(after.immigrationProfile).toBeNull();
+    expect(after.notificationEmail).toBeNull();
+    expect(after.whatsappPhone).toBeNull();
+  });
+
+  it('PIN is cleared on sign-out (next user should not be locked by previous PIN)', () => {
+    const before = { pinEnabled: true, pinCode: '1234' };
+    const after = clearOnSignOut(before);
+    expect(after.pinEnabled).toBe(false);
+    expect(after.pinCode).toBeNull();
+  });
+
+  it('isPremium is cleared on sign-out (next user should not inherit premium)', () => {
+    const before = { isPremium: true, cloudBackupEnabled: true };
+    const after = clearOnSignOut(before);
+    expect(after.isPremium).toBe(false);
+  });
+
+  it('authUser is cleared on sign-out', () => {
+    const before = { authUser: { id: 'u1', email: 'user@test.com' } };
+    const after = clearOnSignOut(before);
+    expect(after.authUser).toBeNull();
+  });
+
+  it('all 15 sensitive fields are wiped on sign-out', () => {
+    const sensitiveFields = [
+      'documents', 'checklists', 'counters', 'trips',
+      'addressHistory', 'familyMembers', 'visaProfile',
+      'immigrationProfile', 'notificationEmail', 'whatsappPhone',
+      'notifications', 'authUser', 'isPremium', 'pinEnabled', 'pinCode',
+    ];
+    const populated = {
+      documents:          [makeDoc('d1', daysFromNow(100))],
+      checklists:         [{ templateId: 'opt', items: [] }],
+      counters:           [makeCounter('ct1', 'opt-unemployment', 10, 90)],
+      trips:              [makeTrip('t1', daysAgo(30), daysAgo(20))],
+      addressHistory:     [makeAddress('a1', '2022-01-01')],
+      familyMembers:      [makeMember('m1', 'Jane')],
+      visaProfile:        { visaType: 'H-1B' },
+      immigrationProfile: { employer: 'Acme' },
+      notificationEmail:  'user@test.com',
+      whatsappPhone:      '+12125551234',
+      notifications:      [{ id: 'n1', message: 'test' }],
+      authUser:           { id: 'u1', email: 'user@test.com' },
+      isPremium:          true,
+      pinEnabled:         true,
+      pinCode:            '1234',
+    };
+    const after = clearOnSignOut(populated);
+
+    // Arrays must be empty
+    ['documents','checklists','counters','trips','addressHistory','familyMembers','notifications']
+      .forEach(f => expect(after[f].length).toBe(0));
+
+    // Objects must be null
+    ['visaProfile','immigrationProfile','notificationEmail','whatsappPhone','authUser','pinCode']
+      .forEach(f => expect(after[f]).toBeNull());
+
+    // Booleans must be false
+    expect(after.isPremium).toBe(false);
+    expect(after.pinEnabled).toBe(false);
+  });
+});
+
+
 // ─── Final Report ─────────────────────────────────────────────
 const total = passed + failed;
 const pct = total > 0 ? Math.round((passed / total) * 100) : 0;

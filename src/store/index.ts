@@ -466,6 +466,8 @@ export const useStore = create<AppStore>()(
       addCustomCounter: (label, maxDays) => {
         // Bug 30 fix: enforce tier limit for custom counters too
         if (!get().canAddCounter()) return;
+        // Validate maxDays — must be a positive integer
+        if (!maxDays || maxDays < 1 || !Number.isFinite(maxDays)) return;
         const id = `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
         set((s) => ({
           counters: [...s.counters, {
@@ -714,11 +716,29 @@ export const useStore = create<AppStore>()(
         // Bug 62 fix: always clear local state even if signOut API call fails (offline)
         try { await supabase.auth.signOut(); } catch {}
         // Bug 60a: clear isPremium so next user on same device doesn't inherit it
+        // Privacy fix: clear ALL user data on sign-out — trips/addressHistory/docs must
+        // not be visible if someone else opens the browser after you sign out.
         set({
           authUser: null, lastSyncedAt: null, syncError: null,
           emailVerified: false, isGuestMode: false,
           hasOnboarded: true, showWelcomeModal: false,
           isPremium: false, cloudBackupEnabled: true,
+          // Clear all user data
+          documents:          [],
+          checklists:         [],
+          counters:           [],
+          trips:              [],
+          addressHistory:     [],
+          familyMembers:      [],
+          visaProfile:        null,
+          immigrationProfile: null,
+          notificationEmail:  null,
+          whatsappPhone:      null,
+          notifications:      [],
+          lastAutoBackupAt:   null,
+          pinEnabled:         false,
+          pinCode:            null,
+          profileSetupShown:  false,
         });
         // Bug 60b: reload only on web — window exists in RN Web but reload is browser-only
         if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -859,10 +879,26 @@ export const useStore = create<AppStore>()(
               }
             }
           } else if (event === 'SIGNED_OUT') {
-            // Bug 45 fix: also clear isPremium so the next user doesn't inherit it
-            set({ authUser: null, lastSyncedAt: null, syncError: null,
-                  emailVerified: false, isPremium: false, cloudBackupEnabled: true,
-                  lastAutoBackupAt: null });
+            // Bug 45 fix + privacy fix: clear all user data so it's not visible after logout
+            set({
+              authUser: null, lastSyncedAt: null, syncError: null,
+              emailVerified: false, isPremium: false, cloudBackupEnabled: true,
+              lastAutoBackupAt: null,
+              documents:          [],
+              checklists:         [],
+              counters:           [],
+              trips:              [],
+              addressHistory:     [],
+              familyMembers:      [],
+              visaProfile:        null,
+              immigrationProfile: null,
+              notificationEmail:  null,
+              whatsappPhone:      null,
+              notifications:      [],
+              pinEnabled:         false,
+              pinCode:            null,
+              profileSetupShown:  false,
+            });
           }
         });
 
