@@ -499,7 +499,7 @@ export const TravelScreen: React.FC = () => {
               activeOpacity={0.85}
             >
               <Ionicons name="add-circle-outline" size={15} color="#7367F0" />
-              <Text style={[styles.cardAddBtnTxt, { color: '#7367F0' }]}>+ Add Trip</Text>
+              <Text style={[styles.cardAddBtnTxt, { color: '#7367F0' }]}>Add Trip</Text>
             </TouchableOpacity>
 
         {/* Trip list */}
@@ -569,7 +569,7 @@ export const TravelScreen: React.FC = () => {
               activeOpacity={0.85}
             >
               <Ionicons name="add-circle-outline" size={15} color="#0891B2" />
-              <Text style={[styles.cardAddBtnTxt, { color: '#0891B2' }]}>+ Add Address</Text>
+              <Text style={[styles.cardAddBtnTxt, { color: '#0891B2' }]}>Add Address</Text>
             </TouchableOpacity>
 
           {/* Show all toggle — mirrored with trip card */}
@@ -929,7 +929,7 @@ const styles = StyleSheet.create({
   cardIconBox:      { width: 36, height: 36, borderRadius: 10, backgroundColor: '#EDE9FE', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   cardTitle:        { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A', lineHeight: 19 },
   cardSub:          { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 1 },
-  cardAddBtn:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1.5, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 10, paddingVertical: 9, marginBottom: 14, backgroundColor: '#FAFAFA' } as any,
+  cardAddBtn:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1.5, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 10, paddingVertical: 9, marginBottom: 14, backgroundColor: '#FAFAFA', alignSelf: 'stretch' } as any,
   cardAddBtnTxt:    { fontSize: 13, fontFamily: 'Inter_600SemiBold' },
   twoColRow:        { flexDirection: 'column', gap: 16, paddingHorizontal: spacing.screen, paddingBottom: 24 } as any,
   twoColRowWide:    { flexDirection: 'row' as any, alignItems: 'stretch' as any } as any,
