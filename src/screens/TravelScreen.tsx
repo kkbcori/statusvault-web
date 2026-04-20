@@ -281,20 +281,6 @@ export const TravelScreen: React.FC = () => {
     return Math.round(Math.abs(b.getTime() - a.getTime()) / 86_400_000);
   };
 
-  // Trips: gap = days between returnDate of one trip and departureDate of the next
-  // sorted newest-first, so we compare sorted[i].departureDate vs sorted[i+1].returnDate
-  const tripGapDays = (() => {
-    if (sorted.length < 2) return 0;
-    let maxGap = 0;
-    for (let i = 0; i < sorted.length - 1; i++) {
-      // sorted[i] is newer, sorted[i+1] is older
-      const gap = daysBetween(sorted[i + 1].returnDate, sorted[i].departureDate) - 1;
-      if (gap > 1) maxGap = Math.max(maxGap, gap);
-    }
-    return maxGap;
-  })();
-  const tripHasGap = tripGapDays > 1;
-
   // Addresses: sort newest-first (current first, then by dateFrom desc)
   const sortedAddresses = [...activeAddressHistory].sort((a, b) =>
     a.isCurrentAddress ? -1 : b.isCurrentAddress ? 1 : b.dateFrom.localeCompare(a.dateFrom)
@@ -483,15 +469,6 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Gap warning — shown above Add Trip button when gap exists */}
-            {tripHasGap && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 6 }}>
-                <Ionicons name="warning-outline" size={13} color="#EA5455" />
-                <Text style={{ fontSize: 11, color: '#EA5455', fontFamily: 'Inter_500Medium' }}>
-                  {tripGapDays}-day gap detected in travel history
-                </Text>
-              </View>
-            )}
             {/* Add Trip button — always full width */}
             <TouchableOpacity
               style={styles.cardAddBtn}
