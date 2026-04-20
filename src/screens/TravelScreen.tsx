@@ -483,25 +483,24 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Add Trip button — full width, with gap warning on left */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              {tripHasGap && (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1 }}>
-                  <Ionicons name="warning-outline" size={13} color="#EA5455" />
-                  <Text style={{ fontSize: 11, color: '#EA5455', fontFamily: 'Inter_500Medium', flexShrink: 1 }}>
-                    {tripGapDays}-day gap in travel history
-                  </Text>
-                </View>
-              )}
-              <TouchableOpacity
-                style={[styles.cardAddBtn, tripHasGap && { flex: 0 } as any]}
-                onPress={openAdd}
-                activeOpacity={0.85}
-              >
-                <Ionicons name="add-circle-outline" size={15} color="#7367F0" />
-                <Text style={[styles.cardAddBtnTxt, { color: '#7367F0' }]}>+ Add Trip</Text>
-              </TouchableOpacity>
-            </View>
+            {/* Gap warning — shown above Add Trip button when gap exists */}
+            {tripHasGap && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                <Ionicons name="warning-outline" size={13} color="#EA5455" />
+                <Text style={{ fontSize: 11, color: '#EA5455', fontFamily: 'Inter_500Medium' }}>
+                  {tripGapDays}-day gap detected in travel history
+                </Text>
+              </View>
+            )}
+            {/* Add Trip button — always full width */}
+            <TouchableOpacity
+              style={styles.cardAddBtn}
+              onPress={openAdd}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="add-circle-outline" size={15} color="#7367F0" />
+              <Text style={[styles.cardAddBtnTxt, { color: '#7367F0' }]}>+ Add Trip</Text>
+            </TouchableOpacity>
 
         {/* Trip list */}
         <View style={{ gap: 8 }}>
@@ -554,25 +553,24 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Add Address button — with gap warning on left */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              {addrHasGap && (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1 }}>
-                  <Ionicons name="warning-outline" size={13} color="#EA5455" />
-                  <Text style={{ fontSize: 11, color: '#EA5455', fontFamily: 'Inter_500Medium', flexShrink: 1 }}>
-                    {addrGapDays}-day gap in address history
-                  </Text>
-                </View>
-              )}
-              <TouchableOpacity
-                style={[styles.cardAddBtn, { borderColor: '#67E8F9' }, addrHasGap && { flex: 0 } as any]}
-                onPress={() => { resetAddrForm(); setShowAddrModal(true); }}
-                activeOpacity={0.85}
-              >
-                <Ionicons name="add-circle-outline" size={15} color="#0891B2" />
-                <Text style={[styles.cardAddBtnTxt, { color: '#0891B2' }]}>+ Add Address</Text>
-              </TouchableOpacity>
-            </View>
+            {/* Gap warning — shown above Add Address button when gap exists */}
+            {addrHasGap && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                <Ionicons name="warning-outline" size={13} color="#EA5455" />
+                <Text style={{ fontSize: 11, color: '#EA5455', fontFamily: 'Inter_500Medium' }}>
+                  {addrGapDays}-day gap detected in address history
+                </Text>
+              </View>
+            )}
+            {/* Add Address button — always full width */}
+            <TouchableOpacity
+              style={[styles.cardAddBtn, { borderColor: '#67E8F9' }]}
+              onPress={() => { resetAddrForm(); setShowAddrModal(true); }}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="add-circle-outline" size={15} color="#0891B2" />
+              <Text style={[styles.cardAddBtnTxt, { color: '#0891B2' }]}>+ Add Address</Text>
+            </TouchableOpacity>
 
           {/* Show all toggle — mirrored with trip card */}
           <View style={{ gap: 8 }}>
