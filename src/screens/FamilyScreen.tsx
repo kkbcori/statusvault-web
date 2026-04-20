@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, Modal, FlatList,
+  TextInput, Modal, FlatList, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -426,6 +426,7 @@ export const FamilyScreen: React.FC = () => {
 
       {/* ═══ ADD MEMBER MODAL ═══ */}
       <Modal visible={showAddMember} transparent animationType="fade">
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.overlay}>
           <View style={styles.modal}>
             <View style={styles.modalHeader}>
@@ -492,10 +493,12 @@ export const FamilyScreen: React.FC = () => {
             </ScrollView>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* ═══ ADD DOC FOR MEMBER MODAL ═══ */}
       <Modal visible={showAddDoc} transparent animationType="fade">
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.overlay}>
           <View style={styles.modal}>
             <View style={styles.modalHeader}>
@@ -623,9 +626,11 @@ export const FamilyScreen: React.FC = () => {
             </ScrollView>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     {/* ═══ EDIT MEMBER MODAL ═══ */}
       <Modal visible={!!editingMember} transparent animationType="fade">
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.overlay}>
           <View style={styles.modal}>
             <View style={styles.modalHeader}>
@@ -690,6 +695,7 @@ export const FamilyScreen: React.FC = () => {
             </ScrollView>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </ScrollView>
   );

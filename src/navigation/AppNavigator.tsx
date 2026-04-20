@@ -89,11 +89,12 @@ const WebSidebar: React.FC = () => {
   }, []);
 
   const onMouseDown = useCallback((e: any) => {
+    // Sidebar drag is web-only — native never calls this handler
     if (typeof document === 'undefined') return;
     dragging.current = true;
     startX.current   = e.clientX;
     startW.current   = sidebarWidth;
-    document.body.style.cursor    = 'col-resize';
+    document.body.style.cursor     = 'col-resize';
     document.body.style.userSelect = 'none';
     const onMove = (ev: MouseEvent) => {
       if (!dragging.current) return;
@@ -102,19 +103,21 @@ const WebSidebar: React.FC = () => {
       setSidebarWidth(newW);
     };
     const onUp = () => {
+      if (typeof document === 'undefined') return;
       dragging.current = false;
-      document.body.style.cursor    = '';
+      document.body.style.cursor     = '';
       document.body.style.userSelect = '';
       document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('mouseup',  onUp);
       cleanupFn.current = null;
     };
     cleanupFn.current = () => {
+      if (typeof document === 'undefined') return;
       document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('mouseup',  onUp);
     };
     document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener('mouseup',  onUp);
   }, [sidebarWidth]);
 
   const currentRoute = useNavigationState((state) => {
@@ -329,7 +332,10 @@ const MainTabs: React.FC = () => {
   const authUser         = useStore((s) => s.authUser);
 
   // Detect magic link / OAuth redirect in URL — suppress all modals while processing
+  // On native there is no URL bar — deep links are handled by Linking + onAuthStateChange,
+  // so this check is always false on native (no modal suppression needed there).
   const hasMagicLinkInUrl = React.useMemo(() => {
+    if (Platform.OS !== 'web') return false;
     if (typeof window === 'undefined') return false;
     const hash = window.location.hash;
     return hash.includes('access_token') || hash.includes('token_hash');
@@ -341,11 +347,17 @@ const MainTabs: React.FC = () => {
     if (!hasHydrated) return;
     if (hasMagicLinkInUrl) return;
 
-    // Check Supabase session synchronously from localStorage — no async race
+    // Check if user has an active session to suppress welcome modal.
+    // Web: read from localStorage synchronously (no async race).
+    // Native: localStorage is unavailable — check Zustand's authUser instead
+    //         (populated from AsyncStorage during initAuth).
     const hasSupabaseSession = (() => {
+      if (Platform.OS !== 'web') {
+        return !!useStore.getState().authUser;
+      }
       try {
         const key = SUPABASE_SESSION_KEY;
-        const raw = localStorage.getItem(key);
+        const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(key) : null;
         if (!raw) return false;
         const parsed = JSON.parse(raw);
         return !!(parsed?.access_token || parsed?.session?.access_token);

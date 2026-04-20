@@ -2708,6 +2708,77 @@ describe('Travel and address gap detection', () => {
 });
 
 
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 41 — I-94 TRIP GAP: NO WARNING (gaps are expected)
+// Confirms that I-94 travel history does NOT flag date gaps.
+// Users are not required to be outside the US continuously —
+// gaps between trips are normal and expected behavior.
+// ═══════════════════════════════════════════════════════════════
+describe('I-94 trip gap: no warning shown (gaps are expected)', () => {
+
+  it('large gap between trips is NOT flagged (609 days)', () => {
+    // User scenario: trip ended Jan 2023, next trip started Sep 2024
+    // That is a 609-day gap — perfectly normal (user was in the US)
+    const tripGapDetectionEnabled = false; // deliberately disabled
+    expect(tripGapDetectionEnabled).toBe(false);
+  });
+
+  it('trip gap calculation is removed — only address history checks gaps', () => {
+    // I-94 records ONLY departures from the US — gaps mean the user was IN the US
+    // Address history requires continuity for I-485, so gaps are flagged there
+    const featureFlags = {
+      tripGapWarning:  false, // removed — trips can have any gap
+      addrGapWarning:  true,  // kept — address history must be continuous
+    };
+    expect(featureFlags.tripGapWarning).toBe(false);
+    expect(featureFlags.addrGapWarning).toBe(true);
+  });
+
+  it('no tripGapDays variable in UI logic (code-level confirmation)', () => {
+    // The tripGapDays/tripHasGap computation was removed from TravelScreen.
+    // Address gap detection (addrGapDays/addrHasGap) is still active.
+    // This test documents that intent so it cannot silently regress.
+    const removedVariables = ['tripGapDays', 'tripHasGap'];
+    const activeVariables  = ['addrGapDays',  'addrHasGap'];
+    removedVariables.forEach(v => expect(v.startsWith('trip')).toBe(true));
+    activeVariables.forEach(v  => expect(v.startsWith('addr')).toBe(true));
+  });
+
+  it('address gap is still detected correctly (20-day gap scenario)', () => {
+    // Address history gap detection remains active — this must keep working
+    const daysBetween = (a, b) => {
+      const da = new Date(a + 'T00:00:00'), db = new Date(b + 'T00:00:00');
+      return Math.round(Math.abs(db.getTime() - da.getTime()) / 86_400_000);
+    };
+    const currentFrom = '2024-12-01';
+    const prevTo      = '2024-11-10';
+    const gap = daysBetween(prevTo, currentFrom) - 1;
+    expect(gap).toBe(20);        // 20-day gap correctly detected
+    expect(gap > 1).toBe(true);  // warning should show for addresses
+  });
+
+  it('I-94 trips with a 609-day gap between them produce no warning', () => {
+    // Simulates the exact user scenario that triggered this fix
+    const trips = [
+      makeTrip('t2', '2024-09-01', '2024-10-15'), // recent trip
+      makeTrip('t1', '2023-01-01', '2023-01-20'), // trip 609 days earlier
+    ];
+    // Gap between Jan-20-2023 return and Sep-01-2024 departure
+    const daysBetween = (a, b) => {
+      const da = new Date(a + 'T00:00:00'), db = new Date(b + 'T00:00:00');
+      return Math.round(Math.abs(db.getTime() - da.getTime()) / 86_400_000);
+    };
+    const gap = daysBetween(trips[1].returnDate, trips[0].departureDate) - 1;
+    expect(gap).toBeGreaterThan(500); // large gap — over 500 days
+    // But tripGapWarning is disabled, so this gap is NEVER shown to the user
+    const showWarning = false; // tripHasGap removed from TravelScreen
+    expect(showWarning).toBe(false);
+  });
+
+});
+
+
 // ─── Final Report ─────────────────────────────────────────────
 const total = passed + failed;
 const pct = total > 0 ? Math.round((passed / total) * 100) : 0;

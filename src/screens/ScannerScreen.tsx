@@ -48,6 +48,7 @@ export const ScannerScreen: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+
   const handleScan = async () => { return; // DISABLED — scanner not yet production-ready
     if (!imageData) return;
     setScanning(true); setError(null);

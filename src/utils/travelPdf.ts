@@ -176,8 +176,14 @@ export async function exportTravelPdf(trips: TravelTrip[]): Promise<void> {
     return;
   }
 
-  const Print   = require('expo-print');
-  const Sharing = require('expo-sharing');
+  let Print: any, Sharing: any;
+  try {
+    Print   = require('expo-print');
+    Sharing = require('expo-sharing');
+  } catch {
+    console.warn('expo-print or expo-sharing not available');
+    return;
+  }
   const { uri } = await Print.printToFileAsync({ html, base64: false });
   const canShare = await Sharing.isAvailableAsync();
   if (canShare) {

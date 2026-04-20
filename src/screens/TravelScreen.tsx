@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Modal, TextInput, Platform, FlatList,
+  Modal, TextInput, Platform, FlatList, KeyboardAvoidingView,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -631,6 +631,7 @@ export const TravelScreen: React.FC = () => {
 
       {/* ═══ ADD / EDIT TRIP MODAL ═══ */}
       <Modal visible={showModal} animationType="slide" transparent>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             {/* Purple trim — N-400 theme */}
@@ -742,10 +743,12 @@ export const TravelScreen: React.FC = () => {
             </View>{/* end form */}
           </View>{/* end modalSheet */}
         </View>{/* end modalOverlay */}
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* ═══ ADD / EDIT ADDRESS MODAL ═══ */}
       <Modal visible={showAddrModal} animationType="slide" transparent>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             {/* Cyan trim — I-485 theme */}
@@ -865,6 +868,7 @@ export const TravelScreen: React.FC = () => {
             </View>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch,
-  Alert, Linking, Share, TextInput, Modal, Platform,
+  Alert, Linking, Share, TextInput, Modal, Platform, KeyboardAvoidingView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -218,7 +218,51 @@ export const SettingsScreen: React.FC = () => {
       };
       input.click();
     } else {
-      setShowImportModal(true);
+      // Native: use expo-document-picker to let user pick their backup JSON from Files
+      (async () => {
+        try {
+          const DocumentPicker = await import('expo-document-picker');
+          const result = await DocumentPicker.getDocumentAsync({
+            type: 'application/json',
+            copyToCacheDirectory: true,
+          });
+          if (result.canceled || !result.assets?.[0]) return;
+          const FileSystem = await import('expo-file-system');
+          const text = await FileSystem.readAsStringAsync(result.assets[0].uri);
+          if (!text) return;
+          try {
+            const parsed = JSON.parse(text.trim());
+            if (parsed.app !== 'StatusVault' || !parsed.data) {
+              dialog.alert('Import Failed', 'Not a valid StatusVault backup file.');
+              return;
+            }
+            const d = parsed.data;
+            const docCount    = (d.documents    ?? []).length;
+            const memberCount = (d.familyMembers ?? []).length;
+            const tripCount   = (d.trips         ?? []).length;
+            const exportedAt  = parsed.exportedAt
+              ? new Date(parsed.exportedAt).toLocaleString()
+              : 'Unknown date';
+            dialog.confirm({
+              title: 'Restore from Backup?',
+              message: `Backup from ${exportedAt}\n\n${docCount} document${docCount !== 1 ? 's' : ''} · ${memberCount} family member${memberCount !== 1 ? 's' : ''} · ${tripCount} trip${tripCount !== 1 ? 's' : ''}\n\nThis will merge with your current data.`,
+              confirmLabel: 'Restore',
+              cancelLabel:  'Cancel',
+              type: 'danger',
+              onConfirm: () => {
+                const success = importData(text.trim());
+                if (success) dialog.alert('Restored', 'All data has been restored successfully.');
+                else dialog.alert('Import Failed', 'Could not restore — file may be corrupted.');
+              },
+            });
+          } catch {
+            dialog.alert('Import Failed', 'Not a valid StatusVault backup file.');
+          }
+        } catch {
+          // Fallback to paste modal if document picker unavailable
+          setShowImportModal(true);
+        }
+      })();
     }
   };
 
@@ -662,6 +706,7 @@ export const SettingsScreen: React.FC = () => {
 
       {/* Import Modal */}
       <Modal visible={showImportModal} animationType="slide" transparent>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.importOverlay}>
           <View style={styles.importSheet}>
             <View style={styles.importTrim} />
@@ -684,6 +729,7 @@ export const SettingsScreen: React.FC = () => {
             </View>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
 
     </ScrollView>

@@ -146,3 +146,122 @@ test.describe('Edge cases', () => {
   });
 
 });
+
+// ── Address gap warning — browser-level test ──────────────────
+test.describe('Address history gap warning', () => {
+
+  test('TC-ADDR-GAP-01 — gap warning shown when addresses have >1 day gap', async ({ page }) => {
+    // Current address starts Dec 1 2024, previous ended Nov 10 2024 = 20-day gap
+    await injectState(page, freeState({
+      addressHistory: [
+        { id: 'a1', street: '100 Main St', city: 'Dallas', state: 'TX', zipCode: '75001',
+          country: 'United States', dateFrom: '2024-12-01', dateTo: 'present',
+          isCurrentAddress: true, createdAt: new Date().toISOString() },
+        { id: 'a2', street: '50 Oak Ave', city: 'Houston', state: 'TX', zipCode: '77001',
+          country: 'United States', dateFrom: '2022-10-01', dateTo: '2024-11-10',
+          isCurrentAddress: false, createdAt: new Date().toISOString() },
+      ],
+    }));
+
+    // Navigate to Travel tab
+    await page.locator('text=/travel|residency/i').first().click();
+    await page.waitForTimeout(600);
+
+    // Gap warning should be visible above the Add Address button
+    await expect(
+      page.locator('text=/gap detected in address history/i').first()
+    ).toBeVisible({ timeout: 5000 });
+
+    // The Add Address button should still be visible and full width
+    await expect(
+      page.locator('text=/Add Address/i').first()
+    ).toBeVisible();
+  });
+
+  test('TC-ADDR-GAP-02 — no gap warning when addresses are contiguous', async ({ page }) => {
+    // Previous ends Jan 1 2024, current starts Jan 1 2024 — contiguous
+    await injectState(page, freeState({
+      addressHistory: [
+        { id: 'a1', street: '100 Main St', city: 'Dallas', state: 'TX', zipCode: '75001',
+          country: 'United States', dateFrom: '2024-01-01', dateTo: 'present',
+          isCurrentAddress: true, createdAt: new Date().toISOString() },
+        { id: 'a2', street: '50 Oak Ave', city: 'Houston', state: 'TX', zipCode: '77001',
+          country: 'United States', dateFrom: '2022-01-01', dateTo: '2023-12-31',
+          isCurrentAddress: false, createdAt: new Date().toISOString() },
+      ],
+    }));
+
+    await page.locator('text=/travel|residency/i').first().click();
+    await page.waitForTimeout(600);
+
+    // No gap warning should appear
+    await expect(
+      page.locator('text=/gap detected in address history/i')
+    ).not.toBeVisible();
+  });
+
+  test('TC-ADDR-GAP-03 — no gap warning with only one address', async ({ page }) => {
+    await injectState(page, freeState({
+      addressHistory: [
+        { id: 'a1', street: '100 Main St', city: 'Dallas', state: 'TX', zipCode: '75001',
+          country: 'United States', dateFrom: '2022-01-01', dateTo: 'present',
+          isCurrentAddress: true, createdAt: new Date().toISOString() },
+      ],
+    }));
+
+    await page.locator('text=/travel|residency/i').first().click();
+    await page.waitForTimeout(600);
+
+    await expect(
+      page.locator('text=/gap detected in address history/i')
+    ).not.toBeVisible();
+  });
+
+  test('TC-ADDR-GAP-04 — gap warning shows correct day count', async ({ page }) => {
+    // Nov 10 → Dec 1 = 21 days apart → 20-day gap
+    await injectState(page, freeState({
+      addressHistory: [
+        { id: 'a1', street: '100 Main St', city: 'Dallas', state: 'TX', zipCode: '75001',
+          country: 'United States', dateFrom: '2024-12-01', dateTo: 'present',
+          isCurrentAddress: true, createdAt: new Date().toISOString() },
+        { id: 'a2', street: '50 Oak Ave', city: 'Houston', state: 'TX', zipCode: '77001',
+          country: 'United States', dateFrom: '2022-10-01', dateTo: '2024-11-10',
+          isCurrentAddress: false, createdAt: new Date().toISOString() },
+      ],
+    }));
+
+    await page.locator('text=/travel|residency/i').first().click();
+    await page.waitForTimeout(600);
+
+    // Warning should mention "20-day gap"
+    await expect(
+      page.locator('text=/20-day gap/i').first()
+    ).toBeVisible({ timeout: 5000 });
+  });
+
+  test('TC-ADDR-GAP-05 — addresses sorted newest first (current address on top)', async ({ page }) => {
+    await injectState(page, freeState({
+      addressHistory: [
+        { id: 'a3', street: '30 Pine St', city: 'Austin', state: 'TX', zipCode: '78701',
+          country: 'United States', dateFrom: '2019-01-01', dateTo: '2020-12-31',
+          isCurrentAddress: false, createdAt: new Date().toISOString() },
+        { id: 'a1', street: '100 Main St', city: 'Dallas', state: 'TX', zipCode: '75001',
+          country: 'United States', dateFrom: '2023-01-01', dateTo: 'present',
+          isCurrentAddress: true, createdAt: new Date().toISOString() },
+        { id: 'a2', street: '50 Oak Ave', city: 'Houston', state: 'TX', zipCode: '77001',
+          country: 'United States', dateFrom: '2021-01-01', dateTo: '2022-12-31',
+          isCurrentAddress: false, createdAt: new Date().toISOString() },
+      ],
+    }));
+
+    // Verify via state — sorted order: current (a1), then a2 (2021), then a3 (2019)
+    const s = await getState(page);
+    const sorted = [...s.addressHistory].sort((a: any, b: any) =>
+      a.isCurrentAddress ? -1 : b.isCurrentAddress ? 1 : b.dateFrom.localeCompare(a.dateFrom)
+    );
+    expect(sorted[0].id).toBe('a1'); // current first
+    expect(sorted[1].id).toBe('a2'); // newest non-current second
+    expect(sorted[2].id).toBe('a3'); // oldest last
+  });
+
+});

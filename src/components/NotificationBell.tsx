@@ -65,7 +65,9 @@ export const NotificationBell: React.FC = () => {
     if (!open && bellRef.current) {
       if (typeof bellRef.current.getBoundingClientRect === 'function') {
         const r = bellRef.current.getBoundingClientRect();
-        setPos({ top: r.bottom + 6, right: window.innerWidth - r.right });
+        // Guard window.innerWidth — native has no window object
+        const winWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
+        setPos({ top: r.bottom + 6, right: winWidth - r.right });
       }
     }
     setOpen(v => !v);

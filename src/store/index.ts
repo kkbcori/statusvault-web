@@ -673,11 +673,12 @@ export const useStore = create<AppStore>()(
       },
 
       sendMagicLink: async (email) => {
-        const redirectTo = typeof window !== 'undefined'
-          ? (window.location.hostname === 'localhost'
-              ? window.location.origin   // local dev — no subpath
-              : 'https://www.statusvault.org')
-          : 'https://www.statusvault.org';
+        // Native: use deep link scheme. Web: use origin URL.
+        const redirectTo = Platform.OS !== 'web'
+          ? 'statusvault://auth'
+          : (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+              ? window.location.origin
+              : 'https://www.statusvault.org');
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
@@ -740,10 +741,12 @@ export const useStore = create<AppStore>()(
           pinCode:            null,
           profileSetupShown:  false,
         });
-        // Bug 60b: reload only on web — window exists in RN Web but reload is browser-only
+        // Bug 60b: reload only on web — native just re-renders via state reset above
         if (Platform.OS === 'web' && typeof window !== 'undefined') {
           setTimeout(() => window.location.reload(), 100);
         }
+        // On native: no reload needed — Zustand state reset above causes re-render
+        // and the app navigates back to welcome screen automatically
       },
 
       deleteAccount: async () => {
@@ -783,19 +786,36 @@ export const useStore = create<AppStore>()(
       initAuth: async () => {
         let initialSyncDone = false;
 
-        // Bug 11 fix: register visibilitychange only once (module-level flag prevents
+        // Bug 11 fix: register visibility listener only once (module-level flag prevents
         //             accumulation across hot-reloads / StrictMode double-invokes)
-        // Bug 12 fix: only sync on tab focus for premium+cloudBackup users
-        if (typeof document !== 'undefined' && !_visibilityListenerRegistered) {
-          _visibilityListenerRegistered = true;
-          document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-              const s = useStore.getState();
-              if (s.authUser && s.isPremium && s.cloudBackupEnabled) {
-                s.syncFromCloud().catch(() => {});
+        // Bug 12 fix: only sync on tab/app focus for premium+cloudBackup users
+        if (Platform.OS === 'web') {
+          // Web: use visibilitychange event
+          if (typeof document !== 'undefined' && !_visibilityListenerRegistered) {
+            _visibilityListenerRegistered = true;
+            document.addEventListener('visibilitychange', () => {
+              if (document.visibilityState === 'visible') {
+                const s = useStore.getState();
+                if (s.authUser && s.isPremium && s.cloudBackupEnabled) {
+                  s.syncFromCloud().catch(() => {});
+                }
               }
-            }
-          });
+            });
+          }
+        } else {
+          // Native: use AppState to sync when app comes to foreground
+          if (!_visibilityListenerRegistered) {
+            _visibilityListenerRegistered = true;
+            const { AppState } = require('react-native');
+            AppState.addEventListener('change', (nextState: string) => {
+              if (nextState === 'active') {
+                const s = useStore.getState();
+                if (s.authUser && s.isPremium && s.cloudBackupEnabled) {
+                  s.syncFromCloud().catch(() => {});
+                }
+              }
+            });
+          }
         }
 
         // ── URL token handling ──────────────────────────────────────

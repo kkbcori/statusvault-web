@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Modal, FlatList, TextInput, Alert, Platform,
+  Modal, FlatList, TextInput, Alert, Platform, KeyboardAvoidingView,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore, FREE_LIMIT } from '../store';
@@ -212,6 +212,7 @@ export const DocumentsScreen: React.FC = () => {
 
       {/* ═══ ADD DOCUMENT MODAL ═══ */}
       <Modal visible={showAddModal} animationType="slide" transparent>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <View style={styles.modalHeader}>
@@ -340,6 +341,7 @@ export const DocumentsScreen: React.FC = () => {
             ) : null}
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* ═══ PAYWALL — CENTERED DIALOG ═══ */}

@@ -98,7 +98,29 @@ export default function App() {
         useStore.setState({ _hasHydrated: true });
       }
     }, 1000);
-    return () => { clearTimeout(authTimeout); clearTimeout(hydrateTimeout); };
+
+    // Native PIN re-lock: re-lock the app when it comes back to foreground.
+    // On web, the tab visibility change is handled by PinLockScreen itself.
+    let appStateSub: any = null;
+    if (Platform.OS !== 'web') {
+      const { AppState } = require('react-native');
+      let lastState = AppState.currentState;
+      appStateSub = AppState.addEventListener('change', (nextState: string) => {
+        // Re-lock when coming back from background/inactive → active
+        if (lastState !== 'active' && nextState === 'active') {
+          if (useStore.getState().pinEnabled) {
+            setIsLocked(true);
+          }
+        }
+        lastState = nextState;
+      });
+    }
+
+    return () => {
+      clearTimeout(authTimeout);
+      clearTimeout(hydrateTimeout);
+      appStateSub?.remove?.();
+    };
   }, []);
 
   // Show loading only briefly — max 3s, never indefinite
