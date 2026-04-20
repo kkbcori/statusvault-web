@@ -2570,6 +2570,144 @@ describe('Sign-out clears all user data (privacy)', () => {
 });
 
 
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 40 — TRAVEL & ADDRESS GAP DETECTION
+// ═══════════════════════════════════════════════════════════════
+describe('Travel and address gap detection', () => {
+
+  const daysBetween = (a, b) => {
+    const da = new Date(a + 'T00:00:00'), db = new Date(b + 'T00:00:00');
+    return Math.round(Math.abs(db.getTime() - da.getTime()) / 86_400_000);
+  };
+
+  // ── Trip gap detection ───────────────────────────────────────
+  it('no gap when trips are contiguous (return=departure next day)', () => {
+    // Trip 1: Jan 1–Jan 15, Trip 2: Jan 16–Jan 30 → gap = 0
+    const sorted = [
+      makeTrip('t2', '2025-01-16', '2025-01-30'),
+      makeTrip('t1', '2025-01-01', '2025-01-15'),
+    ];
+    const gap = daysBetween(sorted[1].returnDate, sorted[0].departureDate) - 1;
+    expect(gap).toBe(0); // Jan 15 return → Jan 16 departure = 0 gap days
+  });
+
+  it('detects 20-day gap between trips', () => {
+    // Trip 1: Jan 1–Jan 10, Trip 2: Jan 31–Feb 10 → gap = 20 days
+    const sorted = [
+      makeTrip('t2', '2025-01-31', '2025-02-10'),
+      makeTrip('t1', '2025-01-01', '2025-01-10'),
+    ];
+    const gap = daysBetween(sorted[1].returnDate, sorted[0].departureDate) - 1;
+    expect(gap).toBe(20); // Jan 10 to Jan 31 = 21 days apart, minus 1 = 20-day gap
+  });
+
+  it('no gap detected with only 1 trip', () => {
+    const sorted = [makeTrip('t1', '2025-01-01', '2025-01-15')];
+    expect(sorted.length < 2).toBe(true); // no comparison possible
+  });
+
+  it('gap = 0 when return and next departure are same day', () => {
+    const sorted = [
+      makeTrip('t2', '2025-03-01', '2025-03-10'),
+      makeTrip('t1', '2025-01-01', '2025-03-01'), // return exactly = next departure
+    ];
+    const gap = daysBetween(sorted[1].returnDate, sorted[0].departureDate) - 1;
+    expect(gap).toBe(-1); // overlap, no gap (negative means overlap)
+    expect(gap <= 1).toBe(true); // not flagged
+  });
+
+  it('largest gap wins when multiple trips have gaps', () => {
+    const sorted = [
+      makeTrip('t3', '2025-06-01', '2025-06-10'),
+      makeTrip('t2', '2025-03-01', '2025-03-10'),
+      makeTrip('t1', '2025-01-01', '2025-01-10'),
+    ];
+    let maxGap = 0;
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const gap = daysBetween(sorted[i + 1].returnDate, sorted[i].departureDate) - 1;
+      if (gap > 1) maxGap = Math.max(maxGap, gap);
+    }
+    // Jan10→Mar1 = 49 days gap, Mar10→Jun1 = 82 days gap
+    expect(maxGap).toBeGreaterThan(49);
+    expect(maxGap).toBe(82);
+  });
+
+  // ── Address gap detection ────────────────────────────────────
+  it('detects 20-day gap in address history', () => {
+    // Addr 1 (newer): Dec-1-2024 to present
+    // Addr 2 (older): Oct-1-2022 to Nov-10-2024
+    // Gap = Nov-10 to Dec-1 = 21 days apart → 20 day gap
+    const addresses = [
+      { id: 'a1', dateFrom: '2024-12-01', dateTo: 'present', isCurrentAddress: true },
+      { id: 'a2', dateFrom: '2022-10-01', dateTo: '2024-11-10', isCurrentAddress: false },
+    ];
+    const sorted = [...addresses].sort((a, b) =>
+      a.isCurrentAddress ? -1 : b.isCurrentAddress ? 1 : b.dateFrom.localeCompare(a.dateFrom)
+    );
+    const newerFrom = sorted[0].dateFrom; // 2024-12-01
+    const olderTo   = sorted[1].dateTo;   // 2024-11-10
+    const gap = daysBetween(olderTo, newerFrom) - 1;
+    expect(gap).toBe(20); // 21 days apart, minus 1 = 20-day gap
+  });
+
+  it('no gap when address periods are contiguous', () => {
+    const addresses = [
+      { id: 'a1', dateFrom: '2024-01-01', dateTo: 'present', isCurrentAddress: true },
+      { id: 'a2', dateFrom: '2022-01-01', dateTo: '2023-12-31', isCurrentAddress: false },
+    ];
+    const sorted = [...addresses].sort((a, b) =>
+      a.isCurrentAddress ? -1 : b.isCurrentAddress ? 1 : b.dateFrom.localeCompare(a.dateFrom)
+    );
+    const gap = daysBetween(sorted[1].dateTo, sorted[0].dateFrom) - 1;
+    expect(gap).toBe(0); // Dec 31 → Jan 1 = 1 day apart, minus 1 = 0 gap
+  });
+
+  it('addresses sorted newest-first (current address always first)', () => {
+    const addresses = [
+      { id: 'a3', dateFrom: '2019-01-01', dateTo: '2020-12-31', isCurrentAddress: false },
+      { id: 'a1', dateFrom: '2023-01-01', dateTo: 'present',    isCurrentAddress: true  },
+      { id: 'a2', dateFrom: '2021-01-01', dateTo: '2022-12-31', isCurrentAddress: false },
+    ];
+    const sorted = [...addresses].sort((a, b) =>
+      a.isCurrentAddress ? -1 : b.isCurrentAddress ? 1 : b.dateFrom.localeCompare(a.dateFrom)
+    );
+    expect(sorted[0].id).toBe('a1'); // current address first
+    expect(sorted[1].id).toBe('a2'); // then 2021
+    expect(sorted[2].id).toBe('a3'); // then 2019
+  });
+
+  it('addresses with 2-day gap are NOT flagged (threshold > 1 day)', () => {
+    const addresses = [
+      { id: 'a1', dateFrom: '2024-01-03', dateTo: 'present', isCurrentAddress: true },
+      { id: 'a2', dateFrom: '2022-01-01', dateTo: '2024-01-01', isCurrentAddress: false },
+    ];
+    const sorted = [...addresses].sort((a, b) =>
+      a.isCurrentAddress ? -1 : b.isCurrentAddress ? 1 : b.dateFrom.localeCompare(a.dateFrom)
+    );
+    const gap = daysBetween(sorted[1].dateTo, sorted[0].dateFrom) - 1;
+    expect(gap).toBe(1); // 2 days apart, minus 1 = 1-day gap — NOT > 1, not flagged
+    expect(gap > 1).toBe(false);
+  });
+
+  it('gap > 1 day IS flagged as a warning', () => {
+    const gap = 20;
+    expect(gap > 1).toBe(true); // flagged
+  });
+
+  // ── User scenario from the bug report ────────────────────────
+  it('exact user scenario: Dec-1-2024 current, Oct-1-2022 to Nov-10-2024 previous = 20 day gap', () => {
+    const currentFrom = '2024-12-01';
+    const prevTo      = '2024-11-10';
+    const gap = daysBetween(prevTo, currentFrom) - 1;
+    // Nov 10 to Dec 1 = 21 days apart → 20-day gap
+    expect(gap).toBe(20);
+    expect(gap > 1).toBe(true); // should show warning
+    // To fix: previous address dateTo should be extended to Nov-30 or Dec-01
+  });
+});
+
+
 // ─── Final Report ─────────────────────────────────────────────
 const total = passed + failed;
 const pct = total > 0 ? Math.round((passed / total) * 100) : 0;

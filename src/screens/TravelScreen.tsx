@@ -273,6 +273,48 @@ export const TravelScreen: React.FC = () => {
   const hasLong   = last5.some(isLongAbsence);
   const displayed = showAll ? sorted : sortByDateDesc(last5);
 
+  // ── Gap detection helpers ──────────────────────────────────
+  // Returns number of days gap between two consecutive date strings
+  const daysBetween = (dateA: string, dateB: string): number => {
+    const a = new Date(dateA + 'T00:00:00');
+    const b = new Date(dateB + 'T00:00:00');
+    return Math.round(Math.abs(b.getTime() - a.getTime()) / 86_400_000);
+  };
+
+  // Trips: gap = days between returnDate of one trip and departureDate of the next
+  // sorted newest-first, so we compare sorted[i].departureDate vs sorted[i+1].returnDate
+  const tripGapDays = (() => {
+    if (sorted.length < 2) return 0;
+    let maxGap = 0;
+    for (let i = 0; i < sorted.length - 1; i++) {
+      // sorted[i] is newer, sorted[i+1] is older
+      const gap = daysBetween(sorted[i + 1].returnDate, sorted[i].departureDate) - 1;
+      if (gap > 1) maxGap = Math.max(maxGap, gap);
+    }
+    return maxGap;
+  })();
+  const tripHasGap = tripGapDays > 1;
+
+  // Addresses: sort newest-first (current first, then by dateFrom desc)
+  const sortedAddresses = [...activeAddressHistory].sort((a, b) =>
+    a.isCurrentAddress ? -1 : b.isCurrentAddress ? 1 : b.dateFrom.localeCompare(a.dateFrom)
+  );
+  const addrGapDays = (() => {
+    if (sortedAddresses.length < 2) return 0;
+    let maxGap = 0;
+    for (let i = 0; i < sortedAddresses.length - 1; i++) {
+      const newer = sortedAddresses[i];
+      const older = sortedAddresses[i + 1];
+      const newerFrom = newer.dateFrom;
+      const olderTo   = older.isCurrentAddress ? new Date().toISOString().split('T')[0] : older.dateTo;
+      if (olderTo === 'present') continue;
+      const gap = daysBetween(olderTo, newerFrom) - 1;
+      if (gap > 1) maxGap = Math.max(maxGap, gap);
+    }
+    return maxGap;
+  })();
+  const addrHasGap = addrGapDays > 1;
+
   const resetForm = () => {
     setCountry(''); setPortOfEntry(''); setNotes('');
     setPurpose('vacation');
@@ -441,15 +483,25 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Add Trip button — full width, teal-indigo style */}
-            <TouchableOpacity
-              style={styles.cardAddBtn}
-              onPress={openAdd}
-              activeOpacity={0.85}
-            >
-              <Ionicons name="add-circle-outline" size={15} color="#7367F0" />
-              <Text style={[styles.cardAddBtnTxt, { color: '#7367F0' }]}>+ Add Trip</Text>
-            </TouchableOpacity>
+            {/* Add Trip button — full width, with gap warning on left */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              {tripHasGap && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1 }}>
+                  <Ionicons name="warning-outline" size={13} color="#EA5455" />
+                  <Text style={{ fontSize: 11, color: '#EA5455', fontFamily: 'Inter_500Medium', flexShrink: 1 }}>
+                    {tripGapDays}-day gap in travel history
+                  </Text>
+                </View>
+              )}
+              <TouchableOpacity
+                style={[styles.cardAddBtn, tripHasGap && { flex: 0 } as any]}
+                onPress={openAdd}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="add-circle-outline" size={15} color="#7367F0" />
+                <Text style={[styles.cardAddBtnTxt, { color: '#7367F0' }]}>+ Add Trip</Text>
+              </TouchableOpacity>
+            </View>
 
         {/* Trip list */}
         <View style={{ gap: 8 }}>
@@ -502,15 +554,25 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Add Address button — mirrored with Add Trip */}
-            <TouchableOpacity
-              style={[styles.cardAddBtn, { borderColor: '#67E8F9' }]}
-              onPress={() => { resetAddrForm(); setShowAddrModal(true); }}
-              activeOpacity={0.85}
-            >
-              <Ionicons name="add-circle-outline" size={15} color="#0891B2" />
-              <Text style={[styles.cardAddBtnTxt, { color: '#0891B2' }]}>+ Add Address</Text>
-            </TouchableOpacity>
+            {/* Add Address button — with gap warning on left */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              {addrHasGap && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1 }}>
+                  <Ionicons name="warning-outline" size={13} color="#EA5455" />
+                  <Text style={{ fontSize: 11, color: '#EA5455', fontFamily: 'Inter_500Medium', flexShrink: 1 }}>
+                    {addrGapDays}-day gap in address history
+                  </Text>
+                </View>
+              )}
+              <TouchableOpacity
+                style={[styles.cardAddBtn, { borderColor: '#67E8F9' }, addrHasGap && { flex: 0 } as any]}
+                onPress={() => { resetAddrForm(); setShowAddrModal(true); }}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="add-circle-outline" size={15} color="#0891B2" />
+                <Text style={[styles.cardAddBtnTxt, { color: '#0891B2' }]}>+ Add Address</Text>
+              </TouchableOpacity>
+            </View>
 
           {/* Show all toggle — mirrored with trip card */}
           <View style={{ gap: 8 }}>
@@ -520,7 +582,7 @@ export const TravelScreen: React.FC = () => {
               </TouchableOpacity>
             )}
 
-          {activeAddressHistory.length === 0 ? (
+          {sortedAddresses.length === 0 ? (
             <View style={styles.emptyCard}>
               <View style={[styles.emptyIconCircle, { backgroundColor: '#F0FDFF', borderColor: 'rgba(8,145,178,0.25)' }]}>
                 <Text style={{ fontSize: 28 }}>🏠</Text>
@@ -529,8 +591,7 @@ export const TravelScreen: React.FC = () => {
               <Text style={styles.emptySubtitle}>Tap "+ Add Address" to log your US addresses for I-485 filing</Text>
             </View>
           ) : (
-            [...activeAddressHistory]
-              .sort((a, b) => (a.isCurrentAddress ? -1 : b.isCurrentAddress ? 1 : b.dateFrom.localeCompare(a.dateFrom)))
+            sortedAddresses
               .slice(0, showAllAddr ? undefined : 5)
               .map((entry: AddressEntry) => (
                 <View key={entry.id} style={styles.tripCard}>
