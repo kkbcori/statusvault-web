@@ -394,11 +394,14 @@ export const DashboardScreen: React.FC = () => {
 
 
 
-      {/* ═══ 4-CARD GRID ═══ */}
-      <View style={[styles.cardGrid, hasSidebar && styles.cardGridWeb]}>
+      {/* ═══ 4-CARD GRID — explicit 2×2 rows ═══ */}
+      <View style={styles.cardGrid}>
+
+        {/* ── Row 1: Doc Status + Upcoming Deadlines ── */}
+        <View style={[styles.cardRow, hasSidebar && styles.cardRowWide]}>
 
         {/* Card 1: Document Status */}
-        <Animated.View style={[grid1Anim, IS_WEB && { minWidth: 0, flex: 1 } as any]}><Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
+        <Animated.View style={[grid1Anim, hasSidebar && styles.cardHalf as any]}><Card style={styles.gridCard}>
           <CardHeader
             title="Document Status"
             subtitle="Urgency breakdown"
@@ -435,7 +438,7 @@ export const DashboardScreen: React.FC = () => {
         </Animated.View>
 
         {/* Card 2: Upcoming Deadlines */}
-        <Animated.View style={[grid2Anim, IS_WEB && { minWidth: 0, flex: 1 } as any]}><Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
+        <Animated.View style={[grid2Anim, hasSidebar && styles.cardHalf as any]}><Card style={styles.gridCard}>
           <CardHeader
             title="Upcoming Deadlines"
             subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
@@ -481,8 +484,13 @@ export const DashboardScreen: React.FC = () => {
           )}
         </Card></Animated.View>
 
+        </View>{/* end row 1 */}
+
+        {/* ── Row 2: Checklist + Timers ── */}
+        <View style={[styles.cardRow, hasSidebar && styles.cardRowWide]}>
+
         {/* Card 3: Immi Checklist */}
-        <Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
+        <Card style={[styles.gridCard, hasSidebar && styles.cardHalf as any]}>
           <CardHeader
             title="Immi Checklist"
             subtitle={checklists.length > 0 ? `${checklists.length} active checklist${checklists.length !== 1 ? 's' : ''}` : 'Track your immigration steps'}
@@ -531,7 +539,7 @@ export const DashboardScreen: React.FC = () => {
         </Card>
 
         {/* Card 4: Immi Timers */}
-        <Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
+        <Card style={[styles.gridCard, hasSidebar && styles.cardHalf as any]}>
           <CardHeader
             title="Immi Timers"
             subtitle={counters.length > 0 ? `${counters.length} timer${counters.length !== 1 ? 's' : ''} active` : 'Track unemployment & stay days'}
@@ -580,7 +588,9 @@ export const DashboardScreen: React.FC = () => {
           )}
         </Card>
 
-      </View>
+        </View>{/* end row 2 */}
+
+      </View>{/* end cardGrid */}
 
       {/* ═══ PROFILE SETUP MODAL ═══ */}
       <Modal visible={showProfileSetup} transparent animationType="fade">
@@ -795,8 +805,10 @@ const styles = StyleSheet.create({
 
   // 4-card grid
   cardGrid:            { gap: 16 },
-  cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'stretch' as any, minWidth: 0 },
-  gridCard:            { minWidth: 0, overflow: 'hidden' } as any,
+  cardRow:             { gap: 16 },
+  cardRowWide:         { flexDirection: 'row' as any, alignItems: 'stretch' as any } as any,
+  cardHalf:            { flex: 1, minWidth: 0 } as any,
+  gridCard:            { overflow: 'hidden' } as any,
   cardSpacer:          { height: 16 },
   headerLink:          { flexDirection: 'row', alignItems: 'center', gap: 3 },
   headerLinkText:      { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
