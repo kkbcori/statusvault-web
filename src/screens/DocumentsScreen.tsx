@@ -161,6 +161,7 @@ export const DocumentsScreen: React.FC = () => {
                 <Text style={styles.addBtnText}>+ Add</Text>
               </LinearGradient>
             </TouchableOpacity>
+            </Animated.View>
           </View>
         </LinearGradient>
 

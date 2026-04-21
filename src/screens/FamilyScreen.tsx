@@ -423,7 +423,7 @@ export const FamilyScreen: React.FC = () => {
                 </View>
               );
             })}
-          </View>
+          </Animated.View>
         </>
       )}
 

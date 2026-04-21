@@ -479,7 +479,7 @@ export const DashboardScreen: React.FC = () => {
               })}
             </View>
           )}
-        </Card>
+        </Card></Animated.View>
 
         {/* Card 3: Immi Checklist */}
         <Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
