@@ -82,8 +82,8 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = ({ onUnlock, verifyPi
         <Text style={styles.title}>StatusVault</Text>
         <Text style={styles.subtitle}>Enter your 4-digit PIN</Text>
 
-        {/* PIN dots */}
-        <View style={styles.dotsRow}>
+        {/* PIN dots — Animated.View shakes on wrong PIN */}
+        <Animated.View style={[styles.dotsRow, { transform: shakeTransform }]}>
           {[0, 1, 2, 3].map((i) => (
             <View key={i} style={[
               styles.dot,
