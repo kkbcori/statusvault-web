@@ -461,7 +461,7 @@ export const TravelScreen: React.FC = () => {
         <View style={[styles.twoColRow, isWideScreen && styles.twoColRowWide]}>
 
           {/* ── LEFT COL: I-94 / N-400 Tracker ── */}
-          <View style={[styles.twoColCard, isWideScreen && { flex: 1 } as any]}>
+          <Animated.View style={[col1Anim, styles.twoColCard as any, isWideScreen && { flex: 1 } as any]}>
 
             {/* ── Card header — mirrored with Address card ── */}
             <View style={styles.cardTopRow}>
