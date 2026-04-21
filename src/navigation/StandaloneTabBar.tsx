@@ -13,8 +13,8 @@ const TABS = [
   { name: 'Dashboard', label: 'Home',     active: 'grid'           as any, inactive: 'grid-outline'            as any },
   { name: 'Documents', label: 'Docs',     active: 'document-text'  as any, inactive: 'document-text-outline'   as any },
   { name: 'Travel',    label: 'Travel',   active: 'airplane'       as any, inactive: 'airplane-outline'        as any },
-  { name: 'Settings',  label: 'Settings', active: 'settings'       as any, inactive: 'settings-outline'        as any },
   { name: 'Family',    label: 'Family',   active: 'people'         as any, inactive: 'people-outline'          as any },
+  { name: 'Settings',  label: 'Settings', active: 'settings'       as any, inactive: 'settings-outline'        as any },
 ];
 
 const TABLET_TABS = [
@@ -78,9 +78,9 @@ export const StandaloneTabBar: React.FC = () => {
 
 const s = StyleSheet.create({
   bar: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FAFBFF',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(226,232,240,0.9)',
+    borderTopColor: 'rgba(99,102,241,0.12)',
     paddingTop: 8,
     flexShrink: 0,
     ...Platform.select({
@@ -93,9 +93,9 @@ const s = StyleSheet.create({
   row:          { flexDirection: 'row', paddingHorizontal: IS_TABLET ? 24 : 0 },
   tabWrap:      { flex: 1 },
   tab:          { alignItems: 'center', paddingBottom: 4, gap: 2 } as any,
-  iconBox:      { width: 42, height: 30, borderRadius: 12, alignItems: 'center', justifyContent: 'center', position: 'relative' } as any,
-  iconBoxActive:{ backgroundColor: 'rgba(79,70,229,0.10)' },
-  dot:          { position: 'absolute', bottom: 1, width: 4, height: 4, borderRadius: 2, backgroundColor: '#4F46E5' } as any,
+  iconBox:      { width: 48, height: 32, borderRadius: 12, alignItems: 'center', justifyContent: 'center', position: 'relative' } as any,
+  iconBoxActive:{ backgroundColor: 'rgba(79,70,229,0.12)', borderWidth: 1, borderColor: 'rgba(79,70,229,0.15)' } as any,
+  dot:          { position: 'absolute', bottom: 1, width: 6, height: 3, borderRadius: 2, backgroundColor: '#4F46E5' } as any,
   label:        { fontSize: 10, fontFamily: 'Inter_500Medium', color: '#94A3B8', letterSpacing: 0.1 },
-  labelActive:  { color: '#4F46E5', fontFamily: 'Inter_600SemiBold' },
+  labelActive:  { color: '#4F46E5', fontFamily: 'Inter_700Bold' },
 });

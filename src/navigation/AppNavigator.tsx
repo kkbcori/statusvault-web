@@ -16,6 +16,7 @@ import { useStore } from '../store';
 import { RootStackParamList, MainTabParamList } from '../types';
 
 import { DashboardScreen, DocumentsScreen, SettingsScreen } from '../screens';
+import { LogoMark } from '../components/LogoMark';
 import { TravelScreen }  from '../screens/TravelScreen';
 import { AuthScreen }    from '../screens/AuthScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
@@ -45,8 +46,13 @@ const TAB_ITEMS: Array<{
   { name: 'Dashboard', label: 'Home',      active: 'grid',          inactive: 'grid-outline' },
   { name: 'Documents', label: 'Documents', active: 'document-text', inactive: 'document-text-outline' },
   { name: 'Travel',    label: 'Residency & Travel',  active: 'airplane', inactive: 'airplane-outline' },
-  { name: 'Settings',  label: 'Settings',  active: 'settings',      inactive: 'settings-outline' },
   { name: 'Family',     label: 'Family',    active: 'people',        inactive: 'people-outline' },
+  { name: 'Checklist',  label: 'Checklist', active: 'checkbox',      inactive: 'checkbox-outline' },
+  { name: 'Timers',     label: 'Timers',    active: 'timer',         inactive: 'timer-outline' },
+  { name: 'VisaTools',  label: 'Links',     active: 'link',          inactive: 'link-outline' },
+  { name: 'Help',       label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
+  { name: 'Contact',    label: 'Contact',   active: 'mail',          inactive: 'mail-outline' },
+  { name: 'Settings',   label: 'Settings',  active: 'settings',      inactive: 'settings-outline' },
   { name: 'Checklist',  label: 'Checklist', active: 'checkbox',      inactive: 'checkbox-outline' },
   { name: 'Timers',     label: 'Timers',    active: 'timer',         inactive: 'timer-outline' },
   { name: 'VisaTools',  label: 'Links',      active: 'link',         inactive: 'link-outline' },
@@ -55,9 +61,9 @@ const TAB_ITEMS: Array<{
 ];
 
 const NAV_GROUPS = [
-  { label: 'MAIN', items: ['Dashboard', 'Documents', 'Travel', 'Family'] },
+  { label: 'MAIN',    items: ['Dashboard', 'Documents', 'Travel', 'Family'] },
   { label: 'TOOLS',   items: ['Checklist', 'Timers', 'VisaTools'] },
-  { label: 'ACCOUNT', items: ['Settings', 'Help', 'Contact'] },
+  { label: 'ACCOUNT', items: ['Help', 'Contact', 'Settings'] },
 ];
 
 // ─── Web Sidebar ─────────────────────────────────────────────
@@ -130,11 +136,7 @@ const WebSidebar: React.FC = () => {
     <View style={[sidebarStyles.container, { width: sidebarWidth }]}>
       {/* Logo */}
       <View style={sidebarStyles.logoRow}>
-        <Image
-          source={require('../../assets/logo.jpg')}
-          style={sidebarStyles.logoImg}
-          resizeMode="contain"
-        />
+        <LogoMark size={32} variant="full" dark={true} />
       </View>
 
       {/* Nav groups */}

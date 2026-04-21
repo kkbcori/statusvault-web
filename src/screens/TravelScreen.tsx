@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Modal, TextInput, Platform, FlatList, KeyboardAvoidingView,
+  Modal, TextInput, Platform, FlatList, KeyboardAvoidingView, Animated,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,6 +16,7 @@ import { useWindowDimensions } from 'react-native';
 import { useDialog } from '../components/ConfirmDialog';
 import { useStore } from '../store';
 import { FamilyMember } from '../types';
+import { useEntrance, usePressScale } from '../hooks/useAnimations';
 import { TravelTrip, TripPurpose } from '../types';
 import {
   getTripDays, getTotalDaysAbroad, filterLast5Years, sortByDateDesc,
@@ -75,9 +76,13 @@ const TripCard: React.FC<TripCardProps> = ({ trip, index, onDelete, onEdit }) =>
   const days     = getTripDays(trip);
   const col      = getTripColor(days);
   const longTrip = isLongAbsence(trip);
+  const press    = usePressScale(0.97);
+  const entrance = useEntrance(index * 60);
 
   return (
-    <View style={styles.tripCard}>
+    <Animated.View style={[entrance, { transform: [...(entrance.transform || []), { scale: press.scale }] }]}>
+    <View style={styles.tripCard}
+      onStartShouldSetResponder={() => false}>
       <View style={[styles.tripStrip, { backgroundColor: col }]} />
       <View style={styles.tripContent}>
 
@@ -143,6 +148,10 @@ const TripCard: React.FC<TripCardProps> = ({ trip, index, onDelete, onEdit }) =>
 
 // ─── Main Screen ─────────────────────────────────────────────
 export const TravelScreen: React.FC = () => {
+  // ── Entrance animations ──────────────────────────────────────
+  const col1Anim  = useEntrance(0);
+  const col2Anim  = useEntrance(80);
+  const statsAnim = useEntrance(40);
   const trips     = useStore((s) => s.trips);
   const addTrip   = useStore((s) => s.addTrip);
   const removeTrip = useStore((s) => s.removeTrip);
@@ -510,10 +519,10 @@ export const TravelScreen: React.FC = () => {
           )}
 
           </View>{/* end trip list */}
-          </View>{/* end left col */}
+          </Animated.View>{/* end left col */}
 
           {/* ── RIGHT COL: Address History / I-485 ── */}
-          <View style={[styles.twoColCard, isWideScreen && { flex: 1 } as any]}>
+          <Animated.View style={[col2Anim, styles.twoColCard as any, isWideScreen && { flex: 1 } as any]}>
 
             {/* ── Card header — mirrored with I-94 card ── */}
             <View style={styles.cardTopRow}>
@@ -624,7 +633,7 @@ export const TravelScreen: React.FC = () => {
           )}
           </View>{/* end addr list */}
 
-          </View>{/* end right col */}
+          </Animated.View>{/* end right col */}
         </View>{/* end twoColRow */}
 
       </ScrollView>

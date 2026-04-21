@@ -4,7 +4,8 @@
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Vibration, Animated } from 'react-native';
+import { useShake, usePressScale } from '../hooks/useAnimations';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius, typography } from '../theme';
 
@@ -14,6 +15,7 @@ interface PinLockScreenProps {
 }
 
 export const PinLockScreen: React.FC<PinLockScreenProps> = ({ onUnlock, verifyPin }) => {
+  const { shake, transform: shakeTransform } = useShake();
   const [pin, setPin]           = useState('');
   const [error, setError]         = useState(false);
   const [attempts, setAttempts]   = useState(0);
@@ -46,6 +48,7 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = ({ onUnlock, verifyPi
           onUnlock();
         } else {
           Vibration.vibrate(200);
+          shake();
           setError(true);
           setAttempts((a) => {
             const next = a + 1;
@@ -88,7 +91,7 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = ({ onUnlock, verifyPi
               error && styles.dotError,
             ]} />
           ))}
-        </View>
+        </Animated.View>
 
         {error && (
           <Text style={styles.errorText}>

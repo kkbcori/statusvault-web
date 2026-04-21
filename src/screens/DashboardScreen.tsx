@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Platform, UIManager, Modal, FlatList, TextInput,
+  Platform, UIManager, Modal, FlatList, TextInput, Animated,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,6 +20,7 @@ import { DOCUMENT_TEMPLATES } from '../utils/templates';
 import { UserDocument } from '../types';
 import { useDialog } from '../components/ConfirmDialog';
 import { AppIcon } from '../utils/icons';
+import { useEntrance, usePressScale, usePulse } from '../hooks/useAnimations';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -37,8 +38,13 @@ interface StatCardProps {
   onPress?: () => void;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, icon, iconBg, iconColor, trend, onPress }) => (
-  <TouchableOpacity style={statStyles.card} onPress={onPress} activeOpacity={onPress ? 0.85 : 1}>
+const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, icon, iconBg, iconColor, trend, onPress }) => {
+  const press = usePressScale(0.97);
+  return (
+  <Animated.View style={{ transform: [{ scale: press.scale }] }}>
+  <TouchableOpacity style={statStyles.card} onPress={onPress} activeOpacity={onPress ? 0.88 : 1}
+    onPressIn={onPress ? press.onPressIn : undefined}
+    onPressOut={onPress ? press.onPressOut : undefined}>
     {/* Top accent line — colored per card */}
     <View style={[statStyles.accentLine, { backgroundColor: iconColor }]} />
     <View style={statStyles.inner}>
@@ -66,7 +72,9 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, icon, iconB
       </LinearGradient>
     </View>
   </TouchableOpacity>
-);
+  </Animated.View>
+  );
+};
 
 const statStyles = StyleSheet.create({
   card:        { flex: IS_TABLET ? undefined : 1, width: IS_TABLET ? '48%' : undefined, minWidth: IS_WEB ? 180 : undefined, backgroundColor: '#FFFFFF', borderRadius: IS_TABLET ? 20 : 16, padding: IS_TABLET ? 22 : 20, overflow: 'hidden', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(15,23,42,0.04)' } : shadows.md) } as any,
@@ -139,6 +147,17 @@ export const DashboardScreen: React.FC = () => {
   const autoIncrementCounters= useStore((s) => s.autoIncrementCounters);
 
   React.useEffect(() => { autoIncrementCounters(); }, []);
+
+  // ── Entrance animations ──────────────────────────────────────
+  const headerAnim = useEntrance(0);
+  const stats1Anim = useEntrance(60);
+  const stats2Anim = useEntrance(120);
+  const stats3Anim = useEntrance(180);
+  const stats4Anim = useEntrance(240);
+  const grid1Anim  = useEntrance(80);
+  const grid2Anim  = useEntrance(140);
+  const grid3Anim  = useEntrance(200);
+  const grid4Anim  = useEntrance(260);
 
   // Show auth prompt after 5s — but only when no other modal is open
 
@@ -252,9 +271,30 @@ export const DashboardScreen: React.FC = () => {
     >
       {/* ── Mobile header ── */}
       {!hasSidebar && (
-        <LinearGradient colors={['#0A0E1A', '#1E1B4B', '#312E81']} style={styles.mobileHeader}>
-          <Text style={styles.mobileTitle}>StatusVault</Text>
-          <Text style={styles.mobileSub}>Your Status Dashboard</Text>
+        <LinearGradient colors={['#312E81', '#4F46E5', '#6366F1']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.mobileHeader}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ width: 42, height: 42, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)' }}>
+              <Text style={{ fontSize: 22 }}>🛡️</Text>
+            </View>
+            <View>
+              <Text style={styles.mobileTitle}>StatusVault</Text>
+              <Text style={styles.mobileSub}>Immigration Tracker</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
+            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' }}>
+              <Text style={{ fontSize: 10, fontFamily: 'Inter_600SemiBold', color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5 }}>DOCUMENTS</Text>
+              <Text style={{ fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF', marginTop: 2 }}>{documents.length}</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' }}>
+              <Text style={{ fontSize: 10, fontFamily: 'Inter_600SemiBold', color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5 }}>FAMILY</Text>
+              <Text style={{ fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF', marginTop: 2 }}>{familyMembers.length}</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' }}>
+              <Text style={{ fontSize: 10, fontFamily: 'Inter_600SemiBold', color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5 }}>ALERTS</Text>
+              <Text style={{ fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF', marginTop: 2 }}>{expiringSoon.length}</Text>
+            </View>
+          </View>
         </LinearGradient>
       )}
 
@@ -309,7 +349,7 @@ export const DashboardScreen: React.FC = () => {
         gap: 16,
         marginTop: hasSidebar ? 0 : 0,
       }]}>
-        <StatCard
+        <Animated.View style={stats1Anim}><StatCard
           label="Documents Tracked"
           value={documents.length}
           subtitle={`of ${isPremium ? '∞' : FREE_LIMIT} total`}
@@ -317,8 +357,8 @@ export const DashboardScreen: React.FC = () => {
           iconBg="#EEF2FF"
           iconColor="#4F46E5"
           onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
-        />
-        <StatCard
+        /></Animated.View>
+        <Animated.View style={stats2Anim}><StatCard
           label="Next Expiry"
           value={mostCritical ? `${Math.abs(mostCritical.daysRemaining)}d` : '—'}
           subtitle={mostCritical
@@ -331,8 +371,8 @@ export const DashboardScreen: React.FC = () => {
             ? { value: 'Action needed', up: false }
             : undefined}
           onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
-        />
-        <StatCard
+        /></Animated.View>
+        <Animated.View style={stats3Anim}><StatCard
           label="Expiring Soon"
           value={expiringSoon.length}
           subtitle={expiringSoon.length > 0 ? 'within 90 days' : 'None in 90 days'}
@@ -340,8 +380,8 @@ export const DashboardScreen: React.FC = () => {
           iconBg={expiringSoon.length > 0 ? '#FFFBEB' : '#ECFDF5'}
           iconColor={expiringSoon.length > 0 ? '#D97706' : '#059669'}
           onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
-        />
-        <StatCard
+        /></Animated.View>
+        <Animated.View style={stats4Anim}><StatCard
           label="Family Members"
           value={familyMembers.length}
           subtitle={familyMembers.length > 0 ? 'being tracked' : 'Add family members'}
@@ -349,7 +389,7 @@ export const DashboardScreen: React.FC = () => {
           iconBg="#E0FAFD"
           iconColor="#00CFE8"
           onPress={() => navigation.navigate('Main', { screen: 'Family' })}
-        />
+        /></Animated.View>
       </View>
 
 
@@ -358,7 +398,7 @@ export const DashboardScreen: React.FC = () => {
       <View style={[styles.cardGrid, hasSidebar && styles.cardGridWeb]}>
 
         {/* Card 1: Document Status */}
-        <Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
+        <Animated.View style={grid1Anim}><Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
           <CardHeader
             title="Document Status"
             subtitle="Urgency breakdown"
@@ -392,8 +432,10 @@ export const DashboardScreen: React.FC = () => {
           </TouchableOpacity>
         </Card>
 
+        </Animated.View>
+
         {/* Card 2: Upcoming Deadlines */}
-        <Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
+        <Animated.View style={grid2Anim}><Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
           <CardHeader
             title="Upcoming Deadlines"
             subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
@@ -667,7 +709,7 @@ const styles = StyleSheet.create({
   contentMobile: { paddingHorizontal: 16, paddingBottom: 100 },
 
   // Mobile header
-  mobileHeader:  { padding: 24, paddingTop: 48 },
+  mobileHeader:  { paddingHorizontal: 20, paddingTop: 52, paddingBottom: 24 },
   mobileTitle:   { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#fff' },
   mobileSub:     { fontSize: 14, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.75)', marginTop: 4 },
 

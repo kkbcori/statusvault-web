@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch,
-  Alert, Linking, Share, TextInput, Modal, Platform, KeyboardAvoidingView,
+  Alert, Linking, Share, TextInput, Modal, Platform, KeyboardAvoidingView, Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +18,7 @@ import { useStore } from '../store';
 import { useNavigation } from '@react-navigation/native';
 import { requestPermissions, cancelAllNotifications, sendTestNotification, getScheduledCount } from '../utils/notifications';
 import { PinSetupModal } from '../components/PinSetupModal';
+import { useEntrance, usePressScale } from '../hooks/useAnimations';
 
 const PRICE      = 'from $0.49';
 const PRICE_YEAR = '$0.49/mo or $4.99/yr';
@@ -39,6 +40,13 @@ const slStyles = StyleSheet.create({
 });
 
 export const SettingsScreen: React.FC = () => {
+  // ── Entrance animations ──────────────────────────────────────
+  const headerAnim  = useEntrance(0);
+  const section1    = useEntrance(60);
+  const section2    = useEntrance(120);
+  const section3    = useEntrance(180);
+  const section4    = useEntrance(240);
+  const section5    = useEntrance(300);
   const navigation  = useNavigation<any>();
   const authUser    = useStore((s) => s.authUser);
   const signOut              = useStore((s) => s.signOut);
@@ -343,26 +351,34 @@ export const SettingsScreen: React.FC = () => {
     <View style={{ flex: 1 }}>
     <ScrollView style={styles.container} contentContainerStyle={styles.cc} showsVerticalScrollIndicator={true}>
 
-      {/* Header */}
-      <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
+      {/* ── Premium Settings Header ── */}
+      <Animated.View style={headerAnim}>
+      <LinearGradient
+        colors={['#4F46E5', '#6366F1']}
+        start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+        style={styles.headerGradient}
+      >
         <View style={styles.header}>
-          <View style={styles.headerIcon}>
-            <Ionicons name="settings-outline" size={20} color="#4F46E5" />
+          <View style={styles.headerIconBox}>
+            <Ionicons name="settings" size={22} color="#FFFFFF" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle}>Settings</Text>
-            <Text style={styles.headerSub}>Manage your StatusVault preferences</Text>
+            <Text style={styles.headerSub}>Account &amp; preferences</Text>
           </View>
           {authUser && (
-            <View style={[styles.badge, { backgroundColor: isPremium ? '#EEF2FF' : '#F8FAFF' }]}>
-              <Text style={[styles.badgeTxt, { color: isPremium ? '#4F46E5' : '#64748B' }]}>
+            <View style={[styles.badge, { backgroundColor: isPremium ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }]}>
+              <Ionicons name={isPremium ? 'star' : 'person-outline'} size={11} color="#FFFFFF" style={{ marginRight: 4 }} />
+              <Text style={styles.badgeTxt}>
                 {isPremium ? 'PRO' : 'FREE'}
               </Text>
             </View>
           )}
         </View>
       </LinearGradient>
+      </Animated.View>
 
+      <Animated.View style={section1}>
       {/* ── Notifications ── */}
       <SectionLabel iconName="notifications-outline" label="NOTIFICATIONS" />
       <View style={styles.card}>
@@ -563,6 +579,8 @@ export const SettingsScreen: React.FC = () => {
         </View>
       )}
 
+      </Animated.View>
+      <Animated.View style={section4}>
       {/* ── Premium ── */}
       <SectionLabel iconName="star-outline" label="PREMIUM" />
       {isPremium ? (
@@ -732,6 +750,7 @@ export const SettingsScreen: React.FC = () => {
         </KeyboardAvoidingView>
       </Modal>
 
+      </Animated.View>
     </ScrollView>
     {/* ── Confirm Modals — rendered outside ScrollView so they're not clipped ── */}
     {(['signout','delete','reset'] as const).map(action => {
@@ -800,11 +819,11 @@ const styles = StyleSheet.create({
   container:       { flex: 1, backgroundColor: '#F4F5FA' },
   cc:              { paddingBottom: 20 },
   headerGradient:  { paddingBottom: 0 },
-  headerIcon:      { width: 40, height: 40, borderRadius: 12, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#C7D2FE' },
-  headerTitle:     { fontSize: 17, fontFamily: 'Inter_700Bold', color: '#0F172A' },
-  headerSub:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 1 },
-  badge:           { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: '#C7D2FE' },
-  badgeTxt:        { fontSize: 11, fontFamily: 'Inter_700Bold', letterSpacing: 0.5 },
+  headerIconBox:   { width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.20)', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
+  headerTitle:     { fontSize: 20, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF', letterSpacing: -0.3 },
+  headerSub:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.70)', marginTop: 2 },
+  badge:           { flexDirection: 'row', alignItems: 'center', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 0 },
+  badgeTxt:        { fontSize: 11, fontFamily: 'Inter_700Bold', color: '#FFFFFF', letterSpacing: 0.8 },
   headerLabel:     { ...typography.micro, color: colors.text3, letterSpacing: 1.5, marginBottom: 3, fontSize: 10 },
   title:           { ...typography.h1, color: colors.text1, fontSize: 22 },
 

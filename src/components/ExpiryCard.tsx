@@ -4,11 +4,12 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { UserDocument } from '../types';
 import { calculateDaysRemaining, getUrgencyColor, getUrgencyBg, getUrgencyLabel, formatDate } from '../utils/dates';
 import { CATEGORY_COLORS } from '../utils/templates';
+import { usePressScale, useEntrance } from '../hooks/useAnimations';
 
 interface ExpiryCardProps {
   document: UserDocument;
@@ -17,14 +18,17 @@ interface ExpiryCardProps {
 }
 
 export const ExpiryCard: React.FC<ExpiryCardProps> = ({ document, onDelete, onEdit }) => {
-  const days = calculateDaysRemaining(document.expiryDate);
+  const days    = calculateDaysRemaining(document.expiryDate);
+  const press   = usePressScale(0.97);
   const urgColor = getUrgencyColor(days);
   const urgBg = getUrgencyBg(days);
   const isExpired = days < 0;
   const catColor = CATEGORY_COLORS[document.category] || colors.text3;
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onEdit} activeOpacity={0.7}>
+    <Animated.View style={{ transform: [{ scale: press.scale }], marginBottom: 10 }}>
+    <TouchableOpacity style={styles.container} onPress={onEdit} activeOpacity={0.88}
+      onPressIn={press.onPressIn} onPressOut={press.onPressOut}>
       <View style={[styles.strip, { backgroundColor: urgColor }]} />
       <View style={styles.content}>
         <View style={styles.topRow}>
@@ -74,6 +78,7 @@ export const ExpiryCard: React.FC<ExpiryCardProps> = ({ document, onDelete, onEd
         {document.notes ? <Text style={styles.notes} numberOfLines={2}>{document.notes}</Text> : null}
       </View>
     </TouchableOpacity>
+    </Animated.View>
   );
 };
 

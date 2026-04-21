@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Modal, FlatList, TextInput, Alert, Platform, KeyboardAvoidingView,
+  Modal, FlatList, TextInput, Alert, Platform, KeyboardAvoidingView, Animated,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore, FREE_LIMIT } from '../store';
@@ -19,6 +19,7 @@ import { ExpiryCard } from '../components';
 import { DOCUMENT_TEMPLATES, CATEGORY_LABELS, getTemplatesByCategory, DocumentTemplate } from '../utils/templates';
 import { UserDocument, DocumentCategory } from '../types';
 import { useRoute } from '@react-navigation/native';
+import { useEntrance, usePressScale } from '../hooks/useAnimations';
 
 const PRICE = 'from $0.49';
 const PRICE_LABEL = '$0.49/mo or $4.99/yr';
@@ -153,7 +154,9 @@ export const DocumentsScreen: React.FC = () => {
                 )}
               </View>
             </View>
-            <TouchableOpacity style={styles.addBtn} onPress={openAdd} activeOpacity={0.8}>
+            <Animated.View style={{ transform: [{ scale: addBtnPress.scale }] }}>
+            <TouchableOpacity style={styles.addBtn} onPress={openAdd} activeOpacity={1}
+              onPressIn={addBtnPress.onPressIn} onPressOut={addBtnPress.onPressOut}>
               <LinearGradient colors={['#4F46E5', '#7C3AED']} style={styles.addBtnGrad}>
                 <Text style={styles.addBtnText}>+ Add</Text>
               </LinearGradient>
@@ -182,6 +185,7 @@ export const DocumentsScreen: React.FC = () => {
 
         {/* Document List */}
         <View style={{ paddingHorizontal: spacing.screen }}>
+          <Animated.View style={listAnim}>
           {filteredDocs.length === 0 ? (
             <View style={styles.emptyCard}>
               <View style={styles.emptyIconCircle}><Text style={{ fontSize: 28 }}>📂</Text></View>
@@ -193,6 +197,7 @@ export const DocumentsScreen: React.FC = () => {
               .sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime())
               .map((doc) => <ExpiryCard key={doc.id} document={doc} onDelete={() => handleDelete(doc.id, doc.label)} onEdit={() => handleEdit(doc)} />)
           )}
+          </Animated.View>
         </View>
 
         {/* Notification info */}

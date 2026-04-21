@@ -5,13 +5,14 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, Modal, FlatList, KeyboardAvoidingView, Platform,
+  TextInput, Modal, FlatList, KeyboardAvoidingView, Platform, Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB } from '../utils/responsive';
 import { useNavigation } from '@react-navigation/native';
+import { useEntrance, usePressScale } from '../hooks/useAnimations';
 import { useStore, FREE_FAMILY_DOC_LIMIT } from '../store';
 import { useDialog } from '../components/ConfirmDialog';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
@@ -33,6 +34,10 @@ const VISA_TYPES = [
 ];
 
 export const FamilyScreen: React.FC = () => {
+  // ── Entrance animations ──────────────────────────────────────
+  const headerAnim = useEntrance(0);
+  const listAnim   = useEntrance(80);
+  const addBtnAnim = usePressScale(0.96);
   const navigation       = useNavigation<any>();
   const authUser         = useStore((s) => s.authUser);
   const isGuestMode      = useStore((s) => s.isGuestMode);
@@ -298,7 +303,7 @@ export const FamilyScreen: React.FC = () => {
               <Text style={styles.freePlanUpgrade}>Upgrade →</Text>
             </View>
           )}
-          <View style={[styles.memberGrid, IS_WEB && styles.memberGridWeb]}>
+          <Animated.View style={[listAnim, styles.memberGrid as any, IS_WEB && styles.memberGridWeb as any]}>
             {familyMembers.map((member) => {
               const memberDocs = getMemberDocs(member);
               const status     = getMemberStatus(member);
@@ -311,7 +316,7 @@ export const FamilyScreen: React.FC = () => {
                   <TouchableOpacity
                     style={styles.memberCardHeader}
                     onPress={() => setExpandedMember(isExpanded ? null : member.id)}
-                    activeOpacity={0.8}
+                    activeOpacity={0.85}
                   >
                     <View style={styles.memberAvatar}>
                       <Text style={{ fontSize: 22 }}>{rel?.icon ?? '👤'}</Text>
