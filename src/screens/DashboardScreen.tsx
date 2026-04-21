@@ -398,7 +398,7 @@ export const DashboardScreen: React.FC = () => {
       <View style={[styles.cardGrid, hasSidebar && styles.cardGridWeb]}>
 
         {/* Card 1: Document Status */}
-        <Animated.View style={grid1Anim}><Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
+        <Animated.View style={[grid1Anim, IS_WEB && { minWidth: 0, flex: 1 } as any]}><Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
           <CardHeader
             title="Document Status"
             subtitle="Urgency breakdown"
@@ -435,7 +435,7 @@ export const DashboardScreen: React.FC = () => {
         </Animated.View>
 
         {/* Card 2: Upcoming Deadlines */}
-        <Animated.View style={grid2Anim}><Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
+        <Animated.View style={[grid2Anim, IS_WEB && { minWidth: 0, flex: 1 } as any]}><Card style={[styles.gridCard, hasSidebar && { flex: '0 0 calc(50% - 8px)' as any, minWidth: 280 } as any]}>
           <CardHeader
             title="Upcoming Deadlines"
             subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
@@ -785,18 +785,18 @@ const styles = StyleSheet.create({
   profileEditSub:  { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5', marginTop: 2 },
 
   // Status breakdown
-  statusRow:      { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
-  statusDot:      { width: 8, height: 8, borderRadius: 4 },
-  statusLabel:    { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#4B4C6A', width: 110 },
-  statusBar:      { flex: 1, height: 6, backgroundColor: '#F4F5FA', borderRadius: 3, overflow: 'hidden' },
+  statusRow:      { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
+  statusDot:      { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
+  statusLabel:    { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#4B4C6A', flex: 1, minWidth: 0 },
+  statusBar:      { flex: 2, minWidth: 0, height: 6, backgroundColor: '#F4F5FA', borderRadius: 3, overflow: 'hidden' },
   statusBarFill:  { height: '100%', borderRadius: 3 },
-  statusCount:    { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 },
+  statusCount:    { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, flexShrink: 0 },
   statusCountText:{ fontSize: 11, fontFamily: 'Inter_700Bold' },
 
   // 4-card grid
   cardGrid:            { gap: 16 },
-  cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'stretch' as any },
-  gridCard:            {} as any,  // no flex — cards size to content on mobile; desktop overrides per-card
+  cardGridWeb:         { flexDirection: 'row' as any, flexWrap: 'wrap' as any, alignItems: 'stretch' as any, minWidth: 0 },
+  gridCard:            { minWidth: 0, overflow: 'hidden' } as any,
   cardSpacer:          { height: 16 },
   headerLink:          { flexDirection: 'row', alignItems: 'center', gap: 3 },
   headerLinkText:      { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
