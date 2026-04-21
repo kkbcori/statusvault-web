@@ -1,21 +1,26 @@
 // ═══════════════════════════════════════════════════════════════
 // StatusVault — Shared Animation Hooks (Pass 1)
-// Built-in Animated API — zero new dependencies
-// useNativeDriver: true — runs on UI thread on iOS + Android
+// useNativeDriver: Platform.OS !== 'web'
+// On web the native module is absent — JS-based animation used
+// On iOS/Android useNativeDriver runs on the UI thread (no jank)
 // ═══════════════════════════════════════════════════════════════
 
 import { useRef, useEffect } from 'react';
-import { Animated, Easing } from 'react-native';
+import { Animated, Easing, Platform } from 'react-native';
+
+// On web, useNativeDriver causes a noisy warning and infinite loop.
+// On native it's required for smooth performance.
+const NATIVE = Platform.OS !== 'web';
 
 /** Slide-up + fade-in entrance. Pass delay (ms) to stagger cards. */
 export function useEntrance(delay = 0) {
   const opacity    = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(28)).current;
+  const translateY = useRef(new Animated.Value(24)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(opacity,    { toValue: 1, duration: 400, delay, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 400, delay, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(opacity,    { toValue: 1, duration: 380, delay, easing: Easing.out(Easing.cubic), useNativeDriver: NATIVE }),
+      Animated.timing(translateY, { toValue: 0, duration: 380, delay, easing: Easing.out(Easing.cubic), useNativeDriver: NATIVE }),
     ]).start();
   }, []);
 
@@ -26,8 +31,8 @@ export function useEntrance(delay = 0) {
 export function usePressScale(min = 0.96) {
   const scale = useRef(new Animated.Value(1)).current;
 
-  const onPressIn  = () => Animated.timing(scale, { toValue: min, duration: 85, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
-  const onPressOut = () => Animated.spring(scale, { toValue: 1, friction: 5, tension: 300, useNativeDriver: true }).start();
+  const onPressIn  = () => Animated.timing(scale, { toValue: min, duration: 85, easing: Easing.out(Easing.quad), useNativeDriver: NATIVE }).start();
+  const onPressOut = () => Animated.spring(scale, { toValue: 1, friction: 5, tension: 300, useNativeDriver: NATIVE }).start();
 
   return { scale, onPressIn, onPressOut };
 }
@@ -40,8 +45,8 @@ export function usePulse(active = true) {
     if (!active) { scale.setValue(1); return; }
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(scale, { toValue: 1.07, duration: 800, easing: Easing.inOut(Easing.sine), useNativeDriver: true }),
-        Animated.timing(scale, { toValue: 1,    duration: 800, easing: Easing.inOut(Easing.sine), useNativeDriver: true }),
+        Animated.timing(scale, { toValue: 1.07, duration: 800, easing: Easing.inOut(Easing.sine), useNativeDriver: NATIVE }),
+        Animated.timing(scale, { toValue: 1,    duration: 800, easing: Easing.inOut(Easing.sine), useNativeDriver: NATIVE }),
       ])
     );
     loop.start();
@@ -56,11 +61,11 @@ export function useShake() {
   const x = useRef(new Animated.Value(0)).current;
 
   const shake = () => Animated.sequence([
-    Animated.timing(x, { toValue: -10, duration: 50, useNativeDriver: true }),
-    Animated.timing(x, { toValue:  10, duration: 50, useNativeDriver: true }),
-    Animated.timing(x, { toValue:  -8, duration: 50, useNativeDriver: true }),
-    Animated.timing(x, { toValue:   8, duration: 50, useNativeDriver: true }),
-    Animated.timing(x, { toValue:   0, duration: 50, useNativeDriver: true }),
+    Animated.timing(x, { toValue: -10, duration: 50, useNativeDriver: NATIVE }),
+    Animated.timing(x, { toValue:  10, duration: 50, useNativeDriver: NATIVE }),
+    Animated.timing(x, { toValue:  -8, duration: 50, useNativeDriver: NATIVE }),
+    Animated.timing(x, { toValue:   8, duration: 50, useNativeDriver: NATIVE }),
+    Animated.timing(x, { toValue:   0, duration: 50, useNativeDriver: NATIVE }),
   ]).start();
 
   return { shake, transform: [{ translateX: x }] };
@@ -72,8 +77,8 @@ export function useCheckPop() {
   const opacity = useRef(new Animated.Value(0)).current;
 
   const pop   = () => Animated.parallel([
-    Animated.spring(scale,   { toValue: 1, friction: 4, tension: 400, useNativeDriver: true }),
-    Animated.timing(opacity, { toValue: 1, duration: 150, useNativeDriver: true }),
+    Animated.spring(scale,   { toValue: 1, friction: 4, tension: 400, useNativeDriver: NATIVE }),
+    Animated.timing(opacity, { toValue: 1, duration: 150, useNativeDriver: NATIVE }),
   ]).start();
 
   const reset = () => { scale.setValue(0); opacity.setValue(0); };
@@ -88,14 +93,14 @@ export function useCounterRoll() {
 
   const roll = (onSwap: () => void) => {
     Animated.parallel([
-      Animated.timing(y,       { toValue: -18, duration: 130, useNativeDriver: true }),
-      Animated.timing(opacity, { toValue: 0,   duration: 130, useNativeDriver: true }),
+      Animated.timing(y,       { toValue: -18, duration: 130, useNativeDriver: NATIVE }),
+      Animated.timing(opacity, { toValue: 0,   duration: 130, useNativeDriver: NATIVE }),
     ]).start(() => {
       y.setValue(18);
       onSwap();
       Animated.parallel([
-        Animated.timing(y,       { toValue: 0, duration: 200, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }),
+        Animated.timing(y,       { toValue: 0, duration: 200, easing: Easing.out(Easing.cubic), useNativeDriver: NATIVE }),
+        Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: NATIVE }),
       ]).start();
     });
   };

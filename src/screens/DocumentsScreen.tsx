@@ -26,6 +26,10 @@ const PRICE_LABEL = '$0.49/mo or $4.99/yr';
 
 export const DocumentsScreen: React.FC = () => {
   const route              = useRoute<any>();
+
+  // ── Entrance animations ──────────────────────────────────────
+  const listAnim    = useEntrance(100);
+  const addBtnPress = usePressScale(0.95);
   const documents          = useStore((s) => s.documents);
   const addDocument        = useStore((s) => s.addDocument);
   const removeDocument     = useStore((s) => s.removeDocument);
