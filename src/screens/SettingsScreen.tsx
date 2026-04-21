@@ -358,13 +358,13 @@ export const SettingsScreen: React.FC = () => {
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
         style={styles.headerGradient}
       >
-        <View style={styles.header}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           <View style={styles.headerIconBox}>
             <Ionicons name="settings" size={22} color="#FFFFFF" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle}>Settings</Text>
-            <Text style={styles.headerSub}>Account &amp; preferences</Text>
+            <Text style={styles.headerSub}>Account & preferences</Text>
           </View>
           {authUser && (
             <View style={[styles.badge, { backgroundColor: isPremium ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }]}>
@@ -818,7 +818,7 @@ export const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container:       { flex: 1, backgroundColor: '#F4F5FA' },
   cc:              { paddingBottom: 20 },
-  headerGradient:  { paddingBottom: 0 },
+  headerGradient:  { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 20 },
   headerIconBox:   { width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.20)', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
   headerTitle:     { fontSize: 20, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF', letterSpacing: -0.3 },
   headerSub:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.70)', marginTop: 2 },
