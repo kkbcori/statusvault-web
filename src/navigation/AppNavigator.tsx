@@ -43,21 +43,16 @@ const TAB_ITEMS: Array<{
   active: keyof typeof Ionicons.glyphMap;
   inactive: keyof typeof Ionicons.glyphMap;
 }> = [
-  { name: 'Dashboard', label: 'Home',      active: 'grid',          inactive: 'grid-outline' },
-  { name: 'Documents', label: 'Documents', active: 'document-text', inactive: 'document-text-outline' },
-  { name: 'Travel',    label: 'Residency & Travel',  active: 'airplane', inactive: 'airplane-outline' },
-  { name: 'Family',     label: 'Family',    active: 'people',        inactive: 'people-outline' },
-  { name: 'Checklist',  label: 'Checklist', active: 'checkbox',      inactive: 'checkbox-outline' },
-  { name: 'Timers',     label: 'Timers',    active: 'timer',         inactive: 'timer-outline' },
-  { name: 'VisaTools',  label: 'Links',     active: 'link',          inactive: 'link-outline' },
-  { name: 'Help',       label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
-  { name: 'Contact',    label: 'Contact',   active: 'mail',          inactive: 'mail-outline' },
-  { name: 'Settings',   label: 'Settings',  active: 'settings',      inactive: 'settings-outline' },
-  { name: 'Checklist',  label: 'Checklist', active: 'checkbox',      inactive: 'checkbox-outline' },
-  { name: 'Timers',     label: 'Timers',    active: 'timer',         inactive: 'timer-outline' },
-  { name: 'VisaTools',  label: 'Links',      active: 'link',         inactive: 'link-outline' },
-  { name: 'Help',       label: 'Help',      active: 'help-circle',   inactive: 'help-circle-outline' },
-  { name: 'Contact',    label: 'Contact',   active: 'mail',          inactive: 'mail-outline' },
+  { name: 'Dashboard', label: 'Home',              active: 'grid',          inactive: 'grid-outline' },
+  { name: 'Documents', label: 'Documents',         active: 'document-text', inactive: 'document-text-outline' },
+  { name: 'Travel',    label: 'Residency & Travel', active: 'airplane',     inactive: 'airplane-outline' },
+  { name: 'Family',    label: 'Family',             active: 'people',       inactive: 'people-outline' },
+  { name: 'Checklist', label: 'Checklist',          active: 'checkbox',     inactive: 'checkbox-outline' },
+  { name: 'Timers',    label: 'Timers',             active: 'timer',        inactive: 'timer-outline' },
+  { name: 'VisaTools', label: 'Links',              active: 'link',         inactive: 'link-outline' },
+  { name: 'Help',      label: 'Help',               active: 'help-circle',  inactive: 'help-circle-outline' },
+  { name: 'Contact',   label: 'Contact',            active: 'mail',         inactive: 'mail-outline' },
+  { name: 'Settings',  label: 'Settings',           active: 'settings',     inactive: 'settings-outline' },
 ];
 
 const NAV_GROUPS = [
