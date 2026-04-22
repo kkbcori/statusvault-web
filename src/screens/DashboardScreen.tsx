@@ -376,7 +376,7 @@ export const DashboardScreen: React.FC = () => {
       {/* ═══ UNIFIED 2-COLUMN LAYOUT ═══
            Left col:  [Docs stat] [Expiry stat] + Doc Status card
            Right col: [Expiring stat] [Family stat] + Deadlines card  */}
-      <View style={[{ gap: 16 }, hasSidebar && styles.cardRowWide as any]}>
+      <View style={[styles.cardGrid, hasSidebar && styles.cardRowWide as any]}>
 
         {/* ── LEFT COLUMN ── */}
         <View style={[hasSidebar && styles.cardHalf as any, { gap: 16 }]}>
@@ -813,9 +813,9 @@ const styles = StyleSheet.create({
   statusCountText:{ fontSize: 11, fontFamily: 'Inter_700Bold' },
 
   // 4-card grid
-  cardGrid:            { gap: 16 },
+  cardGrid:            { gap: 16, paddingHorizontal: 0 },
   cardRow:             { gap: 16 },
-  cardRowWide:         { flexDirection: 'row' as any, alignItems: 'flex-start' as any } as any,
+  cardRowWide:         { flexDirection: 'row' as any, alignItems: 'flex-start' as any, gap: 16 } as any,
   cardHalf:            { flex: 1, minWidth: 0 } as any,
   gridCard:            { overflow: 'hidden', height: CARD_H, flexDirection: 'column' as any } as any,
   cardSpacer:          { height: 16 },
