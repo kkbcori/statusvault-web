@@ -343,18 +343,16 @@ export const DashboardScreen: React.FC = () => {
         </View>
       )}
 
-      {/* ═══════════════════════════════════════════════════════════
-           UNIFIED LAYOUT: On web with sidebar, stat cards sit ABOVE
-           their paired content cards in two columns.
-           On mobile: all cards stack vertically.
-      ═══════════════════════════════════════════════════════════ */}
-      <View style={[styles.cardGrid, hasSidebar && styles.cardRowWide as any]}>
+      {/* ═══ UNIFIED 2-COLUMN LAYOUT ═══
+           Left col:  [Docs stat] [Expiry stat] + Doc Status card
+           Right col: [Expiring stat] [Family stat] + Deadlines card  */}
+      <View style={[{ gap: 16 }, hasSidebar && styles.cardRowWide as any]}>
 
-        {/* ── LEFT COLUMN: Doc Status group ── */}
+        {/* ── LEFT COLUMN ── */}
         <View style={[hasSidebar && styles.cardHalf as any, { gap: 16 }]}>
 
-          {/* Stat cards: Documents + Next Expiry */}
-          <View style={[styles.cardRow, { flexDirection: 'row' as any }]}>
+          {/* Mini stat pair: Documents + Next Expiry */}
+          <View style={{ flexDirection: 'row' as any, gap: 16 }}>
             <Animated.View style={[stats1Anim, { flex: 1 }]}><StatCard
               label="Documents Tracked"
               value={documents.length}
@@ -380,52 +378,48 @@ export const DashboardScreen: React.FC = () => {
             /></Animated.View>
           </View>
 
-        {/* ── Row 1: Doc Status + Upcoming Deadlines ── */}
-        <View style={[styles.cardRow, hasSidebar && styles.cardRowWide]}>
-
-        {/* Card 1: Document Status */}
-        <Animated.View style={[grid1Anim, hasSidebar && styles.cardHalf as any]}><Card style={styles.gridCard}>
-          <CardHeader
-            title="Document Status"
-            subtitle="Urgency breakdown"
-            right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />}
-          />
-          {[
-            { label: '🔴 Expired',     count: expired.length,                                                                   color: '#EA5455', bg: '#FFEEEE' },
-            { label: 'Critical (<30d)',  count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining < 30).length,   color: '#EA5455', bg: '#FFEEEE' },
-            { label: 'High (30–60d)',    count: deadlines.filter((d) => d.daysRemaining >= 30 && d.daysRemaining < 60).length,  color: '#FF9F43', bg: '#FFF4E6' },
-            { label: 'Medium (60–180d)', count: deadlines.filter((d) => d.daysRemaining >= 60 && d.daysRemaining < 180).length, color: '#7367F0', bg: '#F0EEFF' },
-            { label: 'Low (>180d)',      count: deadlines.filter((d) => d.daysRemaining >= 180).length,                          color: '#28C76F', bg: '#EAFFF4' },
-          ].map((row) => (
-            <View key={row.label} style={styles.statusRow}>
-              <View style={[styles.statusDot, { backgroundColor: row.color }]} />
-              <Text style={styles.statusLabel}>{row.label}</Text>
-              <View style={styles.statusBar}>
-                <View style={[styles.statusBarFill, {
-                  width: deadlines.length > 0 ? `${(row.count / deadlines.length) * 100}%` as any : '0%',
-                  backgroundColor: row.color,
-                }]} />
+          {/* Document Status card */}
+          <Animated.View style={grid1Anim}><Card style={styles.gridCard}>
+            <CardHeader
+              title="Document Status"
+              subtitle="Urgency breakdown"
+              right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />}
+            />
+            {[
+              { label: '🔴 Expired',      count: expired.length,                                                                   color: '#EA5455', bg: '#FFEEEE' },
+              { label: 'Critical (<30d)', count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining < 30).length,   color: '#EA5455', bg: '#FFEEEE' },
+              { label: 'High (30–60d)',   count: deadlines.filter((d) => d.daysRemaining >= 30 && d.daysRemaining < 60).length,  color: '#FF9F43', bg: '#FFF4E6' },
+              { label: 'Medium (60–180d)',count: deadlines.filter((d) => d.daysRemaining >= 60 && d.daysRemaining < 180).length, color: '#7367F0', bg: '#F0EEFF' },
+              { label: 'Low (>180d)',     count: deadlines.filter((d) => d.daysRemaining >= 180).length,                         color: '#28C76F', bg: '#EAFFF4' },
+            ].map((row) => (
+              <View key={row.label} style={styles.statusRow}>
+                <View style={[styles.statusDot, { backgroundColor: row.color }]} />
+                <Text style={styles.statusLabel}>{row.label}</Text>
+                <View style={styles.statusBar}>
+                  <View style={[styles.statusBarFill, {
+                    width: deadlines.length > 0 ? `${(row.count / deadlines.length) * 100}%` as any : '0%',
+                    backgroundColor: row.color,
+                  }]} />
+                </View>
+                <View style={[styles.statusCount, { backgroundColor: row.bg }]}>
+                  <Text style={[styles.statusCountText, { color: row.color }]}>{row.count}</Text>
+                </View>
               </View>
-              <View style={[styles.statusCount, { backgroundColor: row.bg }]}>
-                <Text style={[styles.statusCountText, { color: row.color }]}>{row.count}</Text>
-              </View>
-            </View>
-          ))}
-          <View style={styles.cardSpacer} />
-          <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
-            <Text style={styles.cardFooterText}>View Documents</Text>
-            <Ionicons name="arrow-forward" size={13} color="#7367F0" />
-          </TouchableOpacity>
-        </Card>
+            ))}
+            <View style={styles.cardSpacer} />
+            <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+              <Text style={styles.cardFooterText}>View Documents</Text>
+              <Ionicons name="arrow-forward" size={13} color="#7367F0" />
+            </TouchableOpacity>
+          </Card></Animated.View>
 
-        </Animated.View>
         </View>{/* end left column */}
 
-        {/* ── RIGHT COLUMN: Upcoming Deadlines group ── */}
+        {/* ── RIGHT COLUMN ── */}
         <View style={[hasSidebar && styles.cardHalf as any, { gap: 16 }]}>
 
-          {/* Stat cards: Expiring Soon + Family */}
-          <View style={[styles.cardRow, { flexDirection: 'row' as any }]}>
+          {/* Mini stat pair: Expiring Soon + Family */}
+          <View style={{ flexDirection: 'row' as any, gap: 16 }}>
             <Animated.View style={[stats3Anim, { flex: 1 }]}><StatCard
               label="Expiring Soon"
               value={expiringSoon.length}
@@ -446,54 +440,55 @@ export const DashboardScreen: React.FC = () => {
             /></Animated.View>
           </View>
 
-        {/* Card 2: Upcoming Deadlines */}
-        <Animated.View style={grid2Anim}><Card style={styles.gridCard}>
-          <CardHeader
-            title="Upcoming Deadlines"
-            subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
-            right={
-              <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
-                <Text style={styles.viewAllText}>All</Text>
-                <Ionicons name="arrow-forward" size={12} color="#7367F0" />
-              </TouchableOpacity>
-            }
-          />
-          {deadlines.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="document-text-outline" size={32} color="#ACAEC5" />
-              <Text style={styles.emptyTitle}>No documents yet</Text>
-              <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
-                <Text style={styles.emptyBtnText}>Add Document</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.deadlineList}>
-              {deadlines.slice(0, 5).map((dl) => {
-                const isExpired  = dl.daysRemaining < 0;
-                const isCritical = !isExpired && dl.daysRemaining < 30;
-                const isHigh     = !isExpired && dl.daysRemaining >= 30 && dl.daysRemaining < 60;
-                const isMedium   = !isExpired && dl.daysRemaining >= 60 && dl.daysRemaining < 180;
-                const badgeColor = isExpired ? '#EA5455' : isCritical ? '#EA5455' : isHigh ? '#FF9F43' : isMedium ? '#7367F0' : '#28C76F';
-                const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFEEEE' : isHigh ? '#FFF4E6' : isMedium ? '#F0EEFF' : '#EAFFF4';
-                const severity   = isExpired ? 'Expired' : isCritical ? 'Critical' : isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
-                const badgeLabel = `${severity}${!isExpired ? ` · ${dl.daysRemaining}d` : ''}`;
-                return (
-                  <View key={dl.documentId} style={styles.deadlineRow}>
-                    <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
-                    <Text style={styles.deadlineIcon}>{dl.icon}</Text>
-                    <View style={styles.deadlineInfo}>
-                      <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
-                      <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
+          {/* Upcoming Deadlines card */}
+          <Animated.View style={grid2Anim}><Card style={styles.gridCard}>
+            <CardHeader
+              title="Upcoming Deadlines"
+              subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
+              right={
+                <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+                  <Text style={styles.viewAllText}>All</Text>
+                  <Ionicons name="arrow-forward" size={12} color="#7367F0" />
+                </TouchableOpacity>
+              }
+            />
+            {deadlines.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons name="document-text-outline" size={32} color="#ACAEC5" />
+                <Text style={styles.emptyTitle}>No documents yet</Text>
+                <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+                  <Text style={styles.emptyBtnText}>Add Document</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.deadlineList}>
+                {deadlines.slice(0, 5).map((dl) => {
+                  const isExpired  = dl.daysRemaining < 0;
+                  const isCritical = !isExpired && dl.daysRemaining < 30;
+                  const isHigh     = !isExpired && dl.daysRemaining >= 30 && dl.daysRemaining < 60;
+                  const isMedium   = !isExpired && dl.daysRemaining >= 60 && dl.daysRemaining < 180;
+                  const badgeColor = isExpired ? '#EA5455' : isCritical ? '#EA5455' : isHigh ? '#FF9F43' : isMedium ? '#7367F0' : '#28C76F';
+                  const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFEEEE' : isHigh ? '#FFF4E6' : isMedium ? '#F0EEFF' : '#EAFFF4';
+                  const severity   = isExpired ? 'Expired' : isCritical ? 'Critical' : isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
+                  const badgeLabel = `${severity}${!isExpired ? ` · ${dl.daysRemaining}d` : ''}`;
+                  return (
+                    <View key={dl.documentId} style={styles.deadlineRow}>
+                      <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
+                      <Text style={styles.deadlineIcon}>{dl.icon}</Text>
+                      <View style={styles.deadlineInfo}>
+                        <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
+                        <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
+                      </View>
+                      <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
                     </View>
-                    <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
-                  </View>
-                );
-              })}
-            </View>
-          )}
-        </Card></Animated.View>
+                  );
+                })}
+              </View>
+            )}
+          </Card></Animated.View>
+
         </View>{/* end right column */}
-      </View>{/* end top 2-col layout */}
+      </View>{/* end 2-col layout */}
 
       {/* ── Row 2: Checklist + Timers ── */}
       <View style={[styles.cardRow, hasSidebar && styles.cardRowWide as any]}>
@@ -599,6 +594,33 @@ export const DashboardScreen: React.FC = () => {
 
       </View>{/* end row 2 */}
 
+  const renderDocItem = ({ item }: any) => {
+    if (item.id === '__add__') return (
+      <TouchableOpacity style={styles.addDocRow} onPress={() => { setShowProfileSetup(false); setAnyModalOpen(false); navigation.navigate('Main', { screen: 'Documents' }); }}>
+        <Text style={styles.addDocText}>+ Add more documents manually</Text>
+      </TouchableOpacity>
+    );
+    const isSelected   = selectedDocIds.includes(item.id);
+    const alreadyAdded = documents.some((d: any) => d.templateId === item.id);
+    const wouldExceed  = !isPremium && !isSelected && !alreadyAdded && newDocCount >= slotsLeft;
+    return (
+      <TouchableOpacity
+        style={[styles.docRow, !isSelected && { opacity: 0.4 }, wouldExceed && { opacity: 0.25 }]}
+        onPress={() => !wouldExceed && toggleDocId(item.id)}
+        activeOpacity={wouldExceed ? 1 : 0.75}
+      >
+        <View style={[styles.docCheck, isSelected && styles.docCheckActive]}>
+          {isSelected && <Ionicons name="checkmark" size={12} color="#fff" />}
+        </View>
+        <Text style={{ fontSize: 20, marginRight: 10 }}>{item.icon}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.docLabel}>{item.label}</Text>
+          <Text style={styles.docSub}>{alreadyAdded ? '✓ Already tracked' : `Alerts: ${item.alertDays?.map((d: number) => d + 'd').join(', ')}`}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
       {/* ═══ PROFILE SETUP MODAL ═══ */}
       <Modal visible={showProfileSetup} transparent animationType="fade">
         <View style={styles.overlay}>
@@ -672,32 +694,7 @@ export const DashboardScreen: React.FC = () => {
                     </TouchableOpacity>
                   </View>
                 }
-                renderItem={({ item }) => {
-                  if (item.id === '__add__') return (
-                    <TouchableOpacity style={styles.addDocRow} onPress={() => { setShowProfileSetup(false); setAnyModalOpen(false); navigation.navigate('Main', { screen: 'Documents' }); }}>
-                      <Text style={styles.addDocText}>+ Add more documents manually</Text>
-                    </TouchableOpacity>
-                  );
-                  const isSelected = selectedDocIds.includes(item.id);
-                  const alreadyAdded = documents.some((d) => d.templateId === item.id);
-                  const wouldExceed = !isPremium && !isSelected && !alreadyAdded && newDocCount >= slotsLeft;
-                  return (
-                    <TouchableOpacity
-                      style={[styles.docRow, !isSelected && { opacity: 0.4 }, wouldExceed && { opacity: 0.25 }]}
-                      onPress={() => !wouldExceed && toggleDocId(item.id)}
-                      activeOpacity={wouldExceed ? 1 : 0.75}
-                    >
-                      <View style={[styles.docCheck, isSelected && styles.docCheckActive]}>
-                        {isSelected && <Ionicons name="checkmark" size={12} color="#fff" />}
-                      </View>
-                      <Text style={{ fontSize: 20, marginRight: 10 }}>{item.icon}</Text>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.docLabel}>{item.label}</Text>
-                        <Text style={styles.docSub}>{alreadyAdded ? '✓ Already tracked' : `Alerts: ${item.alertDays?.map((d: number) => d + 'd').join(', ')}`}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                }}
+                renderItem={renderDocItem}
               />
             )}
           </View>
