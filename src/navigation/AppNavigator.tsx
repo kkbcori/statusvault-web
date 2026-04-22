@@ -9,7 +9,7 @@ import {
   Platform, View, Text, TouchableOpacity, StyleSheet, Image,
   ImageBackground, Modal,
 } from 'react-native';
-import { NavigationContainer, useNavigation, useNavigationState } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, useNavigationState, useIsFocused } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useWindowDimensions } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -66,6 +66,34 @@ const NAV_GROUPS = [
   { label: 'TOOLS',   items: ['Checklist', 'Timers', 'VisaTools'] },
   { label: 'ACCOUNT', items: ['Help', 'Contact', 'Settings'] },
 ];
+
+// ─── OnlyWhenFocused HOC ─────────────────────────────────────
+// React Navigation v7's bottom-tab navigator on web does not always apply
+// display:none to inactive scenes when their background is transparent,
+// which causes all tab screens to render stacked on top of each other.
+// This HOC is a belt-and-braces fix: unfocused screens explicitly return null.
+function onlyWhenFocused<P extends object>(Component: React.ComponentType<P>): React.FC<P> {
+  const Wrapped: React.FC<P> = (props) => {
+    const focused = useIsFocused();
+    if (!focused) return null;
+    return <Component {...props} />;
+  };
+  Wrapped.displayName = `OnlyWhenFocused(${Component.displayName ?? Component.name ?? 'Screen'})`;
+  return Wrapped;
+}
+
+// Pre-wrap every Tab.Screen component once at module scope so identity is stable
+// across renders (otherwise React Navigation would remount on every parent render).
+const FocusedDashboard = onlyWhenFocused(DashboardScreen);
+const FocusedDocuments = onlyWhenFocused(DocumentsScreen);
+const FocusedTravel    = onlyWhenFocused(TravelScreen);
+const FocusedFamily    = onlyWhenFocused(FamilyScreen);
+const FocusedChecklist = onlyWhenFocused(ChecklistScreen);
+const FocusedVisaTools = onlyWhenFocused(VisaToolsScreen);
+const FocusedTimers    = onlyWhenFocused(CounterScreen);
+const FocusedHelp      = onlyWhenFocused(HelpScreen);
+const FocusedContact   = onlyWhenFocused(ContactScreen);
+const FocusedSettings  = onlyWhenFocused(SettingsScreen);
 
 // ─── Web Sidebar ─────────────────────────────────────────────
 const MIN_WIDTH = 200;
@@ -453,16 +481,16 @@ const MainTabs: React.FC = () => {
                       key={item.name}
                       name={item.name}
                       component={
-                        item.name === 'Dashboard'  ? DashboardScreen  :
-                        item.name === 'Documents'  ? DocumentsScreen  :
-                        item.name === 'Travel'     ? TravelScreen     :
-                        item.name === 'Family'     ? FamilyScreen     :
-                        item.name === 'Checklist'  ? ChecklistScreen  :
-                        item.name === 'VisaTools'  ? VisaToolsScreen  :
-                        item.name === 'Timers'     ? CounterScreen    :
-                        item.name === 'Help'       ? HelpScreen
-                        : item.name === 'Contact'  ? ContactScreen
-                        : SettingsScreen
+                        item.name === 'Dashboard'  ? FocusedDashboard  :
+                        item.name === 'Documents'  ? FocusedDocuments  :
+                        item.name === 'Travel'     ? FocusedTravel     :
+                        item.name === 'Family'     ? FocusedFamily     :
+                        item.name === 'Checklist'  ? FocusedChecklist  :
+                        item.name === 'VisaTools'  ? FocusedVisaTools  :
+                        item.name === 'Timers'     ? FocusedTimers     :
+                        item.name === 'Help'       ? FocusedHelp
+                        : item.name === 'Contact'  ? FocusedContact
+                        : FocusedSettings
                       }
                       options={{ tabBarLabel: item.label }}
                     />
