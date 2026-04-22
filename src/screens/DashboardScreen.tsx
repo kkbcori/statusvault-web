@@ -373,48 +373,179 @@ export const DashboardScreen: React.FC = () => {
         </View>
       )}
 
-      {/* ═══ UNIFIED 2-COLUMN LAYOUT ═══
-           Left col:  [Docs stat] [Expiry stat] + Doc Status card
-           Right col: [Expiring stat] [Family stat] + Deadlines card  */}
-      <View style={[styles.cardGrid, hasSidebar && styles.cardRowWide as any]}>
+      {/* ═══════════════════════════════════════════════════════
+           WEB (hasSidebar):  2 columns — stat pair + content card each
+           MOBILE:  all 4 stat cards → Doc Status → Deadlines → Row2
+      ═══════════════════════════════════════════════════════════ */}
 
-        {/* ── LEFT COLUMN ── */}
-        <View style={[hasSidebar && styles.cardHalf as any, { gap: 16 }]}>
+      {hasSidebar ? (
+        /* ── WEB: 2-column paired layout ── */
+        <View style={[styles.cardGrid, styles.cardRowWide]}>
 
-          {/* Mini stat pair: Documents + Next Expiry */}
-          <View style={{ flexDirection: 'row' as any, gap: 16 }}>
+          {/* LEFT COLUMN */}
+          <View style={[styles.cardHalf, { gap: 16 }]}>
+            <View style={{ flexDirection: 'row', gap: 16 } as any}>
+              <Animated.View style={[stats1Anim, { flex: 1 }]}><StatCard
+                label="Documents Tracked"
+                value={documents.length}
+                subtitle={`of ${isPremium ? '∞' : FREE_LIMIT} total`}
+                icon="document-text" iconBg="#EEF2FF" iconColor="#4F46E5"
+                onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
+              /></Animated.View>
+              <Animated.View style={[stats2Anim, { flex: 1 }]}><StatCard
+                label="Next Expiry"
+                value={mostCritical ? `${Math.abs(mostCritical.daysRemaining)}d` : '—'}
+                subtitle={mostCritical ? (mostCritical.daysRemaining < 0 ? 'EXPIRED' : mostCritical.label) : 'All documents safe'}
+                icon="time-outline"
+                iconBg={mostCritical && mostCritical.daysRemaining <= 30 ? '#FEF2F2' : '#ECFDF5'}
+                iconColor={mostCritical && mostCritical.daysRemaining <= 30 ? '#DC2626' : '#059669'}
+                trend={mostCritical && mostCritical.daysRemaining < 0 ? { value: 'Action needed', up: false } : undefined}
+                onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
+              /></Animated.View>
+            </View>
+            <Animated.View style={[grid1Anim, { flex: 1 }]}><Card style={[styles.gridCard, { height: CARD_H }]}>
+              <CardHeader title="Document Status" subtitle="Urgency breakdown"
+                right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />} />
+              {[
+                { label: '🔴 Expired',      count: expired.length,                                                                   color: '#EA5455', bg: '#FFEEEE' },
+                { label: 'Critical (<30d)', count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining < 30).length,   color: '#EA5455', bg: '#FFEEEE' },
+                { label: 'High (30–60d)',   count: deadlines.filter((d) => d.daysRemaining >= 30 && d.daysRemaining < 60).length,  color: '#FF9F43', bg: '#FFF4E6' },
+                { label: 'Medium (60–180d)',count: deadlines.filter((d) => d.daysRemaining >= 60 && d.daysRemaining < 180).length, color: '#7367F0', bg: '#F0EEFF' },
+                { label: 'Low (>180d)',     count: deadlines.filter((d) => d.daysRemaining >= 180).length,                         color: '#28C76F', bg: '#EAFFF4' },
+              ].map((row) => (
+                <View key={row.label} style={styles.statusRow}>
+                  <View style={[styles.statusDot, { backgroundColor: row.color }]} />
+                  <Text style={styles.statusLabel}>{row.label}</Text>
+                  <View style={styles.statusBar}>
+                    <View style={[styles.statusBarFill, { width: deadlines.length > 0 ? `${(row.count / deadlines.length) * 100}%` as any : '0%', backgroundColor: row.color }]} />
+                  </View>
+                  <View style={[styles.statusCount, { backgroundColor: row.bg }]}>
+                    <Text style={[styles.statusCountText, { color: row.color }]}>{row.count}</Text>
+                  </View>
+                </View>
+              ))}
+              <View style={{ flex: 1 }} />
+              <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+                <Text style={styles.cardFooterText}>View Documents</Text>
+                <Ionicons name="arrow-forward" size={13} color="#7367F0" />
+              </TouchableOpacity>
+            </Card></Animated.View>
+          </View>
+
+          {/* RIGHT COLUMN */}
+          <View style={[styles.cardHalf, { gap: 16 }]}>
+            <View style={{ flexDirection: 'row', gap: 16 } as any}>
+              <Animated.View style={[stats3Anim, { flex: 1 }]}><StatCard
+                label="Expiring Soon"
+                value={expiringSoon.length}
+                subtitle={expiringSoon.length > 0 ? 'within 90 days' : 'None in 90 days'}
+                icon="alert-circle-outline"
+                iconBg={expiringSoon.length > 0 ? '#FFFBEB' : '#ECFDF5'}
+                iconColor={expiringSoon.length > 0 ? '#D97706' : '#059669'}
+                onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
+              /></Animated.View>
+              <Animated.View style={[stats4Anim, { flex: 1 }]}><StatCard
+                label="Family Members"
+                value={familyMembers.length}
+                subtitle={familyMembers.length > 0 ? 'being tracked' : 'Add family members'}
+                icon="people-outline" iconBg="#E0FAFD" iconColor="#00CFE8"
+                onPress={() => navigation.navigate('Main', { screen: 'Family' })}
+              /></Animated.View>
+            </View>
+            <Animated.View style={[grid2Anim, { flex: 1 }]}><Card style={[styles.gridCard, { height: CARD_H }]}>
+              <CardHeader
+                title="Upcoming Deadlines"
+                subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
+                right={
+                  <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+                    <Text style={styles.viewAllText}>All</Text>
+                    <Ionicons name="arrow-forward" size={12} color="#7367F0" />
+                  </TouchableOpacity>
+                }
+              />
+              {deadlines.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <Ionicons name="document-text-outline" size={32} color="#ACAEC5" />
+                  <Text style={styles.emptyTitle}>No documents yet</Text>
+                  <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+                    <Text style={styles.emptyBtnText}>Add Document</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
+                  <View style={styles.deadlineList}>
+                    {deadlines.map((dl) => {
+                      const isExpired  = dl.daysRemaining < 0;
+                      const isCritical = !isExpired && dl.daysRemaining < 30;
+                      const isHigh     = !isExpired && dl.daysRemaining >= 30 && dl.daysRemaining < 60;
+                      const isMedium   = !isExpired && dl.daysRemaining >= 60 && dl.daysRemaining < 180;
+                      const badgeColor = isExpired ? '#EA5455' : isCritical ? '#EA5455' : isHigh ? '#FF9F43' : isMedium ? '#7367F0' : '#28C76F';
+                      const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFEEEE' : isHigh ? '#FFF4E6' : isMedium ? '#F0EEFF' : '#EAFFF4';
+                      const severity   = isExpired ? 'Expired' : isCritical ? 'Critical' : isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
+                      const badgeLabel = `${severity}${!isExpired ? ` · ${dl.daysRemaining}d` : ''}`;
+                      return (
+                        <View key={dl.documentId} style={styles.deadlineRow}>
+                          <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
+                          <Text style={styles.deadlineIcon}>{dl.icon}</Text>
+                          <View style={styles.deadlineInfo}>
+                            <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
+                            <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
+                          </View>
+                          <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
+                        </View>
+                      );
+                    })}
+                  </View>
+                </ScrollView>
+              )}
+            </Card></Animated.View>
+          </View>
+
+        </View>
+      ) : (
+        /* ── MOBILE: stacked layout ── */
+        <View style={{ gap: 16 }}>
+
+          {/* Row of 4 stat cards — 2×2 grid */}
+          <View style={{ flexDirection: 'row', gap: 16 } as any}>
             <Animated.View style={[stats1Anim, { flex: 1 }]}><StatCard
-              label="Documents Tracked"
-              value={documents.length}
+              label="Documents Tracked" value={documents.length}
               subtitle={`of ${isPremium ? '∞' : FREE_LIMIT} total`}
-              icon="document-text"
-              iconBg="#EEF2FF"
-              iconColor="#4F46E5"
+              icon="document-text" iconBg="#EEF2FF" iconColor="#4F46E5"
               onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
             /></Animated.View>
             <Animated.View style={[stats2Anim, { flex: 1 }]}><StatCard
               label="Next Expiry"
               value={mostCritical ? `${Math.abs(mostCritical.daysRemaining)}d` : '—'}
-              subtitle={mostCritical
-                ? (mostCritical.daysRemaining < 0 ? 'EXPIRED' : mostCritical.label)
-                : 'All documents safe'}
+              subtitle={mostCritical ? (mostCritical.daysRemaining < 0 ? 'EXPIRED' : mostCritical.label) : 'All documents safe'}
               icon="time-outline"
               iconBg={mostCritical && mostCritical.daysRemaining <= 30 ? '#FEF2F2' : '#ECFDF5'}
               iconColor={mostCritical && mostCritical.daysRemaining <= 30 ? '#DC2626' : '#059669'}
-              trend={mostCritical && mostCritical.daysRemaining < 0
-                ? { value: 'Action needed', up: false }
-                : undefined}
+              trend={mostCritical && mostCritical.daysRemaining < 0 ? { value: 'Action needed', up: false } : undefined}
               onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
             /></Animated.View>
           </View>
+          <View style={{ flexDirection: 'row', gap: 16 } as any}>
+            <Animated.View style={[stats3Anim, { flex: 1 }]}><StatCard
+              label="Expiring Soon" value={expiringSoon.length}
+              subtitle={expiringSoon.length > 0 ? 'within 90 days' : 'None in 90 days'}
+              icon="alert-circle-outline"
+              iconBg={expiringSoon.length > 0 ? '#FFFBEB' : '#ECFDF5'}
+              iconColor={expiringSoon.length > 0 ? '#D97706' : '#059669'}
+              onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
+            /></Animated.View>
+            <Animated.View style={[stats4Anim, { flex: 1 }]}><StatCard
+              label="Family Members" value={familyMembers.length}
+              subtitle={familyMembers.length > 0 ? 'being tracked' : 'Add family members'}
+              icon="people-outline" iconBg="#E0FAFD" iconColor="#00CFE8"
+              onPress={() => navigation.navigate('Main', { screen: 'Family' })}
+            /></Animated.View>
+          </View>
 
-          {/* Document Status card */}
+          {/* Document Status card — full width */}
           <Animated.View style={grid1Anim}><Card style={styles.gridCard}>
-            <CardHeader
-              title="Document Status"
-              subtitle="Urgency breakdown"
-              right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />}
-            />
+            <CardHeader title="Document Status" subtitle="Urgency breakdown"
+              right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />} />
             {[
               { label: '🔴 Expired',      count: expired.length,                                                                   color: '#EA5455', bg: '#FFEEEE' },
               { label: 'Critical (<30d)', count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining < 30).length,   color: '#EA5455', bg: '#FFEEEE' },
@@ -426,51 +557,20 @@ export const DashboardScreen: React.FC = () => {
                 <View style={[styles.statusDot, { backgroundColor: row.color }]} />
                 <Text style={styles.statusLabel}>{row.label}</Text>
                 <View style={styles.statusBar}>
-                  <View style={[styles.statusBarFill, {
-                    width: deadlines.length > 0 ? `${(row.count / deadlines.length) * 100}%` as any : '0%',
-                    backgroundColor: row.color,
-                  }]} />
+                  <View style={[styles.statusBarFill, { width: deadlines.length > 0 ? `${(row.count / deadlines.length) * 100}%` as any : '0%', backgroundColor: row.color }]} />
                 </View>
                 <View style={[styles.statusCount, { backgroundColor: row.bg }]}>
                   <Text style={[styles.statusCountText, { color: row.color }]}>{row.count}</Text>
                 </View>
               </View>
             ))}
-            <View style={{ flex: 1 }} />
-            <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
+            <TouchableOpacity style={[styles.cardFooterBtn, { marginTop: 12 }]} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
               <Text style={styles.cardFooterText}>View Documents</Text>
               <Ionicons name="arrow-forward" size={13} color="#7367F0" />
             </TouchableOpacity>
           </Card></Animated.View>
 
-        </View>{/* end left column */}
-
-        {/* ── RIGHT COLUMN ── */}
-        <View style={[hasSidebar && styles.cardHalf as any, { gap: 16 }]}>
-
-          {/* Mini stat pair: Expiring Soon + Family */}
-          <View style={{ flexDirection: 'row' as any, gap: 16 }}>
-            <Animated.View style={[stats3Anim, { flex: 1 }]}><StatCard
-              label="Expiring Soon"
-              value={expiringSoon.length}
-              subtitle={expiringSoon.length > 0 ? 'within 90 days' : 'None in 90 days'}
-              icon="alert-circle-outline"
-              iconBg={expiringSoon.length > 0 ? '#FFFBEB' : '#ECFDF5'}
-              iconColor={expiringSoon.length > 0 ? '#D97706' : '#059669'}
-              onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
-            /></Animated.View>
-            <Animated.View style={[stats4Anim, { flex: 1 }]}><StatCard
-              label="Family Members"
-              value={familyMembers.length}
-              subtitle={familyMembers.length > 0 ? 'being tracked' : 'Add family members'}
-              icon="people-outline"
-              iconBg="#E0FAFD"
-              iconColor="#00CFE8"
-              onPress={() => navigation.navigate('Main', { screen: 'Family' })}
-            /></Animated.View>
-          </View>
-
-          {/* Upcoming Deadlines card */}
+          {/* Upcoming Deadlines card — full width */}
           <Animated.View style={grid2Anim}><Card style={styles.gridCard}>
             <CardHeader
               title="Upcoming Deadlines"
@@ -491,36 +591,34 @@ export const DashboardScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
             ) : (
-              <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
-                <View style={styles.deadlineList}>
-                  {deadlines.map((dl) => {
-                    const isExpired  = dl.daysRemaining < 0;
-                    const isCritical = !isExpired && dl.daysRemaining < 30;
-                    const isHigh     = !isExpired && dl.daysRemaining >= 30 && dl.daysRemaining < 60;
-                    const isMedium   = !isExpired && dl.daysRemaining >= 60 && dl.daysRemaining < 180;
-                    const badgeColor = isExpired ? '#EA5455' : isCritical ? '#EA5455' : isHigh ? '#FF9F43' : isMedium ? '#7367F0' : '#28C76F';
-                    const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFEEEE' : isHigh ? '#FFF4E6' : isMedium ? '#F0EEFF' : '#EAFFF4';
-                    const severity   = isExpired ? 'Expired' : isCritical ? 'Critical' : isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
-                    const badgeLabel = `${severity}${!isExpired ? ` · ${dl.daysRemaining}d` : ''}`;
-                    return (
-                      <View key={dl.documentId} style={styles.deadlineRow}>
-                        <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
-                        <Text style={styles.deadlineIcon}>{dl.icon}</Text>
-                        <View style={styles.deadlineInfo}>
-                          <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
-                          <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
-                        </View>
-                        <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
+              <View style={styles.deadlineList}>
+                {deadlines.map((dl) => {
+                  const isExpired  = dl.daysRemaining < 0;
+                  const isCritical = !isExpired && dl.daysRemaining < 30;
+                  const isHigh     = !isExpired && dl.daysRemaining >= 30 && dl.daysRemaining < 60;
+                  const isMedium   = !isExpired && dl.daysRemaining >= 60 && dl.daysRemaining < 180;
+                  const badgeColor = isExpired ? '#EA5455' : isCritical ? '#EA5455' : isHigh ? '#FF9F43' : isMedium ? '#7367F0' : '#28C76F';
+                  const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFEEEE' : isHigh ? '#FFF4E6' : isMedium ? '#F0EEFF' : '#EAFFF4';
+                  const severity   = isExpired ? 'Expired' : isCritical ? 'Critical' : isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
+                  const badgeLabel = `${severity}${!isExpired ? ` · ${dl.daysRemaining}d` : ''}`;
+                  return (
+                    <View key={dl.documentId} style={styles.deadlineRow}>
+                      <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
+                      <Text style={styles.deadlineIcon}>{dl.icon}</Text>
+                      <View style={styles.deadlineInfo}>
+                        <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
+                        <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
                       </View>
-                    );
-                  })}
-                </View>
-              </ScrollView>
+                      <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
+                    </View>
+                  );
+                })}
+              </View>
             )}
           </Card></Animated.View>
 
-        </View>{/* end right column */}
-      </View>{/* end 2-col layout */}
+        </View>
+      )}
 
       {/* ── Row 2: Checklist + Timers ── */}
       <View style={[styles.cardRow, hasSidebar && styles.cardRowWide as any]}>
