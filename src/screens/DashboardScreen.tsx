@@ -816,12 +816,13 @@ export const DashboardScreen: React.FC = () => {
       </View>
       <View style={{ height: 16 }} />
     </ScrollView>
+    </ImageBackground>
   );
 };
 
 // ─── Styles ────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container:     { flex: 1, backgroundColor: '#F0F4FF' },
+  container:     { flex: 1 },
   content:       { paddingBottom: 32 },
   contentWeb:    { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 48 },
   contentMobile: { paddingHorizontal: 16, paddingBottom: 100 },
