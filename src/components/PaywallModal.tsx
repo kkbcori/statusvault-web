@@ -19,7 +19,7 @@ const PLANS = [
     label:    'Yearly',
     price:    '$4.99',
     period:   'per year',
-    note:     'Just $0.42/month · Save 14%',
+    note:     'Just $0.42/month · Save 15%',
     badge:    'BEST VALUE',
     popular:  true,
   },

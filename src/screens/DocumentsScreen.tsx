@@ -22,7 +22,6 @@ import { useRoute } from '@react-navigation/native';
 import { useEntrance, usePressScale } from '../hooks/useAnimations';
 import { AnimatedEmptyIcon } from '../components/AnimatedEmptyIcon';
 
-const PRICE = 'from $0.49';
 const PRICE_LABEL = '$0.49/mo or $4.99/yr';
 
 export const DocumentsScreen: React.FC = () => {
@@ -411,10 +410,10 @@ export const DocumentsScreen: React.FC = () => {
             {/* Price block */}
             <View style={styles.paywallPriceBlock}>
               <View style={styles.paywallPriceRow}>
-                <Text style={styles.paywallPrice}>{PRICE}</Text>
+                <Text style={styles.paywallPrice}>$0.49</Text>
                 <View style={styles.paywallPriceSide}>
-                  <Text style={styles.paywallPeriod}>/ year</Text>
-                  <Text style={styles.paywallPriceNote}>Less than $0.34/month</Text>
+                  <Text style={styles.paywallPeriod}>/ month</Text>
+                  <Text style={styles.paywallPriceNote}>or $4.99/year · Save 15%</Text>
                 </View>
               </View>
             </View>

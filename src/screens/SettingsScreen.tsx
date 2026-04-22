@@ -20,7 +20,6 @@ import { requestPermissions, cancelAllNotifications, sendTestNotification, getSc
 import { PinSetupModal } from '../components/PinSetupModal';
 import { useEntrance, usePressScale } from '../hooks/useAnimations';
 
-const PRICE      = 'from $0.49';
 const PRICE_YEAR = '$0.49/mo or $4.99/yr';
 
 // ─── Section Label with Ionicon ──────────────────────────────
@@ -616,26 +615,29 @@ export const SettingsScreen: React.FC = () => {
           </View>
           {['Unlimited docs · checklists · timers · family', 'PDF & JSON export for all your data', 'Smart alerts at 6mo · 3mo · 2mo · 1mo · 15d · 7d'].map((f) => (
             <View key={f} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: 'rgba(79,70,229,0.25)', alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="checkmark" size={11} color="#6FAFF2" />
+              <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: 'rgba(76,217,138,0.20)', alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="checkmark" size={11} color="#4CD98A" />
               </View>
-              <Text style={{ fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.70)' }}>{f}</Text>
+              <Text style={{ fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.75)' }}>{f}</Text>
             </View>
           ))}
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 14, marginBottom: 16, gap: 4 }}>
-            <Text style={styles.premPrice}>{PRICE}</Text>
-            <Text style={styles.premPeriod}>/year</Text>
-            <View style={{ backgroundColor: '#6FAFF2', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2, marginLeft: 6 }}>
-              <Text style={{ fontSize: 9, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: 0.5 }}>SAVE 85%</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 14, marginBottom: 4, gap: 4 }}>
+            <Text style={styles.premPrice}>$0.49</Text>
+            <Text style={styles.premPeriod}>/month</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16, gap: 8 }}>
+            <Text style={{ fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.55)' }}>or $4.99/year</Text>
+            <View style={{ backgroundColor: 'rgba(76,217,138,0.18)', borderWidth: 1, borderColor: 'rgba(76,217,138,0.35)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 }}>
+              <Text style={{ fontSize: 9, fontFamily: 'Inter_800ExtraBold', color: '#4CD98A', letterSpacing: 0.5 }}>SAVE 15%</Text>
             </View>
           </View>
           <TouchableOpacity style={styles.premBtn} onPress={() => dialog.confirm({ title: 'Coming Soon', message: 'In-app purchase available soon.', type: 'confirm', confirmLabel: 'Unlock for Testing', cancelLabel: 'Cancel', onConfirm: () => setPremium(true) })}>
             <LinearGradient colors={['#6FAFF2', '#3B8BE8']} style={styles.premBtnGrad} start={{ x:0, y:0 }} end={{ x:1, y:0 }}>
-              <Ionicons name="star" size={14} color="#FCD34D" />
+              <Ionicons name="star" size={14} color="#F5C053" />
               <Text style={styles.premBtnText}>Unlock Premium — {PRICE_YEAR}</Text>
             </LinearGradient>
           </TouchableOpacity>
-          <Text style={{ fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.30)', textAlign: 'center', marginTop: 8 }}>Cancel anytime · Secure · AES-256 encrypted</Text>
+          <Text style={{ fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.40)', textAlign: 'center', marginTop: 8 }}>Cancel anytime · Secure · AES-256 encrypted</Text>
         </LinearGradient>
       )}
 
