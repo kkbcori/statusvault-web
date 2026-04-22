@@ -8,7 +8,6 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Linking,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB, IS_TABLET } from '../utils/responsive';
@@ -194,11 +193,11 @@ const FAQItem: React.FC<{ item: FAQItem; index: number }> = ({ item, index }) =>
 };
 
 const faqStyles = StyleSheet.create({
-  item:         { borderBottomWidth: 1, borderBottomColor: colors.borderLight },
+  item:         { borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
   question:     { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', paddingVertical: 14, gap: 12 },
-  questionText: { flex: 1, fontSize: 14, fontFamily: 'Inter_600SemiBold', color: colors.text1, lineHeight: 20 },
+  questionText: { flex: 1, fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF', lineHeight: 20 },
   answer:       { paddingBottom: 16 },
-  answerText:   { fontSize: 13, fontFamily: 'Inter_400Regular', color: colors.text2, lineHeight: 21 },
+  answerText:   { fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.75)', lineHeight: 21 },
 });
 
 // ─── Section Card ─────────────────────────────────────────────
@@ -229,12 +228,20 @@ const SectionCard: React.FC<{ section: Section }> = ({ section }) => {
 };
 
 const sectionStyles = StyleSheet.create({
-  card:       { backgroundColor: colors.card, borderRadius: radius.xl, marginBottom: spacing.md, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', ...shadows.sm },
+  card: {
+    backgroundColor: 'rgba(255,255,255,0.055)',
+    borderRadius: radius.xl,
+    marginBottom: spacing.md,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', boxShadow: '0 4px 16px rgba(0,0,0,0.28)' } as any) : shadows.sm),
+  } as any,
   header:     { flexDirection: 'row', alignItems: 'center', gap: 12, padding: spacing.lg },
-  iconBox:    { width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(59,139,232,0.14)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
-  title:      { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
-  subtitle:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, marginTop: 2 },
-  countBadge: { backgroundColor: 'rgba(59,139,232,0.14)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
+  iconBox:    { width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(59,139,232,0.14)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(111,175,242,0.30)' },
+  title:      { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#F0F4FF' },
+  subtitle:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', marginTop: 2 },
+  countBadge: { backgroundColor: 'rgba(59,139,232,0.16)', paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(111,175,242,0.30)' },
   countText:  { fontSize: 11, fontFamily: 'Inter_700Bold', color: '#6FAFF2' },
   faqs:       { paddingHorizontal: spacing.lg, paddingBottom: 4 },
 });
@@ -263,17 +270,26 @@ export const HelpScreen: React.FC = () => {
     >
       {/* Header */}
       {!IS_WEB && (
-        <LinearGradient colors={[colors.primary, colors.primaryMid, colors.background]} style={styles.headerGradient}>
-          <View style={styles.header}>
-            <Text style={styles.headerLabel}>HELP & FAQ</Text>
-            <Text style={styles.headerTitle}>Help Center</Text>
-            <Text style={styles.headerSub}>{totalFaqs} questions across {SECTIONS.length} topics</Text>
-          </View>
-        </LinearGradient>
+        <View style={styles.header}>
+          {/* Top accent stripe — brand blue */}
+          <View style={{ position: 'absolute' as any, top: 0, left: 0, right: 0, height: 3, backgroundColor: '#3B8BE8' } as any} />
+          <Text style={styles.headerLabel}>HELP & FAQ</Text>
+          <Text style={styles.headerTitle}>Help Center</Text>
+          <Text style={styles.headerSub}>{totalFaqs} questions across {SECTIONS.length} topics</Text>
+        </View>
       )}
 
       {IS_WEB && (
         <View style={styles.webHero}>
+          {/* Top accent stripe — brand blue */}
+          <View style={{ position: 'absolute' as any, top: 0, left: 0, right: 0, height: 3, backgroundColor: '#3B8BE8' } as any} />
+          {/* Soft ambient blue glow */}
+          {Platform.OS === 'web' && (
+            <View pointerEvents="none" style={{
+              position: 'absolute' as any, top: -50, right: -50, width: 320, height: 320, borderRadius: 160,
+              background: 'radial-gradient(circle, rgba(59,139,232,0.18) 0%, transparent 70%)',
+            } as any} />
+          )}
           <Text style={styles.webHeroEye}>STATUSVAULT HELP CENTER</Text>
           <Text style={styles.webHeroTitle}>How can we help?</Text>
           <Text style={styles.webHeroSub}>
@@ -406,33 +422,87 @@ const styles = StyleSheet.create({
   content:       { paddingBottom: 40 },
   contentWeb:    { paddingHorizontal: 28, paddingTop: 24 },
 
-  // Mobile header
+  // Mobile header — dark glass panel, no loud gradient
   headerGradient:{ paddingBottom: 8 },
-  header:        { paddingHorizontal: spacing.screen, paddingTop: spacing.xxl + 20, paddingBottom: spacing.lg },
-  headerLabel:   { ...typography.micro, color: '#6FAFF2', letterSpacing: 2, marginBottom: 4, fontSize: 10 },
-  headerTitle:   { ...typography.h1, color: colors.textInverse, fontSize: 26 },
-  headerSub:     { ...typography.caption, color: 'rgba(255,255,255,0.5)', marginTop: 2 },
+  header: {
+    marginHorizontal: spacing.screen,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 16,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    position: 'relative' as any,
+    overflow: 'hidden' as any,
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', boxShadow: '0 4px 16px rgba(0,0,0,0.28)' } as any) : {}),
+  } as any,
+  headerLabel:   { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#6FAFF2', letterSpacing: 2, marginBottom: 4 },
+  headerTitle:   { fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: '#F0F4FF', letterSpacing: -0.4 },
+  headerSub:     { fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.55)', marginTop: 3 },
 
-  // Web hero
-  webHero:       { backgroundColor: '#6FAFF2', borderRadius: radius.xxl, padding: 32, marginBottom: spacing.xl, borderWidth: 1, borderColor: 'rgba(0,153,168,0.15)', ...shadows.sm },
+  // Web hero — dark glass with brand accent stripe (NOT solid blue!)
+  webHero: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: radius.xxl,
+    padding: 32,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    position: 'relative' as any,
+    overflow: 'hidden' as any,
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', boxShadow: '0 8px 28px rgba(0,0,0,0.35)' } as any) : shadows.md),
+  } as any,
   webHeroEye:    { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#6FAFF2', letterSpacing: 2.5, marginBottom: 8 },
-  webHeroTitle:  { fontSize: 32, fontFamily: 'Inter_900Black', color: '#fff', letterSpacing: -0.5, marginBottom: 8 },
-  webHeroSub:    { fontSize: 15, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.5)', lineHeight: 24, maxWidth: 600 },
+  webHeroTitle:  { fontSize: 32, fontFamily: 'Inter_900Black', color: '#F0F4FF', letterSpacing: -0.5, marginBottom: 8 },
+  webHeroSub:    { fontSize: 15, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.65)', lineHeight: 24, maxWidth: 600 },
 
-  // Stats
+  // Stats — dark glass cards
   statsRow:      { flexDirection: 'row', paddingHorizontal: 0, gap: 10, marginVertical: spacing.lg },
-  statCard:      { flex: 1, backgroundColor: colors.card, borderRadius: radius.lg, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', ...shadows.sm },
+  statCard: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.055)',
+    borderRadius: radius.lg,
+    padding: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' } as any) : {}),
+  } as any,
   statNum:       { fontSize: 20, fontFamily: 'Inter_900Black', color: '#6FAFF2', letterSpacing: -0.5 },
-  statLabel:     { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: colors.text3, marginTop: 2, textAlign: 'center' },
+  statLabel:     { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: 'rgba(240,244,255,0.55)', marginTop: 2, textAlign: 'center' },
 
   // Featured tips
   tipsRow:       { flexDirection: IS_WEB ? 'row' : 'column' as any, gap: 10, marginBottom: spacing.lg } as any,
-  tipCard:       { flex: IS_WEB ? 1 : undefined, backgroundColor: colors.card, borderRadius: radius.lg, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' } as any) : {}) } as any,
-  tipTitle:      { fontSize: 13, fontFamily: 'Inter_700Bold', color: colors.text1, marginBottom: 4, letterSpacing: -0.1 },
-  tipText:       { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3, textAlign: 'center', lineHeight: 15 },
+  tipCard: {
+    flex: IS_WEB ? 1 : undefined,
+    backgroundColor: 'rgba(255,255,255,0.055)',
+    borderRadius: radius.lg,
+    padding: 14,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' } as any) : {}),
+  } as any,
+  tipTitle:      { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#F0F4FF', marginBottom: 4, letterSpacing: -0.1 },
+  tipText:       { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', textAlign: 'center', lineHeight: 15 },
 
-  // Search
-  searchWrap:    { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.20)', paddingHorizontal: 14, paddingVertical: Platform.OS === 'ios' ? 14 : 6, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : spacing.screen, marginBottom: spacing.lg },
+  // Search — dark glass input
+  searchWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    paddingHorizontal: 14,
+    paddingVertical: Platform.OS === 'ios' ? 14 : 6,
+    marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : spacing.screen,
+    marginBottom: spacing.lg,
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' } as any) : {}),
+  } as any,
   searchIcon:    { marginRight: 10 },
   searchInput:   { flex: 1 },
 
@@ -443,17 +513,36 @@ const styles = StyleSheet.create({
 
   // No results
   noResults:     { alignItems: 'center', padding: 40, gap: 12 },
-  noResultsText: { fontSize: 14, fontFamily: 'Inter_500Medium', color: colors.text3 },
+  noResultsText: { fontSize: 14, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.55)' },
 
-  // Official links
-  linksCard:     { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', ...shadows.sm, marginBottom: spacing.lg },
-  linksHeader:   { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.md, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
-  linksTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
-  linkRow:       { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
+  // Official links — dark glass
+  linksCard: {
+    backgroundColor: 'rgba(255,255,255,0.055)',
+    borderRadius: radius.xl,
+    marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : spacing.screen,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    marginBottom: spacing.lg,
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' } as any) : {}),
+  } as any,
+  linksHeader:   { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.md, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)' },
+  linksTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#F0F4FF' },
+  linkRow:       { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
   linkDot:       { width: 6, height: 6, borderRadius: 3, backgroundColor: '#6FAFF2' },
-  linkText:      { flex: 1, fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.text2 },
+  linkText:      { flex: 1, fontSize: 13, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.80)' },
 
-  // Disclaimer
-  disclaimer:    { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: colors.warningLight, borderRadius: radius.lg, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : spacing.screen, padding: spacing.lg, borderWidth: 1, borderColor: colors.warning + '40' },
-  disclaimerText:{ flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(245,192,83,0.85)', lineHeight: 19 },
+  // Disclaimer — gold glass tint (matches premium-alert pattern)
+  disclaimer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    backgroundColor: 'rgba(245,192,83,0.10)',
+    borderRadius: radius.lg,
+    marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : spacing.screen,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(245,192,83,0.28)',
+  },
+  disclaimerText:{ flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(245,192,83,0.90)', lineHeight: 19 },
 });
