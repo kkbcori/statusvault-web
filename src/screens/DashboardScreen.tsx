@@ -380,10 +380,10 @@ export const DashboardScreen: React.FC = () => {
 
       {hasSidebar ? (
         /* ── WEB: 2-column paired layout ── */
-        <View style={[styles.cardGrid, styles.cardRowWide]}>
+        <View style={{ flexDirection: 'row' as any, marginBottom: 16 }}>
 
           {/* LEFT COLUMN */}
-          <View style={[styles.cardHalf, { gap: 16 }]}>
+          <View style={{ flex: 1, marginRight: 8, gap: 16 } as any}>
             <View style={{ flexDirection: 'row', gap: 16 } as any}>
               <Animated.View style={[stats1Anim, { flex: 1 }]}><StatCard
                 label="Documents Tracked"
@@ -433,7 +433,7 @@ export const DashboardScreen: React.FC = () => {
           </View>
 
           {/* RIGHT COLUMN */}
-          <View style={[styles.cardHalf, { gap: 16 }]}>
+          <View style={{ flex: 1, marginLeft: 8, gap: 16 } as any}>
             <View style={{ flexDirection: 'row', gap: 16 } as any}>
               <Animated.View style={[stats3Anim, { flex: 1 }]}><StatCard
                 label="Expiring Soon"
@@ -621,10 +621,10 @@ export const DashboardScreen: React.FC = () => {
       )}
 
       {/* ── Row 2: Checklist + Timers ── */}
-      <View style={[styles.cardRow, hasSidebar && styles.cardRowWide as any]}>
+      <View style={[hasSidebar && { flexDirection: 'row' as any } as any]}>
 
         {/* Card 3: Immi Checklist */}
-        <Card style={[styles.gridCard, hasSidebar && styles.cardHalf as any, { height: CARD_H }]}>
+        <Card style={[styles.gridCard, hasSidebar && { flex: 1, marginRight: 8 } as any, { height: CARD_H }]}>
           <CardHeader
             title="Immi Checklist"
             subtitle={checklists.length > 0 ? `${checklists.length} active checklist${checklists.length !== 1 ? 's' : ''}` : 'Track your immigration steps'}
@@ -673,7 +673,7 @@ export const DashboardScreen: React.FC = () => {
         </Card>
 
         {/* Card 4: Immi Timers */}
-        <Card style={[styles.gridCard, hasSidebar && styles.cardHalf as any, { height: CARD_H }]}>
+        <Card style={[styles.gridCard, hasSidebar && { flex: 1, marginLeft: 8 } as any, { height: CARD_H }]}>
           <CardHeader
             title="Immi Timers"
             subtitle={counters.length > 0 ? `${counters.length} timer${counters.length !== 1 ? 's' : ''} active` : 'Track unemployment & stay days'}
