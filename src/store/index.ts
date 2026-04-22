@@ -719,10 +719,13 @@ export const useStore = create<AppStore>()(
         // Bug 60a: clear isPremium so next user on same device doesn't inherit it
         // Privacy fix: clear ALL user data on sign-out — trips/addressHistory/docs must
         // not be visible if someone else opens the browser after you sign out.
+        // UX fix: hasOnboarded=false + showWelcomeModal=true so after the reload the
+        // user actually sees the Welcome screen, providing visual confirmation that
+        // sign-out worked (otherwise they land on a blank Dashboard and think nothing happened).
         set({
           authUser: null, lastSyncedAt: null, syncError: null,
           emailVerified: false, isGuestMode: false,
-          hasOnboarded: true, showWelcomeModal: false,
+          hasOnboarded: false, showWelcomeModal: true,
           isPremium: false, cloudBackupEnabled: true,
           // Clear all user data
           documents:          [],
@@ -743,6 +746,10 @@ export const useStore = create<AppStore>()(
         });
         // Bug 60b: reload only on web — native just re-renders via state reset above
         if (Platform.OS === 'web' && typeof window !== 'undefined') {
+          // Clear Supabase session token from localStorage too — if it lingers, the
+          // welcome modal suppression logic in AppNavigator will see it and skip the
+          // welcome modal even though we just cleared authUser in state.
+          try { localStorage.removeItem('sb-auth-token'); } catch {}
           setTimeout(() => window.location.reload(), 100);
         }
         // On native: no reload needed — Zustand state reset above causes re-render
@@ -1173,6 +1180,11 @@ export const useStore = create<AppStore>()(
       resetAllData: async () => {
         // Bug 64 fix: cancel all scheduled push notifications before wiping documents
         try { await cancelAllNotifications(); } catch {}
+        // CRITICAL: cancel any pending sync timer FIRST — otherwise a queued
+        // syncToCloud might fire after we delete cloud data and write the old
+        // state back up, defeating the reset.
+        try { clearTimeout((scheduleSync as any)._t); } catch {}
+
         // Delete cloud data from Supabase (keep user logged in)
         try {
           const { data: { session } } = await supabase.auth.getSession();
@@ -1212,9 +1224,19 @@ export const useStore = create<AppStore>()(
           pinCode: null,
           lastSyncedAt: null,
           syncError: null,
-      lastAutoBackupAt: null,
+          lastAutoBackupAt: null,
           notifications: [],
+          profileSetupShown: false,
         });
+
+        // CRITICAL: immediately push the empty state up to cloud so any subsequent
+        // sync (foreground listener, periodic timer) sees an empty cloud copy
+        // instead of pulling back the pre-reset data via mergeById.
+        try {
+          if (authUser && isPremium) {
+            await get().syncToCloud();
+          }
+        } catch {}
       },
       exportData: () => {
         const { documents, checklists, counters, trips, isPremium, familyMembers, addressHistory, visaProfile, immigrationProfile, notificationEmail, whatsappPhone } = get();
