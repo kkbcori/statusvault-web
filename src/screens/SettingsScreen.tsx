@@ -788,9 +788,18 @@ export const SettingsScreen: React.FC = () => {
       }[action];
       return (
         <Modal key={action} visible={confirmAction === action} transparent animationType="fade" statusBarTranslucent>
-          <View style={styles.confirmOverlay}>
-            <TouchableOpacity style={StyleSheet.absoluteFillObject as any} activeOpacity={1} onPress={() => setConfirmAction(null)} />
-            <View style={styles.confirmBox}>
+          {/* Backdrop click-to-dismiss layer — click anywhere outside the box dismisses */}
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => setConfirmAction(null)}
+            style={[styles.confirmOverlay, Platform.OS === 'web' ? ({ cursor: 'default' } as any) : null]}
+          >
+            {/* Inner box — onStartShouldSetResponder stops touches from bubbling to backdrop */}
+            <View
+              style={styles.confirmBox}
+              onStartShouldSetResponder={() => true}
+              {...(Platform.OS === 'web' ? { onClick: (e: any) => e.stopPropagation() } : {})}
+            >
               <View style={styles.confirmIconRow}>
                 <View style={[styles.confirmIconBg, { backgroundColor: action === 'signout' ? 'rgba(59,139,232,0.14)' : 'rgba(255,107,107,0.10)' }]}>
                   <Ionicons
@@ -815,7 +824,7 @@ export const SettingsScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         </Modal>
       );
     })}
@@ -889,7 +898,7 @@ const styles = StyleSheet.create({
   legalText:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, lineHeight: 20 },
   confirmIconRow:  { alignItems: 'center', marginBottom: 14 },
   confirmIconBg:   { width: 52, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  confirmOverlay:  { position: 'absolute' as any, inset: 0, backgroundColor: 'rgba(3,8,18,0.75)', alignItems: 'center', justifyContent: 'center', zIndex: 9999 } as any,
+  confirmOverlay:  { flex: 1, backgroundColor: 'rgba(3,8,18,0.75)', alignItems: 'center', justifyContent: 'center', padding: 20 } as any,
   confirmBox:      { backgroundColor: '#0C1A34', borderRadius: 16, padding: 24, width: '90%', maxWidth: 380, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', ...Platform.select({ web: { boxShadow: '0 24px 64px rgba(0,0,0,0.55)' } as any }) } as any,
   confirmTitle:    { fontSize: 17, fontFamily: 'Inter_700Bold', color: '#F0F4FF', marginBottom: 8 },
   confirmMsg:      { fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', lineHeight: 20, marginBottom: 20 },
