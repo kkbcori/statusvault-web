@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Platform, UIManager, Modal, FlatList, TextInput, Animated,
+  Platform, UIManager, Modal, FlatList, TextInput, Animated, ImageBackground, Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -294,8 +294,13 @@ export const DashboardScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView
+    <ImageBackground
+      source={require('../../assets/bg-dashboard.png')}
       style={styles.container}
+      resizeMode="cover"
+    >
+    <ScrollView
+      style={{ flex: 1, backgroundColor: 'transparent' }}
       contentContainerStyle={[styles.content, hasSidebar && styles.contentWeb, !hasSidebar && styles.contentMobile]}
       showsVerticalScrollIndicator={true}
     >
@@ -303,9 +308,7 @@ export const DashboardScreen: React.FC = () => {
       {!hasSidebar && (
         <LinearGradient colors={['#312E81', '#4F46E5', '#6366F1']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.mobileHeader}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ width: 42, height: 42, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)' }}>
-              <Text style={{ fontSize: 22 }}>🛡️</Text>
-            </View>
+            <Image source={require('../../assets/logo-transparent.png')} style={{ width: 42, height: 42, borderRadius: 14 }} resizeMode="contain" />
             <View>
               <Text style={styles.mobileTitle}>StatusVault</Text>
               <Text style={styles.mobileSub}>Immigration Tracker</Text>
@@ -543,7 +546,7 @@ export const DashboardScreen: React.FC = () => {
           </View>
 
           {/* Document Status card — full width */}
-          <Animated.View style={grid1Anim}><Card style={styles.gridCard}>
+          <Animated.View style={[grid1Anim, { marginTop: 16 }]}><Card style={styles.gridCard}>
             <CardHeader title="Document Status" subtitle="Urgency breakdown"
               right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />} />
             {[
@@ -571,7 +574,7 @@ export const DashboardScreen: React.FC = () => {
           </Card></Animated.View>
 
           {/* Upcoming Deadlines card — full width */}
-          <Animated.View style={grid2Anim}><Card style={styles.gridCard}>
+          <Animated.View style={[grid2Anim, { marginTop: 16 }]}><Card style={styles.gridCard}>
             <CardHeader
               title="Upcoming Deadlines"
               subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
@@ -621,10 +624,10 @@ export const DashboardScreen: React.FC = () => {
       )}
 
       {/* ── Row 2: Checklist + Timers ── */}
-      <View style={[hasSidebar && { flexDirection: 'row' as any } as any]}>
+      <View style={[{ marginTop: 16 }, hasSidebar && { flexDirection: 'row' as any } as any]}>
 
         {/* Card 3: Immi Checklist */}
-        <Card style={[styles.gridCard, hasSidebar && { flex: 1, marginRight: 8 } as any, { height: CARD_H }]}>
+        <Card style={[styles.gridCard, hasSidebar ? { flex: 1, marginRight: 8 } : { marginBottom: 16 }, { height: CARD_H }] as any}>
           <CardHeader
             title="Immi Checklist"
             subtitle={checklists.length > 0 ? `${checklists.length} active checklist${checklists.length !== 1 ? 's' : ''}` : 'Track your immigration steps'}
@@ -645,30 +648,29 @@ export const DashboardScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
           ) : (
-            <View style={styles.checklistList}>
-              {checklists.slice(0, 3).map((cl) => {
-                const done  = cl.items.filter((it) => it.done).length;
-                const total = cl.items.length;
-                const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
-                return (
-                  <View key={cl.templateId} style={styles.checklistRow}>
-                    <Text style={styles.checklistIcon}>{cl.icon}</Text>
-                    <View style={styles.checklistInfo}>
-                      <Text style={styles.checklistLabel} numberOfLines={1}>{cl.label}</Text>
-                      <View style={styles.checklistProgressWrap}>
-                        <View style={styles.checklistProgressBar}>
-                          <View style={[styles.checklistProgressFill, { width: `${pct}%` as any, backgroundColor: pct === 100 ? '#28C76F' : '#7367F0' }]} />
+            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
+              <View style={styles.checklistList}>
+                {checklists.map((cl) => {
+                  const done  = cl.items.filter((it) => it.done).length;
+                  const total = cl.items.length;
+                  const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+                  return (
+                    <View key={cl.templateId} style={styles.checklistRow}>
+                      <Text style={styles.checklistIcon}>{cl.icon}</Text>
+                      <View style={styles.checklistInfo}>
+                        <Text style={styles.checklistLabel} numberOfLines={1}>{cl.label}</Text>
+                        <View style={styles.checklistProgressWrap}>
+                          <View style={styles.checklistProgressBar}>
+                            <View style={[styles.checklistProgressFill, { width: `${pct}%` as any, backgroundColor: pct === 100 ? '#28C76F' : '#7367F0' }]} />
+                          </View>
+                          <Text style={styles.checklistPct}>{done}/{total}</Text>
                         </View>
-                        <Text style={styles.checklistPct}>{done}/{total}</Text>
                       </View>
                     </View>
-                  </View>
-                );
-              })}
-              {checklists.length > 3 && (
-                <Text style={styles.moreText}>+{checklists.length - 3} more checklists</Text>
-              )}
-            </View>
+                  );
+                })}
+              </View>
+            </ScrollView>
           )}
         </Card>
 
@@ -694,8 +696,9 @@ export const DashboardScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
           ) : (
+            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
             <View style={styles.timerList}>
-              {counters.slice(0, 3).map((ct) => {
+              {counters.map((ct) => {
                 const pct = Math.min(100, Math.round((ct.daysUsed / ct.maxDays) * 100));
                 const isCrit = ct.daysUsed >= ct.critAt;
                 const isWarn = !isCrit && ct.daysUsed >= ct.warnAt;
@@ -715,10 +718,8 @@ export const DashboardScreen: React.FC = () => {
                   </View>
                 );
               })}
-              {counters.length > 3 && (
-                <Text style={styles.moreText}>+{counters.length - 3} more timers</Text>
-              )}
             </View>
+            </ScrollView>
           )}
         </Card>
 

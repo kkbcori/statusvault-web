@@ -84,7 +84,7 @@ export const AuthScreen: React.FC = () => {
         <View style={webStyles.card}>
           <View style={webStyles.cardHeader}>
             <Image
-              source={require('../../assets/logo.jpg')}
+              source={require('../../assets/logo-transparent.png')}
               style={webStyles.logo}
               resizeMode="contain"
             />
@@ -167,7 +167,7 @@ export const AuthScreen: React.FC = () => {
             <Ionicons name="arrow-back" size={22} color="rgba(255,255,255,0.7)" />
           </TouchableOpacity>
           <Image
-            source={require('../../assets/logo.jpg')}
+            source={require('../../assets/logo-transparent.png')}
             style={styles.headerLogo}
             resizeMode="contain"
           />

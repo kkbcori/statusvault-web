@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
+import { View, Image, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -19,6 +19,7 @@ export const WelcomeModal: React.FC<Props> = ({ visible, onGuest, onCreateAccoun
           <View style={s.orb1} />
           <View style={s.orb2} />
           <View style={s.logoBox}>
+            <Image source={require('../../assets/logo-transparent.png')} style={{ width: 40, height: 40 }} resizeMode="contain" />
             <Ionicons name="shield-checkmark" size={28} color="#818CF8" />
           </View>
           <Text style={s.title}>StatusVault</Text>

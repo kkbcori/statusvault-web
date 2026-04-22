@@ -131,7 +131,13 @@ const WebSidebar: React.FC = () => {
     <View style={[sidebarStyles.container, { width: sidebarWidth }]}>
       {/* Logo */}
       <View style={sidebarStyles.logoRow}>
-        <LogoMark size={32} variant="full" dark={true} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Image source={require('../../assets/logo-transparent.png')} style={{ width: 36, height: 36 }} resizeMode="contain" />
+          <View>
+            <Text style={{ fontFamily: 'Inter_800ExtraBold', fontSize: 16, color: '#F8FAFF', letterSpacing: -0.3 }}>Status</Text>
+            <Text style={{ fontFamily: 'Inter_800ExtraBold', fontSize: 16, color: 'rgba(165,180,252,0.85)', letterSpacing: -0.3, marginTop: -4 }}>Vault</Text>
+          </View>
+        </View>
       </View>
 
       {/* Nav groups */}
