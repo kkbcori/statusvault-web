@@ -1,105 +1,120 @@
 // ═══════════════════════════════════════════════════════════════
-// DashboardScreen v7 — Materio-inspired admin layout
-// Stat cards · grid layout · #F4F5FA bg · Inter typography
+// DashboardScreen v8 — Midnight Glass
+// Dark glassmorphic cards · gold/green/red urgency · brand blue accents
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Platform, UIManager, Modal, FlatList, TextInput, Animated, ImageBackground, Image,
+  Platform, UIManager, Modal, FlatList, Animated, Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, typography, shadows } from '../theme';
+import { colors } from '../theme';
 import { useStore, FREE_LIMIT } from '../store';
 import { generateDeadlines, getMostCritical, formatDate, addDaysToDate, today } from '../utils/dates';
 import { IS_WEB, IS_TABLET } from '../utils/responsive';
-
-// Fixed card height — all 4 dashboard cards share this height
-const CARD_H = IS_WEB ? 360 : 320;
 import { useWindowDimensions } from 'react-native';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
 import { UserDocument } from '../types';
 import { useDialog } from '../components/ConfirmDialog';
 import { AppIcon } from '../utils/icons';
-import { useEntrance, usePressScale, usePulse } from '../hooks/useAnimations';
+import { useEntrance, usePressScale } from '../hooks/useAnimations';
+
+// Fixed card height — all tall dashboard cards share this
+const CARD_H = IS_WEB ? 360 : 320;
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-// ─── Materio Stat Card ────────────────────────────────────────
+// ═══ helpers ═══════════════════════════════════════════════════
+
+const glassWeb = (blur = 18) => Platform.OS === 'web' ? ({
+  backdropFilter: `blur(${blur}px)`,
+  WebkitBackdropFilter: `blur(${blur}px)`,
+} as any) : {};
+
+// ─── Stat Card ───────────────────────────────────────────────
 interface StatCardProps {
   label: string;
   value: string | number;
   subtitle: string;
-  icon: string; // Ionicons name
-  iconBg: string;
-  iconColor: string;
+  icon: string;
+  accent: string;       // accent color hex
   trend?: { value: string; up: boolean };
   onPress?: () => void;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, icon, iconBg, iconColor, trend, onPress }) => {
+const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, icon, accent, trend, onPress }) => {
   const press = usePressScale(0.97);
   return (
-  <Animated.View style={{ transform: [{ scale: press.scale }] }}>
-  <TouchableOpacity style={statStyles.card} onPress={onPress} activeOpacity={onPress ? 0.88 : 1}
-    onPressIn={onPress ? press.onPressIn : undefined}
-    onPressOut={onPress ? press.onPressOut : undefined}>
-    {/* Top accent line — colored per card */}
-    <View style={[statStyles.accentLine, { backgroundColor: iconColor }]} />
-    <View style={statStyles.inner}>
-      <View style={statStyles.left}>
-        <Text style={statStyles.label}>{label}</Text>
-        <Text style={statStyles.value}>{value}</Text>
-        {trend ? (
-          <View style={statStyles.trendRow}>
-            <Ionicons name={trend.up ? 'trending-up' : 'trending-down'} size={13}
-              color={trend.up ? '#059669' : '#DC2626'} />
-            <Text style={[statStyles.trendText, { color: trend.up ? '#059669' : '#DC2626' }]}>
-              {trend.value}
-            </Text>
-          </View>
-        ) : (
-          <Text style={statStyles.subtitleText}>{subtitle}</Text>
-        )}
-      </View>
-      {/* Icon with gradient-style box */}
-      <LinearGradient
-        colors={[iconBg, iconBg + 'CC']}
-        style={statStyles.iconBox}
+    <Animated.View style={{ transform: [{ scale: press.scale }], flex: IS_TABLET ? undefined : 1, width: IS_TABLET ? '48%' : undefined }}>
+      <TouchableOpacity
+        style={statStyles.card}
+        onPress={onPress}
+        activeOpacity={onPress ? 0.85 : 1}
+        onPressIn={onPress ? press.onPressIn : undefined}
+        onPressOut={onPress ? press.onPressOut : undefined}
       >
-        <Ionicons name={icon as any} size={22} color={iconColor} />
-      </LinearGradient>
-    </View>
-  </TouchableOpacity>
-  </Animated.View>
+        {/* Accent top line */}
+        <View style={[statStyles.accentLine, { backgroundColor: accent }]} />
+        <View style={statStyles.inner}>
+          <View style={statStyles.left}>
+            <Text style={statStyles.label}>{label}</Text>
+            <Text style={statStyles.value}>{value}</Text>
+            {trend ? (
+              <View style={statStyles.trendRow}>
+                <Ionicons name={trend.up ? 'trending-up' : 'trending-down'} size={13} color={trend.up ? colors.success : colors.danger} />
+                <Text style={[statStyles.trendText, { color: trend.up ? colors.success : colors.danger }]}>
+                  {trend.value}
+                </Text>
+              </View>
+            ) : (
+              <Text style={statStyles.subtitleText}>{subtitle}</Text>
+            )}
+          </View>
+          <View style={[statStyles.iconBox, { backgroundColor: accent + '18', borderColor: accent + '30' }]}>
+            <Ionicons name={icon as any} size={20} color={accent} />
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
 const statStyles = StyleSheet.create({
-  card:        { flex: IS_TABLET ? undefined : 1, width: IS_TABLET ? '48%' : undefined, minWidth: IS_WEB ? 180 : undefined, backgroundColor: '#FFFFFF', borderRadius: IS_TABLET ? 20 : 16, padding: IS_TABLET ? 22 : 20, overflow: 'hidden', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(15,23,42,0.04)' } : shadows.md) } as any,
-  accentLine:  { position: 'absolute' as any, top: 0, left: 0, right: 0, height: 3, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
+  card: {
+    backgroundColor: 'rgba(255,255,255,0.055)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    borderRadius: 16,
+    padding: IS_TABLET ? 20 : 18,
+    overflow: 'hidden',
+    minWidth: IS_WEB ? 180 : undefined,
+    ...glassWeb(18),
+    ...(Platform.OS === 'web' ? ({ boxShadow: '0 4px 16px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05)' } as any) : {}),
+  } as any,
+  accentLine:  { position: 'absolute' as any, top: 0, left: 0, right: 0, height: 2 } as any,
   inner:       { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 4 },
   left:        { flex: 1, gap: 4 },
-  label:       { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#94A3B8', letterSpacing: 0.4, textTransform: 'uppercase' as any },
-  value:       { fontSize: 32, fontFamily: 'Inter_800ExtraBold', color: '#0F172A', letterSpacing: -1, lineHeight: 38 },
+  label:       { fontSize: 10, fontFamily: 'Inter_700Bold', color: 'rgba(240,244,255,0.45)', letterSpacing: 1.2, textTransform: 'uppercase' as any } as any,
+  value:       { fontSize: 30, fontFamily: 'Inter_800ExtraBold', color: '#F0F4FF', letterSpacing: -1, lineHeight: 36 },
   trendRow:    { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   trendText:   { fontSize: 12, fontFamily: 'Inter_600SemiBold' },
-  subtitleText:{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 2 },
-  iconBox:     { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  subtitleText:{ fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', marginTop: 2 },
+  iconBox:     { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
 });
 
-// ─── Section Card ─────────────────────────────────────────────
+// ─── Section Card wrapper ────────────────────────────────────
 const Card: React.FC<{ children: React.ReactNode; style?: any }> = ({ children, style }) => (
   <View style={[cardStyles.card, style]}>{children}</View>
 );
 
 const CardHeader: React.FC<{ title: string; subtitle?: string; right?: React.ReactNode }> = ({ title, subtitle, right }) => (
   <View style={cardStyles.header}>
-    <View>
+    <View style={{ flex: 1 }}>
       <Text style={cardStyles.title}>{title}</Text>
       {subtitle && <Text style={cardStyles.subtitle}>{subtitle}</Text>}
     </View>
@@ -108,18 +123,43 @@ const CardHeader: React.FC<{ title: string; subtitle?: string; right?: React.Rea
 );
 
 const cardStyles = StyleSheet.create({
-  card:     { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, flexDirection: 'column', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(15,23,42,0.04)' } : shadows.md) } as any,
+  card: {
+    backgroundColor: 'rgba(255,255,255,0.055)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: 'column',
+    ...glassWeb(18),
+    ...(Platform.OS === 'web' ? ({ boxShadow: '0 4px 16px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05)' } as any) : {}),
+  } as any,
   header:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 },
-  title:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A' },
-  subtitle: { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 2 },
+  title:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#F0F4FF', letterSpacing: -0.3 },
+  subtitle: { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.50)', marginTop: 2 },
 });
 
-// ─── Badge / Chip ─────────────────────────────────────────────
-const StatusBadge: React.FC<{ label: string; color: string; bg: string }> = ({ label, color, bg }) => (
-  <View style={{ backgroundColor: bg, paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20 }}>
-    <Text style={{ fontSize: 11, fontFamily: 'Inter_600SemiBold', color }}>{label}</Text>
+// ─── Pill Badge ──────────────────────────────────────────────
+const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color }) => (
+  <View style={{ backgroundColor: color + '22', borderWidth: 1, borderColor: color + '44', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20 }}>
+    <Text style={{ fontSize: 11, fontFamily: 'Inter_600SemiBold', color, letterSpacing: 0.2 }}>{label}</Text>
   </View>
 );
+
+// Urgency helpers — map to theme colors
+const urgencyColor = (daysRemaining: number): string => {
+  if (daysRemaining < 0) return colors.danger;
+  if (daysRemaining < 30) return colors.danger;
+  if (daysRemaining < 60) return colors.warning;
+  if (daysRemaining < 180) return colors.info;
+  return colors.success;
+};
+const urgencyLabel = (daysRemaining: number): string => {
+  if (daysRemaining < 0) return 'Expired';
+  if (daysRemaining < 30) return 'Critical';
+  if (daysRemaining < 60) return 'High';
+  if (daysRemaining < 180) return 'Medium';
+  return 'Low';
+};
 
 // ═════════════════════════════════════════════════════════════
 // Main Screen
@@ -129,9 +169,7 @@ export const DashboardScreen: React.FC = () => {
   const dialog       = useDialog();
   const dismissEmailVerified = useStore((s) => s.dismissEmailVerified);
   const { width: screenWidth } = useWindowDimensions();
-  // On web, only suppress padding when sidebar is visible (wide screen)
   const hasSidebar = IS_WEB && screenWidth >= 768;
-  const hPad = hasSidebar ? 0 : IS_TABLET ? 24 : 16;
 
   // Store
   const documents            = useStore((s) => s.documents);
@@ -139,7 +177,6 @@ export const DashboardScreen: React.FC = () => {
   const authUser             = useStore((s) => s.authUser);
   const isGuestMode          = useStore((s) => s.isGuestMode);
   const emailVerified        = useStore((s) => s.emailVerified);
-  const anyModalOpen         = useStore((s) => s.anyModalOpen);
   const setAnyModalOpen      = useStore((s) => s.setAnyModalOpen);
   const familyMembers        = useStore((s) => s.familyMembers);
   const checklists           = useStore((s) => s.checklists);
@@ -151,20 +188,15 @@ export const DashboardScreen: React.FC = () => {
 
   React.useEffect(() => { autoIncrementCounters(); }, []);
 
-  // ── Entrance animations ──────────────────────────────────────
-  const headerAnim = useEntrance(0);
+  // Entrance animations
   const stats1Anim = useEntrance(60);
   const stats2Anim = useEntrance(120);
   const stats3Anim = useEntrance(180);
   const stats4Anim = useEntrance(240);
   const grid1Anim  = useEntrance(80);
   const grid2Anim  = useEntrance(140);
-  const grid3Anim  = useEntrance(200);
-  const grid4Anim  = useEntrance(260);
 
-  // Show auth prompt after 5s — but only when no other modal is open
-
-  // Profile setup modal
+  // Profile setup modal state
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [profileStep,      setProfileStep]      = useState<'select' | 'docs'>('select');
   const [selectedVisa,     setSelectedVisa]     = useState('');
@@ -186,11 +218,9 @@ export const DashboardScreen: React.FC = () => {
   // Computed
   const deadlines    = generateDeadlines(documents);
   const mostCritical = getMostCritical(deadlines);
-  const remaining    = getRemainingFreeSlots();
   const expiringSoon = deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining <= 90);
   const expired      = deadlines.filter((d) => d.daysRemaining < 0);
 
-  // Track profile setup open/close in anyModalOpen
   React.useEffect(() => {
     if (showProfileSetup) setAnyModalOpen(true);
     else setAnyModalOpen(false);
@@ -240,7 +270,7 @@ export const DashboardScreen: React.FC = () => {
     }
     setSavingProfile(true);
     try {
-      const expiry = addDaysToDate(today(), 365); // Bug 56 fix: use today() for timezone-safe local date
+      const expiry = addDaysToDate(today(), 365);
       for (const docId of selectedDocIds) {
         const template = DOCUMENT_TEMPLATES.find((t) => t.id === docId);
         if (!template) continue;
@@ -277,7 +307,7 @@ export const DashboardScreen: React.FC = () => {
     const wouldExceed  = !isPremium && !isSelected && !alreadyAdded && newDocCount >= slotsLeft;
     return (
       <TouchableOpacity
-        style={[styles.docRow, !isSelected && { opacity: 0.4 }, wouldExceed && { opacity: 0.25 }]}
+        style={[styles.docRow, !isSelected && { opacity: 0.45 }, wouldExceed && { opacity: 0.25 }]}
         onPress={() => !wouldExceed && toggleDocId(item.id)}
         activeOpacity={wouldExceed ? 1 : 0.75}
       >
@@ -294,97 +324,111 @@ export const DashboardScreen: React.FC = () => {
   };
 
   return (
-    <ImageBackground
-      source={require('../../assets/bg-dashboard.png')}
-      style={styles.container}
-      resizeMode="cover"
-    >
     <ScrollView
       style={{ flex: 1, backgroundColor: 'transparent' }}
       contentContainerStyle={[styles.content, hasSidebar && styles.contentWeb, !hasSidebar && styles.contentMobile]}
       showsVerticalScrollIndicator={true}
     >
-      {/* ── Mobile header ── */}
+      {/* ── Mobile glass hero header (no sidebar) ── */}
       {!hasSidebar && (
-        <LinearGradient colors={['#312E81', '#4F46E5', '#6366F1']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.mobileHeader}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <Image source={require('../../assets/logo-transparent.png')} style={{ width: 42, height: 42, borderRadius: 14 }} resizeMode="contain" />
-            <View>
-              <Text style={styles.mobileTitle}>StatusVault</Text>
-              <Text style={styles.mobileSub}>Immigration Tracker</Text>
+        <View style={styles.mobileHero}>
+          <LinearGradient
+            colors={['rgba(59,139,232,0.22)', 'rgba(76,217,138,0.10)', 'transparent']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.mobileHeroGradient}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={styles.mobileHeroLogoWrap}>
+                <Image source={require('../../assets/logo-transparent.png')} style={{ width: 36, height: 36 }} resizeMode="contain" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                  <Text style={styles.mobileTitleStatus}>Status</Text>
+                  <Text style={styles.mobileTitleVault}>Vault</Text>
+                </View>
+                <Text style={styles.mobileSub}>Immigration Tracker</Text>
+              </View>
             </View>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
-            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' }}>
-              <Text style={{ fontSize: 10, fontFamily: 'Inter_600SemiBold', color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5 }}>DOCUMENTS</Text>
-              <Text style={{ fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF', marginTop: 2 }}>{documents.length}</Text>
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
+              <View style={styles.miniStat}>
+                <Text style={styles.miniStatLabel}>DOCS</Text>
+                <Text style={styles.miniStatValue}>{documents.length}</Text>
+              </View>
+              <View style={styles.miniStat}>
+                <Text style={styles.miniStatLabel}>FAMILY</Text>
+                <Text style={styles.miniStatValue}>{familyMembers.length}</Text>
+              </View>
+              <View style={styles.miniStat}>
+                <Text style={[styles.miniStatLabel, expiringSoon.length > 0 && { color: colors.warning }]}>ALERTS</Text>
+                <Text style={[styles.miniStatValue, expiringSoon.length > 0 && { color: colors.warning }]}>{expiringSoon.length}</Text>
+              </View>
             </View>
-            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' }}>
-              <Text style={{ fontSize: 10, fontFamily: 'Inter_600SemiBold', color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5 }}>FAMILY</Text>
-              <Text style={{ fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF', marginTop: 2 }}>{familyMembers.length}</Text>
-            </View>
-            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' }}>
-              <Text style={{ fontSize: 10, fontFamily: 'Inter_600SemiBold', color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5 }}>ALERTS</Text>
-              <Text style={{ fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF', marginTop: 2 }}>{expiringSoon.length}</Text>
-            </View>
-          </View>
-        </LinearGradient>
+          </LinearGradient>
+        </View>
       )}
 
-      {/* ── Email verified success banner ── */}
+      {/* ── Email verified banner ── */}
       {authUser && emailVerified && (
         <View style={styles.verifiedBanner}>
-          <Ionicons name="checkmark-circle" size={16} color="#28C76F" />
+          <Ionicons name="checkmark-circle" size={16} color={colors.success} />
           <Text style={styles.verifiedBannerText}>
-            <Text style={{ fontFamily: 'Inter_700Bold' }}>Email verified!</Text> You're now signed in to StatusVault.
+            <Text style={{ fontFamily: 'Inter_700Bold', color: colors.success }}>Email verified!</Text> You're now signed in to StatusVault.
           </Text>
           <TouchableOpacity onPress={dismissEmailVerified}>
-            <Ionicons name="close" size={14} color="#28C76F" />
+            <Ionicons name="close" size={14} color={colors.success} />
           </TouchableOpacity>
         </View>
       )}
 
-      {/* ── Guest banner — always visible when not signed in ── */}
+      {/* ── Guest banner ── */}
       {(!authUser || isGuestMode) && (
         <TouchableOpacity
           style={styles.guestBanner}
           onPress={() => useStore.getState().openAuthModal('Sign in to sync your data and receive expiry alerts')}
           activeOpacity={0.85}
         >
-          <Ionicons name="person-circle-outline" size={16} color="#7367F0" />
+          <View style={styles.guestBannerIcon}>
+            <Ionicons name="person-circle-outline" size={16} color={colors.primaryLight} />
+          </View>
           <Text style={styles.guestBannerText}>
-            {isGuestMode ? <><Text style={{ fontFamily: 'Inter_700Bold' }}>Guest mode</Text> — 1 doc · 1 checklist · 1 timer · no family members</> : <><Text style={{ fontFamily: 'Inter_700Bold' }}>Viewing as guest</Text> — Sign in for 2 free documents + family member tracking</>}
+            {isGuestMode
+              ? <><Text style={{ fontFamily: 'Inter_700Bold', color: colors.primaryLight }}>Guest mode</Text> — 1 doc · 1 checklist · 1 timer · no family</>
+              : <><Text style={{ fontFamily: 'Inter_700Bold', color: colors.primaryLight }}>Viewing as guest</Text> — Sign in for 2 free docs + family tracking</>
+            }
           </Text>
-          <TouchableOpacity style={styles.guestBannerBtn} onPress={() => useStore.getState().openAuthModal('Create a free account to unlock more features')}><Text style={styles.guestBannerBtnTxt}>{isGuestMode ? 'Upgrade →' : 'Sign In →'}</Text></TouchableOpacity>
+          <TouchableOpacity
+            style={styles.guestBannerBtn}
+            onPress={() => useStore.getState().openAuthModal('Create a free account to unlock more features')}
+          >
+            <Text style={styles.guestBannerBtnTxt}>{isGuestMode ? 'Upgrade →' : 'Sign In →'}</Text>
+          </TouchableOpacity>
         </TouchableOpacity>
       )}
 
-      {/* ── Profile chip — only when logged in and profile set ── */}
+      {/* ── Profile chip ── */}
       {authUser && !isGuestMode && visaProfile && (
         <View style={styles.topBanner}>
           <View style={styles.topBannerProfile}>
-            <Ionicons name="shield-checkmark" size={16} color="#059669" />
+            <View style={styles.topBannerProfileIcon}>
+              <Ionicons name="shield-checkmark" size={14} color={colors.success} />
+            </View>
             <Text style={styles.topBannerProfileLabel}>{profileLabel}</Text>
             <TouchableOpacity
               onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
               style={styles.topBannerEditBtn}
             >
-              <Ionicons name="create-outline" size={13} color="#64748B" />
+              <Ionicons name="create-outline" size={12} color="rgba(240,244,255,0.60)" />
               <Text style={styles.topBannerEditText}>Edit</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
 
-      {/* ═══════════════════════════════════════════════════════
-           WEB (hasSidebar):  2 columns — stat pair + content card each
-           MOBILE:  all 4 stat cards → Doc Status → Deadlines → Row2
-      ═══════════════════════════════════════════════════════════ */}
-
       {hasSidebar ? (
         /* ── WEB: 2-column paired layout ── */
         <View style={{ flexDirection: 'row' as any, marginBottom: 16 }}>
-
           {/* LEFT COLUMN */}
           <View style={{ flex: 1, marginRight: 8, gap: 16 } as any}>
             <View style={{ flexDirection: 'row', gap: 16 } as any}>
@@ -392,7 +436,8 @@ export const DashboardScreen: React.FC = () => {
                 label="Documents Tracked"
                 value={documents.length}
                 subtitle={`of ${isPremium ? '∞' : FREE_LIMIT} total`}
-                icon="document-text" iconBg="#EEF2FF" iconColor="#4F46E5"
+                icon="document-text"
+                accent={colors.primary}
                 onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
               /></Animated.View>
               <Animated.View style={[stats2Anim, { flex: 1 }]}><StatCard
@@ -400,21 +445,20 @@ export const DashboardScreen: React.FC = () => {
                 value={mostCritical ? `${Math.abs(mostCritical.daysRemaining)}d` : '—'}
                 subtitle={mostCritical ? (mostCritical.daysRemaining < 0 ? 'EXPIRED' : mostCritical.label) : 'All documents safe'}
                 icon="time-outline"
-                iconBg={mostCritical && mostCritical.daysRemaining <= 30 ? '#FEF2F2' : '#ECFDF5'}
-                iconColor={mostCritical && mostCritical.daysRemaining <= 30 ? '#DC2626' : '#059669'}
+                accent={mostCritical && mostCritical.daysRemaining <= 30 ? colors.danger : colors.success}
                 trend={mostCritical && mostCritical.daysRemaining < 0 ? { value: 'Action needed', up: false } : undefined}
                 onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
               /></Animated.View>
             </View>
             <Animated.View style={[grid1Anim, { flex: 1 }]}><Card style={[styles.gridCard, { height: CARD_H }]}>
               <CardHeader title="Document Status" subtitle="Urgency breakdown"
-                right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />} />
+                right={<StatusBadge label={`${documents.length} total`} color={colors.primaryLight} />} />
               {[
-                { label: '🔴 Expired',      count: expired.length,                                                                   color: '#EA5455', bg: '#FFEEEE' },
-                { label: 'Critical (<30d)', count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining < 30).length,   color: '#EA5455', bg: '#FFEEEE' },
-                { label: 'High (30–60d)',   count: deadlines.filter((d) => d.daysRemaining >= 30 && d.daysRemaining < 60).length,  color: '#FF9F43', bg: '#FFF4E6' },
-                { label: 'Medium (60–180d)',count: deadlines.filter((d) => d.daysRemaining >= 60 && d.daysRemaining < 180).length, color: '#7367F0', bg: '#F0EEFF' },
-                { label: 'Low (>180d)',     count: deadlines.filter((d) => d.daysRemaining >= 180).length,                         color: '#28C76F', bg: '#EAFFF4' },
+                { label: 'Expired',          count: expired.length, color: colors.danger },
+                { label: 'Critical (<30d)',  count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining < 30).length,   color: colors.danger },
+                { label: 'High (30–60d)',    count: deadlines.filter((d) => d.daysRemaining >= 30 && d.daysRemaining < 60).length,  color: colors.warning },
+                { label: 'Medium (60–180d)', count: deadlines.filter((d) => d.daysRemaining >= 60 && d.daysRemaining < 180).length, color: colors.info },
+                { label: 'Low (>180d)',      count: deadlines.filter((d) => d.daysRemaining >= 180).length,                         color: colors.success },
               ].map((row) => (
                 <View key={row.label} style={styles.statusRow}>
                   <View style={[styles.statusDot, { backgroundColor: row.color }]} />
@@ -422,7 +466,7 @@ export const DashboardScreen: React.FC = () => {
                   <View style={styles.statusBar}>
                     <View style={[styles.statusBarFill, { width: deadlines.length > 0 ? `${(row.count / deadlines.length) * 100}%` as any : '0%', backgroundColor: row.color }]} />
                   </View>
-                  <View style={[styles.statusCount, { backgroundColor: row.bg }]}>
+                  <View style={[styles.statusCount, { backgroundColor: row.color + '22', borderColor: row.color + '44' }]}>
                     <Text style={[styles.statusCountText, { color: row.color }]}>{row.count}</Text>
                   </View>
                 </View>
@@ -430,7 +474,7 @@ export const DashboardScreen: React.FC = () => {
               <View style={{ flex: 1 }} />
               <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
                 <Text style={styles.cardFooterText}>View Documents</Text>
-                <Ionicons name="arrow-forward" size={13} color="#7367F0" />
+                <Ionicons name="arrow-forward" size={13} color={colors.primaryLight} />
               </TouchableOpacity>
             </Card></Animated.View>
           </View>
@@ -443,15 +487,15 @@ export const DashboardScreen: React.FC = () => {
                 value={expiringSoon.length}
                 subtitle={expiringSoon.length > 0 ? 'within 90 days' : 'None in 90 days'}
                 icon="alert-circle-outline"
-                iconBg={expiringSoon.length > 0 ? '#FFFBEB' : '#ECFDF5'}
-                iconColor={expiringSoon.length > 0 ? '#D97706' : '#059669'}
+                accent={expiringSoon.length > 0 ? colors.warning : colors.success}
                 onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
               /></Animated.View>
               <Animated.View style={[stats4Anim, { flex: 1 }]}><StatCard
                 label="Family Members"
                 value={familyMembers.length}
                 subtitle={familyMembers.length > 0 ? 'being tracked' : 'Add family members'}
-                icon="people-outline" iconBg="#E0FAFD" iconColor="#00CFE8"
+                icon="people-outline"
+                accent={colors.info}
                 onPress={() => navigation.navigate('Main', { screen: 'Family' })}
               /></Animated.View>
             </View>
@@ -462,13 +506,15 @@ export const DashboardScreen: React.FC = () => {
                 right={
                   <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
                     <Text style={styles.viewAllText}>All</Text>
-                    <Ionicons name="arrow-forward" size={12} color="#7367F0" />
+                    <Ionicons name="arrow-forward" size={12} color={colors.primaryLight} />
                   </TouchableOpacity>
                 }
               />
               {deadlines.length === 0 ? (
                 <View style={styles.emptyState}>
-                  <Ionicons name="document-text-outline" size={32} color="#ACAEC5" />
+                  <View style={styles.emptyIconWrap}>
+                    <Ionicons name="document-text-outline" size={28} color={colors.primaryLight} />
+                  </View>
                   <Text style={styles.emptyTitle}>No documents yet</Text>
                   <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
                     <Text style={styles.emptyBtnText}>Add Document</Text>
@@ -478,23 +524,18 @@ export const DashboardScreen: React.FC = () => {
                 <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
                   <View style={styles.deadlineList}>
                     {deadlines.map((dl) => {
-                      const isExpired  = dl.daysRemaining < 0;
-                      const isCritical = !isExpired && dl.daysRemaining < 30;
-                      const isHigh     = !isExpired && dl.daysRemaining >= 30 && dl.daysRemaining < 60;
-                      const isMedium   = !isExpired && dl.daysRemaining >= 60 && dl.daysRemaining < 180;
-                      const badgeColor = isExpired ? '#EA5455' : isCritical ? '#EA5455' : isHigh ? '#FF9F43' : isMedium ? '#7367F0' : '#28C76F';
-                      const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFEEEE' : isHigh ? '#FFF4E6' : isMedium ? '#F0EEFF' : '#EAFFF4';
-                      const severity   = isExpired ? 'Expired' : isCritical ? 'Critical' : isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
-                      const badgeLabel = `${severity}${!isExpired ? ` · ${dl.daysRemaining}d` : ''}`;
+                      const color = urgencyColor(dl.daysRemaining);
+                      const label = urgencyLabel(dl.daysRemaining);
+                      const badgeLabel = `${label}${dl.daysRemaining >= 0 ? ` · ${dl.daysRemaining}d` : ''}`;
                       return (
                         <View key={dl.documentId} style={styles.deadlineRow}>
-                          <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
+                          <View style={[styles.deadlineStrip, { backgroundColor: color }]} />
                           <Text style={styles.deadlineIcon}>{dl.icon}</Text>
                           <View style={styles.deadlineInfo}>
                             <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
                             <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
                           </View>
-                          <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
+                          <StatusBadge label={badgeLabel} color={color} />
                         </View>
                       );
                     })}
@@ -503,58 +544,52 @@ export const DashboardScreen: React.FC = () => {
               )}
             </Card></Animated.View>
           </View>
-
         </View>
       ) : (
-        /* ── MOBILE: stacked layout ── */
+        /* ── MOBILE: stacked ── */
         <View style={{ gap: 16 }}>
-
-          {/* Row of 4 stat cards — 2×2 grid */}
-          <View style={{ flexDirection: 'row', gap: 16 } as any}>
+          <View style={{ flexDirection: 'row', gap: 12 } as any}>
             <Animated.View style={[stats1Anim, { flex: 1 }]}><StatCard
-              label="Documents Tracked" value={documents.length}
-              subtitle={`of ${isPremium ? '∞' : FREE_LIMIT} total`}
-              icon="document-text" iconBg="#EEF2FF" iconColor="#4F46E5"
+              label="Documents" value={documents.length}
+              subtitle={`of ${isPremium ? '∞' : FREE_LIMIT}`}
+              icon="document-text" accent={colors.primary}
               onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
             /></Animated.View>
             <Animated.View style={[stats2Anim, { flex: 1 }]}><StatCard
               label="Next Expiry"
               value={mostCritical ? `${Math.abs(mostCritical.daysRemaining)}d` : '—'}
-              subtitle={mostCritical ? (mostCritical.daysRemaining < 0 ? 'EXPIRED' : mostCritical.label) : 'All documents safe'}
+              subtitle={mostCritical ? (mostCritical.daysRemaining < 0 ? 'EXPIRED' : mostCritical.label) : 'All safe'}
               icon="time-outline"
-              iconBg={mostCritical && mostCritical.daysRemaining <= 30 ? '#FEF2F2' : '#ECFDF5'}
-              iconColor={mostCritical && mostCritical.daysRemaining <= 30 ? '#DC2626' : '#059669'}
-              trend={mostCritical && mostCritical.daysRemaining < 0 ? { value: 'Action needed', up: false } : undefined}
+              accent={mostCritical && mostCritical.daysRemaining <= 30 ? colors.danger : colors.success}
+              trend={mostCritical && mostCritical.daysRemaining < 0 ? { value: 'Action', up: false } : undefined}
               onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
             /></Animated.View>
           </View>
-          <View style={{ flexDirection: 'row', gap: 16 } as any}>
+          <View style={{ flexDirection: 'row', gap: 12 } as any}>
             <Animated.View style={[stats3Anim, { flex: 1 }]}><StatCard
               label="Expiring Soon" value={expiringSoon.length}
-              subtitle={expiringSoon.length > 0 ? 'within 90 days' : 'None in 90 days'}
+              subtitle={expiringSoon.length > 0 ? 'within 90d' : 'None in 90d'}
               icon="alert-circle-outline"
-              iconBg={expiringSoon.length > 0 ? '#FFFBEB' : '#ECFDF5'}
-              iconColor={expiringSoon.length > 0 ? '#D97706' : '#059669'}
+              accent={expiringSoon.length > 0 ? colors.warning : colors.success}
               onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
             /></Animated.View>
             <Animated.View style={[stats4Anim, { flex: 1 }]}><StatCard
-              label="Family Members" value={familyMembers.length}
-              subtitle={familyMembers.length > 0 ? 'being tracked' : 'Add family members'}
-              icon="people-outline" iconBg="#E0FAFD" iconColor="#00CFE8"
+              label="Family" value={familyMembers.length}
+              subtitle={familyMembers.length > 0 ? 'tracked' : 'Add family'}
+              icon="people-outline" accent={colors.info}
               onPress={() => navigation.navigate('Main', { screen: 'Family' })}
             /></Animated.View>
           </View>
 
-          {/* Document Status card — full width */}
-          <Animated.View style={[grid1Anim, { marginTop: 16 }]}><Card style={styles.gridCard}>
+          <Animated.View style={[grid1Anim, { marginTop: 4 }]}><Card style={styles.gridCard}>
             <CardHeader title="Document Status" subtitle="Urgency breakdown"
-              right={<StatusBadge label={`${documents.length} total`} color="#7367F0" bg="#F0EEFF" />} />
+              right={<StatusBadge label={`${documents.length} total`} color={colors.primaryLight} />} />
             {[
-              { label: '🔴 Expired',      count: expired.length,                                                                   color: '#EA5455', bg: '#FFEEEE' },
-              { label: 'Critical (<30d)', count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining < 30).length,   color: '#EA5455', bg: '#FFEEEE' },
-              { label: 'High (30–60d)',   count: deadlines.filter((d) => d.daysRemaining >= 30 && d.daysRemaining < 60).length,  color: '#FF9F43', bg: '#FFF4E6' },
-              { label: 'Medium (60–180d)',count: deadlines.filter((d) => d.daysRemaining >= 60 && d.daysRemaining < 180).length, color: '#7367F0', bg: '#F0EEFF' },
-              { label: 'Low (>180d)',     count: deadlines.filter((d) => d.daysRemaining >= 180).length,                         color: '#28C76F', bg: '#EAFFF4' },
+              { label: 'Expired',          count: expired.length, color: colors.danger },
+              { label: 'Critical (<30d)',  count: deadlines.filter((d) => d.daysRemaining >= 0 && d.daysRemaining < 30).length,   color: colors.danger },
+              { label: 'High (30–60d)',    count: deadlines.filter((d) => d.daysRemaining >= 30 && d.daysRemaining < 60).length,  color: colors.warning },
+              { label: 'Medium (60–180d)', count: deadlines.filter((d) => d.daysRemaining >= 60 && d.daysRemaining < 180).length, color: colors.info },
+              { label: 'Low (>180d)',      count: deadlines.filter((d) => d.daysRemaining >= 180).length,                         color: colors.success },
             ].map((row) => (
               <View key={row.label} style={styles.statusRow}>
                 <View style={[styles.statusDot, { backgroundColor: row.color }]} />
@@ -562,32 +597,33 @@ export const DashboardScreen: React.FC = () => {
                 <View style={styles.statusBar}>
                   <View style={[styles.statusBarFill, { width: deadlines.length > 0 ? `${(row.count / deadlines.length) * 100}%` as any : '0%', backgroundColor: row.color }]} />
                 </View>
-                <View style={[styles.statusCount, { backgroundColor: row.bg }]}>
+                <View style={[styles.statusCount, { backgroundColor: row.color + '22', borderColor: row.color + '44' }]}>
                   <Text style={[styles.statusCountText, { color: row.color }]}>{row.count}</Text>
                 </View>
               </View>
             ))}
             <TouchableOpacity style={[styles.cardFooterBtn, { marginTop: 12 }]} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
               <Text style={styles.cardFooterText}>View Documents</Text>
-              <Ionicons name="arrow-forward" size={13} color="#7367F0" />
+              <Ionicons name="arrow-forward" size={13} color={colors.primaryLight} />
             </TouchableOpacity>
           </Card></Animated.View>
 
-          {/* Upcoming Deadlines card — full width */}
-          <Animated.View style={[grid2Anim, { marginTop: 16 }]}><Card style={styles.gridCard}>
+          <Animated.View style={[grid2Anim]}><Card style={styles.gridCard}>
             <CardHeader
               title="Upcoming Deadlines"
               subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
               right={
                 <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
                   <Text style={styles.viewAllText}>All</Text>
-                  <Ionicons name="arrow-forward" size={12} color="#7367F0" />
+                  <Ionicons name="arrow-forward" size={12} color={colors.primaryLight} />
                 </TouchableOpacity>
               }
             />
             {deadlines.length === 0 ? (
               <View style={styles.emptyState}>
-                <Ionicons name="document-text-outline" size={32} color="#ACAEC5" />
+                <View style={styles.emptyIconWrap}>
+                  <Ionicons name="document-text-outline" size={28} color={colors.primaryLight} />
+                </View>
                 <Text style={styles.emptyTitle}>No documents yet</Text>
                 <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
                   <Text style={styles.emptyBtnText}>Add Document</Text>
@@ -596,53 +632,48 @@ export const DashboardScreen: React.FC = () => {
             ) : (
               <View style={styles.deadlineList}>
                 {deadlines.map((dl) => {
-                  const isExpired  = dl.daysRemaining < 0;
-                  const isCritical = !isExpired && dl.daysRemaining < 30;
-                  const isHigh     = !isExpired && dl.daysRemaining >= 30 && dl.daysRemaining < 60;
-                  const isMedium   = !isExpired && dl.daysRemaining >= 60 && dl.daysRemaining < 180;
-                  const badgeColor = isExpired ? '#EA5455' : isCritical ? '#EA5455' : isHigh ? '#FF9F43' : isMedium ? '#7367F0' : '#28C76F';
-                  const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFEEEE' : isHigh ? '#FFF4E6' : isMedium ? '#F0EEFF' : '#EAFFF4';
-                  const severity   = isExpired ? 'Expired' : isCritical ? 'Critical' : isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
-                  const badgeLabel = `${severity}${!isExpired ? ` · ${dl.daysRemaining}d` : ''}`;
+                  const color = urgencyColor(dl.daysRemaining);
+                  const label = urgencyLabel(dl.daysRemaining);
+                  const badgeLabel = `${label}${dl.daysRemaining >= 0 ? ` · ${dl.daysRemaining}d` : ''}`;
                   return (
                     <View key={dl.documentId} style={styles.deadlineRow}>
-                      <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
+                      <View style={[styles.deadlineStrip, { backgroundColor: color }]} />
                       <Text style={styles.deadlineIcon}>{dl.icon}</Text>
                       <View style={styles.deadlineInfo}>
                         <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
                         <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
                       </View>
-                      <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
+                      <StatusBadge label={badgeLabel} color={color} />
                     </View>
                   );
                 })}
               </View>
             )}
           </Card></Animated.View>
-
         </View>
       )}
 
       {/* ── Row 2: Checklist + Timers ── */}
       <View style={[{ marginTop: 16 }, hasSidebar && { flexDirection: 'row' as any } as any]}>
-
-        {/* Card 3: Immi Checklist */}
+        {/* Checklist card */}
         <Card style={[styles.gridCard, hasSidebar ? { flex: 1, marginRight: 8 } : { marginBottom: 16 }, { height: CARD_H }] as any}>
           <CardHeader
             title="Immi Checklist"
-            subtitle={checklists.length > 0 ? `${checklists.length} active checklist${checklists.length !== 1 ? 's' : ''}` : 'Track your immigration steps'}
+            subtitle={checklists.length > 0 ? `${checklists.length} active list${checklists.length !== 1 ? 's' : ''}` : 'Track your immigration steps'}
             right={
               <TouchableOpacity onPress={() => navigation.navigate('Main', { screen: 'Checklist' })} style={styles.headerLink}>
                 <Text style={styles.headerLinkText}>Manage</Text>
-                <Ionicons name="arrow-forward" size={12} color="#7367F0" />
+                <Ionicons name="arrow-forward" size={12} color={colors.primaryLight} />
               </TouchableOpacity>
             }
           />
           {checklists.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name="checkbox-outline" size={32} color="#ACAEC5" />
+              <View style={styles.emptyIconWrap}>
+                <Ionicons name="checkbox-outline" size={28} color={colors.primaryLight} />
+              </View>
               <Text style={styles.emptyTitle}>No checklists yet</Text>
-              <Text style={styles.emptyDesc}>Add checklists to track OPT, H-1B, and green card steps</Text>
+              <Text style={styles.emptyDesc}>Track OPT, H-1B, and green card steps</Text>
               <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Checklist' })}>
                 <Text style={styles.emptyBtnText}>Browse Checklists</Text>
               </TouchableOpacity>
@@ -661,7 +692,7 @@ export const DashboardScreen: React.FC = () => {
                         <Text style={styles.checklistLabel} numberOfLines={1}>{cl.label}</Text>
                         <View style={styles.checklistProgressWrap}>
                           <View style={styles.checklistProgressBar}>
-                            <View style={[styles.checklistProgressFill, { width: `${pct}%` as any, backgroundColor: pct === 100 ? '#28C76F' : '#7367F0' }]} />
+                            <View style={[styles.checklistProgressFill, { width: `${pct}%` as any, backgroundColor: pct === 100 ? colors.success : colors.primaryLight }]} />
                           </View>
                           <Text style={styles.checklistPct}>{done}/{total}</Text>
                         </View>
@@ -674,56 +705,57 @@ export const DashboardScreen: React.FC = () => {
           )}
         </Card>
 
-        {/* Card 4: Immi Timers */}
+        {/* Timers card */}
         <Card style={[styles.gridCard, hasSidebar && { flex: 1, marginLeft: 8 } as any, { height: CARD_H }]}>
           <CardHeader
             title="Immi Timers"
-            subtitle={counters.length > 0 ? `${counters.length} timer${counters.length !== 1 ? 's' : ''} active` : 'Track unemployment & stay days'}
+            subtitle={counters.length > 0 ? `${counters.length} timer${counters.length !== 1 ? 's' : ''} active` : 'Unemployment & stay days'}
             right={
               <TouchableOpacity onPress={() => navigation.navigate('Main', { screen: 'Timers' })} style={styles.headerLink}>
                 <Text style={styles.headerLinkText}>Manage</Text>
-                <Ionicons name="arrow-forward" size={12} color="#7367F0" />
+                <Ionicons name="arrow-forward" size={12} color={colors.primaryLight} />
               </TouchableOpacity>
             }
           />
           {counters.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name="timer-outline" size={32} color="#ACAEC5" />
+              <View style={styles.emptyIconWrap}>
+                <Ionicons name="timer-outline" size={28} color={colors.primaryLight} />
+              </View>
               <Text style={styles.emptyTitle}>No timers yet</Text>
-              <Text style={styles.emptyDesc}>Track OPT unemployment days, 60-day grace period, and more</Text>
+              <Text style={styles.emptyDesc}>OPT unemployment, 60-day grace, and more</Text>
               <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Timers' })}>
                 <Text style={styles.emptyBtnText}>Add Timer</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
-            <View style={styles.timerList}>
-              {counters.map((ct) => {
-                const pct = Math.min(100, Math.round((ct.daysUsed / ct.maxDays) * 100));
-                const isCrit = ct.daysUsed >= ct.critAt;
-                const isWarn = !isCrit && ct.daysUsed >= ct.warnAt;
-                const barColor = isCrit ? '#EA5455' : isWarn ? '#FF9F43' : '#7367F0';
-                return (
-                  <View key={ct.templateId} style={styles.timerRow}>
-                    <Text style={styles.timerIcon}>{ct.icon}</Text>
-                    <View style={styles.timerInfo}>
-                      <View style={styles.timerTopRow}>
-                        <Text style={styles.timerLabel} numberOfLines={1}>{ct.label}</Text>
-                        <Text style={[styles.timerCount, { color: barColor }]}>{ct.daysUsed}/{ct.maxDays}d</Text>
-                      </View>
-                      <View style={styles.timerBarWrap}>
-                        <View style={[styles.timerBarFill, { width: `${pct}%` as any, backgroundColor: barColor }]} />
+              <View style={styles.timerList}>
+                {counters.map((ct) => {
+                  const pct = Math.min(100, Math.round((ct.daysUsed / ct.maxDays) * 100));
+                  const isCrit = ct.daysUsed >= ct.critAt;
+                  const isWarn = !isCrit && ct.daysUsed >= ct.warnAt;
+                  const barColor = isCrit ? colors.danger : isWarn ? colors.warning : colors.primaryLight;
+                  return (
+                    <View key={ct.templateId} style={styles.timerRow}>
+                      <Text style={styles.timerIcon}>{ct.icon}</Text>
+                      <View style={styles.timerInfo}>
+                        <View style={styles.timerTopRow}>
+                          <Text style={styles.timerLabel} numberOfLines={1}>{ct.label}</Text>
+                          <Text style={[styles.timerCount, { color: barColor }]}>{ct.daysUsed}/{ct.maxDays}d</Text>
+                        </View>
+                        <View style={styles.timerBarWrap}>
+                          <View style={[styles.timerBarFill, { width: `${pct}%` as any, backgroundColor: barColor }]} />
+                        </View>
                       </View>
                     </View>
-                  </View>
-                );
-              })}
-            </View>
+                  );
+                })}
+              </View>
             </ScrollView>
           )}
         </Card>
-
-      </View>{/* end row 2 */}
+      </View>
 
       {/* ═══ PROFILE SETUP MODAL ═══ */}
       <Modal visible={showProfileSetup} transparent animationType="fade">
@@ -751,14 +783,14 @@ export const DashboardScreen: React.FC = () => {
                     onPress={() => handleVisaSelect(item.id, item.docs)}
                     activeOpacity={0.75}
                   >
-                    <View style={[styles.visaIconBox, selectedVisa === item.id && { backgroundColor: '#F0EEFF' }]}>
-                      <AppIcon name={item.icon as any} size={28} />
+                    <View style={[styles.visaIconBox, selectedVisa === item.id && { backgroundColor: 'rgba(59,139,232,0.15)', borderColor: 'rgba(111,175,242,0.35)' }]}>
+                      <AppIcon name={item.icon as any} size={26} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.visaLabel}>{item.label}</Text>
                       <Text style={styles.visaCount}>{item.docs.length} standard documents</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={16} color="#ACAEC5" />
+                    <Ionicons name="chevron-forward" size={16} color="rgba(240,244,255,0.35)" />
                   </TouchableOpacity>
                 )}
               />
@@ -770,7 +802,7 @@ export const DashboardScreen: React.FC = () => {
                 showsVerticalScrollIndicator={true}
                 ListHeaderComponent={
                   <View style={styles.docHint}>
-                    <Ionicons name="information-circle-outline" size={14} color="#FF9F43" />
+                    <Ionicons name="information-circle-outline" size={14} color={colors.warning} />
                     <Text style={styles.docHintText}>
                       Added with 1-year placeholder date. Update each with your real expiry date.
                       {!isPremium && `\nFree plan: ${slotsLeft} slot${slotsLeft !== 1 ? 's' : ''} remaining.`}
@@ -805,184 +837,200 @@ export const DashboardScreen: React.FC = () => {
         </View>
       </Modal>
 
-
-
-      {/* Auto-backup status footer */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 8, opacity: 0.6 } as any}>
-        <Ionicons name="shield-checkmark-outline" size={12} color="#16A34A" />
-        <Text style={{ fontSize: 11, fontFamily: 'Inter_400Regular', color: '#15803D' }}>
-          {lastAutoBackupAt ? `Saved to device ${relativeTime(lastAutoBackupAt)}` : 'Saving to device...'}
+      {/* Auto-backup footer */}
+      <View style={styles.backupFooter}>
+        <Ionicons name="shield-checkmark-outline" size={12} color="rgba(76,217,138,0.65)" />
+        <Text style={styles.backupFooterText}>
+          {lastAutoBackupAt ? `Saved to device ${relativeTime(lastAutoBackupAt)}` : 'Saving to device…'}
         </Text>
       </View>
       <View style={{ height: 16 }} />
     </ScrollView>
-    </ImageBackground>
   );
 };
 
 // ─── Styles ────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container:     { flex: 1 },
   content:       { paddingBottom: 32 },
-  contentWeb:    { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 48 },
-  contentMobile: { paddingHorizontal: 16, paddingBottom: 100 },
+  contentWeb:    { paddingHorizontal: 24, paddingTop: 18, paddingBottom: 48 },
+  contentMobile: { paddingHorizontal: 16, paddingBottom: 120, paddingTop: 0 },
 
-  // Mobile header
-  mobileHeader:  { paddingHorizontal: 20, paddingTop: 52, paddingBottom: 24 },
-  mobileTitle:   { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#fff' },
-  mobileSub:     { fontSize: 14, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.75)', marginTop: 4 },
+  // Mobile hero
+  mobileHero: {
+    borderRadius: 22,
+    overflow: 'hidden',
+    marginBottom: 16,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(111,175,242,0.20)',
+    backgroundColor: 'rgba(5,11,28,0.55)',
+    ...glassWeb(18),
+  } as any,
+  mobileHeroGradient: { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 20 },
+  mobileHeroLogoWrap: {
+    width: 52, height: 52, borderRadius: 14,
+    backgroundColor: 'rgba(59,139,232,0.18)',
+    borderWidth: 1, borderColor: 'rgba(111,175,242,0.35)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  mobileTitleStatus: { fontSize: 20, fontFamily: 'Inter_800ExtraBold', color: '#F0F4FF', letterSpacing: -0.5 },
+  mobileTitleVault:  { fontSize: 20, fontFamily: 'Inter_800ExtraBold', color: colors.primaryLight, letterSpacing: -0.5 },
+  mobileSub:         { fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.55)', marginTop: 2 },
+  miniStat: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+    borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12,
+  },
+  miniStatLabel: { fontSize: 9, fontFamily: 'Inter_700Bold', color: 'rgba(240,244,255,0.45)', letterSpacing: 1.2 },
+  miniStatValue: { fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: '#F0F4FF', marginTop: 2, letterSpacing: -0.6 },
 
-  verifiedBanner:      { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#EAFFF4', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, marginBottom: 12, borderWidth: 1, borderColor: '#A3F0C4' },
-  verifiedBannerText:  { flex: 1, fontSize: 13, fontFamily: 'Inter_400Regular', color: '#065F46' },
-  guestBanner:         { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#EEF2FF', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 12, borderWidth: 1, borderColor: '#C7D2FE' },
-  guestBannerText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#3730A3', lineHeight: 17 },
-  guestBannerBtn:      { backgroundColor: '#4F46E5', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
-  guestBannerBtnTxt:   { fontSize: 11, fontFamily: 'Inter_700Bold', color: '#fff' },
-  // Top banner (replaces page header)
-  topBanner:           { marginBottom: 16 },
-  topBannerSetup:      { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14, borderWidth: 1, borderColor: '#E2E8F0', borderLeftWidth: 4, borderLeftColor: '#4F46E5', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.05)' } : {}) } as any,
-  topBannerIcon:       { width: 38, height: 38, borderRadius: 10, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#C7D2FE' },
-  topBannerTitle:      { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#0F172A' },
-  topBannerSub:        { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 1 },
-  topBannerBtn:        { backgroundColor: '#4F46E5', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8 },
-  topBannerBtnText:    { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#fff' },
-  topBannerProfile:    { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFFFFF', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#E2E8F0', borderLeftWidth: 4, borderLeftColor: '#059669', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(15,23,42,0.05)' } : {}) } as any,
-  topBannerProfileLabel:{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#2F3349', flex: 1 },
-  topBannerEditBtn:    { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA' },
-  topBannerEditText:   { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#8588A5' },
+  // Banners
+  verifiedBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: 'rgba(76,217,138,0.10)',
+    borderWidth: 1, borderColor: 'rgba(76,217,138,0.30)',
+    borderRadius: 12, paddingHorizontal: 14, paddingVertical: 11, marginBottom: 12,
+  },
+  verifiedBannerText: { flex: 1, fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.85)' },
 
-  // Stat cards
-  statRow:       { flexDirection: 'column' as any, gap: 16, marginBottom: 20, marginTop: 16 },
+  guestBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: 'rgba(59,139,232,0.10)',
+    borderWidth: 1, borderColor: 'rgba(111,175,242,0.28)',
+    borderRadius: 12, paddingHorizontal: 12, paddingVertical: 11, marginBottom: 12,
+  },
+  guestBannerIcon: { width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(59,139,232,0.18)', alignItems: 'center', justifyContent: 'center' },
+  guestBannerText: { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.75)', lineHeight: 17 },
+  guestBannerBtn:  { backgroundColor: colors.primary, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
+  guestBannerBtnTxt:{ fontSize: 11, fontFamily: 'Inter_700Bold', color: '#fff' },
 
-  // Free strip
-  freeStrip:     { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 11, marginBottom: 20, borderWidth: 1, borderColor: '#E2E8F0', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(15,23,42,0.04)' } : {}) } as any,
-  freeStripDots: { flexDirection: 'row', gap: 4 },
-  freeStripDot:  { width: 10, height: 10, borderRadius: 5 },
-  freeStripText: { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: '#334155' },
-  freeStripBadge:{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
-  freeStripBadgeText:{ fontSize: 11, fontFamily: 'Inter_700Bold' },
+  // Profile chip
+  topBanner: { marginBottom: 16 },
+  topBannerProfile: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: 'rgba(76,217,138,0.08)',
+    borderWidth: 1, borderColor: 'rgba(76,217,138,0.25)',
+    borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
+  },
+  topBannerProfileIcon: { width: 26, height: 26, borderRadius: 8, backgroundColor: 'rgba(76,217,138,0.18)', alignItems: 'center', justifyContent: 'center' },
+  topBannerProfileLabel:{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF', flex: 1 },
+  topBannerEditBtn:     { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.05)' },
+  topBannerEditText:    { fontSize: 11, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.65)' },
 
-  // Grid layout
-  grid:          { gap: 16 },
-  gridWeb:       { flexDirection: 'row' as any, alignItems: 'flex-start' as any },
-  col:           { gap: 16 },
-  colLeft:       { flex: 2 as any, minWidth: 0 as any },
-  colRight:      { flex: 1 as any, minWidth: 240 as any },
-
-  // View all button
+  // Section cards
   viewAllBtn:    { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  viewAllText:   { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#4F46E5' },
+  viewAllText:   { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: colors.primaryLight },
 
-  // Empty state
-  emptyState:    { alignItems: 'center', paddingVertical: 20, gap: 8 },
-  emptyIconWrap: { width: 64, height: 64, borderRadius: 18, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', marginBottom: 4, borderWidth: 1, borderColor: '#C7D2FE' },
-  emptyTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A' },
-  emptyDesc:     { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#64748B', textAlign: 'center', maxWidth: 280, lineHeight: 20 },
-  emptyBtn:      { backgroundColor: '#4F46E5', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginTop: 4 },
+  emptyState:    { alignItems: 'center', paddingVertical: 24, gap: 10, flex: 1, justifyContent: 'center' },
+  emptyIconWrap: {
+    width: 56, height: 56, borderRadius: 16,
+    backgroundColor: 'rgba(59,139,232,0.10)',
+    borderWidth: 1, borderColor: 'rgba(111,175,242,0.22)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  emptyTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#F0F4FF' },
+  emptyDesc:     { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', textAlign: 'center', maxWidth: 260, lineHeight: 18 },
+  emptyBtn:      { backgroundColor: colors.primary, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginTop: 4 },
   emptyBtnText:  { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#fff' },
 
-  // Deadline list
+  // Deadline rows
   deadlineList:  { gap: 0 },
-  deadlineRow:   { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+  deadlineRow:   { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
   deadlineStrip: { width: 3, height: 36, borderRadius: 2 },
   deadlineIcon:  { fontSize: 20 },
   deadlineInfo:  { flex: 1 },
-  deadlineName:  { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#2F3349' },
-  deadlineDate:  { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#8588A5', marginTop: 2 },
-
-  // Profile setup card
-  profileSetupBody:   { alignItems: 'center', gap: 12, paddingBottom: 4 },
-  profileSetupIconWrap:{ width: 64, height: 64, borderRadius: 18, backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE', alignItems: 'center', justifyContent: 'center' },
-  profileSetupDesc:   { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#8588A5', textAlign: 'center', lineHeight: 20, maxWidth: 240 },
-  profileSetupBtn:    { backgroundColor: '#4F46E5', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 12, width: '100%' as any },
-  profileSetupBtnText:{ fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#fff', textAlign: 'center' },
-
-  // Profile edit row
-  profileEditRow:  { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#F4F5FA', borderRadius: 10, padding: 14 },
-  profileEditIcon: { width: 40, height: 40, borderRadius: 10, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center' },
-  profileEditLabel:{ fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
-  profileEditSub:  { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5', marginTop: 2 },
+  deadlineName:  { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF' },
+  deadlineDate:  { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.50)', marginTop: 2 },
 
   // Status breakdown
-  statusRow:      { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
-  statusDot:      { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  statusLabel:    { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#4B4C6A', flex: 1, minWidth: 0 },
-  statusBar:      { flex: 2, minWidth: 0, height: 6, backgroundColor: '#F4F5FA', borderRadius: 3, overflow: 'hidden' },
-  statusBarFill:  { height: '100%', borderRadius: 3 },
-  statusCount:    { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, flexShrink: 0 },
-  statusCountText:{ fontSize: 11, fontFamily: 'Inter_700Bold' },
+  statusRow:       { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7 },
+  statusDot:       { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
+  statusLabel:     { fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.75)', flex: 1, minWidth: 0 },
+  statusBar:       { flex: 2, minWidth: 0, height: 5, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' },
+  statusBarFill:   { height: '100%', borderRadius: 3 },
+  statusCount:     { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, flexShrink: 0, borderWidth: 1 },
+  statusCountText: { fontSize: 11, fontFamily: 'Inter_700Bold' },
 
-  // 4-card grid
-  cardGrid:            { gap: 16, paddingHorizontal: 0 },
-  cardRow:             { gap: 16 },
-  cardRowWide:         { flexDirection: 'row' as any, alignItems: 'flex-start' as any, gap: 16 } as any,
-  cardHalf:            { flex: 1, minWidth: 0 } as any,
-  gridCard:            { overflow: 'hidden', height: CARD_H, flexDirection: 'column' as any } as any,
-  cardSpacer:          { height: 16 },
-  headerLink:          { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  headerLinkText:      { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
-  cardFooterBtn:       { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
-  cardFooterText:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#7367F0', flex: 1 },
+  // Grid card
+  gridCard: { overflow: 'hidden', flexDirection: 'column' as any } as any,
+
+  headerLink:      { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  headerLinkText:  { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.primaryLight },
+  cardFooterBtn:   { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8, paddingTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' },
+  cardFooterText:  { fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.primaryLight, flex: 1 },
 
   // Checklist
-  checklistList:       { gap: 12 },
-  checklistRow:        { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  checklistIcon:       { fontSize: 20 },
-  checklistInfo:       { flex: 1 },
-  checklistLabel:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#2F3349', marginBottom: 5 },
-  checklistProgressWrap: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  checklistProgressBar:{ flex: 1, height: 5, backgroundColor: '#F4F5FA', borderRadius: 3, overflow: 'hidden' },
+  checklistList:        { gap: 14 },
+  checklistRow:         { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  checklistIcon:        { fontSize: 20 },
+  checklistInfo:        { flex: 1 },
+  checklistLabel:       { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#F0F4FF', marginBottom: 5 },
+  checklistProgressWrap:{ flexDirection: 'row', alignItems: 'center', gap: 8 },
+  checklistProgressBar: { flex: 1, height: 5, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' },
   checklistProgressFill:{ height: '100%', borderRadius: 3 },
-  checklistPct:        { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#8588A5', width: 32, textAlign: 'right' },
+  checklistPct:         { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: 'rgba(240,244,255,0.60)', width: 32, textAlign: 'right' },
 
   // Timer
-  timerList:           { gap: 12 },
-  timerRow:            { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  timerIcon:           { fontSize: 20 },
-  timerInfo:           { flex: 1 },
-  timerTopRow:         { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
-  timerLabel:          { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#2F3349', flex: 1 },
-  timerCount:          { fontSize: 12, fontFamily: 'Inter_700Bold' },
-  timerBarWrap:        { height: 5, backgroundColor: '#F4F5FA', borderRadius: 3, overflow: 'hidden' },
-  timerBarFill:        { height: '100%', borderRadius: 3 },
-  moreText:            { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5', marginTop: 4, textAlign: 'center' },
+  timerList:    { gap: 14 },
+  timerRow:     { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  timerIcon:    { fontSize: 20 },
+  timerInfo:    { flex: 1 },
+  timerTopRow:  { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
+  timerLabel:   { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#F0F4FF', flex: 1 },
+  timerCount:   { fontSize: 12, fontFamily: 'Inter_700Bold' },
+  timerBarWrap: { height: 5, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' },
+  timerBarFill: { height: '100%', borderRadius: 3 },
+
+  // Backup footer
+  backupFooter: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
+    paddingVertical: 12, marginTop: 8, opacity: 0.7,
+  } as any,
+  backupFooterText: { fontSize: 11, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.60)' },
 
   // Modal
-  overlay:        { flex: 1, backgroundColor: 'rgba(47,51,73,0.60)', alignItems: 'center', justifyContent: 'center', padding: 20 },
-  modal:          { backgroundColor: '#FFFFFF', borderRadius: 16, width: '100%', maxWidth: 480, maxHeight: '85%' as any, overflow: 'hidden', ...(Platform.OS === 'web' ? { boxShadow: '0 16px 40px rgba(47,43,61,0.20)' } : {}) } as any,
-  modalTopBar:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  modalBack:      { fontSize: 14, fontFamily: 'Inter_500Medium', color: '#7367F0' },
-  modalTitle:     { fontSize: 15, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
+  overlay: { flex: 1, backgroundColor: 'rgba(3,8,18,0.75)', alignItems: 'center', justifyContent: 'center', padding: 20 },
+  modal: {
+    backgroundColor: '#0C1A34',
+    borderRadius: 18, width: '100%', maxWidth: 480, maxHeight: '85%' as any,
+    overflow: 'hidden',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+    ...(Platform.OS === 'web' ? ({ boxShadow: '0 24px 64px rgba(0,0,0,0.55)' } as any) : {}),
+  } as any,
+  modalTopBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 18, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)' },
+  modalBack:   { fontSize: 14, fontFamily: 'Inter_500Medium', color: colors.primaryLight },
+  modalTitle:  { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#F0F4FF' },
 
-  // Visa select list
-  visaRow:        { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  visaRowActive:  { backgroundColor: '#FAFAFE' },
-  visaIconBox:    { width: 44, height: 44, borderRadius: 10, backgroundColor: '#F4F5FA', alignItems: 'center', justifyContent: 'center' },
-  visaLabel:      { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#2F3349' },
-  visaCount:      { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#8588A5', marginTop: 2 },
+  visaRow:       { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
+  visaRowActive: { backgroundColor: 'rgba(59,139,232,0.08)' },
+  visaIconBox: {
+    width: 44, height: 44, borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  visaLabel: { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF' },
+  visaCount: { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.50)', marginTop: 2 },
 
-  // Doc confirm list
-  docHint:        { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: '#FFF4E6', margin: 16, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#FFD59E' },
-  docHintText:    { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#92400E', lineHeight: 18 },
-  docRow:         { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  docCheck:       { width: 20, height: 20, borderRadius: 6, borderWidth: 2, borderColor: '#DBDADE', alignItems: 'center', justifyContent: 'center' },
-  docCheckActive: { backgroundColor: '#7367F0', borderColor: '#7367F0' },
-  docLabel:       { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#2F3349' },
-  docSub:         { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#8588A5', marginTop: 2 },
-  addDocRow:      { paddingHorizontal: 20, paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
-  addDocText:     { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#7367F0' },
-  upgradeDocBtn:  { backgroundColor: '#FFF4E6', borderRadius: 8, paddingVertical: 12, alignItems: 'center', marginBottom: 10, borderWidth: 1, borderColor: '#FFD59E' },
-  upgradeDocBtnText:{ fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#CC7A28' },
-  saveDocBtn:     { backgroundColor: '#7367F0', borderRadius: 10, paddingVertical: 14, alignItems: 'center' },
-  saveDocBtnText: { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
-
-  // Auth card
-  authCard:       { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 32, width: '100%', maxWidth: 380, alignItems: 'center', position: 'relative', ...(Platform.OS === 'web' ? { boxShadow: '0 16px 40px rgba(47,43,61,0.20)' } : {}) } as any,
-  authClose:      { position: 'absolute', top: 16, right: 16 },
-  authIconWrap:   { width: 72, height: 72, borderRadius: 20, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  authTitle:      { fontSize: 18, fontFamily: 'Inter_700Bold', color: '#2F3349', marginBottom: 8 },
-  authDesc:       { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#8588A5', textAlign: 'center', lineHeight: 20, marginBottom: 24 },
-  authBtn:        { backgroundColor: '#7367F0', borderRadius: 10, paddingVertical: 14, paddingHorizontal: 32, marginBottom: 12, width: '100%' as any, alignItems: 'center' },
-  authBtnText:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
-  authSkip:       { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#8588A5' },
+  docHint: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 8,
+    backgroundColor: 'rgba(245,192,83,0.10)', margin: 16, padding: 12, borderRadius: 10,
+    borderWidth: 1, borderColor: 'rgba(245,192,83,0.28)',
+  },
+  docHintText: { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(245,192,83,0.95)', lineHeight: 18 },
+  docRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
+  docCheck: { width: 20, height: 20, borderRadius: 6, borderWidth: 2, borderColor: 'rgba(255,255,255,0.20)', alignItems: 'center', justifyContent: 'center' },
+  docCheckActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  docLabel: { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF' },
+  docSub:   { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.50)', marginTop: 2 },
+  addDocRow: { paddingHorizontal: 20, paddingVertical: 14, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' },
+  addDocText: { fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.primaryLight },
+  upgradeDocBtn: {
+    backgroundColor: 'rgba(245,192,83,0.10)', borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginBottom: 10,
+    borderWidth: 1, borderColor: 'rgba(245,192,83,0.30)',
+  },
+  upgradeDocBtnText: { fontSize: 14, fontFamily: 'Inter_700Bold', color: colors.gold },
+  saveDocBtn:        { backgroundColor: colors.primary, borderRadius: 10, paddingVertical: 14, alignItems: 'center' },
+  saveDocBtnText:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
 });

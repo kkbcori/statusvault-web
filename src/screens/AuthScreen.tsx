@@ -112,8 +112,8 @@ export const AuthScreen: React.FC = () => {
             </View>
             {message && (
               <View style={[styles.msgBox, message.type === 'error' ? styles.msgError : styles.msgSuccess]}>
-                <Ionicons name={message.type === 'error' ? 'alert-circle-outline' : 'checkmark-circle-outline'} size={16} color={message.type === 'error' ? '#DC2626' : '#16A34A'} />
-                <Text style={[styles.msgText, { color: message.type === 'error' ? '#DC2626' : '#16A34A' }]}>{message.text}</Text>
+                <Ionicons name={message.type === 'error' ? 'alert-circle-outline' : 'checkmark-circle-outline'} size={16} color={message.type === 'error' ? '#FF6B6B' : '#4CD98A'} />
+                <Text style={[styles.msgText, { color: message.type === 'error' ? '#FF6B6B' : '#4CD98A' }]}>{message.text}</Text>
               </View>
             )}
             <Text style={styles.fieldLabel}>Email</Text>
@@ -229,9 +229,9 @@ export const AuthScreen: React.FC = () => {
               <Ionicons
                 name={message.type === 'error' ? 'alert-circle-outline' : 'checkmark-circle-outline'}
                 size={16}
-                color={message.type === 'error' ? '#DC2626' : '#16A34A'}
+                color={message.type === 'error' ? '#FF6B6B' : '#4CD98A'}
               />
-              <Text style={[styles.msgText, { color: message.type === 'error' ? '#DC2626' : '#16A34A' }]}>
+              <Text style={[styles.msgText, { color: message.type === 'error' ? '#FF6B6B' : '#4CD98A' }]}>
                 {message.text}
               </Text>
             </View>
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
 
   // Google button
   googleBtn:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border, paddingVertical: 14, marginBottom: 16 },
-  googleIcon:    { width: 24, height: 24, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
+  googleIcon:    { width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)' },
   googleIconText:{ fontSize: 14, fontFamily: 'Inter_800ExtraBold', color: '#4285F4' },
   googleText:    { fontSize: 15, fontFamily: 'Inter_600SemiBold', color: colors.text1 },
 
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
 
   // Message
   msgBox:        { flexDirection: 'row', alignItems: 'flex-start', gap: 8, padding: 12, borderRadius: radius.md, marginBottom: 16, borderWidth: 1 },
-  msgError:      { backgroundColor: '#FEE2E2', borderColor: '#FECACA' },
+  msgError:      { backgroundColor: '#FEE2E2', borderColor: 'rgba(255,107,107,0.30)' },
   msgSuccess:    { backgroundColor: '#DCFCE7', borderColor: '#BBF7D0' },
   msgText:       { fontSize: 13, fontFamily: 'Inter_500Medium', flex: 1, lineHeight: 18 },
 

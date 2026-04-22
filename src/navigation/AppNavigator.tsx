@@ -1,37 +1,43 @@
 // ═══════════════════════════════════════════════════════════════
-// Navigation v6 — Light SaaS layout
-// White sidebar + white topbar · teal accent · Syne headings
+// Navigation v7 — Midnight Glass
+// Dark glass sidebar · atmospheric topbar · bg-app.png scene
+// Works on Web (desktop sidebar / mobile bottom tabs) and Native
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Platform, View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal } from 'react-native';
+import {
+  Platform, View, Text, TouchableOpacity, StyleSheet, Image,
+  ImageBackground, Modal,
+} from 'react-native';
 import { NavigationContainer, useNavigation, useNavigationState } from '@react-navigation/native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useWindowDimensions } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, radius, typography, shadows } from '../theme';
+import { colors, typography } from '../theme';
 import { useStore } from '../store';
 import { RootStackParamList, MainTabParamList } from '../types';
 
 import { DashboardScreen, DocumentsScreen, SettingsScreen } from '../screens';
-import { LogoMark } from '../components/LogoMark';
-import { TravelScreen }  from '../screens/TravelScreen';
-import { AuthScreen }    from '../screens/AuthScreen';
-import { ProfileScreen } from '../screens/ProfileScreen';
-import { AuthModal } from '../components/AuthModal';
-import { SearchModal } from '../components/SearchModal';
+import { TravelScreen }     from '../screens/TravelScreen';
+import { AuthScreen }       from '../screens/AuthScreen';
+import { ProfileScreen }    from '../screens/ProfileScreen';
+import { AuthModal }        from '../components/AuthModal';
+import { SearchModal }      from '../components/SearchModal';
 import { NotificationBell } from '../components/NotificationBell';
-import { WelcomeModal } from '../components/WelcomeModal';
-import { PaywallModal } from '../components/PaywallModal';
+import { WelcomeModal }     from '../components/WelcomeModal';
+import { PaywallModal }     from '../components/PaywallModal';
 import { HelpScreen }       from '../screens/HelpScreen';
-import { StandaloneTabBar }  from './StandaloneTabBar';
+import { StandaloneTabBar } from './StandaloneTabBar';
 import { ContactScreen }    from '../screens/ContactScreen';
 import { FamilyScreen }     from '../screens/FamilyScreen';
 import { ChecklistScreen }  from '../screens/ChecklistScreen';
 import { CounterScreen }    from '../screens/CounterScreen';
 import { VisaToolsScreen }  from '../screens/VisaToolsScreen';
+
+// Supabase session key (used to detect pre-existing login for welcome modal suppression)
+const SUPABASE_SESSION_KEY = 'sb-auth-token';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab   = createBottomTabNavigator<MainTabParamList>();
@@ -43,16 +49,16 @@ const TAB_ITEMS: Array<{
   active: keyof typeof Ionicons.glyphMap;
   inactive: keyof typeof Ionicons.glyphMap;
 }> = [
-  { name: 'Dashboard', label: 'Home',              active: 'grid',          inactive: 'grid-outline' },
-  { name: 'Documents', label: 'Documents',         active: 'document-text', inactive: 'document-text-outline' },
-  { name: 'Travel',    label: 'Residency & Travel', active: 'airplane',     inactive: 'airplane-outline' },
-  { name: 'Family',    label: 'Family',             active: 'people',       inactive: 'people-outline' },
-  { name: 'Checklist', label: 'Checklist',          active: 'checkbox',     inactive: 'checkbox-outline' },
-  { name: 'Timers',    label: 'Timers',             active: 'timer',        inactive: 'timer-outline' },
-  { name: 'VisaTools', label: 'Links',              active: 'link',         inactive: 'link-outline' },
-  { name: 'Help',      label: 'Help',               active: 'help-circle',  inactive: 'help-circle-outline' },
-  { name: 'Contact',   label: 'Contact',            active: 'mail',         inactive: 'mail-outline' },
-  { name: 'Settings',  label: 'Settings',           active: 'settings',     inactive: 'settings-outline' },
+  { name: 'Dashboard', label: 'Home',                active: 'grid',          inactive: 'grid-outline' },
+  { name: 'Documents', label: 'Documents',           active: 'document-text', inactive: 'document-text-outline' },
+  { name: 'Travel',    label: 'Residency & Travel',  active: 'airplane',      inactive: 'airplane-outline' },
+  { name: 'Family',    label: 'Family',              active: 'people',        inactive: 'people-outline' },
+  { name: 'Checklist', label: 'Checklist',           active: 'checkbox',      inactive: 'checkbox-outline' },
+  { name: 'Timers',    label: 'Timers',              active: 'timer',         inactive: 'timer-outline' },
+  { name: 'VisaTools', label: 'Links',               active: 'link',          inactive: 'link-outline' },
+  { name: 'Help',      label: 'Help',                active: 'help-circle',   inactive: 'help-circle-outline' },
+  { name: 'Contact',   label: 'Contact',             active: 'mail',          inactive: 'mail-outline' },
+  { name: 'Settings',  label: 'Settings',            active: 'settings',      inactive: 'settings-outline' },
 ];
 
 const NAV_GROUPS = [
@@ -62,23 +68,20 @@ const NAV_GROUPS = [
 ];
 
 // ─── Web Sidebar ─────────────────────────────────────────────
-const MIN_WIDTH = 180;
+const MIN_WIDTH = 200;
 const MAX_WIDTH = 320;
-const DEFAULT_WIDTH = 240;
+const DEFAULT_WIDTH = 244;
 
 const WebSidebar: React.FC = () => {
   const navigation = useNavigation<any>();
   const authUser   = useStore((s) => s.authUser);
-  const isSyncing  = useStore((s) => s.isSyncing);
   const isPremium  = useStore((s) => s.isPremium);
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
-  const [showProfile, setShowProfile] = React.useState(false);
   const dragging  = useRef(false);
   const startX    = useRef(0);
   const startW    = useRef(DEFAULT_WIDTH);
   const cleanupFn = useRef<(() => void) | null>(null);
 
-  // Bug 55 fix: cleanup drag listeners if component unmounts mid-drag
   React.useEffect(() => {
     return () => {
       cleanupFn.current?.();
@@ -90,7 +93,6 @@ const WebSidebar: React.FC = () => {
   }, []);
 
   const onMouseDown = useCallback((e: any) => {
-    // Sidebar drag is web-only — native never calls this handler
     if (typeof document === 'undefined') return;
     dragging.current = true;
     startX.current   = e.clientX;
@@ -129,13 +131,25 @@ const WebSidebar: React.FC = () => {
 
   return (
     <View style={[sidebarStyles.container, { width: sidebarWidth }]}>
-      {/* Logo */}
+      {/* Ambient glow at top — blue halo behind the logo */}
+      <View pointerEvents="none" style={sidebarStyles.sidebarGlow as any} />
+
+      {/* Logo row */}
       <View style={sidebarStyles.logoRow}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Image source={require('../../assets/logo-transparent.png')} style={{ width: 36, height: 36 }} resizeMode="contain" />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={sidebarStyles.logoBadge}>
+            <Image
+              source={require('../../assets/logo-transparent.png')}
+              style={{ width: 32, height: 32 }}
+              resizeMode="contain"
+            />
+          </View>
           <View>
-            <Text style={{ fontFamily: 'Inter_800ExtraBold', fontSize: 16, color: '#F8FAFF', letterSpacing: -0.3 }}>Status</Text>
-            <Text style={{ fontFamily: 'Inter_800ExtraBold', fontSize: 16, color: 'rgba(165,180,252,0.85)', letterSpacing: -0.3, marginTop: -4 }}>Vault</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+              <Text style={sidebarStyles.logoWordStatus}>Status</Text>
+              <Text style={sidebarStyles.logoWordVault}>Vault</Text>
+            </View>
+            <Text style={sidebarStyles.logoTagline}>Immigration Tracker</Text>
           </View>
         </View>
       </View>
@@ -156,12 +170,14 @@ const WebSidebar: React.FC = () => {
                   onPress={() => navigation.navigate('Main', { screen: name })}
                   activeOpacity={0.7}
                 >
-                  <Ionicons
-                    name={active ? item.active : item.inactive}
-                    size={16}
-                    color={active ? '#4F46E5' : 'rgba(225,222,245,0.55)'}
-                    style={sidebarStyles.navIcon}
-                  />
+                  {active && <View style={sidebarStyles.activeIndicator} />}
+                  <View style={[sidebarStyles.iconWrap, active && sidebarStyles.iconWrapActive]}>
+                    <Ionicons
+                      name={active ? item.active : item.inactive}
+                      size={15}
+                      color={active ? colors.primaryLight : 'rgba(240,244,255,0.50)'}
+                    />
+                  </View>
                   <Text style={[sidebarStyles.navLabel, active && sidebarStyles.navLabelActive]}>
                     {item.label}
                   </Text>
@@ -172,28 +188,34 @@ const WebSidebar: React.FC = () => {
         ))}
       </View>
 
-
-      {/* Account / profile card — bottom */}
+      {/* Account / profile card */}
       {authUser ? (
         <TouchableOpacity
           style={sidebarStyles.profileCard}
           onPress={() => useStore.getState().openProfileModal()}
-          activeOpacity={0.8}
+          activeOpacity={0.85}
         >
           <View style={sidebarStyles.profileAvatar}>
             <Text style={sidebarStyles.profileInitial}>
               {authUser.email[0].toUpperCase()}
             </Text>
           </View>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={sidebarStyles.profileName} numberOfLines={1}>
               {authUser.email}
             </Text>
-            <Text style={sidebarStyles.profilePlan}>
-              {isPremium ? '⭐ Premium' : 'Free Plan'}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
+              {isPremium ? (
+                <>
+                  <Ionicons name="star" size={9} color={colors.gold} />
+                  <Text style={[sidebarStyles.profilePlan, { color: colors.gold }]}>Premium</Text>
+                </>
+              ) : (
+                <Text style={sidebarStyles.profilePlan}>Free plan</Text>
+              )}
+            </View>
           </View>
-          <Ionicons name="chevron-forward" size={14} color={colors.text3} />
+          <Ionicons name="chevron-forward" size={14} color="rgba(240,244,255,0.40)" />
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
@@ -201,12 +223,14 @@ const WebSidebar: React.FC = () => {
           onPress={() => useStore.getState().openAuthModal('Sign in to your StatusVault account')}
           activeOpacity={0.85}
         >
-          <Ionicons name="log-in-outline" size={18} color="#818CF8" />
+          <View style={sidebarStyles.signInIcon}>
+            <Ionicons name="log-in-outline" size={16} color={colors.primaryLight} />
+          </View>
           <Text style={sidebarStyles.signInText}>Sign In / Create Account</Text>
         </TouchableOpacity>
       )}
 
-      {/* Compact upgrade row — free users only, same height as profile card */}
+      {/* Upgrade CTA — free users only */}
       {!isPremium && (
         <TouchableOpacity
           style={sidebarStyles.upgradeRow}
@@ -221,29 +245,17 @@ const WebSidebar: React.FC = () => {
           activeOpacity={0.85}
         >
           <View style={sidebarStyles.upgradeRowIcon}>
-            <Ionicons name="star-outline" size={14} color={colors.primary} />
+            <Ionicons name="flash" size={13} color={colors.gold} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={sidebarStyles.upgradeRowTitle}>Upgrade to Premium</Text>
-            <Text style={sidebarStyles.upgradeRowSub}>Unlimited docs · from $0.49/mo</Text>
+            <Text style={sidebarStyles.upgradeRowSub}>Unlimited · from $0.49/mo</Text>
           </View>
-          <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+          <Ionicons name="arrow-forward" size={13} color={colors.gold} />
         </TouchableOpacity>
       )}
 
-      {/* AES badge — only shown when syncing (encrypted) */}
-      {authUser && (
-        <View style={sidebarStyles.bottom}>
-          <View style={sidebarStyles.syncRow}>
-            <View style={[sidebarStyles.syncDot, {
-            }]} />
-            <Text style={sidebarStyles.syncText}>
-            </Text>
-          </View>
-        </View>
-      )}
-
-      {/* Drag handle — web only resize */}
+      {/* Drag handle — web-only resize */}
       <View
         style={sidebarStyles.resizeHandle}
         onStartShouldSetResponder={() => false}
@@ -257,12 +269,10 @@ const WebSidebar: React.FC = () => {
 
 // ─── Web Topbar ───────────────────────────────────────────────
 const WebTopBar: React.FC = () => {
-  const navigation   = useNavigation<any>();
-  const authUser     = useStore((s) => s.authUser);
-  const isSyncing    = useStore((s) => s.isSyncing);
-  const syncError    = useStore((s) => s.syncError);
-  const isPremium    = useStore((s) => s.isPremium);
-  const [showProfile, setShowProfile] = React.useState(false);
+  const authUser  = useStore((s) => s.authUser);
+  const isSyncing = useStore((s) => s.isSyncing);
+  const syncError = useStore((s) => s.syncError);
+  const isPremium = useStore((s) => s.isPremium);
 
   const currentRoute = useNavigationState((state) => {
     const mainRoute = state?.routes?.find((r) => r.name === 'Main');
@@ -275,43 +285,47 @@ const WebTopBar: React.FC = () => {
   return (
     <View style={topBarStyles.container}>
       <View style={topBarStyles.left}>
+        <View style={topBarStyles.titleDot} />
         <Text style={topBarStyles.title}>{item?.label ?? 'Dashboard'}</Text>
       </View>
       <View style={topBarStyles.right}>
-
         <TouchableOpacity
-          style={topBarStyles.avatarBtn}
+          style={topBarStyles.iconBtn}
           onPress={() => useStore.getState().openSearch()}
           activeOpacity={0.8}
         >
-          <Ionicons name="search-outline" size={16} color={colors.text2} />
+          <Ionicons name="search" size={15} color={colors.text2} />
         </TouchableOpacity>
         <NotificationBell />
         {authUser && isPremium && (
           <View style={[
-            topBarStyles.privateBadge,
-            isSyncing && { backgroundColor: '#FFFBEB', borderColor: '#FCD34D' },
-            syncError && { backgroundColor: '#FEF2F2', borderColor: '#FECACA' },
+            topBarStyles.syncPill,
+            isSyncing && topBarStyles.syncPillSyncing,
+            syncError && topBarStyles.syncPillError,
           ]}>
             <Ionicons
-              name={isSyncing ? "sync-outline" : syncError ? "cloud-offline-outline" : "cloud-done-outline"}
-              size={10}
-              color={isSyncing ? "#D97706" : syncError ? "#DC2626" : "#059669"}
+              name={isSyncing ? 'sync-outline' : syncError ? 'cloud-offline-outline' : 'cloud-done-outline'}
+              size={11}
+              color={isSyncing ? colors.warning : syncError ? colors.danger : colors.success}
             />
-            <Text style={[topBarStyles.privateBadgeTxt,
-              isSyncing && { color: '#D97706' },
-              syncError && { color: '#DC2626' },
+            <Text style={[topBarStyles.syncText,
+              isSyncing && { color: colors.warning },
+              syncError && { color: colors.danger },
             ]}>
-              {isSyncing ? 'Syncing...' : syncError ? 'Sync Failed' : 'Backed Up'}
+              {isSyncing ? 'Syncing' : syncError ? 'Failed' : 'Synced'}
             </Text>
           </View>
         )}
         <TouchableOpacity
           style={topBarStyles.avatarBtn}
-          onPress={() => authUser ? useStore.getState().openProfileModal() : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')}
-          activeOpacity={0.8}
+          onPress={() =>
+            authUser
+              ? useStore.getState().openProfileModal()
+              : useStore.getState().openAuthModal('Sign in to access your profile and sync documents')
+          }
+          activeOpacity={0.85}
         >
-          <Ionicons name={authUser ? 'person' : 'log-in-outline'} size={16} color={colors.text2} />
+          <Ionicons name={authUser ? 'person' : 'log-in-outline'} size={15} color={colors.primaryLight} />
         </TouchableOpacity>
       </View>
     </View>
@@ -321,22 +335,16 @@ const WebTopBar: React.FC = () => {
 // ─── Main Tabs ───────────────────────────────────────────────
 const MainTabs: React.FC = () => {
   const { width: screenWidth } = useWindowDimensions();
-  // Show sidebar only on wide screens (tablet/desktop web)
   const showSidebar = IS_WEB && screenWidth >= 1024;
-  const showMobileTabBar = !showSidebar;  // mobile phones + narrow browser windows
+  const showMobileTabBar = !showSidebar;
 
   const showAuthModal    = useStore((s) => s.showAuthModal);
   const showWelcomeModal = useStore((s) => s.showWelcomeModal);
-  const hasOnboarded     = useStore((s) => s.hasOnboarded);
   const setGuestMode     = useStore((s) => s.setGuestMode);
   const setOnboarded     = useStore((s) => s.setOnboarded);
   const openAuthModal    = useStore((s) => s.openAuthModal);
-
   const authUser         = useStore((s) => s.authUser);
 
-  // Detect magic link / OAuth redirect in URL — suppress all modals while processing
-  // On native there is no URL bar — deep links are handled by Linking + onAuthStateChange,
-  // so this check is always false on native (no modal suppression needed there).
   const hasMagicLinkInUrl = React.useMemo(() => {
     if (Platform.OS !== 'web') return false;
     if (typeof window === 'undefined') return false;
@@ -350,35 +358,28 @@ const MainTabs: React.FC = () => {
     if (!hasHydrated) return;
     if (hasMagicLinkInUrl) return;
 
-    // Check if user has an active session to suppress welcome modal.
-    // Web: read from localStorage synchronously (no async race).
-    // Native: localStorage is unavailable — check Zustand's authUser instead
-    //         (populated from AsyncStorage during initAuth).
     const hasSupabaseSession = (() => {
       if (Platform.OS !== 'web') {
         return !!useStore.getState().authUser;
       }
       try {
-        const key = SUPABASE_SESSION_KEY;
-        const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(key) : null;
+        const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(SUPABASE_SESSION_KEY) : null;
         if (!raw) return false;
         const parsed = JSON.parse(raw);
         return !!(parsed?.access_token || parsed?.session?.access_token);
       } catch { return false; }
     })();
 
-    // User is logged in — suppress welcome modal permanently
     if (hasSupabaseSession) {
       useStore.setState({ hasOnboarded: true, showWelcomeModal: false });
       return;
     }
 
-    // Already onboarded (chose guest or created account before)
     if (useStore.getState().hasOnboarded) return;
 
-    // Brand new user — show welcome modal
     useStore.setState({ showWelcomeModal: true });
   }, [hasHydrated]);
+
   const authModalMessage = useStore((s) => s.authModalMessage);
   const closeAuthModal   = useStore((s) => s.closeAuthModal);
   const showPaywallModal = useStore((s) => s.showPaywallModal);
@@ -386,110 +387,136 @@ const MainTabs: React.FC = () => {
   const setPremium       = useStore((s) => s.setPremium);
   const [showProfileModal, setShowProfileModal] = React.useState(false);
   const [showSearch, setShowSearch] = React.useState(false);
-  const immigrationProfile = useStore((s) => s.immigrationProfile);
-  const profileSetupShown  = useStore((s) => s.profileSetupShown);
 
-  // Register openProfileModal and openSearch in the store
   React.useEffect(() => {
     useStore.setState({
       openProfileModal: () => setShowProfileModal(true),
       openSearch: () => setShowSearch(true),
     } as any);
 
-    // Consume the pendingProfileSetup flag — this handles the case where
-    // initAuth processed a magic link token before MainTabs was mounted
     const s = useStore.getState();
     if (s.pendingProfileSetup) {
       useStore.setState({ pendingProfileSetup: false });
       setTimeout(() => setShowProfileModal(true), 500);
     }
   }, []);
-  return (
-  <>
-  <View style={[layoutStyles.root, showSidebar && { ...layoutStyles.rootWeb, backgroundColor: colors.sidebar }]}>
-    {showSidebar && <WebSidebar />}
-    <View style={[layoutStyles.content, showSidebar ? layoutStyles.contentWeb : IS_WEB ? layoutStyles.contentMobileWeb : undefined]}>
-      {showSidebar && <WebTopBar />}
-      {!showSidebar && IS_WEB && <WebTopBar />}
-      <View style={{ flex: 1, flexDirection: 'column' as any, overflow: showSidebar ? 'hidden' as any : undefined } as any}>
-        <View style={{ flex: 1, minHeight: 0 }}>
-        <Tab.Navigator
-          initialRouteName="Dashboard"
-          tabBar={() => null}
-          screenOptions={({ route }) => ({
-            headerShown: false,
-          })}
-        >
-          {TAB_ITEMS.map((item) => (
-            <Tab.Screen
-              key={item.name}
-              name={item.name}
-              component={
-                item.name === 'Dashboard'  ? DashboardScreen  :
-                item.name === 'Documents'  ? DocumentsScreen  :
-                item.name === 'Travel'     ? TravelScreen     :
-                item.name === 'Family'     ? FamilyScreen     :
-                item.name === 'Checklist'  ? ChecklistScreen  :
-                item.name === 'VisaTools'  ? VisaToolsScreen  :
-                item.name === 'Timers'     ? CounterScreen    :
-                item.name === 'Help'       ? HelpScreen
-               : item.name === 'Contact'    ? ContactScreen
-               : SettingsScreen
-              }
-              options={{ tabBarLabel: item.label }}
-            />
-          ))}
-        </Tab.Navigator>
-        </View>
-        {showMobileTabBar && <StandaloneTabBar />}
-      </View>
-    </View>
-  </View>
-  {/* Magic link processing overlay — Modal so it renders above WelcomeModal */}
-  <Modal visible={hasMagicLinkInUrl && !authUser} transparent animationType="none">
-    <View style={{ flex: 1, backgroundColor: '#0A0E1A', alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ alignItems: 'center', gap: 16 } as any}>
-        <View style={{ width: 64, height: 64, borderRadius: 18, backgroundColor: 'rgba(79,70,229,0.15)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(129,140,248,0.25)' }}>
-          <Ionicons name="shield-checkmark" size={30} color="#818CF8" />
-        </View>
-        <Text style={{ fontSize: 20, fontFamily: 'Inter_700Bold', color: '#F8FAFF' }}>Signing you in...</Text>
-        <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.55)' }}>Verifying your login link</Text>
-      </View>
-    </View>
-  </Modal>
 
-  {/* First-visit welcome modal */}
-  <WelcomeModal
-    visible={showWelcomeModal}
-    onGuest={() => {
-      setGuestMode(true);
-      setOnboarded();
-      useStore.setState({ showWelcomeModal: false });
-    }}
-    onCreateAccount={() => {
-      setGuestMode(false);   // ensure guest mode is off
-      setOnboarded();
-      useStore.setState({ showWelcomeModal: false });
-      setTimeout(() => openAuthModal('Create a free account to unlock more features'), 200);
-    }}
-  />
-  {/* Global auth modal */}
-  <AuthModal
-    visible={showAuthModal}
-    onClose={closeAuthModal}
-    message={authModalMessage}
-  />
-  {/* Global profile modal */}
-  <ProfileScreen visible={showProfileModal} onClose={() => setShowProfileModal(false)} />
-  {/* Global search */}
-  <SearchModal visible={showSearch} onClose={() => setShowSearch(false)} />
-  {/* Global paywall modal */}
-  <PaywallModal
-    visible={showPaywallModal}
-    onClose={closePaywall}
-    onUnlock={() => { setPremium(true); closePaywall(); }}
-  />
-  </>
+  return (
+    <>
+      <View style={layoutStyles.root}>
+        {/* GLOBAL BG IMAGE LAYER — sits behind everything */}
+        <ImageBackground
+          source={require('../../assets/bg-app.png')}
+          style={StyleSheet.absoluteFillObject as any}
+          imageStyle={{ opacity: 0.30, resizeMode: 'cover' }}
+          pointerEvents="none"
+        >
+          <View pointerEvents="none" style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(5,11,28,0.55)' }] as any} />
+        </ImageBackground>
+
+        {/* Ambient blue glow — top-right */}
+        {Platform.OS === 'web' && (
+          <View
+            pointerEvents="none"
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              background: 'radial-gradient(ellipse 1000px 600px at 90% -8%, rgba(59,139,232,0.22) 0%, transparent 55%)',
+            } as any}
+          />
+        )}
+        {/* Ambient green glow — bottom-left */}
+        {Platform.OS === 'web' && (
+          <View
+            pointerEvents="none"
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              background: 'radial-gradient(ellipse 700px 500px at 5% 105%, rgba(76,217,138,0.14) 0%, transparent 55%)',
+            } as any}
+          />
+        )}
+
+        {/* Foreground layout */}
+        <View style={[layoutStyles.innerRow, showSidebar && layoutStyles.innerRowDesktop]}>
+          {showSidebar && <WebSidebar />}
+          <View style={[layoutStyles.content, showSidebar ? layoutStyles.contentDesktop : IS_WEB ? layoutStyles.contentMobileWeb : undefined]}>
+            {showSidebar && <WebTopBar />}
+            {!showSidebar && IS_WEB && <WebTopBar />}
+            <View style={{ flex: 1, flexDirection: 'column' as any, overflow: showSidebar ? 'hidden' as any : undefined } as any}>
+              <View style={{ flex: 1, minHeight: 0 }}>
+                <Tab.Navigator
+                  initialRouteName="Dashboard"
+                  tabBar={() => null}
+                  screenOptions={() => ({ headerShown: false, sceneStyle: { backgroundColor: 'transparent' } as any })}
+                >
+                  {TAB_ITEMS.map((item) => (
+                    <Tab.Screen
+                      key={item.name}
+                      name={item.name}
+                      component={
+                        item.name === 'Dashboard'  ? DashboardScreen  :
+                        item.name === 'Documents'  ? DocumentsScreen  :
+                        item.name === 'Travel'     ? TravelScreen     :
+                        item.name === 'Family'     ? FamilyScreen     :
+                        item.name === 'Checklist'  ? ChecklistScreen  :
+                        item.name === 'VisaTools'  ? VisaToolsScreen  :
+                        item.name === 'Timers'     ? CounterScreen    :
+                        item.name === 'Help'       ? HelpScreen
+                        : item.name === 'Contact'  ? ContactScreen
+                        : SettingsScreen
+                      }
+                      options={{ tabBarLabel: item.label }}
+                    />
+                  ))}
+                </Tab.Navigator>
+              </View>
+              {showMobileTabBar && <StandaloneTabBar />}
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* Magic link processing overlay */}
+      <Modal visible={hasMagicLinkInUrl && !authUser} transparent animationType="none">
+        <View style={{ flex: 1, backgroundColor: '#050B1C', alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ alignItems: 'center', gap: 16 } as any}>
+            <View style={{
+              width: 68, height: 68, borderRadius: 20,
+              backgroundColor: 'rgba(59,139,232,0.15)',
+              borderWidth: 1, borderColor: 'rgba(59,139,232,0.35)',
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Ionicons name="shield-checkmark" size={32} color={colors.primaryLight} />
+            </View>
+            <Text style={{ fontSize: 20, fontFamily: 'Inter_700Bold', color: '#F0F4FF' }}>Signing you in…</Text>
+            <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)' }}>Verifying your login link</Text>
+          </View>
+        </View>
+      </Modal>
+
+      {/* First-visit welcome modal */}
+      <WelcomeModal
+        visible={showWelcomeModal}
+        onGuest={() => {
+          setGuestMode(true);
+          setOnboarded();
+          useStore.setState({ showWelcomeModal: false });
+        }}
+        onCreateAccount={() => {
+          setGuestMode(false);
+          setOnboarded();
+          useStore.setState({ showWelcomeModal: false });
+          setTimeout(() => openAuthModal('Create a free account to unlock more features'), 200);
+        }}
+      />
+      <AuthModal visible={showAuthModal} onClose={closeAuthModal} message={authModalMessage} />
+      <ProfileScreen visible={showProfileModal} onClose={() => setShowProfileModal(false)} />
+      <SearchModal visible={showSearch} onClose={() => setShowSearch(false)} />
+      <PaywallModal
+        visible={showPaywallModal}
+        onClose={closePaywall}
+        onUnlock={() => { setPremium(true); closePaywall(); }}
+      />
+    </>
   );
 };
 
@@ -506,78 +533,161 @@ export const AppNavigator: React.FC = () => {
 
   return (
     <SafeAreaProvider>
-    <NavigationContainer
-      linking={linking}
-      documentTitle={{
-        formatter: () => 'StatusVault — Your Personal Immigration Document Expiry Tracker',
-      }}
-    >
-      <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-        <Stack.Screen name="Main" component={MainTabs} />
-        <Stack.Screen name="Auth"  component={AuthScreen} options={{ animation: 'slide_from_bottom' }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+      <NavigationContainer
+        linking={linking}
+        documentTitle={{
+          formatter: () => 'StatusVault — Your Personal Immigration Document Expiry Tracker',
+        }}
+        theme={{
+          dark: true,
+          colors: {
+            primary: colors.primary,
+            background: colors.backgroundDeep,
+            card: colors.backgroundDeep,
+            text: colors.text1,
+            border: colors.border,
+            notification: colors.gold,
+          } as any,
+        } as any}
+      >
+        <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right', contentStyle: { backgroundColor: colors.backgroundDeep } }}>
+          <Stack.Screen name="Main" component={MainTabs} />
+          <Stack.Screen name="Auth" component={AuthScreen} options={{ animation: 'slide_from_bottom' }} />
+        </Stack.Navigator>
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 };
 
 // ── Styles ───────────────────────────────────────────────────
 const layoutStyles = StyleSheet.create({
-  root:       { flex: 1, backgroundColor: colors.background, display: 'flex' as any, flexDirection: 'column' as any } as any,
-  rootBg:     { backgroundColor: colors.sidebar },
-  rootWeb:    { flexDirection: 'row', width: '100%' as any, height: '100%' as any },
-  content:    { flex: 1, display: 'flex' as any, flexDirection: 'column' as any, minHeight: 0 as any } as any,
-  contentWeb: { flexDirection: 'column', backgroundColor: '#F4F5FA', flex: 1, minWidth: 0, overflow: 'hidden' as any },
-  contentMobileWeb: { flexDirection: 'column', backgroundColor: '#F4F5FA', flex: 1, overflow: 'visible' as any } as any,
+  root:              { flex: 1, backgroundColor: colors.backgroundDeep, position: 'relative' as any, overflow: 'hidden' as any } as any,
+  innerRow:          { flex: 1, flexDirection: 'column' as any, zIndex: 1 } as any,
+  innerRowDesktop:   { flexDirection: 'row' as any, width: '100%' as any, height: '100%' as any } as any,
+  content:           { flex: 1, flexDirection: 'column' as any, minHeight: 0 as any } as any,
+  contentDesktop:    { backgroundColor: 'transparent', flex: 1, minWidth: 0, overflow: 'hidden' as any } as any,
+  contentMobileWeb:  { backgroundColor: 'transparent', flex: 1, overflow: 'visible' as any } as any,
 });
 
 const sidebarStyles = StyleSheet.create({
-  container:     { backgroundColor: '#0A0E1A', borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.05)', flexDirection: 'column', position: 'relative' as any },
-  resizeHandle:  { position: 'absolute' as any, top: 0, right: -4, bottom: 0, width: 8, cursor: 'col-resize' as any, alignItems: 'center', justifyContent: 'center', zIndex: 10 } as any,
-  resizeBar:     { width: 1, height: 32, borderRadius: 1, backgroundColor: 'rgba(255,255,255,0.06)' } as any,
-  logoRow:       { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
-  logoImg:       { width: 148, height: 42 } as any,
-  nav:           { flex: 1, paddingHorizontal: 10, paddingTop: 12, overflow: 'hidden' as any },
-  groupLabel:    { fontSize: 9, fontFamily: 'Inter_600SemiBold', color: 'rgba(148,163,184,0.40)', letterSpacing: 1.5, paddingLeft: 10, paddingTop: 20, paddingBottom: 6, textTransform: 'uppercase' as any },
-  navItem:       { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 9, borderRadius: 10, marginBottom: 1 },
-  navItemActive: { backgroundColor: 'rgba(79,70,229,0.18)', borderLeftWidth: 2, borderLeftColor: '#818CF8' } as any,
-  navIcon:       { marginRight: 10 },
-  navLabel:      { fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.55)', lineHeight: 20 },
-  navLabelActive:{ color: '#A5B4FC', fontFamily: 'Inter_600SemiBold' },
-  upgradeRow:    { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 8, marginBottom: 8, backgroundColor: 'rgba(79,70,229,0.12)', borderWidth: 1, borderColor: 'rgba(79,70,229,0.25)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 11 },
-  upgradeRowIcon:{ width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(79,70,229,0.20)', alignItems: 'center', justifyContent: 'center' },
-  upgradeRowTitle:{ fontSize: 12, fontFamily: 'Inter_700Bold', color: '#A5B4FC' },
-  upgradeRowSub: { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(165,180,252,0.50)', marginTop: 1 },
-  profileCard:   { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 8, marginBottom: 10, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 },
-  signInCard:    { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 8, marginBottom: 10, backgroundColor: 'rgba(79,70,229,0.15)', borderWidth: 1, borderColor: 'rgba(129,140,248,0.30)', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12 },
-  signInText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#A5B4FC', flex: 1 },
-  profileAvatar: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#4F46E5', alignItems: 'center', justifyContent: 'center' },
-  profileInitial:{ fontSize: 13, fontFamily: 'Inter_700Bold', color: '#fff' },
-  profileName:   { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: 'rgba(248,250,252,0.90)' },
-  profilePlan:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.40)', marginTop: 1 },
-  bottom:        { paddingHorizontal: 8, paddingBottom: 8, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
-  syncRow:       { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 8, paddingLeft: 4 },
-  syncDot:       { width: 5, height: 5, borderRadius: 3 },
-  syncText:      { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(148,163,184,0.35)' },
+  container: {
+    backgroundColor: 'rgba(5,11,28,0.75)',
+    borderRightWidth: 1,
+    borderRightColor: 'rgba(255,255,255,0.06)',
+    flexDirection: 'column',
+    position: 'relative' as any,
+    ...Platform.select({ web: { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any, default: {} }),
+  } as any,
+  sidebarGlow: Platform.select({
+    web: {
+      position: 'absolute' as any, top: 0, left: 0, right: 0, height: 180,
+      background: 'radial-gradient(ellipse 300px 180px at 50% -20%, rgba(59,139,232,0.28) 0%, transparent 70%)',
+    } as any,
+    default: { height: 0 },
+  }) as any,
+  resizeHandle: { position: 'absolute' as any, top: 0, right: -4, bottom: 0, width: 8, alignItems: 'center', justifyContent: 'center', zIndex: 10, ...(Platform.OS === 'web' ? { cursor: 'col-resize' } as any : {}) } as any,
+  resizeBar: { width: 1, height: 32, borderRadius: 1, backgroundColor: 'rgba(255,255,255,0.10)' },
+  logoRow: { paddingHorizontal: 18, paddingTop: 22, paddingBottom: 18, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
+  logoBadge: {
+    width: 42, height: 42, borderRadius: 12,
+    backgroundColor: 'rgba(59,139,232,0.10)',
+    borderWidth: 1, borderColor: 'rgba(111,175,242,0.25)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  logoWordStatus: { fontFamily: 'Inter_800ExtraBold', fontSize: 16, color: '#F0F4FF', letterSpacing: -0.5, lineHeight: 18 },
+  logoWordVault:  { fontFamily: 'Inter_800ExtraBold', fontSize: 16, color: '#6FAFF2', letterSpacing: -0.5, lineHeight: 18 },
+  logoTagline:    { fontFamily: 'Inter_500Medium',   fontSize: 9, color: 'rgba(240,244,255,0.40)', letterSpacing: 1.2, marginTop: 2, textTransform: 'uppercase' as any } as any,
+  nav: { flex: 1, paddingHorizontal: 10, paddingTop: 10, overflow: 'hidden' as any } as any,
+  groupLabel: { fontSize: 9, fontFamily: 'Inter_700Bold', color: 'rgba(240,244,255,0.32)', letterSpacing: 1.6, paddingLeft: 14, paddingTop: 18, paddingBottom: 8, textTransform: 'uppercase' as any } as any,
+  navItem: { position: 'relative' as any, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 8, borderRadius: 10, marginBottom: 2 },
+  navItemActive: { backgroundColor: 'rgba(59,139,232,0.14)' },
+  activeIndicator: { position: 'absolute' as any, left: -10, top: 10, bottom: 10, width: 3, borderRadius: 2, backgroundColor: colors.primaryLight } as any,
+  iconWrap: {
+    width: 26, height: 26, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 10,
+    backgroundColor: 'rgba(255,255,255,0.035)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)',
+  },
+  iconWrapActive: {
+    backgroundColor: 'rgba(59,139,232,0.18)',
+    borderColor: 'rgba(111,175,242,0.30)',
+  },
+  navLabel:       { fontSize: 13, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.62)', lineHeight: 18 },
+  navLabelActive: { color: '#E0EBFF', fontFamily: 'Inter_700Bold' },
+  profileCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    marginHorizontal: 10, marginBottom: 8,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 12, paddingHorizontal: 10, paddingVertical: 9,
+  },
+  signInCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    marginHorizontal: 10, marginBottom: 8,
+    backgroundColor: 'rgba(59,139,232,0.10)',
+    borderWidth: 1, borderColor: 'rgba(111,175,242,0.28)',
+    borderRadius: 12, paddingHorizontal: 12, paddingVertical: 11,
+  },
+  signInIcon: { width: 26, height: 26, borderRadius: 8, backgroundColor: 'rgba(59,139,232,0.18)', alignItems: 'center', justifyContent: 'center' },
+  signInText: { fontSize: 12.5, fontFamily: 'Inter_600SemiBold', color: colors.primaryLight, flex: 1 },
+  profileAvatar: {
+    width: 32, height: 32, borderRadius: 10,
+    backgroundColor: 'rgba(59,139,232,0.22)',
+    borderWidth: 1, borderColor: 'rgba(111,175,242,0.40)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  profileInitial: { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#E0EBFF' },
+  profileName:    { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: 'rgba(240,244,255,0.90)' },
+  profilePlan:    { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: 'rgba(240,244,255,0.45)' },
+  upgradeRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    marginHorizontal: 10, marginBottom: 12,
+    backgroundColor: 'rgba(245,192,83,0.10)',
+    borderWidth: 1, borderColor: 'rgba(245,192,83,0.28)',
+    borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10,
+  },
+  upgradeRowIcon: {
+    width: 26, height: 26, borderRadius: 8,
+    backgroundColor: 'rgba(245,192,83,0.18)',
+    borderWidth: 1, borderColor: 'rgba(245,192,83,0.30)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  upgradeRowTitle: { fontSize: 12, fontFamily: 'Inter_700Bold', color: colors.gold },
+  upgradeRowSub:   { fontSize: 10, fontFamily: 'Inter_500Medium', color: 'rgba(245,192,83,0.65)', marginTop: 1 },
 });
 
 const topBarStyles = StyleSheet.create({
-  container: { height: 56, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E2E8F0', paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' } as any,
-  left:      { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  breadcrumb:{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#94A3B8' },
-  sep:       { fontSize: 12, color: '#CBD5E1', marginHorizontal: 4 },
-  title:     { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A' },
-  right:     { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  pulsePill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#6EE7B7', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
-  pulsePillSyncing: { backgroundColor: '#FFFBEB', borderColor: '#FCD34D' },
-  pulseDot:  { width: 6, height: 6, borderRadius: 3 },
-  pulseText: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#059669' },
-  pulseTextSyncing: { color: '#D97706' },
-  avatarBtn:      { width: 34, height: 34, backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE', borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  privateBadge:   { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ECFDF5', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: '#6EE7B7' },
-  privateBadgeTxt:{ fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#059669' },
-});
-
-const mobileStyles = StyleSheet.create({
-  activeWrap: { width: 40, height: 32, borderRadius: 12, backgroundColor: 'rgba(79,70,229,0.10)', alignItems: 'center', justifyContent: 'center' },
+  container: {
+    height: 56,
+    backgroundColor: 'rgba(5,11,28,0.55)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.06)',
+    paddingHorizontal: 22,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    ...Platform.select({ web: { backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' } as any, default: {} }),
+  } as any,
+  left:       { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  titleDot:   { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primaryLight, shadowColor: colors.primaryLight, ...(Platform.OS === 'web' ? ({ boxShadow: '0 0 10px rgba(111,175,242,0.6)' } as any) : {}) } as any,
+  title:      { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#F0F4FF', letterSpacing: -0.3 },
+  right:      { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  iconBtn: {
+    width: 34, height: 34, borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  avatarBtn: {
+    width: 34, height: 34, borderRadius: 10,
+    backgroundColor: 'rgba(59,139,232,0.14)',
+    borderWidth: 1, borderColor: 'rgba(111,175,242,0.32)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  syncPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: 'rgba(76,217,138,0.12)',
+    borderWidth: 1, borderColor: 'rgba(76,217,138,0.28)',
+    borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4,
+  },
+  syncPillSyncing: { backgroundColor: 'rgba(245,192,83,0.14)', borderColor: 'rgba(245,192,83,0.32)' },
+  syncPillError:   { backgroundColor: 'rgba(255,107,107,0.14)', borderColor: 'rgba(255,107,107,0.35)' },
+  syncText: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: colors.success },
 });

@@ -1,68 +1,75 @@
 // ═══════════════════════════════════════════════════════════════
-// StatusVault — Premium Design System v8
-// Midnight navy sidebar · Crisp white cards · Indigo accent
+// StatusVault — Design System v9 · Midnight Glass
+// Dark glassmorphic UI · StatusVault brand (blue/green/gold)
 // Works identically on Web, iOS, Android
 // ═══════════════════════════════════════════════════════════════
 import { Platform } from 'react-native';
 
 export const colors = {
-  // ── Brand — Premium Indigo ──────────────────────────────────
-  primary:      '#4F46E5',   // Indigo 600 — electric, trustworthy
-  primaryLight: '#818CF8',   // Indigo 400
-  primaryMid:   '#3730A3',   // Indigo 800
-  primaryDark:  '#1E1B4B',   // Indigo 950
-  primaryBg:    '#EEF2FF',   // Indigo 50
+  // ── Brand — StatusVault (from shield logo) ──────────────────
+  primary:      '#3B8BE8',   // Shield blue — primary interactive
+  primaryLight: '#6FAFF2',   // Lighter blue — hover / highlight
+  primaryMid:   '#2D6ABF',   // Deeper blue — pressed / strong accent
+  primaryDark:  '#123A72',   // Darkest blue — gradient stop
+  primaryBg:    'rgba(59,139,232,0.12)',   // Soft tint for chips
 
-  accent:       '#4F46E5',
-  accentDim:    'rgba(79,70,229,0.10)',
-  accentLight:  '#EEF2FF',
+  accent:       '#3B8BE8',
+  accentDim:    'rgba(59,139,232,0.14)',
+  accentLight:  'rgba(59,139,232,0.20)',
 
-  // ── Status Colors ───────────────────────────────────────────
-  success:      '#059669',   // Emerald 600
-  successLight: '#ECFDF5',
-  successDark:  '#047857',
-  warning:      '#D97706',   // Amber 600
-  warningLight: '#FFFBEB',
-  warningDark:  '#B45309',
-  danger:       '#DC2626',   // Red 600
-  dangerLight:  '#FEF2F2',
-  dangerDark:   '#B91C1C',
-  info:         '#0891B2',   // Cyan 600
-  infoLight:    '#ECFEFF',
+  // StatusVault gold (yellow sun from logo) — reserved for premium / warnings
+  gold:         '#F5C053',
+  goldDim:      'rgba(245,192,83,0.14)',
+  goldDark:     '#E8970A',
 
-  // ── Page surfaces ───────────────────────────────────────────
-  background:   '#F8FAFF',   // Near-white with cool blue tint
-  card:         '#FFFFFF',
-  cardHover:    '#FAFBFF',
+  // ── Status ──────────────────────────────────────────────────
+  success:      '#4CD98A',   // Logo green — valid / confirmed
+  successLight: 'rgba(76,217,138,0.12)',
+  successDark:  '#2FA866',
+  warning:      '#F5C053',   // Gold — "soon"
+  warningLight: 'rgba(245,192,83,0.14)',
+  warningDark:  '#CC9628',
+  danger:       '#FF6B6B',   // Coral — "critical"
+  dangerLight:  'rgba(255,107,107,0.14)',
+  dangerDark:   '#D84848',
+  info:         '#5B9AF5',
+  infoLight:    'rgba(91,154,245,0.14)',
 
-  // ── Sidebar — Premium Midnight ──────────────────────────────
-  sidebar:           '#0A0E1A',   // Very deep navy
-  sidebarDeep:       '#060912',
-  sidebarHover:      'rgba(255,255,255,0.04)',
-  sidebarActive:     'rgba(79,70,229,0.18)',
-  sidebarBorder:     'rgba(255,255,255,0.06)',
-  sidebarText:       'rgba(203,213,225,0.50)',
-  sidebarTextHover:  'rgba(248,250,252,0.90)',
-  sidebarActiveText: '#818CF8',
-  sidebarIcon:       'rgba(203,213,225,0.45)',
-  sidebarIconActive: '#818CF8',
+  // ── Page surfaces — Midnight Navy ──────────────────────────
+  background:   '#0A1530',   // Deep navy — primary app bg
+  backgroundDeep: '#050B1C', // Deeper — behind everything
+  card:         'rgba(255,255,255,0.055)',      // Glass card
+  cardHover:    'rgba(255,255,255,0.085)',
+  cardSolid:    'rgba(14,26,54,0.85)',          // For popovers/modals needing opacity
 
-  // ── Text ────────────────────────────────────────────────────
-  text1:       '#0F172A',   // Slate 900
-  text2:       '#334155',   // Slate 700
-  text3:       '#64748B',   // Slate 500
-  text4:       '#94A3B8',   // Slate 400
-  textInverse: '#FFFFFF',
+  // ── Sidebar — Deeper glass ─────────────────────────────────
+  sidebar:           'rgba(5,11,28,0.92)',
+  sidebarDeep:       '#030812',
+  sidebarHover:      'rgba(255,255,255,0.05)',
+  sidebarActive:     'rgba(59,139,232,0.18)',
+  sidebarBorder:     'rgba(255,255,255,0.07)',
+  sidebarText:       'rgba(240,244,255,0.55)',
+  sidebarTextHover:  'rgba(240,244,255,0.92)',
+  sidebarActiveText: '#6FAFF2',
+  sidebarIcon:       'rgba(240,244,255,0.50)',
+  sidebarIconActive: '#6FAFF2',
+
+  // ── Text — High-contrast on dark ───────────────────────────
+  text1:       '#F0F4FF',                   // Primary
+  text2:       'rgba(240,244,255,0.80)',    // Secondary
+  text3:       'rgba(240,244,255,0.55)',    // Muted
+  text4:       'rgba(240,244,255,0.35)',    // Disabled
+  textInverse: '#0A1530',                   // For light-backed buttons
 
   // ── Borders ─────────────────────────────────────────────────
-  border:      '#E2E8F0',   // Slate 200
-  borderLight: '#F1F5F9',   // Slate 100
-  borderGold:  'rgba(79,70,229,0.20)',
+  border:       'rgba(255,255,255,0.10)',
+  borderLight:  'rgba(255,255,255,0.06)',
+  borderStrong: 'rgba(255,255,255,0.18)',
+  borderGold:   'rgba(245,192,83,0.28)',
 
   // ── Misc ────────────────────────────────────────────────────
-  overlay:     'rgba(15,23,42,0.65)',
-  shimmer:     '#EFF1F5',
-  backgroundDark: '#1E293B',
+  overlay:     'rgba(3,8,18,0.80)',
+  shimmer:     'rgba(255,255,255,0.08)',
 } as const;
 
 export const spacing = {
@@ -71,7 +78,7 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 6, md: 8, lg: 12, xl: 16, xxl: 20, full: 999,
+  sm: 6, md: 10, lg: 14, xl: 18, xxl: 22, full: 999,
 } as const;
 
 export const typography = {
@@ -91,53 +98,84 @@ export const typography = {
   mono:         { fontSize: 12, fontFamily: 'Inter_500Medium',    lineHeight: 18 },
 } as const;
 
+// Helper: glass-card web style (backdrop blur)
+const glassWeb = (blur: number = 20) => ({
+  backdropFilter: `blur(${blur}px)`,
+  WebkitBackdropFilter: `blur(${blur}px)`,
+} as any);
+
 export const shadows = {
   xs: Platform.select({
-    web: { boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 0 0 1px rgba(15,23,42,0.03)' } as any,
-    ios: { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 3 },
+    web: { boxShadow: '0 1px 2px rgba(0,0,0,0.25)' } as any,
+    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.20, shadowRadius: 2 },
     android: { elevation: 1 },
   }),
   sm: Platform.select({
-    web: { boxShadow: '0 2px 8px rgba(15,23,42,0.06), 0 0 0 1px rgba(15,23,42,0.03)' } as any,
-    ios: { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8 },
+    web: { boxShadow: '0 4px 12px rgba(0,0,0,0.30)' } as any,
+    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 8 },
     android: { elevation: 2 },
   }),
   md: Platform.select({
-    web: { boxShadow: '0 4px 16px rgba(15,23,42,0.08), 0 0 0 1px rgba(15,23,42,0.04)' } as any,
-    ios: { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 16 },
+    web: { boxShadow: '0 8px 28px rgba(0,0,0,0.35)' } as any,
+    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.30, shadowRadius: 16 },
     android: { elevation: 4 },
   }),
   lg: Platform.select({
-    web: { boxShadow: '0 8px 32px rgba(15,23,42,0.10), 0 0 0 1px rgba(15,23,42,0.04)' } as any,
-    ios: { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.10, shadowRadius: 32 },
+    web: { boxShadow: '0 16px 48px rgba(0,0,0,0.45)' } as any,
+    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 32 },
     android: { elevation: 8 },
   }),
   xl: Platform.select({
-    web: { boxShadow: '0 16px 48px rgba(15,23,42,0.14), 0 0 0 1px rgba(15,23,42,0.04)' } as any,
-    ios: { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 16 }, shadowOpacity: 0.14, shadowRadius: 48 },
+    web: { boxShadow: '0 24px 64px rgba(0,0,0,0.55)' } as any,
+    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 16 }, shadowOpacity: 0.45, shadowRadius: 48 },
     android: { elevation: 12 },
   }),
+  // Glow — colored halo for brand moments (primary blue)
   gold: Platform.select({
-    web: { boxShadow: '0 4px 20px rgba(79,70,229,0.25), 0 0 0 1px rgba(79,70,229,0.15)' } as any,
-    ios: { shadowColor: '#4F46E5', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.20, shadowRadius: 16 },
+    web: { boxShadow: '0 4px 24px rgba(59,139,232,0.40), 0 0 0 1px rgba(59,139,232,0.20)' } as any,
+    ios: { shadowColor: '#3B8BE8', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 18 },
     android: { elevation: 6 },
   }),
   glow: Platform.select({
-    web: { boxShadow: '0 0 0 3px rgba(79,70,229,0.15), 0 4px 16px rgba(79,70,229,0.20)' } as any,
-    ios: { shadowColor: '#4F46E5', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.20, shadowRadius: 12 },
+    web: { boxShadow: '0 0 0 3px rgba(59,139,232,0.20), 0 6px 20px rgba(59,139,232,0.30)' } as any,
+    ios: { shadowColor: '#3B8BE8', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.28, shadowRadius: 14 },
     android: { elevation: 4 },
   }),
+  // Gold glow — for premium / CTA
+  premium: Platform.select({
+    web: { boxShadow: '0 4px 24px rgba(245,192,83,0.35), 0 0 0 1px rgba(245,192,83,0.25)' } as any,
+    ios: { shadowColor: '#F5C053', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.30, shadowRadius: 16 },
+    android: { elevation: 6 },
+  }),
+  // Glass tile shadow
+  glass: Platform.select({
+    web: { boxShadow: '0 2px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08)' } as any,
+    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.20, shadowRadius: 8 },
+    android: { elevation: 2 },
+  }),
+} as const;
+
+// Web-only glass style helpers (apply conditionally when Platform.OS === 'web')
+export const glass = {
+  blur12: Platform.select({ web: glassWeb(12), default: {} as any }),
+  blur20: Platform.select({ web: glassWeb(20), default: {} as any }),
+  blur30: Platform.select({ web: glassWeb(30), default: {} as any }),
 } as const;
 
 // ── Gradient presets (for LinearGradient) ───────────────────
 export const gradients = {
-  primary:   ['#4F46E5', '#7C3AED'] as const,       // Indigo → Violet
-  primaryH:  ['#4F46E5', '#818CF8'] as const,       // Indigo light
-  dark:      ['#0A0E1A', '#1E293B'] as const,       // Midnight
-  success:   ['#059669', '#10B981'] as const,       // Emerald
-  danger:    ['#DC2626', '#F43F5E'] as const,       // Red
-  warning:   ['#D97706', '#F59E0B'] as const,       // Amber
-  premium:   ['#7C3AED', '#4F46E5', '#0891B2'] as const, // Premium
-  card:      ['#FFFFFF', '#F8FAFF'] as const,       // Card subtle
-  header:    ['#0A0E1A', '#1A1F3A'] as const,       // Header dark
+  primary:     ['#3B8BE8', '#2D6ABF'] as const,       // Shield blue
+  primaryH:    ['#6FAFF2', '#3B8BE8'] as const,       // Lighter
+  dark:        ['#0A1530', '#050B1C'] as const,       // Midnight
+  midnight:    ['#0A1530', '#050B1C', '#030812'] as const,
+  success:     ['#4CD98A', '#2FA866'] as const,       // Logo green
+  danger:      ['#FF6B6B', '#D84848'] as const,
+  warning:     ['#F5C053', '#E8970A'] as const,       // Gold sun
+  premium:     ['#F5C053', '#E8970A', '#C97915'] as const,
+  card:        ['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)'] as const,
+  header:      ['#0A1530', '#0F1F44'] as const,
+  brandTrio:   ['#3B8BE8', '#4CD98A', '#F5C053'] as const,   // Blue→Green→Gold
+  // Subtle ambient glows for dashboard background
+  ambient1:    ['rgba(59,139,232,0.22)', 'transparent'] as const,
+  ambient2:    ['rgba(76,217,138,0.15)', 'transparent'] as const,
 } as const;

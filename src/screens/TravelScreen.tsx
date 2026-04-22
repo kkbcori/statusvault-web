@@ -48,9 +48,9 @@ const DateField: React.FC<DateFieldProps> = ({ label, value, onPress, onChange }
         }}
         style={{
           width: '100%', padding: '10px 14px', fontSize: '14px',
-          fontFamily: 'Inter_400Regular', color: '#111827',
+          fontFamily: 'Inter_400Regular', color: '#F0F4FF',
           border: '1.5px solid #E5E7EB', borderRadius: '10px',
-          backgroundColor: '#fff', outline: 'none', cursor: 'pointer',
+          backgroundColor: 'rgba(255,255,255,0.05)', outline: 'none', cursor: 'pointer',
           boxSizing: 'border-box',
         } as any}
       />
@@ -59,7 +59,7 @@ const DateField: React.FC<DateFieldProps> = ({ label, value, onPress, onChange }
         <Text style={styles.dateButtonText}>
           {value.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
         </Text>
-        <Ionicons name="calendar-outline" size={18} color={'#7367F0'} />
+        <Ionicons name="calendar-outline" size={18} color={'#6FAFF2'} />
       </TouchableOpacity>
     )}
   </View>
@@ -131,7 +131,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, index, onDelete, onEdit }) =>
 
         <View style={styles.tripActions}>
           <TouchableOpacity style={styles.tripActionBtn} onPress={onEdit}>
-            <Ionicons name="pencil-outline" size={13} color={'#7367F0'} />
+            <Ionicons name="pencil-outline" size={13} color={'#6FAFF2'} />
             <Text style={styles.tripActionEdit}>Edit</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.tripActionBtn, styles.tripActionDel]} onPress={onDelete}>
@@ -384,11 +384,11 @@ export const TravelScreen: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F4F5FA' }}>
+    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={true}>
 
         {/* Header */}
-        <LinearGradient colors={['#FFFFFF', '#FFFFFF']} style={styles.headerGradient}>
+        <LinearGradient colors={['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.05)']} style={styles.headerGradient}>
           <View style={styles.header}>
             <View>
               <Text style={styles.headerLabel}>RESIDENCY & TRAVEL</Text>
@@ -406,7 +406,7 @@ export const TravelScreen: React.FC = () => {
               onPress={() => { setSelectedMemberId(null); setShowAll(false); setShowAllAddr(false); }}
               activeOpacity={0.7}
             >
-              <Ionicons name="person-outline" size={13} color={selectedMemberId === null ? '#fff' : '#4F46E5'} />
+              <Ionicons name="person-outline" size={13} color={selectedMemberId === null ? 'rgba(255,255,255,0.05)' : '#6FAFF2'} />
               <Text style={[styles.memberChipText, selectedMemberId === null && styles.memberChipTextActive]}>You</Text>
             </TouchableOpacity>
             {familyMembers.map((m) => (
@@ -416,7 +416,7 @@ export const TravelScreen: React.FC = () => {
                 onPress={() => { setSelectedMemberId(m.id); setShowAll(false); setShowAllAddr(false); }}
                 activeOpacity={0.7}
               >
-                <Ionicons name="people-outline" size={13} color={selectedMemberId === m.id ? '#fff' : '#4F46E5'} />
+                <Ionicons name="people-outline" size={13} color={selectedMemberId === m.id ? 'rgba(255,255,255,0.05)' : '#6FAFF2'} />
                 <Text style={[styles.memberChipText, selectedMemberId === m.id && styles.memberChipTextActive]} numberOfLines={1}>{m.name}</Text>
               </TouchableOpacity>
             ))}
@@ -485,7 +485,7 @@ export const TravelScreen: React.FC = () => {
               activeOpacity={0.85}
             >
               <Ionicons name="add-circle-outline" size={15} color="#7367F0" />
-              <Text style={[styles.cardAddBtnTxt, { color: '#7367F0' }]}>Add Trip</Text>
+              <Text style={[styles.cardAddBtnTxt, { color: '#6FAFF2' }]}>Add Trip</Text>
             </TouchableOpacity>
 
         {/* Trip list */}
@@ -535,7 +535,7 @@ export const TravelScreen: React.FC = () => {
               </View>
               <TouchableOpacity style={[styles.miniExportBtn, { borderColor: '#67E8F9' }]} onPress={handleExportAddressPdf} activeOpacity={0.8}>
                 <Ionicons name="document-text-outline" size={12} color="#0891B2" />
-                <Text style={[styles.miniExportTxt, { color: '#0891B2' }]}>{exportingAddr ? '…' : 'Export I-485'}</Text>
+                <Text style={[styles.miniExportTxt, { color: '#5B9AF5' }]}>{exportingAddr ? '…' : 'Export I-485'}</Text>
               </TouchableOpacity>
             </View>
 
@@ -543,7 +543,7 @@ export const TravelScreen: React.FC = () => {
             {addrHasGap && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 6 }}>
                 <Ionicons name="warning-outline" size={13} color="#EA5455" />
-                <Text style={{ fontSize: 11, color: '#EA5455', fontFamily: 'Inter_500Medium' }}>
+                <Text style={{ fontSize: 11, color: '#FF6B6B', fontFamily: 'Inter_500Medium' }}>
                   {addrGapDays}-day gap detected in address history
                 </Text>
               </View>
@@ -555,14 +555,14 @@ export const TravelScreen: React.FC = () => {
               activeOpacity={0.85}
             >
               <Ionicons name="add-circle-outline" size={15} color="#0891B2" />
-              <Text style={[styles.cardAddBtnTxt, { color: '#0891B2' }]}>Add Address</Text>
+              <Text style={[styles.cardAddBtnTxt, { color: '#5B9AF5' }]}>Add Address</Text>
             </TouchableOpacity>
 
           {/* Show all toggle — mirrored with trip card */}
           <View style={{ gap: 8 }}>
             {activeAddressHistory.length > 0 && (
               <TouchableOpacity onPress={() => setShowAllAddr(!showAllAddr)} style={[styles.toggleChip, { alignSelf: 'flex-end', marginBottom: 4, borderColor: '#A5F3FC', backgroundColor: showAllAddr ? '#CFFAFE' : '#F0FDFF' }]}>
-                <Text style={[styles.toggleChipText, { color: '#0891B2' }]}>{showAllAddr ? 'Show recent' : 'Show all'}</Text>
+                <Text style={[styles.toggleChipText, { color: '#5B9AF5' }]}>{showAllAddr ? 'Show recent' : 'Show all'}</Text>
               </TouchableOpacity>
             )}
 
@@ -579,19 +579,19 @@ export const TravelScreen: React.FC = () => {
               .slice(0, showAllAddr ? undefined : 5)
               .map((entry: AddressEntry) => (
                 <View key={entry.id} style={styles.tripCard}>
-                  <View style={[styles.tripStrip, { backgroundColor: entry.isCurrentAddress ? '#059669' : '#0891B2' }]} />
+                  <View style={[styles.tripStrip, { backgroundColor: entry.isCurrentAddress ? '#4CD98A' : '#5B9AF5' }]} />
                   <View style={styles.tripContent}>
                     <View style={styles.tripTopRow}>
-                      <View style={[styles.tripIconBox, { backgroundColor: (entry.isCurrentAddress ? '#059669' : '#0891B2') + '18', borderColor: (entry.isCurrentAddress ? '#059669' : '#0891B2') + '30' }]}>
-                        <Ionicons name="home-outline" size={18} color={entry.isCurrentAddress ? '#059669' : '#0891B2'} />
+                      <View style={[styles.tripIconBox, { backgroundColor: (entry.isCurrentAddress ? '#4CD98A' : '#5B9AF5') + '18', borderColor: (entry.isCurrentAddress ? '#4CD98A' : '#5B9AF5') + '30' }]}>
+                        <Ionicons name="home-outline" size={18} color={entry.isCurrentAddress ? '#4CD98A' : '#5B9AF5'} />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.tripCountry} numberOfLines={1}>{entry.street}{entry.apt ? `, ${entry.apt}` : ''}</Text>
                         <Text style={styles.tripPurpose}>{entry.city}, {entry.state} {entry.zipCode}{entry.country !== 'United States' ? ` · ${entry.country}` : ''}</Text>
                       </View>
                       {entry.isCurrentAddress && (
-                        <View style={[styles.tripDaysBadge, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0', paddingHorizontal: 8 }]}>
-                          <Text style={{ fontSize: 10, fontFamily: 'Inter_700Bold', color: '#059669' }}>Current</Text>
+                        <View style={[styles.tripDaysBadge, { backgroundColor: 'rgba(76,217,138,0.10)', borderColor: '#A7F3D0', paddingHorizontal: 8 }]}>
+                          <Text style={{ fontSize: 10, fontFamily: 'Inter_700Bold', color: '#4CD98A' }}>Current</Text>
                         </View>
                       )}
                     </View>
@@ -613,7 +613,7 @@ export const TravelScreen: React.FC = () => {
                         activeOpacity={0.7}
                       >
                         <Ionicons name="pencil-outline" size={13} color="#0891B2" />
-                        <Text style={[styles.tripActionEditText, { color: '#0891B2' }]}>Edit</Text>
+                        <Text style={[styles.tripActionEditText, { color: '#5B9AF5' }]}>Edit</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[styles.tripActionBtn, styles.tripActionDel]}
@@ -653,13 +653,13 @@ export const TravelScreen: React.FC = () => {
             </View>
 
             {/* Context card — purple I-94 theme */}
-            <View style={[styles.addrInfoCard, { backgroundColor: '#F5F3FF', borderColor: '#DDD6FE' }]}>
+            <View style={[styles.addrInfoCard, { backgroundColor: 'rgba(167,139,250,0.14)', borderColor: '#DDD6FE' }]}>
               <View style={[styles.addrInfoIconCircle, { backgroundColor: '#EDE9FE', borderColor: 'rgba(115,103,240,0.25)' }]}>
                 <Ionicons name="airplane-outline" size={18} color="#7367F0" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.addrInfoTitle, { color: '#4C3D99' }]}>I-94 Travel History</Text>
-                <Text style={[styles.addrInfoSub, { color: '#7367F0' }]}>Required for N-400 — log all international trips for the past 5 years</Text>
+                <Text style={[styles.addrInfoSub, { color: '#6FAFF2' }]}>Required for N-400 — log all international trips for the past 5 years</Text>
               </View>
             </View>
 
@@ -672,7 +672,7 @@ export const TravelScreen: React.FC = () => {
                   {IS_WEB ? (
                     <input type="date" value={departure.toISOString().split('T')[0]}
                       onChange={(e:any) => { if(e.target.value) setDeparture(new Date(e.target.value+'T12:00:00')); }}
-                      style={{ width:'100%', padding:'12px 14px', fontSize:'15px', fontFamily:'Inter_400Regular', color:'#111827', border:'1.5px solid #E5E7EB', borderRadius:'10px', backgroundColor:'#fff', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
+                      style={{ width:'100%', padding:'12px 14px', fontSize:'15px', fontFamily:'Inter_400Regular', color:'transparent', border:'1.5px solid #E5E7EB', borderRadius:'10px', backgroundColor:'rgba(255,255,255,0.05)', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
                   ) : (
                     <TouchableOpacity style={styles.dateButton} onPress={() => setActivePicker('departure')}>
                       <Text style={styles.dateButtonText}>{departure.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</Text>
@@ -684,7 +684,7 @@ export const TravelScreen: React.FC = () => {
                   {IS_WEB ? (
                     <input type="date" value={returnDate.toISOString().split('T')[0]}
                       onChange={(e:any) => { if(e.target.value) setReturnDate(new Date(e.target.value+'T12:00:00')); }}
-                      style={{ width:'100%', padding:'12px 14px', fontSize:'15px', fontFamily:'Inter_400Regular', color:'#111827', border:'1.5px solid #E5E7EB', borderRadius:'10px', backgroundColor:'#fff', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
+                      style={{ width:'100%', padding:'12px 14px', fontSize:'15px', fontFamily:'Inter_400Regular', color:'transparent', border:'1.5px solid #E5E7EB', borderRadius:'10px', backgroundColor:'rgba(255,255,255,0.05)', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
                   ) : (
                     <TouchableOpacity style={styles.dateButton} onPress={() => setActivePicker('return')}>
                       <Text style={styles.dateButtonText}>{returnDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</Text>
@@ -761,7 +761,7 @@ export const TravelScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             {/* Cyan trim — I-485 theme */}
-            <View style={[styles.modalTrim, { backgroundColor: '#0891B2' }]} />
+            <View style={[styles.modalTrim, { backgroundColor: '#5B9AF5' }]} />
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{editingAddrId ? 'Edit Address' : 'Add Address'}</Text>
               <TouchableOpacity onPress={() => { setShowAddrModal(false); resetAddrForm(); setAddrError(''); }} style={styles.modalClose}>
@@ -826,11 +826,11 @@ export const TravelScreen: React.FC = () => {
                   <Ionicons
                     name={addrCurrent ? 'checkmark' : 'home-outline'}
                     size={14}
-                    color={addrCurrent ? '#fff' : colors.text3}
+                    color={addrCurrent ? 'rgba(255,255,255,0.05)' : colors.text3}
                   />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.addrToggleLabel, addrCurrent && { color: '#0891B2' }]}>
+                  <Text style={[styles.addrToggleLabel, addrCurrent && { color: '#5B9AF5' }]}>
                     This is my current address
                   </Text>
                   {addrCurrent && (
@@ -869,7 +869,7 @@ export const TravelScreen: React.FC = () => {
 
               {/* Save */}
               <TouchableOpacity style={styles.saveBtn} onPress={handleSaveAddress}>
-                <LinearGradient colors={['#0891B2', '#06B6D4']} style={styles.saveBtnGrad}>
+                <LinearGradient colors={['#5B9AF5', '#06B6D4']} style={styles.saveBtnGrad}>
                   <Text style={styles.saveBtnText}>{editingAddrId ? 'Update Address' : 'Save Address'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -884,10 +884,10 @@ export const TravelScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  memberPickerRow:  { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: spacing.screen, paddingVertical: spacing.md, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: colors.borderLight },
-  memberChip:       { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.full, borderWidth: 1.5, borderColor: '#C7D2FE', backgroundColor: '#EEF2FF' },
-  memberChipActive: { backgroundColor: '#4F46E5', borderColor: '#4F46E5' },
-  memberChipText:   { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#4F46E5' },
+  memberPickerRow:  { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: spacing.screen, paddingVertical: spacing.md, backgroundColor: 'rgba(255,255,255,0.05)', borderBottomWidth: 1, borderBottomColor: colors.borderLight },
+  memberChip:       { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.full, borderWidth: 1.5, borderColor: 'rgba(111,175,242,0.30)', backgroundColor: 'rgba(59,139,232,0.14)' },
+  memberChipActive: { backgroundColor: '#6FAFF2', borderColor: '#6FAFF2' },
+  memberChipText:   { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
   memberChipTextActive: { color: '#fff' },
   // Header
   headerGradient:  { paddingBottom: 8 },
@@ -901,33 +901,33 @@ const styles = StyleSheet.create({
 
   // Stats
   statsRow:        { flexDirection: 'row', paddingHorizontal: spacing.screen, gap: 8, marginTop: spacing.md, marginBottom: spacing.md },
-  statCard:        { flex: 1, backgroundColor: colors.card, borderRadius: radius.lg, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
+  statCard:        { flex: 1, backgroundColor: colors.card, borderRadius: radius.lg, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', ...shadows.sm },
   statNum:         { fontSize: 18, fontFamily: 'Inter_900Black', color: colors.text1, letterSpacing: -0.5 },
   statLbl:         { fontSize: 9,  fontFamily: 'Inter_700Bold',  color: colors.text3, marginTop: 1, textAlign: 'center' },
   statSub:         { fontSize: 8,  fontFamily: 'Inter_500Medium',color: colors.text3, marginTop: 1, textAlign: 'center' },
 
   // Banners
-  warningBanner:   { flexDirection: 'row', gap: 10, alignItems: 'flex-start', backgroundColor: '#FEF3C7', borderRadius: radius.lg, marginHorizontal: spacing.screen, marginBottom: spacing.md, padding: spacing.lg, borderWidth: 1, borderColor: '#F59E0B' },
-  warningText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: '#78350F', lineHeight: 18 },
-  infoBanner:      { flexDirection: 'row', gap: 10, backgroundColor: colors.card, borderRadius: radius.lg, marginHorizontal: spacing.screen, marginBottom: spacing.md, padding: spacing.lg, borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
-  infoBannerIcon:  { width: 32, height: 32, borderRadius: 10, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
+  warningBanner:   { flexDirection: 'row', gap: 10, alignItems: 'flex-start', backgroundColor: 'rgba(245,192,83,0.12)', borderRadius: radius.lg, marginHorizontal: spacing.screen, marginBottom: spacing.md, padding: spacing.lg, borderWidth: 1, borderColor: '#F59E0B' },
+  warningText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(245,192,83,0.85)', lineHeight: 18 },
+  infoBanner:      { flexDirection: 'row', gap: 10, backgroundColor: colors.card, borderRadius: radius.lg, marginHorizontal: spacing.screen, marginBottom: spacing.md, padding: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', ...shadows.sm },
+  infoBannerIcon:  { width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(59,139,232,0.14)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   infoBannerTitle: { ...typography.captionBold, color: colors.text1, marginBottom: 3 },
   infoBannerDesc:  { fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text3, lineHeight: 17 },
 
   // Export
   cardTopRow:       { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 } as any,
   cardIconBox:      { width: 36, height: 36, borderRadius: 10, backgroundColor: '#EDE9FE', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  cardTitle:        { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#0F172A', lineHeight: 19 },
-  cardSub:          { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 1 },
+  cardTitle:        { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#F0F4FF', lineHeight: 19 },
+  cardSub:          { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', marginTop: 1 },
   cardAddBtn:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1.5, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 10, paddingVertical: 9, marginBottom: 14, backgroundColor: '#FAFAFA', alignSelf: 'stretch' } as any,
   cardAddBtnTxt:    { fontSize: 13, fontFamily: 'Inter_600SemiBold' },
   twoColRow:        { flexDirection: 'column', gap: 16, paddingHorizontal: spacing.screen, paddingBottom: 24 } as any,
   twoColRowWide:    { flexDirection: 'row' as any, alignItems: 'stretch' as any } as any,
-  twoColCard:       { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#E2E8F0', minWidth: 0, ...Platform.select({ web: { boxShadow: '0 2px 12px rgba(15,23,42,0.06)' } as any }) } as any,
+  twoColCard:       { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', minWidth: 0, ...Platform.select({ web: { boxShadow: '0 2px 12px rgba(15,23,42,0.06)' } as any }) } as any,
   twoColCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, flexWrap: 'wrap' as any } as any,
-  twoColCardTitle:  { fontSize: 12, fontFamily: 'Inter_700Bold', color: '#0F172A', flex: 1 },
+  twoColCardTitle:  { fontSize: 12, fontFamily: 'Inter_700Bold', color: '#F0F4FF', flex: 1 },
   miniExportBtn:    { flexDirection: 'row', alignItems: 'center', gap: 3, borderWidth: 1, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 4, backgroundColor: '#F8F8FF' } as any,
-  miniExportTxt:    { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  miniExportTxt:    { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
   exportBtn:       { marginHorizontal: spacing.screen, marginBottom: spacing.lg, borderRadius: radius.lg, overflow: 'hidden', ...shadows.sm },
   exportBtnGrad:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 15, paddingHorizontal: 20, borderRadius: radius.lg },
   exportBtnText:   { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#fff' },
@@ -936,19 +936,19 @@ const styles = StyleSheet.create({
   section:         { paddingHorizontal: spacing.screen },
   sectionHeader:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
   sectionLeft:     { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sectionIconBox:  { width: 26, height: 26, borderRadius: 8, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
+  sectionIconBox:  { width: 26, height: 26, borderRadius: 8, backgroundColor: 'rgba(59,139,232,0.14)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   sectionTitle:    { ...typography.h2, color: colors.text1, fontSize: 17 },
-  toggleChip:      { backgroundColor: '#F0EEFF', paddingHorizontal: 12, paddingVertical: 5, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
-  toggleChipText:  { fontSize: 12, fontFamily: 'Inter_700Bold', color: '#7367F0' },
+  toggleChip:      { backgroundColor: 'rgba(59,139,232,0.14)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
+  toggleChipText:  { fontSize: 12, fontFamily: 'Inter_700Bold', color: '#6FAFF2' },
 
   // Empty
-  emptyCard:       { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.xxxl, alignItems: 'center', borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
-  emptyIconCircle: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#F0EEFF', alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
+  emptyCard:       { backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.xxxl, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', ...shadows.sm },
+  emptyIconCircle: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(59,139,232,0.14)', alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
   emptyTitle:      { ...typography.bodySemibold, color: colors.text2 },
   emptySubtitle:   { ...typography.caption, color: colors.text3, textAlign: 'center', marginTop: 4, maxWidth: 260 },
 
   // Trip card
-  tripCard:        { backgroundColor: colors.card, borderRadius: radius.xl, marginBottom: spacing.md, overflow: 'hidden', flexDirection: 'row', borderWidth: 1, borderColor: '#DBDADE', ...shadows.sm },
+  tripCard:        { backgroundColor: colors.card, borderRadius: radius.xl, marginBottom: spacing.md, overflow: 'hidden', flexDirection: 'row', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', ...shadows.sm },
   tripStrip:       { width: 4 },
   tripContent:     { flex: 1, padding: spacing.lg },
   tripTopRow:      { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 12 },
@@ -965,68 +965,68 @@ const styles = StyleSheet.create({
   tripMeta:        { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 6 },
   tripMetaText:    { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3 },
   tripNotes:       { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3, fontStyle: 'italic', marginBottom: 8 },
-  longAbsenceChip: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FEE2E2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginBottom: 8, borderWidth: 1, borderColor: '#FECACA' },
-  longAbsenceText: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#DC2626', flex: 1 },
+  longAbsenceChip: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FEE2E2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,107,107,0.30)' },
+  longAbsenceText: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#FF6B6B', flex: 1 },
   tripActions:     { flexDirection: 'row', gap: 8, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.borderLight },
-  tripActionBtn:   { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.sm, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)', backgroundColor: '#F0EEFF' },
-  tripActionEdit:  { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
-  tripActionEditText: { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  tripActionBtn:   { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.sm, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)', backgroundColor: 'rgba(59,139,232,0.14)' },
+  tripActionEdit:  { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
+  tripActionEditText: { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
   tripActionDel:   { borderColor: colors.dangerLight, backgroundColor: colors.dangerLight },
   tripActionDelText:{ fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.danger },
 
   // Modal
   modalOverlay:    { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
-  modalSheet:      { backgroundColor: '#F4F5FA', borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '90%' as any : '92%', height: IS_WEB ? 620 : undefined, maxWidth: IS_WEB ? 520 : undefined, width: IS_WEB ? 520 : '100%' as any, paddingBottom: 8, overflow: 'hidden', borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column' } as any,
-  modalTrim:       { height: 3, backgroundColor: '#7367F0' },
+  modalSheet:      { backgroundColor: 'transparent', borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '90%' as any : '92%', height: IS_WEB ? 620 : undefined, maxWidth: IS_WEB ? 520 : undefined, width: IS_WEB ? 520 : '100%' as any, paddingBottom: 8, overflow: 'hidden', borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column' } as any,
+  modalTrim:       { height: 3, backgroundColor: '#6FAFF2' },
   modalHeader:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   modalClose:      { padding: 4 },
   modalCancel:     { fontSize: 14, fontFamily: 'Inter_500Medium', color: colors.text3 },
   modalTitle:      { ...typography.h3, color: colors.text1, fontSize: 16 },
-  modalSave:       { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#7367F0' },
+  modalSave:       { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#6FAFF2' },
   modalBody:       { padding: spacing.screen, paddingBottom: 20 },
 
   // Form
   fieldLabel:      { ...typography.captionBold, color: colors.text2, marginBottom: 6, letterSpacing: 0.3 },
-  fieldInput:      { backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1.5, borderColor: '#DBDADE', padding: 14, fontSize: 15, fontFamily: 'Inter_400Regular', color: colors.text1 },
-  dateButton:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.card, padding: spacing.lg, borderRadius: radius.md, borderWidth: 1.5, borderColor: '#DBDADE' },
+  fieldInput:      { backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.20)', padding: 14, fontSize: 15, fontFamily: 'Inter_400Regular', color: colors.text1 },
+  dateButton:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.card, padding: spacing.lg, borderRadius: radius.md, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.20)' },
   dateButtonText:  { ...typography.bodySemibold, color: colors.text1 },
   pickerDone:      { alignSelf: 'flex-end', paddingVertical: spacing.sm, paddingHorizontal: spacing.lg },
   purposeRow:      { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  purposeChip:     { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.full, borderWidth: 1.5, borderColor: '#DBDADE', backgroundColor: colors.card },
-  purposeChipActive:{ borderColor: '#7367F0', backgroundColor: '#F0EEFF' },
+  purposeChip:     { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.full, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.20)', backgroundColor: colors.card },
+  purposeChipActive:{ borderColor: '#6FAFF2', backgroundColor: 'rgba(59,139,232,0.14)' },
   purposeIcon:     { fontSize: 14 },
   purposeLabel:    { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.text2 },
-  purposeLabelActive:{ color: '#7367F0' },
-  durationPreview: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#F0EEFF', borderRadius: radius.md, padding: 12, marginTop: 12, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
-  durationText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  purposeLabelActive:{ color: '#6FAFF2' },
+  durationPreview: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(59,139,232,0.14)', borderRadius: radius.md, padding: 12, marginTop: 12, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
+  durationText:    { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
   errorSlot:       { minHeight: 24, justifyContent: 'center' } as any,
-  errorBanner:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FEF2F2', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#FECACA' },
-  errorBannerText: { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#DC2626', flex: 1 },
+  errorBanner:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,107,107,0.10)', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: 'rgba(255,107,107,0.30)' },
+  errorBannerText: { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#FF6B6B', flex: 1 },
   saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 4 },
   saveBtnGrad:     { paddingVertical: 12, alignItems: 'center', borderRadius: radius.md },
-  saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#FFFFFF' },
+  saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
   addrInfoCard:        { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F0FDFF', borderRadius: 12, padding: 10, marginHorizontal: 16, marginTop: 2, borderWidth: 1.5, borderColor: '#A5F3FC' },
   addrInfoIconCircle:  { width: 36, height: 36, borderRadius: 18, backgroundColor: '#CFFAFE', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(8,145,178,0.25)', flexShrink: 0 },
   addrInfoTitle:       { fontSize: 12, fontFamily: 'Inter_700Bold', color: '#0E7490', marginBottom: 1 },
-  addrInfoSub:         { fontSize: 10, fontFamily: 'Inter_400Regular', color: '#0891B2', lineHeight: 14 },
+  addrInfoSub:         { fontSize: 10, fontFamily: 'Inter_400Regular', color: '#5B9AF5', lineHeight: 14 },
   addrFieldLabel:      { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: colors.text2, marginBottom: 2, letterSpacing: 0.2 },
-  addrFieldInput:      { backgroundColor: '#FFFFFF', borderRadius: 7, borderWidth: 1.5, borderColor: '#E2E8F0', paddingHorizontal: 10, paddingVertical: 6, fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text1 },
-  addrCurrentToggle:     { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F8FAFF', borderRadius: 10, padding: 8, marginTop: 4, marginBottom: 0, borderWidth: 1.5, borderColor: '#E2E8F0' },
+  addrFieldInput:      { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 7, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.10)', paddingHorizontal: 10, paddingVertical: 6, fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text1 },
+  addrCurrentToggle:     { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'transparent', borderRadius: 10, padding: 8, marginTop: 4, marginBottom: 0, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.10)' },
   addrCurrentToggleActive:{ backgroundColor: '#F0F9FF', borderColor: '#67E8F9' },
-  addrToggleBox:         { width: 26, height: 26, borderRadius: 8, backgroundColor: '#E2E8F0', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  addrToggleBoxActive:   { backgroundColor: '#0891B2' },
+  addrToggleBox:         { width: 26, height: 26, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.10)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  addrToggleBoxActive:   { backgroundColor: '#5B9AF5' },
   addrToggleLabel:       { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.text2 },
-  addrToggleSub:         { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#0891B2', marginTop: 2 },
-  addrCard:        { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14, gap: 10, borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden' as any } as any,
+  addrToggleSub:         { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#5B9AF5', marginTop: 2 },
+  addrCard:        { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 14, padding: 14, gap: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', overflow: 'hidden' as any } as any,
   addrStrip:       { width: 3, borderRadius: 2, position: 'absolute' as any, left: 0, top: 0, bottom: 0 } as any,
-  addrStreet:      { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#0F172A', flex: 1 },
-  addrCity:        { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#475569', marginTop: 2 },
-  addrCountryTxt:  { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#94A3B8', marginTop: 1 },
-  addrDates:       { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#0891B2', marginTop: 4 },
-  addrDeleteBtn:   { width: 32, height: 32, borderRadius: 8, backgroundColor: '#FEF2F2', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  currentBadge:    { backgroundColor: '#ECFDF5', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: '#A7F3D0' },
-  currentBadgeTxt: { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#059669' },
+  addrStreet:      { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF', flex: 1 },
+  addrCity:        { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.75)', marginTop: 2 },
+  addrCountryTxt:  { fontSize: 11, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.45)', marginTop: 1 },
+  addrDates:       { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#5B9AF5', marginTop: 4 },
+  addrDeleteBtn:   { width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,107,107,0.10)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  currentBadge:    { backgroundColor: 'rgba(76,217,138,0.10)', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: '#A7F3D0' },
+  currentBadgeTxt: { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#4CD98A' },
   emptyBox:        { alignItems: 'center', paddingVertical: 28, gap: 6 } as any,
-  emptyBoxTitle:   { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#0F172A' },
-  emptyBoxSub:     { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#94A3B8', textAlign: 'center' as any, lineHeight: 18 },
+  emptyBoxTitle:   { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#F0F4FF' },
+  emptyBoxSub:     { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.45)', textAlign: 'center' as any, lineHeight: 18 },
 });

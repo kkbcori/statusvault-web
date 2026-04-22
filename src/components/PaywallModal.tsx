@@ -56,7 +56,7 @@ export const PaywallModal: React.FC<Props> = ({ visible, onClose, onUnlock }) =>
 
         <View style={s.card}>
           {/* Dark header */}
-          <LinearGradient colors={['#030712', '#0F172A', '#1E1B4B']} style={s.header}>
+          <LinearGradient colors={['#030712', '#F0F4FF', '#0A1530']} style={s.header}>
             <View style={s.orb1} /><View style={s.orb2} />
 
             <TouchableOpacity style={s.closeBtn} onPress={onClose}>
@@ -64,7 +64,7 @@ export const PaywallModal: React.FC<Props> = ({ visible, onClose, onUnlock }) =>
             </TouchableOpacity>
 
             <View style={s.iconWrap}>
-              <LinearGradient colors={['#4F46E5', '#7C3AED']} style={s.iconGrad}>
+              <LinearGradient colors={['#6FAFF2', '#3B8BE8']} style={s.iconGrad}>
                 <Ionicons name="shield-checkmark" size={26} color="#fff" />
               </LinearGradient>
             </View>
@@ -124,7 +124,7 @@ export const PaywallModal: React.FC<Props> = ({ visible, onClose, onUnlock }) =>
 
             {/* CTA */}
             <TouchableOpacity style={s.cta} onPress={onUnlock} activeOpacity={0.88}>
-              <LinearGradient colors={['#4F46E5', '#7C3AED']} style={s.ctaGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+              <LinearGradient colors={['#6FAFF2', '#3B8BE8']} style={s.ctaGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                 <Ionicons name="star" size={15} color="#FCD34D" />
                 <Text style={s.ctaTxt}>
                   Unlock Premium — {selected.price}{plan === 'monthly' ? '/mo' : '/yr'}
@@ -150,37 +150,37 @@ const s = StyleSheet.create({
   closeBtn:   { position: 'absolute' as any, top: 14, right: 14, width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
   iconWrap:   { marginBottom: 12 },
   iconGrad:   { width: 56, height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  eyebrow:    { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#A5B4FC', letterSpacing: 2, marginBottom: 8 },
-  title:      { fontSize: 24, fontFamily: 'Inter_900Black', color: '#F8FAFF', textAlign: 'center', letterSpacing: -0.5, lineHeight: 30, marginBottom: 10 },
-  titleUnderline: { width: 40, height: 3, backgroundColor: '#4F46E5', borderRadius: 2, marginBottom: 10 },
+  eyebrow:    { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#6FAFF2', letterSpacing: 2, marginBottom: 8 },
+  title:      { fontSize: 24, fontFamily: 'Inter_900Black', color: '#F0F4FF', textAlign: 'center', letterSpacing: -0.5, lineHeight: 30, marginBottom: 10 },
+  titleUnderline: { width: 40, height: 3, backgroundColor: '#6FAFF2', borderRadius: 2, marginBottom: 10 },
   subtitle:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.60)', textAlign: 'center' },
 
-  body:       { backgroundColor: '#FFFFFF', padding: 20 },
+  body:       { backgroundColor: 'rgba(255,255,255,0.05)', padding: 20 },
 
   // Plan selector
   planRow:    { flexDirection: 'row', gap: 10, marginBottom: 8 } as any,
-  planCard:   { flex: 1, borderWidth: 1.5, borderColor: '#E2E8F0', borderRadius: 14, padding: 12, alignItems: 'center', position: 'relative' as any, backgroundColor: '#FAFBFF' } as any,
-  planCardActive: { borderColor: '#4F46E5', backgroundColor: '#EEF2FF' },
-  planBadge:  { position: 'absolute' as any, top: -10, backgroundColor: '#4F46E5', borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
+  planCard:   { flex: 1, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.10)', borderRadius: 14, padding: 12, alignItems: 'center', position: 'relative' as any, backgroundColor: 'rgba(255,255,255,0.05)' } as any,
+  planCardActive: { borderColor: '#6FAFF2', backgroundColor: 'rgba(59,139,232,0.14)' },
+  planBadge:  { position: 'absolute' as any, top: -10, backgroundColor: '#6FAFF2', borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
   planBadgeTxt:{ fontSize: 8, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: 0.8 },
-  planLabel:  { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#64748B', marginBottom: 4, marginTop: 4 },
-  planLabelActive: { color: '#4F46E5' },
-  planPrice:  { fontSize: 26, fontFamily: 'Inter_900Black', color: '#0F172A', letterSpacing: -1 },
-  planPriceActive: { color: '#4F46E5' },
-  planPeriod: { fontSize: 10, fontFamily: 'Inter_400Regular', color: '#94A3B8', marginTop: 2 },
+  planLabel:  { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: 'rgba(240,244,255,0.55)', marginBottom: 4, marginTop: 4 },
+  planLabelActive: { color: '#6FAFF2' },
+  planPrice:  { fontSize: 26, fontFamily: 'Inter_900Black', color: '#F0F4FF', letterSpacing: -1 },
+  planPriceActive: { color: '#6FAFF2' },
+  planPeriod: { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.45)', marginTop: 2 },
   planPeriodActive: { color: '#6366F1' },
   planCheck:  { position: 'absolute' as any, top: 8, right: 8 },
-  planNote:   { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#64748B', textAlign: 'center', marginBottom: 14 },
+  planNote:   { fontSize: 11, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.55)', textAlign: 'center', marginBottom: 14 },
 
   // Features
   featureList:{ marginBottom: 14, gap: 2 } as any,
   featureRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 5 },
-  featureCheck2:{ width: 20, height: 20, borderRadius: 10, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#C7D2FE' },
-  featureText:{ fontSize: 12, fontFamily: 'Inter_500Medium', color: '#0F172A', flex: 1 },
+  featureCheck2:{ width: 20, height: 20, borderRadius: 10, backgroundColor: 'rgba(59,139,232,0.14)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(111,175,242,0.30)' },
+  featureText:{ fontSize: 12, fontFamily: 'Inter_500Medium', color: '#F0F4FF', flex: 1 },
 
   // CTA
   cta:        { borderRadius: 12, overflow: 'hidden', marginBottom: 10 },
   ctaGrad:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14 },
   ctaTxt:     { fontSize: 15, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: 0.2 },
-  legal:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#94A3B8', textAlign: 'center' },
+  legal:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.45)', textAlign: 'center' },
 });

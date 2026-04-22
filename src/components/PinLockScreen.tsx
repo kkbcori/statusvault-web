@@ -131,7 +131,7 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = ({ onUnlock, verifyPi
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   passportLines: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-  passportLine: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: '#fff' },
+  passportLine: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: 'rgba(255,255,255,0.05)' },
   content: { alignItems: 'center', paddingHorizontal: 40 },
   lockIcon: {
     width: 72, height: 72, borderRadius: 36,

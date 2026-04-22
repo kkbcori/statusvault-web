@@ -159,7 +159,7 @@ export const ProcessingScreen: React.FC = () => {
         <Ionicons name="information-circle-outline" size={14} color={colors.warning} />
         <Text style={styles.disclaimerText}>
           These are estimates based on published USCIS data. Actual times vary. Always check{' '}
-          <Text style={{ color: '#7367F0' }} onPress={() => Linking.openURL('https://egov.uscis.gov/processing-times/').catch(() => {})}>
+          <Text style={{ color: '#6FAFF2' }} onPress={() => Linking.openURL('https://egov.uscis.gov/processing-times/').catch(() => {})}>
             egov.uscis.gov
           </Text>{' '}
           for your specific case.
@@ -221,7 +221,7 @@ export const ProcessingScreen: React.FC = () => {
                     style={styles.checkLiveBtn}
                     onPress={() => Linking.openURL(entry.officialUrl).catch(() => {})}
                   >
-                    <Ionicons name="open-outline" size={13} color={'#7367F0'} />
+                    <Ionicons name="open-outline" size={13} color={'#6FAFF2'} />
                     <Text style={styles.checkLiveText}>Check live times on USCIS.gov</Text>
                   </TouchableOpacity>
                 </View>
@@ -237,7 +237,7 @@ export const ProcessingScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container:      { flex: 1, backgroundColor: '#F4F5FA', overflowY: IS_WEB ? 'auto' as any : undefined },
+  container:      { flex: 1, backgroundColor: 'transparent', overflowY: IS_WEB ? 'auto' as any : undefined },
   content:        { paddingBottom: 40 },
   contentWeb:     { paddingHorizontal: 28, paddingTop: 24 },
   header:         { backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border, padding: spacing.xl, paddingTop: spacing.xxl + 16 },
@@ -247,23 +247,23 @@ const styles = StyleSheet.create({
   webHero:        { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.lg },
   webTitle:       { fontSize: 22, fontFamily: 'Inter_800ExtraBold', color: colors.text1, letterSpacing: -0.4 },
   webSub:         { ...typography.caption, color: colors.text3, marginTop: 3 },
-  liveBtn:        { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F0EEFF', paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
-  liveBtnText:    { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  liveBtn:        { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(59,139,232,0.14)', paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)' },
+  liveBtnText:    { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
   disclaimer:     { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: colors.warningLight, borderRadius: radius.md, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginVertical: spacing.md, padding: spacing.md, borderWidth: 1, borderColor: colors.warning + '30' },
-  disclaimerText: { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#78350F', lineHeight: 18 },
+  disclaimerText: { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(245,192,83,0.85)', lineHeight: 18 },
   filterScroll:   { marginBottom: spacing.md },
   filterRow:      { paddingHorizontal: IS_WEB ? 0 : spacing.screen, gap: 8 },
-  filterChip:     { paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.full, backgroundColor: colors.card, borderWidth: 1, borderColor: '#DBDADE' },
-  filterChipActive:{ backgroundColor: '#7367F0', borderColor: '#7367F0' },
+  filterChip:     { paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.full, backgroundColor: colors.card, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)' },
+  filterChipActive:{ backgroundColor: '#6FAFF2', borderColor: '#6FAFF2' },
   filterText:     { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.text2 },
   filterTextActive:{ color: '#fff', fontFamily: 'Inter_700Bold' },
   grid:           { paddingHorizontal: spacing.screen, gap: spacing.md },
   gridWeb:        { paddingHorizontal: 0, display: 'flex' as any, flexDirection: 'column' as any },
-  card:           { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 0, overflow: 'hidden', ...shadows.sm },
+  card:           { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12, borderWidth: 0, overflow: 'hidden', ...shadows.sm },
   cardHeader:     { flexDirection: 'row', alignItems: 'center', gap: 12, padding: spacing.lg },
-  cardIcon:       { width: 44, height: 44, borderRadius: 12, backgroundColor: '#F4F5FA', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DBDADE' },
+  cardIcon:       { width: 44, height: 44, borderRadius: 12, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)' },
   formRow:        { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-  formBadge:      { backgroundColor: '#7367F0', borderRadius: 4, paddingHorizontal: 7, paddingVertical: 2 },
+  formBadge:      { backgroundColor: '#6FAFF2', borderRadius: 4, paddingHorizontal: 7, paddingVertical: 2 },
   formBadgeText:  { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#fff', letterSpacing: 0.3 },
   catTag:         { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3 },
   cardTitle:      { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: colors.text1 },
@@ -276,5 +276,5 @@ const styles = StyleSheet.create({
   timeBadge:      { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.full },
   timeValue:      { fontSize: 12, fontFamily: 'Inter_700Bold' },
   checkLiveBtn:   { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12, alignSelf: 'center' },
-  checkLiveText:  { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  checkLiveText:  { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
 });

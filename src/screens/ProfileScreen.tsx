@@ -38,8 +38,8 @@ const Input = ({ value, onChange, placeholder, type, mono }: {
       width: '100%', padding: '9px 12px', fontSize: '13px',
       fontFamily: mono ? 'monospace' : 'Inter, sans-serif',
       border: '1px solid #DBDADE', borderRadius: '8px',
-      background: '#FAFAFE', outline: 'none', boxSizing: 'border-box',
-      color: '#0F172A',
+      background: 'rgba(76,217,138,0.06)', outline: 'none', boxSizing: 'border-box',
+      color: '#F0F4FF',
     } as any}
   />
 ) : (
@@ -52,8 +52,8 @@ const Select = ({ value, options, onChange }: { value: string; options: string[]
   IS_WEB ? (
     <select value={value} onChange={(e: any) => onChange(e.target.value)} style={{
       width: '100%', padding: '9px 12px', fontSize: '13px', fontFamily: 'Inter, sans-serif',
-      border: '1px solid #DBDADE', borderRadius: '8px', background: '#FAFAFE',
-      outline: 'none', cursor: 'pointer', color: '#0F172A',
+      border: '1px solid #DBDADE', borderRadius: '8px', background: 'rgba(76,217,138,0.06)',
+      outline: 'none', cursor: 'pointer', color: '#F0F4FF',
     } as any}>
       {options.map(o => <option key={o}>{o}</option>)}
     </select>
@@ -74,8 +74,8 @@ const DateInput = ({ value, onChange, placeholder }: { value: string; onChange: 
   IS_WEB ? (
     <input type="date" value={value} onChange={(e: any) => onChange(e.target.value)} style={{
       width: '100%', padding: '12px 14px', fontSize: '15px', fontFamily: 'Inter_400Regular',
-      border: '1.5px solid #E5E7EB', borderRadius: '10px', backgroundColor: '#fff',
-      outline: 'none', cursor: 'pointer', boxSizing: 'border-box', color: '#111827',
+      border: '1.5px solid #E5E7EB', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)',
+      outline: 'none', cursor: 'pointer', boxSizing: 'border-box', color: '#F0F4FF',
     } as any} />
   ) : (
     <TextInput style={s.input} value={value} onChangeText={onChange}
@@ -86,8 +86,8 @@ const MonthInput = ({ value, onChange }: { value: string; onChange: (v: string) 
   IS_WEB ? (
     <input type="month" value={value} onChange={(e: any) => onChange(e.target.value)} style={{
       width: '100%', padding: '9px 12px', fontSize: '13px', fontFamily: 'Inter, sans-serif',
-      border: '1px solid #DBDADE', borderRadius: '8px', background: '#FAFAFE',
-      outline: 'none', boxSizing: 'border-box', color: '#0F172A',
+      border: '1px solid #DBDADE', borderRadius: '8px', background: 'rgba(76,217,138,0.06)',
+      outline: 'none', boxSizing: 'border-box', color: '#F0F4FF',
     } as any} />
   ) : (
     <TextInput style={s.input} value={value} onChangeText={onChange}
@@ -175,7 +175,7 @@ export const ProfileScreen: React.FC<{ visible?: boolean; onClose?: () => void }
         {/* Progress pips */}
         <View style={s.pips}>
           {[1,2,3].map(i => (
-            <View key={i} style={[s.pip, { backgroundColor: i <= progress ? '#4F46E5' : '#E2E8F0', width: i <= progress ? 28 : 16 }]} />
+            <View key={i} style={[s.pip, { backgroundColor: i <= progress ? '#6FAFF2' : 'rgba(255,255,255,0.10)', width: i <= progress ? 28 : 16 }]} />
           ))}
         </View>
         {onClose && (
@@ -200,7 +200,7 @@ export const ProfileScreen: React.FC<{ visible?: boolean; onClose?: () => void }
             </TouchableOpacity>
           </>
         ) : (
-          <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: '#64748B' }}>
+          <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)' }}>
             Sign in to sync profile across devices
           </Text>
         )}
@@ -289,7 +289,7 @@ export const ProfileScreen: React.FC<{ visible?: boolean; onClose?: () => void }
         ) : <View style={{ flex: 1 }} />}
 
         <TouchableOpacity
-          style={[s.footerSave, { backgroundColor: saved ? '#28C76F' : '#4F46E5' }]}
+          style={[s.footerSave, { backgroundColor: saved ? '#4CD98A' : '#6FAFF2' }]}
           onPress={tab === 3 ? handleSave : () => { handleSave(); setTab((tab + 1) as Tab); }}
         >
           <Ionicons name={saved ? 'checkmark-circle' : 'save-outline'} size={16} color="#fff" />
@@ -326,43 +326,43 @@ export const ProfileScreen: React.FC<{ visible?: boolean; onClose?: () => void }
 const s = StyleSheet.create({
   overlay:    { position: 'fixed' as any, inset: 0, zIndex: 2000, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(47,51,73,0.5)' } as any,
   backdrop:   { position: 'absolute' as any, inset: 0 } as any,
-  panel:      { width: '100%', maxWidth: 520, maxHeight: '90%' as any, backgroundColor: '#FFFFFF', borderRadius: 16, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', zIndex: 1, ...Platform.select({ web: { boxShadow: '0 8px 40px rgba(47,43,61,0.20)' } as any }) } as any,
+  panel:      { width: '100%', maxWidth: 520, maxHeight: '90%' as any, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 16, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', zIndex: 1, ...Platform.select({ web: { boxShadow: '0 8px 40px rgba(47,43,61,0.20)' } as any }) } as any,
   sheet:      { flex: 1, display: 'flex' as any, flexDirection: 'column' },
-  header:     { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 20, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
-  headerTitle:{ fontSize: 16, fontFamily: 'Inter_700Bold', color: '#0F172A' },
-  headerSub:  { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#ACAEC5', marginTop: 2 },
+  header:     { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 20, borderBottomWidth: 1, borderBottomColor: 'transparent' },
+  headerTitle:{ fontSize: 16, fontFamily: 'Inter_700Bold', color: '#F0F4FF' },
+  headerSub:  { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.35)', marginTop: 2 },
   pips:       { flexDirection: 'row', gap: 4, alignItems: 'center' },
   pip:        { height: 5, borderRadius: 3 },
-  closeBtn:   { width: 32, height: 32, borderRadius: 8, backgroundColor: '#F4F5FA', alignItems: 'center', justifyContent: 'center' },
-  authRow:    { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 12, backgroundColor: '#FAFAFE', borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
-  avatar:     { width: 30, height: 30, borderRadius: 15, backgroundColor: '#4F46E5', alignItems: 'center', justifyContent: 'center' },
+  closeBtn:   { width: 32, height: 32, borderRadius: 8, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
+  authRow:    { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 12, backgroundColor: 'rgba(76,217,138,0.06)', borderBottomWidth: 1, borderBottomColor: 'transparent' },
+  avatar:     { width: 30, height: 30, borderRadius: 15, backgroundColor: '#6FAFF2', alignItems: 'center', justifyContent: 'center' },
   avatarTxt:  { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#fff' },
-  authEmail:  { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#0F172A' },
-  authPlan:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 1 },
-  signOutBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#FFEEEE', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5 },
-  signOutTxt: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#EA5455' },
-  tabs:       { flexDirection: 'row', padding: 10, gap: 6, borderBottomWidth: 1, borderBottomColor: '#F4F5FA' },
+  authEmail:  { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF' },
+  authPlan:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', marginTop: 1 },
+  signOutBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(255,107,107,0.10)', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5 },
+  signOutTxt: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#FF6B6B' },
+  tabs:       { flexDirection: 'row', padding: 10, gap: 6, borderBottomWidth: 1, borderBottomColor: 'transparent' },
   tabBtn:     { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 8, borderRadius: 8, position: 'relative' as any },
-  tabBtnOn:   { backgroundColor: '#4F46E5' },
+  tabBtnOn:   { backgroundColor: '#6FAFF2' },
   tabIcon:    { fontSize: 13 },
-  tabTxt:     { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#64748B' },
+  tabTxt:     { fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.55)' },
   tabTxtOn:   { color: '#fff', fontFamily: 'Inter_600SemiBold' },
-  tabDot:     { position: 'absolute' as any, top: 5, right: 8, width: 6, height: 6, borderRadius: 3, backgroundColor: '#28C76F' },
+  tabDot:     { position: 'absolute' as any, top: 5, right: 8, width: 6, height: 6, borderRadius: 3, backgroundColor: '#4CD98A' },
   body:       { padding: 20, gap: 14 } as any,
   row2:       { flexDirection: 'row', gap: 12 } as any,
   field:      { flex: 1, gap: 5 } as any,
-  flabel:     { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#64748B', letterSpacing: 0.3 },
-  fhint:      { fontSize: 10, fontFamily: 'Inter_400Regular', color: '#ACAEC5' },
-  input:      { height: 38, backgroundColor: '#FAFAFE', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 8, paddingHorizontal: 12, fontSize: 13, fontFamily: 'Inter_400Regular', color: '#0F172A' },
-  chip:       { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#E2E8F0' },
-  chipOn:     { backgroundColor: '#EEF2FF', borderColor: '#4F46E5' },
-  chipTxt:    { fontSize: 11, fontFamily: 'Inter_500Medium', color: '#64748B' },
-  chipTxtOn:  { color: '#4F46E5', fontFamily: 'Inter_700Bold' },
-  infoBox:    { flexDirection: 'row', gap: 8, backgroundColor: '#EAFFF4', borderRadius: 8, padding: 12, borderWidth: 1, borderColor: '#D1FAE5' },
-  infoTxt:    { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#065F46', lineHeight: 17 },
-  footer:     { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 16, borderTopWidth: 1, borderTopColor: '#F4F5FA' },
-  footerBack: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: '#F4F5FA', borderWidth: 1, borderColor: '#E2E8F0' },
-  footerBackTxt:{ fontSize: 13, fontFamily: 'Inter_500Medium', color: '#64748B' },
+  flabel:     { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: 'rgba(240,244,255,0.55)', letterSpacing: 0.3 },
+  fhint:      { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.35)' },
+  input:      { height: 38, backgroundColor: 'rgba(76,217,138,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', borderRadius: 8, paddingHorizontal: 12, fontSize: 13, fontFamily: 'Inter_400Regular', color: '#F0F4FF' },
+  chip:       { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)' },
+  chipOn:     { backgroundColor: 'rgba(59,139,232,0.14)', borderColor: '#6FAFF2' },
+  chipTxt:    { fontSize: 11, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.55)' },
+  chipTxtOn:  { color: '#6FAFF2', fontFamily: 'Inter_700Bold' },
+  infoBox:    { flexDirection: 'row', gap: 8, backgroundColor: 'rgba(76,217,138,0.10)', borderRadius: 8, padding: 12, borderWidth: 1, borderColor: '#D1FAE5' },
+  infoTxt:    { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#4CD98A', lineHeight: 17 },
+  footer:     { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 16, borderTopWidth: 1, borderTopColor: 'transparent' },
+  footerBack: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)' },
+  footerBackTxt:{ fontSize: 13, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.55)' },
   footerSave: { flex: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, paddingVertical: 11, borderRadius: 8 },
   footerSaveTxt:{ fontSize: 13, fontFamily: 'Inter_700Bold', color: '#fff' },
 });

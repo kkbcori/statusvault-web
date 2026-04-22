@@ -151,10 +151,10 @@ Do not include any PII warnings or disclaimers — just the JSON.`,
       contentContainerStyle={[styles.content, IS_WEB && styles.contentWeb]}
       showsVerticalScrollIndicator={true}
     >
-      <View style={{ margin: 20, padding: 20, backgroundColor: '#FEF3C7', borderRadius: 12, borderWidth: 1, borderColor: '#F59E0B', alignItems: 'center', gap: 10 } as any}>
+      <View style={{ margin: 20, padding: 20, backgroundColor: 'rgba(245,192,83,0.12)', borderRadius: 12, borderWidth: 1, borderColor: '#F59E0B', alignItems: 'center', gap: 10 } as any}>
         <Ionicons name="construct-outline" size={28} color="#D97706" />
-        <Text style={{ fontSize: 16, fontFamily: 'Inter_700Bold', color: '#92400E', textAlign: 'center' }}>Scanner Coming Soon</Text>
-        <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: '#B45309', textAlign: 'center', lineHeight: 20 }}>
+        <Text style={{ fontSize: 16, fontFamily: 'Inter_700Bold', color: '#F5C053', textAlign: 'center' }}>Scanner Coming Soon</Text>
+        <Text style={{ fontSize: 13, fontFamily: 'Inter_400Regular', color: '#CC9628', textAlign: 'center', lineHeight: 20 }}>
           Document scanning is being upgraded. In the meantime, add documents manually from the Documents tab.
         </Text>
       </View>
@@ -197,7 +197,7 @@ Do not include any PII warnings or disclaimers — just the JSON.`,
             )}
             <label style={{ cursor: 'pointer', display: 'block', marginTop: 12 } as any}>
               <View style={styles.browseBtn}>
-                <Ionicons name="folder-open-outline" size={16} color={'#7367F0'} />
+                <Ionicons name="folder-open-outline" size={16} color={'#6FAFF2'} />
                 <Text style={styles.browseBtnText}>{imagePreview ? 'Change photo' : 'Select photo'}</Text>
               </View>
               <input type="file" accept="image/*" onChange={handleFileSelect} style={{ display: 'none' } as any} />
@@ -224,7 +224,7 @@ Do not include any PII warnings or disclaimers — just the JSON.`,
 
       {scanning && (
         <View style={styles.scanningWrap}>
-          <ActivityIndicator size="large" color={'#7367F0'} />
+          <ActivityIndicator size="large" color={'#6FAFF2'} />
           <Text style={styles.scanningText}>Reading document...</Text>
         </View>
       )}
@@ -295,7 +295,7 @@ Do not include any PII warnings or disclaimers — just the JSON.`,
 };
 
 const styles = StyleSheet.create({
-  container:       { flex: 1, backgroundColor: '#F4F5FA' },
+  container:       { flex: 1, backgroundColor: 'transparent' },
   content:         { paddingBottom: 40 },
   contentWeb:      { paddingHorizontal: 28, paddingTop: 24 },
   header:          { backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border, padding: spacing.xl, paddingTop: spacing.xxl + 16 },
@@ -303,18 +303,18 @@ const styles = StyleSheet.create({
   headerTitle:     { ...typography.h1, color: colors.text1, fontSize: 22 },
   headerSub:       { ...typography.caption, color: colors.text3, marginTop: 3 },
   webHero:         { marginBottom: spacing.lg },
-  webTitle:        { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#0F172A', letterSpacing: -0.5 },
+  webTitle:        { fontSize: 22, fontFamily: 'Inter_700Bold', color: '#F0F4FF', letterSpacing: -0.5 },
   webSub:          { ...typography.caption, color: colors.text3, marginTop: 4, maxWidth: 500 },
   privacyNote:     { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: colors.successLight, borderRadius: radius.md, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginVertical: spacing.md, padding: spacing.md, borderWidth: 1, borderColor: colors.success + '30' },
-  privacyText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#065F46', lineHeight: 18 },
-  uploadCard:      { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: IS_WEB ? 0 : spacing.screen, borderWidth: 1, borderColor: '#DBDADE', overflow: 'hidden', ...shadows.sm },
+  privacyText:     { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#4CD98A', lineHeight: 18 },
+  uploadCard:      { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: IS_WEB ? 0 : spacing.screen, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', overflow: 'hidden', ...shadows.sm },
   uploadArea:      { padding: spacing.xxl, alignItems: 'center' },
   previewWrap:     { width: '100%', alignItems: 'center', marginBottom: 8 },
   uploadPlaceholder:{ alignItems: 'center', gap: 10, paddingVertical: 30 },
   uploadTitle:     { fontSize: 16, fontFamily: 'Inter_600SemiBold', color: colors.text1 },
   uploadSub:       { fontSize: 13, fontFamily: 'Inter_400Regular', color: colors.text3 },
-  browseBtn:       { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, paddingVertical: 10, borderRadius: radius.full, borderWidth: 1.5, borderColor: '#7367F0', backgroundColor: '#F0EEFF', alignSelf: 'center' },
-  browseBtnText:   { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  browseBtn:       { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, paddingVertical: 10, borderRadius: radius.full, borderWidth: 1.5, borderColor: '#6FAFF2', backgroundColor: 'rgba(59,139,232,0.14)', alignSelf: 'center' },
+  browseBtnText:   { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
   nativeUpload:    { padding: 40, alignItems: 'center', gap: 10 },
   scanBtn:         { marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: spacing.lg, borderRadius: radius.lg, overflow: 'hidden' },
   scanBtnGrad:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16 },
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   scanningText:    { fontSize: 14, fontFamily: 'Inter_500Medium', color: colors.text2 },
   errorCard:       { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: colors.dangerLight, borderRadius: radius.lg, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: spacing.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.danger + '30' },
   errorText:       { flex: 1, fontSize: 13, fontFamily: 'Inter_400Regular', color: colors.danger, lineHeight: 20 },
-  resultCard:      { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: spacing.lg, borderWidth: 1, borderColor: '#DBDADE', overflow: 'hidden', ...shadows.md },
+  resultCard:      { backgroundColor: colors.card, borderRadius: radius.xl, marginHorizontal: IS_WEB ? 0 : spacing.screen, marginTop: spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', overflow: 'hidden', ...shadows.md },
   resultHeader:    { flexDirection: 'row', alignItems: 'center', gap: 10, padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   resultTitle:     { flex: 1, fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },
   confidenceBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.full },
@@ -337,5 +337,5 @@ const styles = StyleSheet.create({
   savedBadge:      { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.successLight, margin: spacing.lg, padding: spacing.md, borderRadius: radius.md },
   savedText:       { flex: 1, fontSize: 13, fontFamily: 'Inter_500Medium', color: colors.success, lineHeight: 19 },
   rescanBtn:       { alignItems: 'center', paddingVertical: spacing.lg },
-  rescanText:      { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
+  rescanText:      { fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
 });

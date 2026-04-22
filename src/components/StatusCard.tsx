@@ -121,7 +121,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({ deadline, totalDocs, dea
       </View>
       <View style={styles.darkBody}>
         <View>
-          <Text style={[styles.darkNumber, { color: isExpired ? colors.danger : '#fff' }]}>
+          <Text style={[styles.darkNumber, { color: isExpired ? colors.danger : 'rgba(255,255,255,0.05)' }]}>
             {Math.abs(deadline.daysRemaining)}
           </Text>
           <Text style={styles.darkUnit}>{isExpired ? 'days overdue' : 'days remaining'}</Text>
@@ -138,7 +138,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({ deadline, totalDocs, dea
 };
 
 const styles = StyleSheet.create({
-  emptyTile:     { backgroundColor: '#FFFFFF', borderRadius: 12, marginHorizontal: spacing.screen, marginTop: spacing.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.xl, ...shadows.sm },
+  emptyTile:     { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12, marginHorizontal: spacing.screen, marginTop: spacing.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.xl, ...shadows.sm },
   emptyTop:      { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: spacing.md },
   emptyIconBox:  { width: 48, height: 48, borderRadius: 12, backgroundColor: colors.accentDim, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGold, flexShrink: 0 },
   emptyTitle:    { fontSize: 15, fontFamily: 'Inter_700Bold', color: colors.text1 },

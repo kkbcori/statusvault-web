@@ -64,7 +64,7 @@ export const SearchModal: React.FC<Props> = ({ visible, onClose }) => {
         const expired = days < 0;
         const critical = !expired && days < 30;
         const badge = expired ? 'Expired' : critical ? `${days}d` : `${days}d`;
-        const badgeColor = expired ? '#DC2626' : critical ? '#D97706' : '#059669';
+        const badgeColor = expired ? '#FF6B6B' : critical ? '#F5C053' : '#4CD98A';
         out.push({ id: d.id, type: 'document', icon: d.icon, title: d.label,
           subtitle: `Expires ${d.expiryDate}`, badge, badgeColor, screen: 'Documents' });
       }
@@ -77,7 +77,7 @@ export const SearchModal: React.FC<Props> = ({ visible, onClose }) => {
         out.push({ id: cl.templateId, type: 'checklist', icon: cl.icon || '✅',
           title: cl.label, subtitle: `${done}/${cl.items.length} steps done`,
           badge: cl.items.length > 0 ? `${Math.round((done / cl.items.length) * 100)}%` : '0%',
-          badgeColor: done === cl.items.length ? '#059669' : '#4F46E5', screen: 'Checklist' });
+          badgeColor: done === cl.items.length ? '#4CD98A' : '#6FAFF2', screen: 'Checklist' });
       }
     });
 
@@ -102,7 +102,7 @@ export const SearchModal: React.FC<Props> = ({ visible, onClose }) => {
       if (link.label.toLowerCase().includes(q) || link.section.toLowerCase().includes(q)) {
         out.push({ id: `link-${i}`, type: 'link', icon: '🔗',
           title: link.label, subtitle: link.section + ' · gov.link',
-          badge: 'GOV', badgeColor: '#0891B2', screen: 'VisaTools' });
+          badge: 'GOV', badgeColor: '#5B9AF5', screen: 'VisaTools' });
       }
     });
 
@@ -133,7 +133,7 @@ export const SearchModal: React.FC<Props> = ({ visible, onClose }) => {
             placeholder="Search documents, checklists, family, links..."
             style={{
               flex: 1, border: 'none', outline: 'none', fontSize: '15px',
-              fontFamily: 'Inter, sans-serif', color: '#0F172A', background: 'transparent',
+              fontFamily: 'Inter, sans-serif', color: '#F0F4FF', background: 'transparent',
               width: '100%',
             } as any}
           />
@@ -217,25 +217,25 @@ const s = StyleSheet.create({
   overlay:     { position: 'absolute' as any, inset: 0, zIndex: 5000, alignItems: 'center', justifyContent: 'flex-start', paddingTop: 60 } as any,
   backdrop:    { position: 'absolute' as any, inset: 0, backgroundColor: 'rgba(15,23,42,0.60)' } as any,
   centered:    { width: '100%', maxWidth: 540, zIndex: 1, paddingHorizontal: 16 } as any,
-  sheet:       { backgroundColor: '#FFFFFF', borderRadius: 16, overflow: 'hidden', maxHeight: 520, ...Platform.select({ web: { boxShadow: '0 16px 48px rgba(15,23,42,0.18)' } as any }) } as any,
-  searchRow:   { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+  sheet:       { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 16, overflow: 'hidden', maxHeight: 520, ...Platform.select({ web: { boxShadow: '0 16px 48px rgba(15,23,42,0.18)' } as any }) } as any,
+  searchRow:   { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
   cancelBtn:   { paddingLeft: 12 },
-  cancelTxt:   { fontSize: 14, fontFamily: 'Inter_500Medium', color: '#4F46E5' },
+  cancelTxt:   { fontSize: 14, fontFamily: 'Inter_500Medium', color: '#6FAFF2' },
   results:     { maxHeight: 440 },
   empty:       { alignItems: 'center', paddingVertical: 40, gap: 8 } as any,
-  emptyTxt:    { fontSize: 15, fontFamily: 'Inter_600SemiBold', color: '#334155' },
-  emptyHint:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#94A3B8', textAlign: 'center', paddingHorizontal: 24 },
+  emptyTxt:    { fontSize: 15, fontFamily: 'Inter_600SemiBold', color: 'rgba(240,244,255,0.80)' },
+  emptyHint:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.45)', textAlign: 'center', paddingHorizontal: 24 },
   hint:        { padding: 20 },
-  hintTxt:     { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#64748B', lineHeight: 20, marginBottom: 14 },
+  hintTxt:     { fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', lineHeight: 20, marginBottom: 14 },
   suggestions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 } as any,
-  chip:        { backgroundColor: '#EEF2FF', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: '#C7D2FE' },
-  chipTxt:     { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#4F46E5' },
-  resultCount: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#94A3B8', letterSpacing: 0.5, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4, textTransform: 'uppercase' as any },
-  resultRow:   { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F8FAFF' },
-  resultIcon:  { width: 40, height: 40, borderRadius: 10, backgroundColor: '#F8FAFF', alignItems: 'center', justifyContent: 'center' },
-  resultTitle: { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#0F172A' },
-  resultSub:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#64748B', marginTop: 1 },
+  chip:        { backgroundColor: 'rgba(59,139,232,0.14)', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: 'rgba(111,175,242,0.30)' },
+  chipTxt:     { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
+  resultCount: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: 'rgba(240,244,255,0.45)', letterSpacing: 0.5, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4, textTransform: 'uppercase' as any },
+  resultRow:   { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'transparent' },
+  resultIcon:  { width: 40, height: 40, borderRadius: 10, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
+  resultTitle: { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF' },
+  resultSub:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', marginTop: 1 },
   badge:       { borderRadius: 5, paddingHorizontal: 7, paddingVertical: 2 },
   badgeTxt:    { fontSize: 10, fontFamily: 'Inter_700Bold' },
-  typeLabel:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: '#94A3B8' },
+  typeLabel:   { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.45)' },
 });

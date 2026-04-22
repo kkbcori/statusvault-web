@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../store';
 import { IS_WEB } from '../utils/responsive';
 import { supabase } from '../utils/supabase';
+import { colors } from '../theme';
 
 interface Props {
   visible: boolean;
@@ -18,9 +19,7 @@ interface Props {
 
 type Mode = 'magic' | 'password' | 'set-password';
 
-// ── Cross-platform text input ─────────────────────────────────
-// Web: HTML <input> for native browser behaviour (autofill, password managers)
-// Native: React Native TextInput
+// ── Cross-platform inputs ─────────────────────────────────────
 const EmailInput = ({ value, onChange, onSubmit }: { value: string; onChange: (v: string) => void; onSubmit?: () => void }) =>
   IS_WEB ? (
     <input
@@ -33,7 +32,7 @@ const EmailInput = ({ value, onChange, onSubmit }: { value: string; onChange: (v
   ) : (
     <TextInput
       style={s.nativeInput} value={value} onChangeText={onChange}
-      placeholder="you@email.com" placeholderTextColor="#94A3B8"
+      placeholder="you@email.com" placeholderTextColor="rgba(240,244,255,0.40)"
       keyboardType="email-address" autoCapitalize="none" autoCorrect={false}
       returnKeyType="done" onSubmitEditing={onSubmit}
     />
@@ -54,17 +53,17 @@ const PasswordInput = ({ value, onChange, onSubmit, showPwd, placeholder }: {
   ) : (
     <TextInput
       style={s.nativeInput} value={value} onChangeText={onChange}
-      placeholder={placeholder ?? 'Your password'} placeholderTextColor="#94A3B8"
+      placeholder={placeholder ?? 'Your password'} placeholderTextColor="rgba(240,244,255,0.40)"
       secureTextEntry={!showPwd} autoCapitalize="none" autoCorrect={false}
       returnKeyType="done" onSubmitEditing={onSubmit}
     />
   );
 
 export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, message }) => {
-  const sendMagicLink      = useStore(s => s.sendMagicLink);
-  const signInWithPassword = useStore(s => s.signInWithPassword);
-  const setPassword        = useStore(s => s.setPassword);
-  const authUser           = useStore(s => s.authUser);
+  const sendMagicLink      = useStore((s) => s.sendMagicLink);
+  const signInWithPassword = useStore((s) => s.signInWithPassword);
+  const setPassword        = useStore((s) => s.setPassword);
+  const authUser           = useStore((s) => s.authUser);
 
   const [mode,       setMode]       = useState<Mode>('magic');
   const [email,      setEmail]      = useState('');
@@ -87,7 +86,6 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
   const handleGoogle = async () => {
     setGoogleLoad(true); setError('');
     try {
-      // Native: deep link scheme. Web: page origin.
       const redirectTo = Platform.OS !== 'web'
         ? 'statusvault://auth'
         : (typeof window !== 'undefined' && window.location.hostname === 'localhost'
@@ -136,29 +134,29 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
     } finally { setLoading(false); }
   };
 
-  // ── Set Password mode ──────────────────────────────────────
+  // Set Password mode
   if (mode === 'set-password' || (visible && authUser && message?.includes('set') && message?.includes('password'))) {
     const content = (
       <View style={s.sheet}>
-        <LinearGradient colors={['#0A0E1A', '#1E1B4B']} style={s.header}>
-          <View style={s.headerIcon}><Ionicons name="key-outline" size={22} color="#818CF8" /></View>
+        <LinearGradient colors={['#050B1C', '#0A1530']} style={s.header}>
+          <View style={s.headerIcon}><Ionicons name="key-outline" size={22} color={colors.primaryLight} /></View>
           <View style={{ flex: 1 }}>
             <Text style={s.headerTitle}>Set a Password</Text>
             <Text style={s.headerSub}>Optional — lets you sign in with email + password</Text>
           </View>
           <TouchableOpacity style={s.closeBtn} onPress={handleClose}>
-            <Ionicons name="close" size={18} color="rgba(255,255,255,0.5)" />
+            <Ionicons name="close" size={18} color="rgba(240,244,255,0.60)" />
           </TouchableOpacity>
         </LinearGradient>
         <View style={s.body}>
-          {error ? <View style={s.errorBox}><Ionicons name="alert-circle" size={15} color="#DC2626" /><Text style={s.errorTxt}>{error}</Text></View> : null}
-          {success ? <View style={s.successBox}><Ionicons name="checkmark-circle" size={15} color="#059669" /><Text style={s.successTxt}>{success}</Text></View> : null}
+          {error ? <View style={s.errorBox}><Ionicons name="alert-circle" size={15} color={colors.danger} /><Text style={s.errorTxt}>{error}</Text></View> : null}
+          {success ? <View style={s.successBox}><Ionicons name="checkmark-circle" size={15} color={colors.success} /><Text style={s.successTxt}>{success}</Text></View> : null}
           <Text style={s.label}>New Password</Text>
           <PasswordInput value={password} onChange={setPassword2} showPwd={showPwd} placeholder="8+ characters" />
           <Text style={s.label}>Confirm Password</Text>
           <PasswordInput value={confirmPwd} onChange={setConfirmPwd} showPwd={showPwd} placeholder="Re-enter password" onSubmit={handleSetPassword} />
           <TouchableOpacity style={s.submitBtn} onPress={handleSetPassword} disabled={loading} activeOpacity={0.85}>
-            <LinearGradient colors={['#4F46E5', '#7C3AED']} style={s.submitGrad}>
+            <LinearGradient colors={[colors.primary, colors.primaryMid]} style={s.submitGrad}>
               {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={s.submitTxt}>Set Password</Text>}
             </LinearGradient>
           </TouchableOpacity>
@@ -173,33 +171,31 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
 
   const content = (
     <View style={s.sheet}>
-      <LinearGradient colors={['#0A0E1A', '#1E1B4B']} style={s.header}>
-        <View style={s.headerIcon}><Ionicons name="shield-checkmark" size={22} color="#818CF8" /></View>
+      <LinearGradient colors={['#050B1C', '#0A1530']} style={s.header}>
+        <View style={s.headerIcon}><Ionicons name="shield-checkmark" size={22} color={colors.primaryLight} /></View>
         <View style={{ flex: 1 }}>
           <Text style={s.headerTitle}>Sign in to StatusVault</Text>
           <Text style={s.headerSub}>{message ?? 'No password needed — we email you a login link'}</Text>
         </View>
         <TouchableOpacity style={s.closeBtn} onPress={handleClose}>
-          <Ionicons name="close" size={18} color="rgba(255,255,255,0.5)" />
+          <Ionicons name="close" size={18} color="rgba(240,244,255,0.60)" />
         </TouchableOpacity>
       </LinearGradient>
 
-      {/* Mode tabs */}
       <View style={s.tabs}>
         <TouchableOpacity style={[s.tab, mode === 'magic' && s.tabOn]} onPress={() => { setMode('magic'); setError(''); setSent(false); }}>
-          <Ionicons name="mail-outline" size={14} color={mode === 'magic' ? '#4F46E5' : '#64748B'} />
+          <Ionicons name="mail-outline" size={14} color={mode === 'magic' ? colors.primaryLight : 'rgba(240,244,255,0.55)'} />
           <Text style={[s.tabTxt, mode === 'magic' && s.tabTxtOn]}>Magic Link</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[s.tab, mode === 'password' && s.tabOn]} onPress={() => { setMode('password'); setError(''); setSent(false); }}>
-          <Ionicons name="key-outline" size={14} color={mode === 'password' ? '#4F46E5' : '#64748B'} />
+          <Ionicons name="key-outline" size={14} color={mode === 'password' ? colors.primaryLight : 'rgba(240,244,255,0.55)'} />
           <Text style={[s.tabTxt, mode === 'password' && s.tabTxtOn]}>Password</Text>
         </TouchableOpacity>
       </View>
 
       <View style={s.body}>
-        {/* Google */}
         <TouchableOpacity style={s.googleBtn} onPress={handleGoogle} disabled={googleLoad} activeOpacity={0.85}>
-          {googleLoad ? <ActivityIndicator size="small" color="#4285F4" /> : (
+          {googleLoad ? <ActivityIndicator size="small" color="#6FAFF2" /> : (
             <>
               {IS_WEB
                 ? <span dangerouslySetInnerHTML={{ __html: `<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>` }} />
@@ -212,15 +208,14 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
 
         <View style={s.divRow}><View style={s.divLine} /><Text style={s.divTxt}>or</Text><View style={s.divLine} /></View>
 
-        {error ? <View style={s.errorBox}><Ionicons name="alert-circle" size={15} color="#DC2626" /><Text style={s.errorTxt}>{error}</Text></View> : null}
+        {error ? <View style={s.errorBox}><Ionicons name="alert-circle" size={15} color={colors.danger} /><Text style={s.errorTxt}>{error}</Text></View> : null}
 
-        {/* Magic Link mode */}
         {mode === 'magic' && !sent && (
           <>
             <Text style={s.label}>Email address</Text>
             <EmailInput value={email} onChange={setEmail} onSubmit={handleMagicLink} />
             <TouchableOpacity style={s.submitBtn} onPress={handleMagicLink} disabled={loading} activeOpacity={0.85}>
-              <LinearGradient colors={['#4F46E5', '#7C3AED']} style={s.submitGrad}>
+              <LinearGradient colors={[colors.primary, colors.primaryMid]} style={s.submitGrad}>
                 {loading ? <ActivityIndicator color="#fff" size="small" /> : (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Ionicons name="mail-outline" size={16} color="#fff" />
@@ -233,10 +228,9 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
           </>
         )}
 
-        {/* Magic link sent */}
         {mode === 'magic' && sent && (
           <View style={s.sentBox}>
-            <View style={s.sentIcon}><Ionicons name="mail-unread-outline" size={36} color="#4F46E5" /></View>
+            <View style={s.sentIcon}><Ionicons name="mail-unread-outline" size={34} color={colors.primaryLight} /></View>
             <Text style={s.sentTitle}>Check your email</Text>
             <Text style={s.sentDesc}>Login link sent to <Text style={s.sentEmail}>{email}</Text></Text>
             <Text style={s.sentSub}>Click the link to sign in — no password needed.</Text>
@@ -246,7 +240,6 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
           </View>
         )}
 
-        {/* Password mode */}
         {mode === 'password' && (
           <>
             <Text style={s.label}>Email address</Text>
@@ -254,12 +247,12 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
             <Text style={s.label}>Password</Text>
             <View style={{ position: 'relative' as any }}>
               <PasswordInput value={password} onChange={setPassword2} onSubmit={handlePasswordLogin} showPwd={showPwd} />
-              <TouchableOpacity onPress={() => setShowPwd(v => !v)} style={s.eyeBtn}>
-                <Ionicons name={showPwd ? 'eye-off-outline' : 'eye-outline'} size={16} color="#94A3B8" />
+              <TouchableOpacity onPress={() => setShowPwd((v) => !v)} style={s.eyeBtn}>
+                <Ionicons name={showPwd ? 'eye-off-outline' : 'eye-outline'} size={16} color="rgba(240,244,255,0.55)" />
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={s.submitBtn} onPress={handlePasswordLogin} disabled={loading} activeOpacity={0.85}>
-              <LinearGradient colors={['#4F46E5', '#7C3AED']} style={s.submitGrad}>
+              <LinearGradient colors={[colors.primary, colors.primaryMid]} style={s.submitGrad}>
                 {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={s.submitTxt}>Sign In</Text>}
               </LinearGradient>
             </TouchableOpacity>
@@ -275,7 +268,7 @@ export const AuthModal: React.FC<Props> = ({ visible, onClose, onSuccess, messag
   return <ModalWrapper visible={visible} onClose={handleClose}>{content}</ModalWrapper>;
 };
 
-// ── Modal wrapper — web uses absolute overlay, native uses Modal + KAV ──────
+// ── Modal wrapper ───────────────────────────────────────────
 const ModalWrapper: React.FC<{ visible: boolean; onClose: () => void; children: React.ReactNode }> = ({ visible, onClose, children }) => {
   if (IS_WEB) {
     if (!visible) return null;
@@ -299,50 +292,82 @@ const ModalWrapper: React.FC<{ visible: boolean; onClose: () => void; children: 
 };
 
 const inputStyle = {
-  width: '100%', padding: '11px 14px', fontSize: '14px', fontFamily: 'Inter, sans-serif',
-  color: '#0F172A', border: '1.5px solid #E2E8F0', borderRadius: '10px',
-  backgroundColor: '#F8FAFF', outline: 'none', boxSizing: 'border-box',
+  width: '100%', padding: '12px 14px', fontSize: '14px', fontFamily: 'Inter, sans-serif',
+  color: '#F0F4FF',
+  border: '1px solid rgba(255,255,255,0.14)', borderRadius: '10px',
+  backgroundColor: 'rgba(255,255,255,0.05)',
+  outline: 'none', boxSizing: 'border-box',
   marginBottom: '12px', display: 'block',
+  colorScheme: 'dark',
+  caretColor: '#6FAFF2',
 } as any;
 
 const s = StyleSheet.create({
   overlay:     { position: 'absolute' as any, inset: 0, zIndex: 2000, alignItems: 'center', justifyContent: 'center' } as any,
-  backdrop:    { position: 'absolute' as any, inset: 0, backgroundColor: 'rgba(15,23,42,0.65)' } as any,
+  backdrop:    { position: 'absolute' as any, inset: 0, backgroundColor: 'rgba(3,8,18,0.80)' } as any,
   centeredBox: { width: '100%', maxWidth: 420, zIndex: 1 } as any,
-  sheet:       { backgroundColor: '#FFFFFF', borderRadius: 20, overflow: 'hidden', ...Platform.select({ web: { boxShadow: '0 16px 48px rgba(15,23,42,0.20)' } as any }) } as any,
+  sheet: {
+    backgroundColor: '#0C1A34',
+    borderRadius: 20, overflow: 'hidden',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+    ...Platform.select({ web: { boxShadow: '0 24px 64px rgba(0,0,0,0.55)' } as any, default: {} }),
+  } as any,
   header:      { flexDirection: 'row', alignItems: 'flex-start', gap: 12, padding: 20 },
-  headerIcon:  { width: 40, height: 40, borderRadius: 10, backgroundColor: 'rgba(79,70,229,0.15)', alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#F8FAFF', marginBottom: 2 },
-  headerSub:   { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.60)', lineHeight: 16 },
+  headerIcon:  { width: 40, height: 40, borderRadius: 10, backgroundColor: 'rgba(59,139,232,0.18)', borderWidth: 1, borderColor: 'rgba(111,175,242,0.30)', alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#F0F4FF', marginBottom: 2 },
+  headerSub:   { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.60)', lineHeight: 16 },
   closeBtn:    { width: 28, height: 28, borderRadius: 7, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
-  tabs:        { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+
+  tabs:        { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)' },
   tab:         { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 11 },
-  tabOn:       { borderBottomWidth: 2, borderBottomColor: '#4F46E5' },
-  tabTxt:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: '#64748B' },
-  tabTxtOn:    { color: '#4F46E5', fontFamily: 'Inter_600SemiBold' },
+  tabOn:       { borderBottomWidth: 2, borderBottomColor: colors.primaryLight },
+  tabTxt:      { fontSize: 13, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.55)' },
+  tabTxtOn:    { color: colors.primaryLight, fontFamily: 'Inter_700Bold' },
   body:        { padding: 20 },
-  googleBtn:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#E2E8F0', borderRadius: 10, paddingVertical: 12, marginBottom: 14, ...Platform.select({ web: { boxShadow: '0 1px 4px rgba(15,23,42,0.06)' } as any }) } as any,
-  googleG:     { fontSize: 15, fontFamily: 'Inter_800ExtraBold', color: '#4285F4' },
-  googleTxt:   { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#0F172A' },
-  divRow:      { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
-  divLine:     { flex: 1, height: 1, backgroundColor: '#F1F5F9' },
-  divTxt:      { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#94A3B8' },
-  errorBox:    { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FEF2F2', borderRadius: 8, padding: 10, marginBottom: 12, borderWidth: 1, borderColor: '#FECACA' },
-  errorTxt:    { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#DC2626' },
-  successBox:  { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#ECFDF5', borderRadius: 8, padding: 10, marginBottom: 12, borderWidth: 1, borderColor: '#6EE7B7' },
-  successTxt:  { flex: 1, fontSize: 12, fontFamily: 'Inter_400Regular', color: '#059669' },
-  label:       { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#64748B', letterSpacing: 0.3, marginBottom: 6 },
-  nativeInput: { borderWidth: 1.5, borderColor: '#E2E8F0', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, fontSize: 14, fontFamily: 'Inter_400Regular', color: '#0F172A', backgroundColor: '#F8FAFF', marginBottom: 12 },
-  eyeBtn:      { position: 'absolute' as any, right: 12, top: 10, padding: 4 } as any,
-  submitBtn:   { borderRadius: 10, overflow: 'hidden', marginBottom: 10 },
-  submitGrad:  { paddingVertical: 13, alignItems: 'center', justifyContent: 'center' },
-  submitTxt:   { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff' },
-  hint:        { fontSize: 11, fontFamily: 'Inter_400Regular', color: '#94A3B8', textAlign: 'center' },
-  linkTxt:     { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#4F46E5', textAlign: 'center' },
-  sentBox:     { alignItems: 'center', paddingVertical: 8 },
-  sentIcon:    { width: 64, height: 64, borderRadius: 16, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center', marginBottom: 12, borderWidth: 1, borderColor: '#C7D2FE' },
-  sentTitle:   { fontSize: 17, fontFamily: 'Inter_700Bold', color: '#0F172A', marginBottom: 6 },
-  sentDesc:    { fontSize: 13, fontFamily: 'Inter_400Regular', color: '#64748B', textAlign: 'center' },
-  sentEmail:   { fontFamily: 'Inter_700Bold', color: '#0F172A' },
-  sentSub:     { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#94A3B8', textAlign: 'center', marginTop: 4 },
+
+  googleBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+    borderRadius: 10, paddingVertical: 12, marginBottom: 14,
+  } as any,
+  googleG:   { fontSize: 15, fontFamily: 'Inter_800ExtraBold', color: '#4285F4' },
+  googleTxt: { fontSize: 14, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF' },
+
+  divRow:  { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
+  divLine: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' },
+  divTxt:  { fontSize: 11, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.40)' },
+
+  errorBox: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,107,107,0.10)', borderRadius: 8, padding: 10, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,107,107,0.30)' },
+  errorTxt: { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.danger },
+  successBox: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(76,217,138,0.10)', borderRadius: 8, padding: 10, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(76,217,138,0.30)' },
+  successTxt: { flex: 1, fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.success },
+
+  label: { fontSize: 11, fontFamily: 'Inter_700Bold', color: 'rgba(240,244,255,0.60)', letterSpacing: 0.6, marginBottom: 6, textTransform: 'uppercase' as any } as any,
+  nativeInput: {
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)', borderRadius: 10,
+    paddingHorizontal: 14, paddingVertical: 11, fontSize: 14, fontFamily: 'Inter_400Regular',
+    color: '#F0F4FF',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    marginBottom: 12,
+  },
+  eyeBtn:     { position: 'absolute' as any, right: 12, top: 10, padding: 4 } as any,
+
+  submitBtn:  { borderRadius: 10, overflow: 'hidden', marginBottom: 10, ...(Platform.OS === 'web' ? ({ boxShadow: '0 6px 20px rgba(59,139,232,0.35)' } as any) : {}) } as any,
+  submitGrad: { paddingVertical: 13, alignItems: 'center', justifyContent: 'center' },
+  submitTxt:  { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff' },
+
+  hint:    { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.45)', textAlign: 'center' },
+  linkTxt: { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.primaryLight, textAlign: 'center' },
+
+  sentBox: { alignItems: 'center', paddingVertical: 8 },
+  sentIcon: {
+    width: 64, height: 64, borderRadius: 16,
+    backgroundColor: 'rgba(59,139,232,0.14)', borderWidth: 1, borderColor: 'rgba(111,175,242,0.30)',
+    alignItems: 'center', justifyContent: 'center', marginBottom: 12,
+  },
+  sentTitle: { fontSize: 17, fontFamily: 'Inter_700Bold', color: '#F0F4FF', marginBottom: 6 },
+  sentDesc:  { fontSize: 13, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.70)', textAlign: 'center' },
+  sentEmail: { fontFamily: 'Inter_700Bold', color: colors.primaryLight },
+  sentSub:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.45)', textAlign: 'center', marginTop: 4 },
 });
