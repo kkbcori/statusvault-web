@@ -343,59 +343,42 @@ export const DashboardScreen: React.FC = () => {
         </View>
       )}
 
-      {/* ═══ STAT CARDS ═══ */}
-      <View style={[styles.statRow, {
-        flexDirection: hasSidebar ? 'row' as any : 'column',
-        gap: 16,
-        marginTop: hasSidebar ? 0 : 0,
-      }]}>
-        <Animated.View style={stats1Anim}><StatCard
-          label="Documents Tracked"
-          value={documents.length}
-          subtitle={`of ${isPremium ? '∞' : FREE_LIMIT} total`}
-          icon="document-text"
-          iconBg="#EEF2FF"
-          iconColor="#4F46E5"
-          onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
-        /></Animated.View>
-        <Animated.View style={stats2Anim}><StatCard
-          label="Next Expiry"
-          value={mostCritical ? `${Math.abs(mostCritical.daysRemaining)}d` : '—'}
-          subtitle={mostCritical
-            ? (mostCritical.daysRemaining < 0 ? 'EXPIRED' : mostCritical.label)
-            : 'All documents safe'}
-          icon="time-outline"
-          iconBg={mostCritical && mostCritical.daysRemaining <= 30 ? '#FEF2F2' : '#ECFDF5'}
-          iconColor={mostCritical && mostCritical.daysRemaining <= 30 ? '#DC2626' : '#059669'}
-          trend={mostCritical && mostCritical.daysRemaining < 0
-            ? { value: 'Action needed', up: false }
-            : undefined}
-          onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
-        /></Animated.View>
-        <Animated.View style={stats3Anim}><StatCard
-          label="Expiring Soon"
-          value={expiringSoon.length}
-          subtitle={expiringSoon.length > 0 ? 'within 90 days' : 'None in 90 days'}
-          icon="alert-circle-outline"
-          iconBg={expiringSoon.length > 0 ? '#FFFBEB' : '#ECFDF5'}
-          iconColor={expiringSoon.length > 0 ? '#D97706' : '#059669'}
-          onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
-        /></Animated.View>
-        <Animated.View style={stats4Anim}><StatCard
-          label="Family Members"
-          value={familyMembers.length}
-          subtitle={familyMembers.length > 0 ? 'being tracked' : 'Add family members'}
-          icon="people-outline"
-          iconBg="#E0FAFD"
-          iconColor="#00CFE8"
-          onPress={() => navigation.navigate('Main', { screen: 'Family' })}
-        /></Animated.View>
-      </View>
+      {/* ═══════════════════════════════════════════════════════════
+           UNIFIED LAYOUT: On web with sidebar, stat cards sit ABOVE
+           their paired content cards in two columns.
+           On mobile: all cards stack vertically.
+      ═══════════════════════════════════════════════════════════ */}
+      <View style={[styles.cardGrid, hasSidebar && styles.cardRowWide as any]}>
 
+        {/* ── LEFT COLUMN: Doc Status group ── */}
+        <View style={[hasSidebar && styles.cardHalf as any, { gap: 16 }]}>
 
-
-      {/* ═══ 4-CARD GRID — explicit 2×2 rows ═══ */}
-      <View style={styles.cardGrid}>
+          {/* Stat cards: Documents + Next Expiry */}
+          <View style={[styles.cardRow, { flexDirection: 'row' as any }]}>
+            <Animated.View style={[stats1Anim, { flex: 1 }]}><StatCard
+              label="Documents Tracked"
+              value={documents.length}
+              subtitle={`of ${isPremium ? '∞' : FREE_LIMIT} total`}
+              icon="document-text"
+              iconBg="#EEF2FF"
+              iconColor="#4F46E5"
+              onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
+            /></Animated.View>
+            <Animated.View style={[stats2Anim, { flex: 1 }]}><StatCard
+              label="Next Expiry"
+              value={mostCritical ? `${Math.abs(mostCritical.daysRemaining)}d` : '—'}
+              subtitle={mostCritical
+                ? (mostCritical.daysRemaining < 0 ? 'EXPIRED' : mostCritical.label)
+                : 'All documents safe'}
+              icon="time-outline"
+              iconBg={mostCritical && mostCritical.daysRemaining <= 30 ? '#FEF2F2' : '#ECFDF5'}
+              iconColor={mostCritical && mostCritical.daysRemaining <= 30 ? '#DC2626' : '#059669'}
+              trend={mostCritical && mostCritical.daysRemaining < 0
+                ? { value: 'Action needed', up: false }
+                : undefined}
+              onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
+            /></Animated.View>
+          </View>
 
         {/* ── Row 1: Doc Status + Upcoming Deadlines ── */}
         <View style={[styles.cardRow, hasSidebar && styles.cardRowWide]}>
@@ -436,9 +419,35 @@ export const DashboardScreen: React.FC = () => {
         </Card>
 
         </Animated.View>
+        </View>{/* end left column */}
+
+        {/* ── RIGHT COLUMN: Upcoming Deadlines group ── */}
+        <View style={[hasSidebar && styles.cardHalf as any, { gap: 16 }]}>
+
+          {/* Stat cards: Expiring Soon + Family */}
+          <View style={[styles.cardRow, { flexDirection: 'row' as any }]}>
+            <Animated.View style={[stats3Anim, { flex: 1 }]}><StatCard
+              label="Expiring Soon"
+              value={expiringSoon.length}
+              subtitle={expiringSoon.length > 0 ? 'within 90 days' : 'None in 90 days'}
+              icon="alert-circle-outline"
+              iconBg={expiringSoon.length > 0 ? '#FFFBEB' : '#ECFDF5'}
+              iconColor={expiringSoon.length > 0 ? '#D97706' : '#059669'}
+              onPress={() => navigation.navigate('Main', { screen: 'Documents' })}
+            /></Animated.View>
+            <Animated.View style={[stats4Anim, { flex: 1 }]}><StatCard
+              label="Family Members"
+              value={familyMembers.length}
+              subtitle={familyMembers.length > 0 ? 'being tracked' : 'Add family members'}
+              icon="people-outline"
+              iconBg="#E0FAFD"
+              iconColor="#00CFE8"
+              onPress={() => navigation.navigate('Main', { screen: 'Family' })}
+            /></Animated.View>
+          </View>
 
         {/* Card 2: Upcoming Deadlines */}
-        <Animated.View style={[grid2Anim, hasSidebar && styles.cardHalf as any]}><Card style={styles.gridCard}>
+        <Animated.View style={grid2Anim}><Card style={styles.gridCard}>
           <CardHeader
             title="Upcoming Deadlines"
             subtitle={deadlines.length > 0 ? `${deadlines.length} doc${deadlines.length !== 1 ? 's' : ''} tracked` : 'No documents yet'}
@@ -483,11 +492,11 @@ export const DashboardScreen: React.FC = () => {
             </View>
           )}
         </Card></Animated.View>
+        </View>{/* end right column */}
+      </View>{/* end top 2-col layout */}
 
-        </View>{/* end row 1 */}
-
-        {/* ── Row 2: Checklist + Timers ── */}
-        <View style={[styles.cardRow, hasSidebar && styles.cardRowWide]}>
+      {/* ── Row 2: Checklist + Timers ── */}
+      <View style={[styles.cardRow, hasSidebar && styles.cardRowWide as any]}>
 
         {/* Card 3: Immi Checklist */}
         <Card style={[styles.gridCard, hasSidebar && styles.cardHalf as any]}>
@@ -588,9 +597,7 @@ export const DashboardScreen: React.FC = () => {
           )}
         </Card>
 
-        </View>{/* end row 2 */}
-
-      </View>{/* end cardGrid */}
+      </View>{/* end row 2 */}
 
       {/* ═══ PROFILE SETUP MODAL ═══ */}
       <Modal visible={showProfileSetup} transparent animationType="fade">
