@@ -351,31 +351,40 @@ export const SettingsScreen: React.FC = () => {
     <View style={{ flex: 1 }}>
     <ScrollView style={styles.container} contentContainerStyle={styles.cc} showsVerticalScrollIndicator={true}>
 
-      {/* ── Premium Settings Header ── */}
+      {/* ── Settings Header ── */}
       <Animated.View style={headerAnim}>
-      <LinearGradient
-        colors={['#6FAFF2', '#6366F1']}
-        start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-        style={styles.headerGradient}
-      >
+      <View style={styles.headerGradient}>
+        {/* Top accent stripe — brand blue */}
+        <View style={{ position: 'absolute' as any, top: 0, left: 0, right: 0, height: 3, backgroundColor: colors.primary } as any} />
+        {/* Subtle ambient blue glow behind icon on web */}
+        {Platform.OS === 'web' && (
+          <View pointerEvents="none" style={{
+            position: 'absolute' as any, top: -30, left: -30, width: 180, height: 180, borderRadius: 90,
+            background: 'radial-gradient(circle, rgba(59,139,232,0.18) 0%, transparent 70%)',
+          } as any} />
+        )}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           <View style={styles.headerIconBox}>
-            <Ionicons name="settings" size={22} color="#FFFFFF" />
+            <Ionicons name="settings" size={22} color={colors.primaryLight} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle}>Settings</Text>
             <Text style={styles.headerSub}>Account & preferences</Text>
           </View>
           {authUser && (
-            <View style={[styles.badge, { backgroundColor: isPremium ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }]}>
-              <Ionicons name={isPremium ? 'star' : 'person-outline'} size={11} color="#FFFFFF" style={{ marginRight: 4 }} />
-              <Text style={styles.badgeTxt}>
+            <View style={[styles.badge, {
+              backgroundColor: isPremium ? 'rgba(245,192,83,0.18)' : 'rgba(59,139,232,0.16)',
+              borderWidth: 1,
+              borderColor: isPremium ? 'rgba(245,192,83,0.40)' : 'rgba(111,175,242,0.32)',
+            }]}>
+              <Ionicons name={isPremium ? 'star' : 'person-outline'} size={11} color={isPremium ? colors.gold : colors.primaryLight} style={{ marginRight: 4 }} />
+              <Text style={[styles.badgeTxt, { color: isPremium ? colors.gold : colors.primaryLight }]}>
                 {isPremium ? 'PRO' : 'FREE'}
               </Text>
             </View>
           )}
         </View>
-      </LinearGradient>
+      </View>
       </Animated.View>
 
       <Animated.View style={section1}>
@@ -383,7 +392,7 @@ export const SettingsScreen: React.FC = () => {
       <SectionLabel iconName="notifications-outline" label="NOTIFICATIONS" />
       <View style={styles.card}>
         <View style={styles.row}>
-          <View style={styles.rowIconBox}><Ionicons name="notifications-outline" size={16} color="#4F46E5" /></View>
+          <View style={styles.rowIconBox}><Ionicons name="notifications-outline" size={16} color="#6FAFF2" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.rTitle}>Push Notifications</Text>
             <Text style={styles.rDesc}>Alerts at 180 · 90 · 60 · 30 · 15 · 7 days before expiry</Text>
@@ -399,7 +408,7 @@ export const SettingsScreen: React.FC = () => {
           <>
             <View style={styles.div} />
             <TouchableOpacity style={styles.sRow} onPress={handleTestNotification}>
-              <View style={styles.rowIconBox}><Ionicons name="paper-plane-outline" size={16} color="#4F46E5" /></View>
+              <View style={styles.rowIconBox}><Ionicons name="paper-plane-outline" size={16} color="#6FAFF2" /></View>
               <Text style={styles.sText}>Send Test Notification</Text>
               <Ionicons name="chevron-forward" size={18} color={colors.text3} />
             </TouchableOpacity>
@@ -410,7 +419,7 @@ export const SettingsScreen: React.FC = () => {
                 dialog.alert('Scheduled Alerts', `${count} notification${count !== 1 ? 's' : ''} currently scheduled.`);
               } catch { dialog.alert('Error', 'Could not retrieve scheduled alerts.'); }
             }}>
-              <View style={styles.rowIconBox}><Ionicons name="stats-chart-outline" size={16} color="#4F46E5" /></View>
+              <View style={styles.rowIconBox}><Ionicons name="stats-chart-outline" size={16} color="#6FAFF2" /></View>
               <Text style={styles.sText}>View Scheduled Alerts</Text>
               <Ionicons name="chevron-forward" size={18} color={colors.text3} />
             </TouchableOpacity>
@@ -424,7 +433,7 @@ export const SettingsScreen: React.FC = () => {
       {!isPremiumUser ? (
         <View style={styles.card}>
           <View style={styles.infoBox2}>
-            <Ionicons name="lock-closed" size={16} color="#FF9F43" />
+            <Ionicons name="lock-closed" size={16} color="#F5C053" />
             <View style={{ flex: 1 }}>
               <Text style={styles.premiumAlertTitle}>Premium Feature</Text>
               <Text style={styles.premiumAlertDesc}>
@@ -465,7 +474,7 @@ export const SettingsScreen: React.FC = () => {
           </View>
           {!cloudBackupEnabled && (
             <View style={{ backgroundColor: 'rgba(255,107,107,0.10)', borderRadius: 8, padding: 12, margin: 4, flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
-              <Ionicons name="warning-outline" size={16} color="#DC2626" />
+              <Ionicons name="warning-outline" size={16} color="#FF6B6B" />
               <Text style={{ fontSize: 12, fontFamily: 'Inter_400Regular', color: '#FF6B6B', flex: 1, lineHeight: 18 }}>
                 Cloud backup is off. If you lose this device or clear your browser data, all your documents, family members, and settings will be permanently lost.
               </Text>
@@ -479,17 +488,17 @@ export const SettingsScreen: React.FC = () => {
       <View style={styles.card}>
         {/* Auto-backup status pill */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, backgroundColor: 'rgba(76,217,138,0.10)', borderRadius: 10, margin: 4 } as any}>
-          <Ionicons name="checkmark-circle" size={18} color="#16A34A" />
+          <Ionicons name="checkmark-circle" size={18} color="#4CD98A" />
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#166534' }}>Auto-saved to this device</Text>
-            <Text style={{ fontSize: 11, fontFamily: 'Inter_400Regular', color: '#4CD98A', marginTop: 1 }}>
+            <Text style={{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF' }}>Auto-saved to this device</Text>
+            <Text style={{ fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(76,217,138,0.80)', marginTop: 1 }}>
               Last saved: {relativeTime(lastAutoBackupAt)} · Data stays on your device even without cloud backup
             </Text>
           </View>
         </View>
         <View style={styles.div} />
         <View style={styles.infoBox2}>
-          <Ionicons name="phone-portrait-outline" size={16} color="#7367F0" />
+          <Ionicons name="phone-portrait-outline" size={16} color="#6FAFF2" />
           <Text style={styles.infoBox2Text}>
             <Text style={{ fontFamily: 'Inter_600SemiBold' }}>Switching phones?{'\n'}</Text>
             {'Export your backup JSON, copy it to your new phone, then import it — all your data comes with you.'}
@@ -497,7 +506,7 @@ export const SettingsScreen: React.FC = () => {
         </View>
         <View style={styles.div} />
         <TouchableOpacity style={styles.sRow} onPress={handleExport}>
-          <View style={styles.rowIconBox}><Ionicons name="download-outline" size={16} color="#7367F0" /></View>
+          <View style={styles.rowIconBox}><Ionicons name="download-outline" size={16} color="#6FAFF2" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.sText}>Export Backup (JSON)</Text>
             <Text style={styles.rDesc}>Save all your data to a file — use this when switching phones</Text>
@@ -506,7 +515,7 @@ export const SettingsScreen: React.FC = () => {
         </TouchableOpacity>
         <View style={styles.div} />
         <TouchableOpacity style={styles.sRow} onPress={handleImport}>
-          <View style={styles.rowIconBox}><Ionicons name="cloud-upload-outline" size={16} color="#7367F0" /></View>
+          <View style={styles.rowIconBox}><Ionicons name="cloud-upload-outline" size={16} color="#6FAFF2" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.sText}>Import Backup (JSON)</Text>
             <Text style={styles.rDesc}>Restore from your exported file — shows preview before overwriting</Text>
@@ -519,7 +528,7 @@ export const SettingsScreen: React.FC = () => {
       <SectionLabel iconName="lock-closed-outline" label="APP LOCK" />
       <View style={styles.card}>
         <View style={styles.row}>
-          <View style={styles.rowIconBox}><Ionicons name="keypad-outline" size={16} color="#4F46E5" /></View>
+          <View style={styles.rowIconBox}><Ionicons name="keypad-outline" size={16} color="#6FAFF2" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.rTitle}>PIN Lock</Text>
             <Text style={styles.rDesc}>{pinEnabled ? 'PIN is enabled — app is locked on launch' : 'Protect your data with a 4-digit PIN'}</Text>
@@ -534,7 +543,7 @@ export const SettingsScreen: React.FC = () => {
           <>
             <View style={styles.div} />
             <TouchableOpacity style={styles.sRow} onPress={() => setShowPinSetup(true)}>
-              <View style={styles.rowIconBox}><Ionicons name="refresh-outline" size={16} color="#4F46E5" /></View>
+              <View style={styles.rowIconBox}><Ionicons name="refresh-outline" size={16} color="#6FAFF2" /></View>
               <Text style={styles.sText}>Change PIN</Text>
               <Ionicons name="chevron-forward" size={18} color={colors.text3} />
             </TouchableOpacity>
@@ -547,7 +556,7 @@ export const SettingsScreen: React.FC = () => {
       {!isPremium ? (
         <View style={styles.card}>
           <View style={styles.premiumAlertBanner}>
-            <Ionicons name="lock-closed" size={18} color="#FF9F43" />
+            <Ionicons name="lock-closed" size={18} color="#F5C053" />
             <View style={{ flex: 1 }}>
               <Text style={styles.premiumAlertTitle}>Premium Feature</Text>
               <Text style={styles.premiumAlertDesc}>Export all your documents, checklists, and family member docs as a PDF. Available for Premium subscribers.</Text>
@@ -560,7 +569,7 @@ export const SettingsScreen: React.FC = () => {
       ) : (
         <View style={styles.card}>
           <TouchableOpacity style={styles.sRow} onPress={handleExportPDF}>
-            <View style={styles.rowIconBox}><Ionicons name="document-text-outline" size={16} color="#7367F0" /></View>
+            <View style={styles.rowIconBox}><Ionicons name="document-text-outline" size={16} color="#6FAFF2" /></View>
             <View style={{ flex: 1 }}>
               <Text style={styles.sText}>Export All Documents as PDF</Text>
               <Text style={styles.rDesc}>Includes your docs + family member docs with expiry status</Text>
@@ -569,7 +578,7 @@ export const SettingsScreen: React.FC = () => {
           </TouchableOpacity>
           <View style={styles.div} />
           <TouchableOpacity style={styles.sRow} onPress={handleExportChecklistPDF}>
-            <View style={styles.rowIconBox}><Ionicons name="checkbox-outline" size={16} color="#7367F0" /></View>
+            <View style={styles.rowIconBox}><Ionicons name="checkbox-outline" size={16} color="#6FAFF2" /></View>
             <View style={{ flex: 1 }}>
               <Text style={styles.sText}>Export Checklists as PDF</Text>
               <Text style={styles.rDesc}>All checklists with progress and completed steps</Text>
@@ -587,7 +596,7 @@ export const SettingsScreen: React.FC = () => {
         <View style={[styles.card, { borderWidth: 2, borderColor: '#6FAFF2' }]}>
           <View style={styles.row}>
             <View style={[styles.rowIconBox, { backgroundColor: 'rgba(59,139,232,0.14)' }]}>
-              <Ionicons name="star" size={16} color="#4F46E5" />
+              <Ionicons name="star" size={16} color="#6FAFF2" />
             </View>
             <Text style={[styles.rTitle, { color: '#6FAFF2' }]}>Premium Active — Unlimited tracking</Text>
           </View>
@@ -608,7 +617,7 @@ export const SettingsScreen: React.FC = () => {
           {['Unlimited docs · checklists · timers · family', 'PDF & JSON export for all your data', 'Smart alerts at 6mo · 3mo · 2mo · 1mo · 15d · 7d'].map((f) => (
             <View key={f} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: 'rgba(79,70,229,0.25)', alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="checkmark" size={11} color="#818CF8" />
+                <Ionicons name="checkmark" size={11} color="#6FAFF2" />
               </View>
               <Text style={{ fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.70)' }}>{f}</Text>
             </View>
@@ -637,7 +646,7 @@ export const SettingsScreen: React.FC = () => {
           <View style={styles.card}>
             <TouchableOpacity style={styles.sRow} onPress={() => useStore.getState().openAuthModal('set your password')} activeOpacity={0.75}>
               <View style={styles.rowIconBox}>
-                <Ionicons name="key-outline" size={16} color="#4F46E5" />
+                <Ionicons name="key-outline" size={16} color="#6FAFF2" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.sText}>Set / Change Password</Text>
@@ -648,7 +657,7 @@ export const SettingsScreen: React.FC = () => {
             <View style={styles.div} />
             <TouchableOpacity style={styles.sRow} onPress={handleSignOut} activeOpacity={0.75}>
               <View style={[styles.rowIconBox, { backgroundColor: 'rgba(255,107,107,0.10)' }]}>
-                <Ionicons name="log-out-outline" size={16} color="#DC2626" />
+                <Ionicons name="log-out-outline" size={16} color="#FF6B6B" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.sText, { color: '#FF6B6B' }]}>Sign Out</Text>
@@ -674,10 +683,10 @@ export const SettingsScreen: React.FC = () => {
             <View style={styles.div} />
             <TouchableOpacity style={styles.sRow} onPress={handleDeleteAccount} activeOpacity={0.75}>
               <View style={[styles.rowIconBox, { backgroundColor: 'rgba(255,107,107,0.10)' }]}>
-                <Ionicons name="person-remove-outline" size={16} color="#DC2626" />
+                <Ionicons name="person-remove-outline" size={16} color="#FF6B6B" />
               </View>
               <Text style={[styles.sText, { color: '#FF6B6B' }]}>Delete Account</Text>
-              <Ionicons name="chevron-forward" size={18} color="#DC2626" />
+              <Ionicons name="chevron-forward" size={18} color="#FF6B6B" />
             </TouchableOpacity>
           </>
         )}
@@ -687,7 +696,7 @@ export const SettingsScreen: React.FC = () => {
       <SectionLabel iconName="document-text-outline" label="LEGAL" />
       <View style={styles.card}>
         <TouchableOpacity style={styles.sRow} onPress={() => Linking.openURL('https://www.statusvault.org/privacy').catch(() => {})} activeOpacity={0.7}>
-          <View style={styles.rowIconBox}><Ionicons name="shield-checkmark-outline" size={16} color="#4F46E5" /></View>
+          <View style={styles.rowIconBox}><Ionicons name="shield-checkmark-outline" size={16} color="#6FAFF2" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.sText}>Privacy Policy</Text>
             <Text style={styles.rDesc}>How we handle and protect your data</Text>
@@ -696,7 +705,7 @@ export const SettingsScreen: React.FC = () => {
         </TouchableOpacity>
         <View style={styles.div} />
         <TouchableOpacity style={styles.sRow} onPress={() => Linking.openURL('https://www.statusvault.org/terms').catch(() => {})} activeOpacity={0.7}>
-          <View style={styles.rowIconBox}><Ionicons name="document-text-outline" size={16} color="#4F46E5" /></View>
+          <View style={styles.rowIconBox}><Ionicons name="document-text-outline" size={16} color="#6FAFF2" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.sText}>Terms of Service</Text>
             <Text style={styles.rDesc}>Usage terms and conditions</Text>
@@ -818,12 +827,30 @@ export const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container:       { flex: 1, backgroundColor: 'transparent' },
   cc:              { paddingBottom: 20 },
-  headerGradient:  { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 20 },
-  headerIconBox:   { width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.20)', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
-  headerTitle:     { fontSize: 20, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: -0.3 },
-  headerSub:       { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.70)', marginTop: 2 },
-  badge:           { flexDirection: 'row', alignItems: 'center', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 0 },
-  badgeTxt:        { fontSize: 11, fontFamily: 'Inter_700Bold', color: '#fff', letterSpacing: 0.8 },
+  headerGradient: {
+    marginHorizontal: spacing.screen,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    borderRadius: radius.xl,
+    paddingHorizontal: 18,
+    paddingVertical: 18,
+    position: 'relative' as any,
+    overflow: 'hidden' as any,
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', boxShadow: '0 4px 16px rgba(0,0,0,0.28)' } as any) : {}),
+  } as any,
+  headerIconBox: {
+    width: 44, height: 44, borderRadius: 12,
+    backgroundColor: 'rgba(59,139,232,0.18)',
+    borderWidth: 1, borderColor: 'rgba(111,175,242,0.32)',
+    alignItems: 'center', justifyContent: 'center', marginRight: 14,
+  },
+  headerTitle:     { fontSize: 20, fontFamily: 'Inter_800ExtraBold', color: '#F0F4FF', letterSpacing: -0.4 },
+  headerSub:       { fontSize: 12, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.60)', marginTop: 3 },
+  badge:           { flexDirection: 'row', alignItems: 'center', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1 },
+  badgeTxt:        { fontSize: 10, fontFamily: 'Inter_800ExtraBold', letterSpacing: 0.8 },
   headerLabel:     { ...typography.micro, color: colors.text3, letterSpacing: 1.5, marginBottom: 3, fontSize: 10 },
   title:           { ...typography.h1, color: colors.text1, fontSize: 22 },
 
@@ -851,11 +878,11 @@ const styles = StyleSheet.create({
   sText:           { ...typography.bodySemibold, color: colors.text1, fontSize: 14, flex: 1 },
   div:             { height: 1, backgroundColor: colors.borderLight },
   dataNote:        { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.text3, paddingHorizontal: spacing.screen, marginTop: spacing.sm },
-  premCard:        { borderRadius: radius.xl, marginHorizontal: spacing.screen, padding: spacing.xl, alignItems: 'center', overflow: 'hidden' },
-  premTitle:       { ...typography.h2, color: colors.textInverse, marginBottom: spacing.sm },
-  premDesc:        { ...typography.caption, color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 20, marginBottom: spacing.lg },
-  premPrice:       { fontSize: 32, fontFamily: 'Inter_900Black', color: '#6FAFF2' },
-  premPeriod:      { fontSize: 16, fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.4)', marginLeft: 4 },
+  premCard:        { borderRadius: radius.xl, marginHorizontal: spacing.screen, padding: spacing.xl, alignItems: 'flex-start', overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(111,175,242,0.28)' },
+  premTitle:       { ...typography.h2, color: '#F0F4FF', marginBottom: spacing.sm, letterSpacing: -0.3 },
+  premDesc:        { ...typography.caption, color: 'rgba(240,244,255,0.60)', textAlign: 'center', lineHeight: 20, marginBottom: spacing.lg },
+  premPrice:       { fontSize: 32, fontFamily: 'Inter_900Black', color: colors.gold },
+  premPeriod:      { fontSize: 16, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.50)', marginLeft: 4 },
   premBtn:         { width: '100%', borderRadius: radius.md, overflow: 'hidden' },
   premBtnGrad:     { paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: radius.md },
   premBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
@@ -871,11 +898,11 @@ const styles = StyleSheet.create({
   confirmCancelTxt:{ fontSize: 14, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.75)' },
   confirmOk:       { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
   confirmOkTxt:    { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff' },
-  premiumAlertBanner:  { flexDirection: 'row', alignItems: 'flex-start', gap: 12, backgroundColor: '#FFF7ED', borderRadius: 12, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: '#FED7AA' },
-  premiumAlertTitle:   { fontSize: 13, fontFamily: 'Inter_700Bold', color: '#F5C053', marginBottom: 3 },
-  premiumAlertDesc:    { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#CC9628', lineHeight: 17 },
-  infoBox2:            { flexDirection: 'row', alignItems: 'flex-start', gap: 12, backgroundColor: 'rgba(167,139,250,0.14)', borderRadius: 12, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: '#DDD6FE' },
-  infoBox2Text:        { fontSize: 12, fontFamily: 'Inter_400Regular', color: '#5B21B6', lineHeight: 18, flex: 1 },
+  premiumAlertBanner:  { flexDirection: 'row', alignItems: 'flex-start', gap: 12, backgroundColor: 'rgba(245,192,83,0.12)', borderRadius: 12, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(245,192,83,0.30)' },
+  premiumAlertTitle:   { fontSize: 13, fontFamily: 'Inter_700Bold', color: colors.gold, marginBottom: 3 },
+  premiumAlertDesc:    { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(245,192,83,0.80)', lineHeight: 17 },
+  infoBox2:            { flexDirection: 'row', alignItems: 'flex-start', gap: 12, backgroundColor: 'rgba(59,139,232,0.10)', borderRadius: 12, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(111,175,242,0.28)' },
+  infoBox2Text:        { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.78)', lineHeight: 18, flex: 1 },
   upgradeBtn:          { borderRadius: 10, overflow: 'hidden', backgroundColor: '#F5C053', paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center' },
   upgradeBtnText:      { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#fff' },
   version:         { ...typography.caption, color: colors.text3, textAlign: 'center', marginTop: spacing.xxl, lineHeight: 20, fontSize: 12 },
