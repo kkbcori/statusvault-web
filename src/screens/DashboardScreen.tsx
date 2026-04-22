@@ -263,6 +263,33 @@ export const DashboardScreen: React.FC = () => {
 
   const profileLabel = VISA_PROFILES.find((p) => p.id === visaProfile)?.label;
 
+  const renderDocItem = ({ item }: any) => {
+    if (item.id === '__add__') return (
+      <TouchableOpacity style={styles.addDocRow} onPress={() => { setShowProfileSetup(false); setAnyModalOpen(false); navigation.navigate('Main', { screen: 'Documents' }); }}>
+        <Text style={styles.addDocText}>+ Add more documents manually</Text>
+      </TouchableOpacity>
+    );
+    const isSelected   = selectedDocIds.includes(item.id);
+    const alreadyAdded = documents.some((d: any) => d.templateId === item.id);
+    const wouldExceed  = !isPremium && !isSelected && !alreadyAdded && newDocCount >= slotsLeft;
+    return (
+      <TouchableOpacity
+        style={[styles.docRow, !isSelected && { opacity: 0.4 }, wouldExceed && { opacity: 0.25 }]}
+        onPress={() => !wouldExceed && toggleDocId(item.id)}
+        activeOpacity={wouldExceed ? 1 : 0.75}
+      >
+        <View style={[styles.docCheck, isSelected && styles.docCheckActive]}>
+          {isSelected && <Ionicons name="checkmark" size={12} color="#fff" />}
+        </View>
+        <Text style={{ fontSize: 20, marginRight: 10 }}>{item.icon}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.docLabel}>{item.label}</Text>
+          <Text style={styles.docSub}>{alreadyAdded ? '✓ Already tracked' : `Alerts: ${item.alertDays?.map((d: number) => d + 'd').join(', ')}`}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <ScrollView
       style={styles.container}
@@ -593,33 +620,6 @@ export const DashboardScreen: React.FC = () => {
         </Card>
 
       </View>{/* end row 2 */}
-
-  const renderDocItem = ({ item }: any) => {
-    if (item.id === '__add__') return (
-      <TouchableOpacity style={styles.addDocRow} onPress={() => { setShowProfileSetup(false); setAnyModalOpen(false); navigation.navigate('Main', { screen: 'Documents' }); }}>
-        <Text style={styles.addDocText}>+ Add more documents manually</Text>
-      </TouchableOpacity>
-    );
-    const isSelected   = selectedDocIds.includes(item.id);
-    const alreadyAdded = documents.some((d: any) => d.templateId === item.id);
-    const wouldExceed  = !isPremium && !isSelected && !alreadyAdded && newDocCount >= slotsLeft;
-    return (
-      <TouchableOpacity
-        style={[styles.docRow, !isSelected && { opacity: 0.4 }, wouldExceed && { opacity: 0.25 }]}
-        onPress={() => !wouldExceed && toggleDocId(item.id)}
-        activeOpacity={wouldExceed ? 1 : 0.75}
-      >
-        <View style={[styles.docCheck, isSelected && styles.docCheckActive]}>
-          {isSelected && <Ionicons name="checkmark" size={12} color="#fff" />}
-        </View>
-        <Text style={{ fontSize: 20, marginRight: 10 }}>{item.icon}</Text>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.docLabel}>{item.label}</Text>
-          <Text style={styles.docSub}>{alreadyAdded ? '✓ Already tracked' : `Alerts: ${item.alertDays?.map((d: number) => d + 'd').join(', ')}`}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
 
       {/* ═══ PROFILE SETUP MODAL ═══ */}
       <Modal visible={showProfileSetup} transparent animationType="fade">
