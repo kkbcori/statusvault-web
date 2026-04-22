@@ -15,6 +15,9 @@ import { colors, typography, shadows } from '../theme';
 import { useStore, FREE_LIMIT } from '../store';
 import { generateDeadlines, getMostCritical, formatDate, addDaysToDate, today } from '../utils/dates';
 import { IS_WEB, IS_TABLET } from '../utils/responsive';
+
+// Fixed card height — all 4 dashboard cards share this height
+const CARD_H = IS_WEB ? 360 : 320;
 import { useWindowDimensions } from 'react-native';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
 import { UserDocument } from '../types';
@@ -433,7 +436,7 @@ export const DashboardScreen: React.FC = () => {
                 </View>
               </View>
             ))}
-            <View style={styles.cardSpacer} />
+            <View style={{ flex: 1 }} />
             <TouchableOpacity style={styles.cardFooterBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
               <Text style={styles.cardFooterText}>View Documents</Text>
               <Ionicons name="arrow-forward" size={13} color="#7367F0" />
@@ -488,29 +491,31 @@ export const DashboardScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
             ) : (
-              <View style={styles.deadlineList}>
-                {deadlines.slice(0, 5).map((dl) => {
-                  const isExpired  = dl.daysRemaining < 0;
-                  const isCritical = !isExpired && dl.daysRemaining < 30;
-                  const isHigh     = !isExpired && dl.daysRemaining >= 30 && dl.daysRemaining < 60;
-                  const isMedium   = !isExpired && dl.daysRemaining >= 60 && dl.daysRemaining < 180;
-                  const badgeColor = isExpired ? '#EA5455' : isCritical ? '#EA5455' : isHigh ? '#FF9F43' : isMedium ? '#7367F0' : '#28C76F';
-                  const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFEEEE' : isHigh ? '#FFF4E6' : isMedium ? '#F0EEFF' : '#EAFFF4';
-                  const severity   = isExpired ? 'Expired' : isCritical ? 'Critical' : isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
-                  const badgeLabel = `${severity}${!isExpired ? ` · ${dl.daysRemaining}d` : ''}`;
-                  return (
-                    <View key={dl.documentId} style={styles.deadlineRow}>
-                      <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
-                      <Text style={styles.deadlineIcon}>{dl.icon}</Text>
-                      <View style={styles.deadlineInfo}>
-                        <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
-                        <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
+              <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
+                <View style={styles.deadlineList}>
+                  {deadlines.map((dl) => {
+                    const isExpired  = dl.daysRemaining < 0;
+                    const isCritical = !isExpired && dl.daysRemaining < 30;
+                    const isHigh     = !isExpired && dl.daysRemaining >= 30 && dl.daysRemaining < 60;
+                    const isMedium   = !isExpired && dl.daysRemaining >= 60 && dl.daysRemaining < 180;
+                    const badgeColor = isExpired ? '#EA5455' : isCritical ? '#EA5455' : isHigh ? '#FF9F43' : isMedium ? '#7367F0' : '#28C76F';
+                    const badgeBg    = isExpired ? '#FFEEEE' : isCritical ? '#FFEEEE' : isHigh ? '#FFF4E6' : isMedium ? '#F0EEFF' : '#EAFFF4';
+                    const severity   = isExpired ? 'Expired' : isCritical ? 'Critical' : isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
+                    const badgeLabel = `${severity}${!isExpired ? ` · ${dl.daysRemaining}d` : ''}`;
+                    return (
+                      <View key={dl.documentId} style={styles.deadlineRow}>
+                        <View style={[styles.deadlineStrip, { backgroundColor: badgeColor }]} />
+                        <Text style={styles.deadlineIcon}>{dl.icon}</Text>
+                        <View style={styles.deadlineInfo}>
+                          <Text style={styles.deadlineName} numberOfLines={1}>{dl.label}</Text>
+                          <Text style={styles.deadlineDate}>{formatDate(dl.expiryDate)}</Text>
+                        </View>
+                        <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
                       </View>
-                      <StatusBadge label={badgeLabel} color={badgeColor} bg={badgeBg} />
-                    </View>
-                  );
-                })}
-              </View>
+                    );
+                  })}
+                </View>
+              </ScrollView>
             )}
           </Card></Animated.View>
 
@@ -521,7 +526,7 @@ export const DashboardScreen: React.FC = () => {
       <View style={[styles.cardRow, hasSidebar && styles.cardRowWide as any]}>
 
         {/* Card 3: Immi Checklist */}
-        <Card style={[styles.gridCard, hasSidebar && styles.cardHalf as any]}>
+        <Card style={[styles.gridCard, hasSidebar && styles.cardHalf as any, { height: CARD_H }]}>
           <CardHeader
             title="Immi Checklist"
             subtitle={checklists.length > 0 ? `${checklists.length} active checklist${checklists.length !== 1 ? 's' : ''}` : 'Track your immigration steps'}
@@ -570,7 +575,7 @@ export const DashboardScreen: React.FC = () => {
         </Card>
 
         {/* Card 4: Immi Timers */}
-        <Card style={[styles.gridCard, hasSidebar && styles.cardHalf as any]}>
+        <Card style={[styles.gridCard, hasSidebar && styles.cardHalf as any, { height: CARD_H }]}>
           <CardHeader
             title="Immi Timers"
             subtitle={counters.length > 0 ? `${counters.length} timer${counters.length !== 1 ? 's' : ''} active` : 'Track unemployment & stay days'}
@@ -810,9 +815,9 @@ const styles = StyleSheet.create({
   // 4-card grid
   cardGrid:            { gap: 16 },
   cardRow:             { gap: 16 },
-  cardRowWide:         { flexDirection: 'row' as any, alignItems: 'stretch' as any } as any,
+  cardRowWide:         { flexDirection: 'row' as any, alignItems: 'flex-start' as any } as any,
   cardHalf:            { flex: 1, minWidth: 0 } as any,
-  gridCard:            { overflow: 'hidden' } as any,
+  gridCard:            { overflow: 'hidden', height: CARD_H, flexDirection: 'column' as any } as any,
   cardSpacer:          { height: 16 },
   headerLink:          { flexDirection: 'row', alignItems: 'center', gap: 3 },
   headerLinkText:      { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: '#7367F0' },
