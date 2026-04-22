@@ -296,7 +296,7 @@ export const FamilyScreen: React.FC = () => {
           )}
           {!isPremium && !isGuestMode && (
             <View style={styles.freePlanBanner}>
-              <Ionicons name="information-circle-outline" size={14} color="#4F46E5" />
+              <Ionicons name="information-circle-outline" size={14} color="#6FAFF2" />
               <Text style={styles.freePlanBannerText}>
                 Free plan: <Text style={{ fontFamily: 'Inter_700Bold' }}>1 family member</Text> · <Text style={{ fontFamily: 'Inter_700Bold' }}>{FREE_DOC_LIMIT} doc{FREE_DOC_LIMIT !== 1 ? 's' : ''}</Text> per member
               </Text>
@@ -370,7 +370,7 @@ export const FamilyScreen: React.FC = () => {
                                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                 style={{ padding: 4 }}
                               >
-                                <Ionicons name="trash-outline" size={15} color="#EA5455" />
+                                <Ionicons name="trash-outline" size={15} color="#FF6B6B" />
                               </TouchableOpacity>
                             </View>
                           );
@@ -396,7 +396,7 @@ export const FamilyScreen: React.FC = () => {
                           <Text style={styles.addDocBtnText}>Add document</Text>
                           {!isPremium && getMemberDocs(member).length >= FREE_DOC_LIMIT && (
                             <View style={styles.lockBadge}>
-                              <Ionicons name="lock-closed" size={10} color="#FF9F43" />
+                              <Ionicons name="lock-closed" size={10} color="#F5C053" />
                               <Text style={styles.lockBadgeText}>Upgrade</Text>
                             </View>
                           )}
@@ -411,7 +411,7 @@ export const FamilyScreen: React.FC = () => {
                           }}
                           style={styles.editMemberBtn}
                         >
-                          <Ionicons name="create-outline" size={13} color="#4F46E5" />
+                          <Ionicons name="create-outline" size={13} color="#6FAFF2" />
                           <Text style={styles.editMemberText}>Edit</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => handleRemoveMember(member)}>
@@ -457,7 +457,7 @@ export const FamilyScreen: React.FC = () => {
               />
               {nameError && (
                 <View style={styles.inlineError}>
-                  <Ionicons name="alert-circle" size={13} color="#EA5455" />
+                  <Ionicons name="alert-circle" size={13} color="#FF6B6B" />
                   <Text style={styles.inlineErrorText}>Name is required</Text>
                 </View>
               )}
@@ -520,13 +520,13 @@ export const FamilyScreen: React.FC = () => {
               </View>
               {docLimitError && (
                 <View style={[styles.inlineError, { marginBottom: 8 }]}>
-                  <Ionicons name="lock-closed" size={13} color="#FF9F43" />
+                  <Ionicons name="lock-closed" size={13} color="#F5C053" />
                   <Text style={[styles.inlineErrorText, { color: '#F5C053' }]}>Free plan: max {FREE_DOC_LIMIT} docs per member. Upgrade for more.</Text>
                 </View>
               )}
               {docTemplateError && (
                 <View style={[styles.inlineError, { marginBottom: 8 }]}>
-                  <Ionicons name="alert-circle" size={13} color="#EA5455" />
+                  <Ionicons name="alert-circle" size={13} color="#FF6B6B" />
                   <Text style={styles.inlineErrorText}>Please select a document type</Text>
                 </View>
               )}
@@ -596,7 +596,7 @@ export const FamilyScreen: React.FC = () => {
               </View>
               {docExpiryError && (
                 <View style={[styles.inlineError, { marginBottom: 6 }]}>
-                  <Ionicons name="alert-circle" size={13} color="#EA5455" />
+                  <Ionicons name="alert-circle" size={13} color="#FF6B6B" />
                   <Text style={styles.inlineErrorText}>Please select an expiry date</Text>
                 </View>
               )}
@@ -659,7 +659,7 @@ export const FamilyScreen: React.FC = () => {
               />
               {editNameError && (
                 <View style={styles.inlineError}>
-                  <Ionicons name="alert-circle" size={13} color="#EA5455" />
+                  <Ionicons name="alert-circle" size={13} color="#FF6B6B" />
                   <Text style={styles.inlineErrorText}>Name is required</Text>
                 </View>
               )}
@@ -760,8 +760,8 @@ const styles = StyleSheet.create({
   removeText:       { fontSize: 12, fontFamily: 'Inter_500Medium', color: colors.danger },
   editMemberBtn:    { flexDirection: 'row', alignItems: 'center', gap: 4 },
   editMemberText:   { fontSize: 12, fontFamily: 'Inter_500Medium', color: '#6FAFF2' },
-  overlay:          { flex: 1, backgroundColor: 'rgba(17,24,39,0.55)', alignItems: 'center', justifyContent: 'center', padding: 20 },
-  modal:            { backgroundColor: colors.card, borderRadius: 16, width: '100%', maxWidth: 480, maxHeight: '88%' as any, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', ...shadows.lg } as any,
+  overlay:          { flex: 1, backgroundColor: 'rgba(3,8,18,0.80)', alignItems: 'center', justifyContent: 'center', padding: 20 },
+  modal:            { backgroundColor: '#0C1A34', borderRadius: 16, width: '100%', maxWidth: 480, maxHeight: '88%' as any, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', ...shadows.lg } as any,
   modalHeader:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.xl, paddingBottom: 0 },
   modalTitle:       { fontSize: 16, fontFamily: 'Inter_700Bold', color: colors.text1 },
   fieldLabel:       { ...typography.captionBold, color: colors.text2, marginBottom: 6, marginTop: 4 },

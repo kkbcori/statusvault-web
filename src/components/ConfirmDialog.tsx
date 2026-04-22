@@ -146,8 +146,8 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 };
 
 const styles = StyleSheet.create({
-  overlay:          { flex: 1, backgroundColor: 'rgba(17,24,39,0.5)', alignItems: 'center', justifyContent: 'center', padding: 24 },
-  dialog:           { backgroundColor: colors.card, borderRadius: radius.xl, padding: 24, width: '100%', maxWidth: 400, ...shadows.lg },
+  overlay:          { flex: 1, backgroundColor: 'rgba(3,8,18,0.80)', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  dialog:           { backgroundColor: '#0C1A34', borderRadius: radius.xl, padding: 24, width: '100%', maxWidth: 400, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', ...shadows.lg },
   iconRow:          { alignItems: 'center', marginBottom: 14 },
   iconBox:          { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   title:            { fontSize: 16, fontFamily: 'Inter_700Bold', color: colors.text1, textAlign: 'center', marginBottom: 8 },

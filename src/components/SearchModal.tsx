@@ -124,7 +124,7 @@ export const SearchModal: React.FC<Props> = ({ visible, onClose }) => {
     <View style={s.sheet}>
       {/* Search input */}
       <View style={s.searchRow}>
-        <Ionicons name="search-outline" size={18} color="#64748B" style={{ marginRight: 8 }} />
+        <Ionicons name="search-outline" size={18} color="rgba(240,244,255,0.55)" style={{ marginRight: 8 }} />
         {IS_WEB ? (
           <input
             autoFocus
@@ -147,7 +147,7 @@ export const SearchModal: React.FC<Props> = ({ visible, onClose }) => {
       <ScrollView style={s.results} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {query.length >= 2 && results.length === 0 && (
           <View style={s.empty}>
-            <Ionicons name="search-outline" size={32} color="#CBD5E1" />
+            <Ionicons name="search-outline" size={32} color="rgba(240,244,255,0.35)" />
             <Text style={s.emptyTxt}>No results for "{query}"</Text>
             <Text style={s.emptyHint}>Try searching for a document type, visa status, or checklist name</Text>
           </View>
@@ -215,9 +215,9 @@ export const SearchModal: React.FC<Props> = ({ visible, onClose }) => {
 
 const s = StyleSheet.create({
   overlay:     { position: 'absolute' as any, inset: 0, zIndex: 5000, alignItems: 'center', justifyContent: 'flex-start', paddingTop: 60 } as any,
-  backdrop:    { position: 'absolute' as any, inset: 0, backgroundColor: 'rgba(15,23,42,0.60)' } as any,
+  backdrop:    { position: 'absolute' as any, inset: 0, backgroundColor: 'rgba(3,8,18,0.80)' } as any,
   centered:    { width: '100%', maxWidth: 540, zIndex: 1, paddingHorizontal: 16 } as any,
-  sheet:       { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 16, overflow: 'hidden', maxHeight: 520, ...Platform.select({ web: { boxShadow: '0 16px 48px rgba(15,23,42,0.18)' } as any }) } as any,
+  sheet:       { backgroundColor: '#0C1A34', borderRadius: 16, overflow: 'hidden', maxHeight: 520, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', ...Platform.select({ web: { boxShadow: '0 24px 64px rgba(0,0,0,0.55)' } as any }) } as any,
   searchRow:   { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
   cancelBtn:   { paddingLeft: 12 },
   cancelTxt:   { fontSize: 14, fontFamily: 'Inter_500Medium', color: '#6FAFF2' },

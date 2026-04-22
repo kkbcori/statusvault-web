@@ -56,7 +56,7 @@ export const PaywallModal: React.FC<Props> = ({ visible, onClose, onUnlock }) =>
 
         <View style={s.card}>
           {/* Dark header */}
-          <LinearGradient colors={['#030712', '#F0F4FF', '#0A1530']} style={s.header}>
+          <LinearGradient colors={['#050B1C', '#0A1530', '#123A72']} style={s.header}>
             <View style={s.orb1} /><View style={s.orb2} />
 
             <TouchableOpacity style={s.closeBtn} onPress={onClose}>
@@ -101,7 +101,7 @@ export const PaywallModal: React.FC<Props> = ({ visible, onClose, onUnlock }) =>
                   <Text style={[s.planPeriod, plan === p.id && s.planPeriodActive]}>{p.period}</Text>
                   {plan === p.id && (
                     <View style={s.planCheck}>
-                      <Ionicons name="checkmark-circle" size={16} color="#4F46E5" />
+                      <Ionicons name="checkmark-circle" size={16} color="#6FAFF2" />
                     </View>
                   )}
                 </TouchableOpacity>
@@ -115,7 +115,7 @@ export const PaywallModal: React.FC<Props> = ({ visible, onClose, onUnlock }) =>
               {FEATURES.map(({ icon, text }, i) => (
                 <View key={i} style={s.featureRow}>
                   <View style={s.featureCheck2}>
-                    <Ionicons name="checkmark" size={12} color="#4F46E5" />
+                    <Ionicons name="checkmark" size={12} color="#6FAFF2" />
                   </View>
                   <Text style={s.featureText}>{text}</Text>
                 </View>
@@ -155,11 +155,11 @@ const s = StyleSheet.create({
   titleUnderline: { width: 40, height: 3, backgroundColor: '#6FAFF2', borderRadius: 2, marginBottom: 10 },
   subtitle:   { fontSize: 12, fontFamily: 'Inter_400Regular', color: 'rgba(203,213,225,0.60)', textAlign: 'center' },
 
-  body:       { backgroundColor: 'rgba(255,255,255,0.05)', padding: 20 },
+  body:       { backgroundColor: '#0C1A34', padding: 20 },
 
   // Plan selector
   planRow:    { flexDirection: 'row', gap: 10, marginBottom: 8 } as any,
-  planCard:   { flex: 1, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.10)', borderRadius: 14, padding: 12, alignItems: 'center', position: 'relative' as any, backgroundColor: 'rgba(255,255,255,0.05)' } as any,
+  planCard:   { flex: 1, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.12)', borderRadius: 14, padding: 12, alignItems: 'center', position: 'relative' as any, backgroundColor: 'rgba(255,255,255,0.04)' } as any,
   planCardActive: { borderColor: '#6FAFF2', backgroundColor: 'rgba(59,139,232,0.14)' },
   planBadge:  { position: 'absolute' as any, top: -10, backgroundColor: '#6FAFF2', borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
   planBadgeTxt:{ fontSize: 8, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: 0.8 },
@@ -168,7 +168,7 @@ const s = StyleSheet.create({
   planPrice:  { fontSize: 26, fontFamily: 'Inter_900Black', color: '#F0F4FF', letterSpacing: -1 },
   planPriceActive: { color: '#6FAFF2' },
   planPeriod: { fontSize: 10, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.45)', marginTop: 2 },
-  planPeriodActive: { color: '#6366F1' },
+  planPeriodActive: { color: '#6FAFF2' },
   planCheck:  { position: 'absolute' as any, top: 8, right: 8 },
   planNote:   { fontSize: 11, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.55)', textAlign: 'center', marginBottom: 14 },
 

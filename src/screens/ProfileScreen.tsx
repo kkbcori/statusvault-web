@@ -195,7 +195,7 @@ export const ProfileScreen: React.FC<{ visible?: boolean; onClose?: () => void }
               <Text style={s.authPlan}>{isPremium ? '⭐ Premium' : 'Free Plan'}</Text>
             </View>
             <TouchableOpacity style={s.signOutBtn} onPress={() => { signOut?.(); onClose?.(); }}>
-              <Ionicons name="log-out-outline" size={13} color="#EA5455" />
+              <Ionicons name="log-out-outline" size={13} color="#FF6B6B" />
               <Text style={s.signOutTxt}>Sign Out</Text>
             </TouchableOpacity>
           </>
@@ -324,9 +324,9 @@ export const ProfileScreen: React.FC<{ visible?: boolean; onClose?: () => void }
 };
 
 const s = StyleSheet.create({
-  overlay:    { position: 'fixed' as any, inset: 0, zIndex: 2000, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(47,51,73,0.5)' } as any,
+  overlay:    { position: 'fixed' as any, inset: 0, zIndex: 2000, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(3,8,18,0.80)' } as any,
   backdrop:   { position: 'absolute' as any, inset: 0 } as any,
-  panel:      { width: '100%', maxWidth: 520, maxHeight: '90%' as any, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 16, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', zIndex: 1, ...Platform.select({ web: { boxShadow: '0 8px 40px rgba(47,43,61,0.20)' } as any }) } as any,
+  panel:      { width: '100%', maxWidth: 520, maxHeight: '90%' as any, backgroundColor: '#0C1A34', borderRadius: 16, overflow: 'hidden', display: 'flex' as any, flexDirection: 'column', zIndex: 1, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', ...Platform.select({ web: { boxShadow: '0 24px 64px rgba(0,0,0,0.55)' } as any }) } as any,
   sheet:      { flex: 1, display: 'flex' as any, flexDirection: 'column' },
   header:     { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 20, borderBottomWidth: 1, borderBottomColor: 'transparent' },
   headerTitle:{ fontSize: 16, fontFamily: 'Inter_700Bold', color: '#F0F4FF' },

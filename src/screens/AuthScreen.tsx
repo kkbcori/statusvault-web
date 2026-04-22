@@ -404,8 +404,8 @@ const styles = StyleSheet.create({
 });
 
 const webStyles = StyleSheet.create({
-  outer:      { flex: 1, backgroundColor: '#F0EFE9', alignItems: 'center', justifyContent: 'center', padding: 24 },
-  card:       { width: '100%', maxWidth: 440, backgroundColor: colors.card, borderRadius: 20, overflow: 'hidden', ...shadows.lg },
+  outer:      { flex: 1, backgroundColor: '#050B1C', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  card:       { width: '100%', maxWidth: 440, backgroundColor: '#0C1A34', borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', ...shadows.lg },
   cardHeader: { backgroundColor: colors.primary, padding: 28, alignItems: 'center', borderBottomWidth: 3, borderBottomColor: colors.accent },
   logo:       { width: 90, height: 90, borderRadius: 16, marginBottom: 10 } as any,
   title:      { fontSize: 20, fontFamily: 'Inter_800ExtraBold', color: '#fff', letterSpacing: -0.3 },

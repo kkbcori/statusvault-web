@@ -114,7 +114,7 @@ export const NotificationBell: React.FC = () => {
               )}
               {notifications.length > 0 && (
                 <TouchableOpacity onPress={clearAll} style={s.hdrBtn}>
-                  <Ionicons name="trash-outline" size={13} color="#94A3B8" />
+                  <Ionicons name="trash-outline" size={13} color="rgba(240,244,255,0.45)" />
                 </TouchableOpacity>
               )}
             </View>
@@ -123,7 +123,7 @@ export const NotificationBell: React.FC = () => {
           {/* Empty state */}
           {notifications.length === 0 && (
             <View style={s.empty}>
-              <Ionicons name="checkmark-circle-outline" size={32} color="#CBD5E1" />
+              <Ionicons name="checkmark-circle-outline" size={32} color="rgba(240,244,255,0.35)" />
               <Text style={s.emptyTxt}>All caught up!</Text>
               <Text style={s.emptySub}>No document expiry alerts</Text>
             </View>
@@ -147,7 +147,7 @@ export const NotificationBell: React.FC = () => {
                         </View>
                         {n.isFamilyDoc && (
                           <View style={s.famChip}>
-                            <Ionicons name="people-outline" size={9} color="#7C3AED" />
+                            <Ionicons name="people-outline" size={9} color="#3B8BE8" />
                             <Text style={s.famTxt}>{n.memberName}</Text>
                           </View>
                         )}
@@ -159,10 +159,10 @@ export const NotificationBell: React.FC = () => {
                     </View>
                     <View style={{ flexDirection: 'column', gap: 2 } as any}>
                       <TouchableOpacity onPress={() => n.read ? markUnread(n.id) : markRead(n.id)} style={s.actBtn}>
-                        <Ionicons name={n.read ? 'mail-outline' : 'mail-open-outline'} size={14} color="#94A3B8" />
+                        <Ionicons name={n.read ? 'mail-outline' : 'mail-open-outline'} size={14} color="rgba(240,244,255,0.45)" />
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => remove(n.id)} style={s.actBtn}>
-                        <Ionicons name="close" size={14} color="#94A3B8" />
+                        <Ionicons name="close" size={14} color="rgba(240,244,255,0.45)" />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -181,7 +181,7 @@ const s = StyleSheet.create({
   badge:     { position: 'absolute' as any, top: -4, right: -4, minWidth: 17, height: 17, borderRadius: 9, backgroundColor: '#FF6B6B', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3, borderWidth: 2, borderColor: 'rgba(255,255,255,0.05)' },
   badgeTxt:  { fontSize: 9, fontFamily: 'Inter_800ExtraBold', color: '#fff', lineHeight: 12 },
   backdrop:  { position: 'absolute' as any, inset: 0 } as any,
-  panel:     { position: 'absolute' as any, width: 340, maxHeight: 480, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 16, ...Platform.select({ web: { boxShadow: '0 8px 40px rgba(15,23,42,0.15)' } as any }), borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', overflow: 'hidden' } as any,
+  panel:     { position: 'absolute' as any, width: 340, maxHeight: 480, backgroundColor: '#0C1A34', borderRadius: 16, ...Platform.select({ web: { boxShadow: '0 16px 48px rgba(0,0,0,0.55)' } as any }), borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', overflow: 'hidden' } as any,
   hdr:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
   hdrTitle:  { fontSize: 14, fontFamily: 'Inter_700Bold', color: '#F0F4FF' },
   hdrSub:    { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', marginTop: 1 },
