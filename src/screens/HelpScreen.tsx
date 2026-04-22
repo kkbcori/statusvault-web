@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB, IS_TABLET } from '../utils/responsive';
+import { AppIcon } from '../utils/icons';
 
 // ─── SEO meta injection (web only) ───────────────────────────
 if (IS_WEB && typeof document !== 'undefined') {
@@ -297,6 +298,21 @@ export const HelpScreen: React.FC = () => {
         ))}
       </View>
 
+      {/* Featured tips — quick visual guidance */}
+      <View style={styles.tipsRow}>
+        {[
+          { icon: 'passport2' as const, title: 'Renew Early',      text: 'Start passport renewal 6 months before expiry' },
+          { icon: 'calendar' as const,  title: 'Mark Deadlines',   text: 'Track every priority date and filing window' },
+          { icon: 'interview' as const, title: 'Prepare Early',    text: 'Gather documents weeks before USCIS interviews' },
+        ].map((t) => (
+          <View key={t.icon} style={styles.tipCard}>
+            <AppIcon name={t.icon} size={48} style={{ marginBottom: 8 } as any} />
+            <Text style={styles.tipTitle}>{t.title}</Text>
+            <Text style={styles.tipText}>{t.text}</Text>
+          </View>
+        ))}
+      </View>
+
       {/* Search */}
       <View style={styles.searchWrap}>
         <Ionicons name="search-outline" size={18} color={colors.text3} style={styles.searchIcon} />
@@ -407,6 +423,12 @@ const styles = StyleSheet.create({
   statCard:      { flex: 1, backgroundColor: colors.card, borderRadius: radius.lg, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', ...shadows.sm },
   statNum:       { fontSize: 20, fontFamily: 'Inter_900Black', color: '#6FAFF2', letterSpacing: -0.5 },
   statLabel:     { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: colors.text3, marginTop: 2, textAlign: 'center' },
+
+  // Featured tips
+  tipsRow:       { flexDirection: IS_WEB ? 'row' : 'column' as any, gap: 10, marginBottom: spacing.lg } as any,
+  tipCard:       { flex: IS_WEB ? 1 : undefined, backgroundColor: colors.card, borderRadius: radius.lg, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' } as any) : {}) } as any,
+  tipTitle:      { fontSize: 13, fontFamily: 'Inter_700Bold', color: colors.text1, marginBottom: 4, letterSpacing: -0.1 },
+  tipText:       { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3, textAlign: 'center', lineHeight: 15 },
 
   // Search
   searchWrap:    { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.20)', paddingHorizontal: 14, paddingVertical: Platform.OS === 'ios' ? 14 : 6, marginHorizontal: IS_WEB ? 0 : IS_TABLET ? 24 : spacing.screen, marginBottom: spacing.lg },

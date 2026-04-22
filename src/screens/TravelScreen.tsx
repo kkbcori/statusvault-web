@@ -25,6 +25,7 @@ import {
 import { exportTravelPdf } from '../utils/travelPdf';
 import { exportAddressPdf } from '../utils/addressPdf';
 import { AddressEntry } from '../types';
+import { AppIcon } from '../utils/icons';
 
 // ─── Purpose Picker ──────────────────────────────────────────
 const PURPOSES: TripPurpose[] = ['vacation', 'business', 'family', 'medical', 'other'];
@@ -124,7 +125,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, index, onDelete, onEdit }) =>
 
         {longTrip && (
           <View style={styles.longAbsenceChip}>
-            <Ionicons name="warning-outline" size={12} color="#DC2626" />
+            <Ionicons name="warning-outline" size={12} color="#FF6B6B" />
             <Text style={styles.longAbsenceText}>Long absence — may affect continuous residence</Text>
           </View>
         )}
@@ -450,7 +451,7 @@ export const TravelScreen: React.FC = () => {
         {/* Long absence warning */}
         {hasLong && (
           <View style={styles.warningBanner}>
-            <Ionicons name="warning-outline" size={16} color="#92400E" />
+            <Ionicons name="warning-outline" size={16} color="#F5C053" />
             <Text style={styles.warningText}>
               A trip in the last 5 years exceeded 180 days. This may affect continuous residence for naturalization. Consult an immigration attorney.
             </Text>
@@ -466,14 +467,14 @@ export const TravelScreen: React.FC = () => {
             {/* ── Card header — mirrored with Address card ── */}
             <View style={styles.cardTopRow}>
               <View style={styles.cardIconBox}>
-                <Ionicons name="airplane-outline" size={16} color="#7367F0" />
+                <Ionicons name="airplane-outline" size={16} color="#6FAFF2" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.cardTitle}>{activeMember ? `${activeMember.name}'s I-94` : 'I-94 Travel History'}</Text>
                 <Text style={styles.cardSub}>N-400 Part 8 · Naturalization</Text>
               </View>
               <TouchableOpacity style={styles.miniExportBtn} onPress={handleExport} activeOpacity={0.8} disabled={exporting}>
-                <Ionicons name="document-text-outline" size={12} color="#7367F0" />
+                <Ionicons name="document-text-outline" size={12} color="#6FAFF2" />
                 <Text style={styles.miniExportTxt}>{exporting ? '…' : 'Export N-400'}</Text>
               </TouchableOpacity>
             </View>
@@ -484,7 +485,7 @@ export const TravelScreen: React.FC = () => {
               onPress={openAdd}
               activeOpacity={0.85}
             >
-              <Ionicons name="add-circle-outline" size={15} color="#7367F0" />
+              <Ionicons name="add-circle-outline" size={15} color="#6FAFF2" />
               <Text style={[styles.cardAddBtnTxt, { color: '#6FAFF2' }]}>Add Trip</Text>
             </TouchableOpacity>
 
@@ -498,9 +499,7 @@ export const TravelScreen: React.FC = () => {
 
           {displayed.length === 0 ? (
             <View style={styles.emptyCard}>
-              <View style={styles.emptyIconCircle}>
-                <Text style={{ fontSize: 28 }}>✈️</Text>
-              </View>
+              <AppIcon name="travel" size={88} style={{ marginBottom: spacing.md } as any} />
               <Text style={styles.emptyTitle}>No trips recorded</Text>
               <Text style={styles.emptySubtitle}>
                 Tap "+ Trip" to log your first international trip for N-400 tracking
@@ -542,7 +541,7 @@ export const TravelScreen: React.FC = () => {
             {/* Gap warning — shown above Add Address button when gap exists */}
             {addrHasGap && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 6 }}>
-                <Ionicons name="warning-outline" size={13} color="#EA5455" />
+                <Ionicons name="warning-outline" size={13} color="#FF6B6B" />
                 <Text style={{ fontSize: 11, color: '#FF6B6B', fontFamily: 'Inter_500Medium' }}>
                   {addrGapDays}-day gap detected in address history
                 </Text>
@@ -561,14 +560,14 @@ export const TravelScreen: React.FC = () => {
           {/* Show all toggle — mirrored with trip card */}
           <View style={{ gap: 8 }}>
             {activeAddressHistory.length > 0 && (
-              <TouchableOpacity onPress={() => setShowAllAddr(!showAllAddr)} style={[styles.toggleChip, { alignSelf: 'flex-end', marginBottom: 4, borderColor: '#A5F3FC', backgroundColor: showAllAddr ? '#CFFAFE' : '#F0FDFF' }]}>
+              <TouchableOpacity onPress={() => setShowAllAddr(!showAllAddr)} style={[styles.toggleChip, { alignSelf: 'flex-end', marginBottom: 4, borderColor: 'rgba(91,154,245,0.35)', backgroundColor: showAllAddr ? 'rgba(91,154,245,0.22)' : 'rgba(91,154,245,0.10)' }]}>
                 <Text style={[styles.toggleChipText, { color: '#5B9AF5' }]}>{showAllAddr ? 'Show recent' : 'Show all'}</Text>
               </TouchableOpacity>
             )}
 
           {sortedAddresses.length === 0 ? (
             <View style={styles.emptyCard}>
-              <View style={[styles.emptyIconCircle, { backgroundColor: '#F0FDFF', borderColor: 'rgba(8,145,178,0.25)' }]}>
+              <View style={[styles.emptyIconCircle, { backgroundColor: 'rgba(91,154,245,0.14)', borderColor: 'rgba(91,154,245,0.28)' }]}>
                 <Text style={{ fontSize: 28 }}>🏠</Text>
               </View>
               <Text style={styles.emptyTitle}>No addresses yet</Text>
@@ -653,9 +652,9 @@ export const TravelScreen: React.FC = () => {
             </View>
 
             {/* Context card — purple I-94 theme */}
-            <View style={[styles.addrInfoCard, { backgroundColor: 'rgba(167,139,250,0.14)', borderColor: '#DDD6FE' }]}>
+            <View style={[styles.addrInfoCard, { backgroundColor: 'rgba(167,139,250,0.14)', borderColor: 'rgba(167,139,250,0.32)' }]}>
               <View style={[styles.addrInfoIconCircle, { backgroundColor: '#EDE9FE', borderColor: 'rgba(115,103,240,0.25)' }]}>
-                <Ionicons name="airplane-outline" size={18} color="#7367F0" />
+                <Ionicons name="airplane-outline" size={18} color="#6FAFF2" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.addrInfoTitle, { color: '#4C3D99' }]}>I-94 Travel History</Text>
@@ -724,7 +723,7 @@ export const TravelScreen: React.FC = () => {
               {/* Duration preview */}
               {returnDate >= departure && (
                 <View style={styles.durationPreview}>
-                  <Ionicons name="timer-outline" size={13} color="#7367F0" />
+                  <Ionicons name="timer-outline" size={13} color="#6FAFF2" />
                   <Text style={styles.durationText}>
                     {getTripDays({ departureDate: departure.toISOString().split('T')[0], returnDate: returnDate.toISOString().split('T')[0] } as TravelTrip)} days outside the US
                     {getTripDays({ departureDate: departure.toISOString().split('T')[0], returnDate: returnDate.toISOString().split('T')[0] } as TravelTrip) >= 180 ? ' ⚠️ Long absence' : ''}
@@ -736,7 +735,7 @@ export const TravelScreen: React.FC = () => {
               <View style={styles.errorSlot}>
                 {tripError ? (
                   <View style={styles.errorBanner}>
-                    <Ionicons name="alert-circle-outline" size={15} color="#DC2626" />
+                    <Ionicons name="alert-circle-outline" size={15} color="#FF6B6B" />
                     <Text style={styles.errorBannerText}>{tripError}</Text>
                   </View>
                 ) : null}
@@ -861,7 +860,7 @@ export const TravelScreen: React.FC = () => {
               <View style={styles.errorSlot}>
                 {addrError ? (
                   <View style={styles.errorBanner}>
-                    <Ionicons name="alert-circle-outline" size={15} color="#DC2626" />
+                    <Ionicons name="alert-circle-outline" size={15} color="#FF6B6B" />
                     <Text style={styles.errorBannerText}>{addrError}</Text>
                   </View>
                 ) : null}
@@ -919,14 +918,14 @@ const styles = StyleSheet.create({
   cardIconBox:      { width: 36, height: 36, borderRadius: 10, backgroundColor: '#EDE9FE', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   cardTitle:        { fontSize: 15, fontFamily: 'Inter_700Bold', color: '#F0F4FF', lineHeight: 19 },
   cardSub:          { fontSize: 11, fontFamily: 'Inter_400Regular', color: 'rgba(240,244,255,0.55)', marginTop: 1 },
-  cardAddBtn:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1.5, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 10, paddingVertical: 9, marginBottom: 14, backgroundColor: '#FAFAFA', alignSelf: 'stretch' } as any,
+  cardAddBtn:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1.5, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 10, paddingVertical: 9, marginBottom: 14, backgroundColor: 'rgba(255,255,255,0.04)', alignSelf: 'stretch' } as any,
   cardAddBtnTxt:    { fontSize: 13, fontFamily: 'Inter_600SemiBold' },
   twoColRow:        { flexDirection: 'column', gap: 16, paddingHorizontal: spacing.screen, paddingBottom: 24 } as any,
   twoColRowWide:    { flexDirection: 'row' as any, alignItems: 'stretch' as any } as any,
   twoColCard:       { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', minWidth: 0, ...Platform.select({ web: { boxShadow: '0 2px 12px rgba(15,23,42,0.06)' } as any }) } as any,
   twoColCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, flexWrap: 'wrap' as any } as any,
   twoColCardTitle:  { fontSize: 12, fontFamily: 'Inter_700Bold', color: '#F0F4FF', flex: 1 },
-  miniExportBtn:    { flexDirection: 'row', alignItems: 'center', gap: 3, borderWidth: 1, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 4, backgroundColor: '#F8F8FF' } as any,
+  miniExportBtn:    { flexDirection: 'row', alignItems: 'center', gap: 3, borderWidth: 1, borderColor: 'rgba(115,103,240,0.3)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 4, backgroundColor: 'rgba(255,255,255,0.04)' } as any,
   miniExportTxt:    { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: '#6FAFF2' },
   exportBtn:       { marginHorizontal: spacing.screen, marginBottom: spacing.lg, borderRadius: radius.lg, overflow: 'hidden', ...shadows.sm },
   exportBtnGrad:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 15, paddingHorizontal: 20, borderRadius: radius.lg },
@@ -965,7 +964,7 @@ const styles = StyleSheet.create({
   tripMeta:        { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 6 },
   tripMetaText:    { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3 },
   tripNotes:       { fontSize: 11, fontFamily: 'Inter_400Regular', color: colors.text3, fontStyle: 'italic', marginBottom: 8 },
-  longAbsenceChip: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FEE2E2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,107,107,0.30)' },
+  longAbsenceChip: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,107,107,0.14)', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,107,107,0.30)' },
   longAbsenceText: { fontSize: 11, fontFamily: 'Inter_600SemiBold', color: '#FF6B6B', flex: 1 },
   tripActions:     { flexDirection: 'row', gap: 8, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.borderLight },
   tripActionBtn:   { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.sm, borderWidth: 1, borderColor: 'rgba(115,103,240,0.25)', backgroundColor: 'rgba(59,139,232,0.14)' },
@@ -975,8 +974,8 @@ const styles = StyleSheet.create({
   tripActionDelText:{ fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.danger },
 
   // Modal
-  modalOverlay:    { flex: 1, backgroundColor: colors.overlay, justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
-  modalSheet:      { backgroundColor: 'transparent', borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '90%' as any : '92%', height: IS_WEB ? 620 : undefined, maxWidth: IS_WEB ? 520 : undefined, width: IS_WEB ? 520 : '100%' as any, paddingBottom: 8, overflow: 'hidden', borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column' } as any,
+  modalOverlay:    { flex: 1, backgroundColor: 'rgba(3,8,18,0.80)', justifyContent: IS_WEB ? 'center' : 'flex-end', alignItems: IS_WEB ? 'center' as any : 'stretch' as any },
+  modalSheet:      { backgroundColor: '#0C1A34', borderTopLeftRadius: radius.xxl, borderTopRightRadius: radius.xxl, maxHeight: IS_WEB ? '90%' as any : '92%', height: IS_WEB ? 620 : undefined, maxWidth: IS_WEB ? 520 : undefined, width: IS_WEB ? 520 : '100%' as any, paddingBottom: 8, overflow: 'hidden', borderRadius: IS_WEB ? radius.xl : undefined, display: IS_WEB ? 'flex' as any : undefined, flexDirection: 'column', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', ...(Platform.OS === 'web' ? ({ boxShadow: '0 24px 64px rgba(0,0,0,0.55)' } as any) : {}) } as any,
   modalTrim:       { height: 3, backgroundColor: '#6FAFF2' },
   modalHeader:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   modalClose:      { padding: 4 },
@@ -1005,14 +1004,14 @@ const styles = StyleSheet.create({
   saveBtn:         { borderRadius: radius.md, overflow: 'hidden', marginTop: 4 },
   saveBtnGrad:     { paddingVertical: 12, alignItems: 'center', borderRadius: radius.md },
   saveBtnText:     { fontSize: 16, fontFamily: 'Inter_800ExtraBold', color: '#fff' },
-  addrInfoCard:        { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F0FDFF', borderRadius: 12, padding: 10, marginHorizontal: 16, marginTop: 2, borderWidth: 1.5, borderColor: '#A5F3FC' },
-  addrInfoIconCircle:  { width: 36, height: 36, borderRadius: 18, backgroundColor: '#CFFAFE', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(8,145,178,0.25)', flexShrink: 0 },
+  addrInfoCard:        { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(91,154,245,0.10)', borderRadius: 12, padding: 10, marginHorizontal: 16, marginTop: 2, borderWidth: 1, borderColor: 'rgba(91,154,245,0.28)' },
+  addrInfoIconCircle:  { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(91,154,245,0.18)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(91,154,245,0.32)', flexShrink: 0 },
   addrInfoTitle:       { fontSize: 12, fontFamily: 'Inter_700Bold', color: '#0E7490', marginBottom: 1 },
   addrInfoSub:         { fontSize: 10, fontFamily: 'Inter_400Regular', color: '#5B9AF5', lineHeight: 14 },
   addrFieldLabel:      { fontSize: 10, fontFamily: 'Inter_600SemiBold', color: colors.text2, marginBottom: 2, letterSpacing: 0.2 },
   addrFieldInput:      { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 7, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.10)', paddingHorizontal: 10, paddingVertical: 6, fontSize: 12, fontFamily: 'Inter_400Regular', color: colors.text1 },
   addrCurrentToggle:     { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'transparent', borderRadius: 10, padding: 8, marginTop: 4, marginBottom: 0, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.10)' },
-  addrCurrentToggleActive:{ backgroundColor: '#F0F9FF', borderColor: '#67E8F9' },
+  addrCurrentToggleActive:{ backgroundColor: 'rgba(91,154,245,0.15)', borderColor: 'rgba(91,154,245,0.35)' },
   addrToggleBox:         { width: 26, height: 26, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.10)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   addrToggleBoxActive:   { backgroundColor: '#5B9AF5' },
   addrToggleLabel:       { fontSize: 12, fontFamily: 'Inter_600SemiBold', color: colors.text2 },

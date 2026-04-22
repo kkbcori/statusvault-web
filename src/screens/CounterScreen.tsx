@@ -13,6 +13,7 @@ import { useDialog } from '../components/ConfirmDialog';
 import { useNavigation } from '@react-navigation/native';
 import { COUNTER_TEMPLATES } from '../utils/counters';
 import { colors } from '../theme';
+import { AppIcon } from '../utils/icons';
 
 export const CounterScreen: React.FC = () => {
   const navigation     = useNavigation<any>();
@@ -66,9 +67,7 @@ export const CounterScreen: React.FC = () => {
 
       {counters.length === 0 ? (
         <View style={styles.emptyState}>
-          <View style={styles.emptyIcon}>
-            <Ionicons name="timer-outline" size={36} color={colors.primaryLight} />
-          </View>
+          <AppIcon name="timer2" size={96} style={{ marginBottom: 6 } as any} />
           <Text style={styles.emptyTitle}>No timers yet</Text>
           <Text style={styles.emptyDesc}>Track OPT unemployment days, 60-day grace period, and other immigration deadlines</Text>
           <TouchableOpacity style={styles.emptyBtn} onPress={handleAddRequest}>

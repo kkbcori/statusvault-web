@@ -20,6 +20,7 @@ import { DOCUMENT_TEMPLATES, CATEGORY_LABELS, getTemplatesByCategory, DocumentTe
 import { UserDocument, DocumentCategory } from '../types';
 import { useRoute } from '@react-navigation/native';
 import { useEntrance, usePressScale } from '../hooks/useAnimations';
+import { AppIcon } from '../utils/icons';
 
 const PRICE = 'from $0.49';
 const PRICE_LABEL = '$0.49/mo or $4.99/yr';
@@ -193,7 +194,7 @@ export const DocumentsScreen: React.FC = () => {
           <Animated.View style={listAnim}>
           {filteredDocs.length === 0 ? (
             <View style={styles.emptyCard}>
-              <View style={styles.emptyIconCircle}><Text style={{ fontSize: 28 }}>📂</Text></View>
+              <AppIcon name="passport" size={88} style={{ marginBottom: spacing.md } as any} />
               <Text style={styles.emptyTitle}>No documents yet</Text>
               <Text style={styles.emptySubtitle}>Tap "+ Add" to track your first visa or document</Text>
             </View>

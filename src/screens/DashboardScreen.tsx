@@ -408,23 +408,30 @@ export const DashboardScreen: React.FC = () => {
       )}
 
       {/* ── Profile chip ── */}
-      {authUser && !isGuestMode && visaProfile && (
-        <View style={styles.topBanner}>
-          <View style={styles.topBannerProfile}>
-            <View style={styles.topBannerProfileIcon}>
-              <Ionicons name="shield-checkmark" size={14} color={colors.success} />
+      {authUser && !isGuestMode && visaProfile && (() => {
+        const profile = VISA_PROFILES.find((p) => p.id === visaProfile);
+        const profileIcon = profile?.icon as any;
+        return (
+          <View style={styles.topBanner}>
+            <View style={styles.topBannerProfile}>
+              <View style={styles.topBannerProfileIcon}>
+                {profileIcon
+                  ? <AppIcon name={profileIcon} size={22} />
+                  : <Ionicons name="shield-checkmark" size={14} color={colors.success} />
+                }
+              </View>
+              <Text style={styles.topBannerProfileLabel}>{profileLabel}</Text>
+              <TouchableOpacity
+                onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
+                style={styles.topBannerEditBtn}
+              >
+                <Ionicons name="create-outline" size={12} color="rgba(240,244,255,0.60)" />
+                <Text style={styles.topBannerEditText}>Edit</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.topBannerProfileLabel}>{profileLabel}</Text>
-            <TouchableOpacity
-              onPress={() => { setProfileStep('select'); setShowProfileSetup(true); }}
-              style={styles.topBannerEditBtn}
-            >
-              <Ionicons name="create-outline" size={12} color="rgba(240,244,255,0.60)" />
-              <Text style={styles.topBannerEditText}>Edit</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      )}
+        );
+      })()}
 
       {hasSidebar ? (
         /* ── WEB: 2-column paired layout ── */
@@ -512,9 +519,7 @@ export const DashboardScreen: React.FC = () => {
               />
               {deadlines.length === 0 ? (
                 <View style={styles.emptyState}>
-                  <View style={styles.emptyIconWrap}>
-                    <Ionicons name="document-text-outline" size={28} color={colors.primaryLight} />
-                  </View>
+                  <AppIcon name="expiry" size={72} style={{ marginBottom: 4 } as any} />
                   <Text style={styles.emptyTitle}>No documents yet</Text>
                   <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
                     <Text style={styles.emptyBtnText}>Add Document</Text>
@@ -621,9 +626,7 @@ export const DashboardScreen: React.FC = () => {
             />
             {deadlines.length === 0 ? (
               <View style={styles.emptyState}>
-                <View style={styles.emptyIconWrap}>
-                  <Ionicons name="document-text-outline" size={28} color={colors.primaryLight} />
-                </View>
+                <AppIcon name="expiry" size={72} style={{ marginBottom: 4 } as any} />
                 <Text style={styles.emptyTitle}>No documents yet</Text>
                 <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
                   <Text style={styles.emptyBtnText}>Add Document</Text>
@@ -669,9 +672,7 @@ export const DashboardScreen: React.FC = () => {
           />
           {checklists.length === 0 ? (
             <View style={styles.emptyState}>
-              <View style={styles.emptyIconWrap}>
-                <Ionicons name="checkbox-outline" size={28} color={colors.primaryLight} />
-              </View>
+              <AppIcon name="checklist" size={72} style={{ marginBottom: 4 } as any} />
               <Text style={styles.emptyTitle}>No checklists yet</Text>
               <Text style={styles.emptyDesc}>Track OPT, H-1B, and green card steps</Text>
               <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Checklist' })}>
@@ -719,9 +720,7 @@ export const DashboardScreen: React.FC = () => {
           />
           {counters.length === 0 ? (
             <View style={styles.emptyState}>
-              <View style={styles.emptyIconWrap}>
-                <Ionicons name="timer-outline" size={28} color={colors.primaryLight} />
-              </View>
+              <AppIcon name="timer" size={72} style={{ marginBottom: 4 } as any} />
               <Text style={styles.emptyTitle}>No timers yet</Text>
               <Text style={styles.emptyDesc}>OPT unemployment, 60-day grace, and more</Text>
               <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Timers' })}>
@@ -913,7 +912,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(76,217,138,0.25)',
     borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
   },
-  topBannerProfileIcon: { width: 26, height: 26, borderRadius: 8, backgroundColor: 'rgba(76,217,138,0.18)', alignItems: 'center', justifyContent: 'center' },
+  topBannerProfileIcon: { width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(76,217,138,0.18)', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' as any } as any,
   topBannerProfileLabel:{ fontSize: 13, fontFamily: 'Inter_600SemiBold', color: '#F0F4FF', flex: 1 },
   topBannerEditBtn:     { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.05)' },
   topBannerEditText:    { fontSize: 11, fontFamily: 'Inter_500Medium', color: 'rgba(240,244,255,0.65)' },
