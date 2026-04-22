@@ -25,7 +25,7 @@ import {
 import { exportTravelPdf } from '../utils/travelPdf';
 import { exportAddressPdf } from '../utils/addressPdf';
 import { AddressEntry } from '../types';
-import { AppIcon } from '../utils/icons';
+import { AnimatedEmptyIcon } from '../components/AnimatedEmptyIcon';
 
 // ─── Purpose Picker ──────────────────────────────────────────
 const PURPOSES: TripPurpose[] = ['vacation', 'business', 'family', 'medical', 'other'];
@@ -499,7 +499,7 @@ export const TravelScreen: React.FC = () => {
 
           {displayed.length === 0 ? (
             <View style={styles.emptyCard}>
-              <AppIcon name="travel" size={88} style={{ marginBottom: spacing.md } as any} />
+              <AnimatedEmptyIcon name="airplane" size={36} color={colors.primaryLight} haloSize={100} style={{ marginBottom: spacing.md } as any} />
               <Text style={styles.emptyTitle}>No trips recorded</Text>
               <Text style={styles.emptySubtitle}>
                 Tap "+ Trip" to log your first international trip for N-400 tracking

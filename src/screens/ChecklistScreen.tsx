@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme';
-import { AppIcon } from '../utils/icons';
+import { AnimatedEmptyIcon } from '../components/AnimatedEmptyIcon';
 import { IS_WEB } from '../utils/responsive';
 import { useStore } from '../store';
 import { useDialog } from '../components/ConfirmDialog';
@@ -63,7 +63,7 @@ export const ChecklistScreen: React.FC = () => {
 
       {checklists.length === 0 ? (
         <View style={styles.emptyState}>
-          <AppIcon name="checklist2" size={96} style={{ marginBottom: 6 } as any} />
+          <AnimatedEmptyIcon name="list" size={36} color={colors.primaryLight} haloSize={100} />
           <Text style={styles.emptyTitle}>No checklists yet</Text>
           <Text style={styles.emptyDesc}>Add a checklist to track your OPT, H-1B, or green card application steps</Text>
           <TouchableOpacity style={styles.emptyBtn} onPress={handleAddRequest}>

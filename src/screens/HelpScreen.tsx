@@ -12,7 +12,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB, IS_TABLET } from '../utils/responsive';
-import { AppIcon } from '../utils/icons';
 
 // ─── SEO meta injection (web only) ───────────────────────────
 if (IS_WEB && typeof document !== 'undefined') {
@@ -301,12 +300,14 @@ export const HelpScreen: React.FC = () => {
       {/* Featured tips — quick visual guidance */}
       <View style={styles.tipsRow}>
         {[
-          { icon: 'passport2' as const, title: 'Renew Early',      text: 'Start passport renewal 6 months before expiry' },
-          { icon: 'calendar' as const,  title: 'Mark Deadlines',   text: 'Track every priority date and filing window' },
-          { icon: 'interview' as const, title: 'Prepare Early',    text: 'Gather documents weeks before USCIS interviews' },
+          { icon: 'shield-checkmark' as const, color: '#6FAFF2', title: 'Renew Early',    text: 'Start passport renewal 6 months before expiry' },
+          { icon: 'calendar'        as const,  color: '#F5C053', title: 'Mark Deadlines', text: 'Track every priority date and filing window' },
+          { icon: 'people-circle'   as const,  color: '#4CD98A', title: 'Prepare Early',  text: 'Gather documents weeks before USCIS interviews' },
         ].map((t) => (
           <View key={t.icon} style={styles.tipCard}>
-            <AppIcon name={t.icon} size={48} style={{ marginBottom: 8 } as any} />
+            <View style={{ width: 56, height: 56, borderRadius: 14, backgroundColor: t.color + '18', borderWidth: 1, borderColor: t.color + '38', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+              <Ionicons name={t.icon} size={26} color={t.color} />
+            </View>
             <Text style={styles.tipTitle}>{t.title}</Text>
             <Text style={styles.tipText}>{t.text}</Text>
           </View>

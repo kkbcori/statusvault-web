@@ -19,7 +19,7 @@ import { useWindowDimensions } from 'react-native';
 import { DOCUMENT_TEMPLATES } from '../utils/templates';
 import { UserDocument } from '../types';
 import { useDialog } from '../components/ConfirmDialog';
-import { AppIcon } from '../utils/icons';
+import { AnimatedEmptyIcon } from '../components/AnimatedEmptyIcon';
 import { useEntrance, usePressScale } from '../hooks/useAnimations';
 
 // Fixed card height — all tall dashboard cards share this
@@ -226,15 +226,15 @@ export const DashboardScreen: React.FC = () => {
     else setAnyModalOpen(false);
   }, [showProfileSetup]);
 
-  const VISA_PROFILES = [
-    { id: 'f1-opt',     icon: 'visa_approved', label: 'F-1 Student / OPT',   docs: ['f1-visa','i20','sevis','passport','opt-ead'] },
-    { id: 'f1-stem',    icon: 'application',   label: 'F-1 STEM OPT',        docs: ['f1-visa','i20','sevis','passport','stem-opt'] },
-    { id: 'h1b',        icon: 'visa',          label: 'H-1B Worker',          docs: ['h1b-visa','h1b-approval','passport','i94'] },
-    { id: 'h4',         icon: 'visa2',         label: 'H-4 Dependent',        docs: ['h4-visa','h4-ead','passport','i94'] },
-    { id: 'green-card', icon: 'passport_card', label: 'Green Card Holder',    docs: ['green-card','passport','i94'] },
-    { id: 'l1',         icon: 'travel_plane',  label: 'L-1 / L-2',            docs: ['l1-visa','l2-ead','passport','i94'] },
-    { id: 'j1',         icon: 'biometrics',    label: 'J-1 Exchange Visitor', docs: ['j1-visa','ds2019','passport','i94'] },
-    { id: 'b1b2',       icon: 'travel2',       label: 'B-1/B-2 Visitor',      docs: ['b1b2-visa','passport','i94'] },
+  const VISA_PROFILES: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; tint: string; label: string; docs: string[] }> = [
+    { id: 'f1-opt',     icon: 'school',                tint: '#6FAFF2', label: 'F-1 Student / OPT',   docs: ['f1-visa','i20','sevis','passport','opt-ead'] },
+    { id: 'f1-stem',    icon: 'flask',                 tint: '#4CD98A', label: 'F-1 STEM OPT',        docs: ['f1-visa','i20','sevis','passport','stem-opt'] },
+    { id: 'h1b',        icon: 'briefcase',             tint: '#F5C053', label: 'H-1B Worker',          docs: ['h1b-visa','h1b-approval','passport','i94'] },
+    { id: 'h4',         icon: 'people',                tint: '#a78bfa', label: 'H-4 Dependent',        docs: ['h4-visa','h4-ead','passport','i94'] },
+    { id: 'green-card', icon: 'card',                  tint: '#4CD98A', label: 'Green Card Holder',    docs: ['green-card','passport','i94'] },
+    { id: 'l1',         icon: 'business',              tint: '#5B9AF5', label: 'L-1 / L-2',            docs: ['l1-visa','l2-ead','passport','i94'] },
+    { id: 'j1',         icon: 'globe',                 tint: '#FF6B6B', label: 'J-1 Exchange Visitor', docs: ['j1-visa','ds2019','passport','i94'] },
+    { id: 'b1b2',       icon: 'airplane',              tint: '#6FAFF2', label: 'B-1/B-2 Visitor',      docs: ['b1b2-visa','passport','i94'] },
   ];
 
   const handleVisaSelect = (profileId: string, docs: string[]) => {
@@ -410,15 +410,13 @@ export const DashboardScreen: React.FC = () => {
       {/* ── Profile chip ── */}
       {authUser && !isGuestMode && visaProfile && (() => {
         const profile = VISA_PROFILES.find((p) => p.id === visaProfile);
-        const profileIcon = profile?.icon as any;
+        const profileIcon = profile?.icon;
+        const profileTint = profile?.tint ?? colors.success;
         return (
           <View style={styles.topBanner}>
             <View style={styles.topBannerProfile}>
-              <View style={styles.topBannerProfileIcon}>
-                {profileIcon
-                  ? <AppIcon name={profileIcon} size={22} />
-                  : <Ionicons name="shield-checkmark" size={14} color={colors.success} />
-                }
+              <View style={[styles.topBannerProfileIcon, { backgroundColor: profileTint + '22', borderColor: profileTint + '40' }]}>
+                <Ionicons name={profileIcon ?? 'shield-checkmark'} size={16} color={profileTint} />
               </View>
               <Text style={styles.topBannerProfileLabel}>{profileLabel}</Text>
               <TouchableOpacity
@@ -519,7 +517,7 @@ export const DashboardScreen: React.FC = () => {
               />
               {deadlines.length === 0 ? (
                 <View style={styles.emptyState}>
-                  <AppIcon name="expiry" size={72} style={{ marginBottom: 4 } as any} />
+                  <AnimatedEmptyIcon name="document-text-outline" size={32} color={colors.primaryLight} />
                   <Text style={styles.emptyTitle}>No documents yet</Text>
                   <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
                     <Text style={styles.emptyBtnText}>Add Document</Text>
@@ -626,7 +624,7 @@ export const DashboardScreen: React.FC = () => {
             />
             {deadlines.length === 0 ? (
               <View style={styles.emptyState}>
-                <AppIcon name="expiry" size={72} style={{ marginBottom: 4 } as any} />
+                <AnimatedEmptyIcon name="document-text-outline" size={32} color={colors.primaryLight} />
                 <Text style={styles.emptyTitle}>No documents yet</Text>
                 <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Documents' })}>
                   <Text style={styles.emptyBtnText}>Add Document</Text>
@@ -672,7 +670,7 @@ export const DashboardScreen: React.FC = () => {
           />
           {checklists.length === 0 ? (
             <View style={styles.emptyState}>
-              <AppIcon name="checklist" size={72} style={{ marginBottom: 4 } as any} />
+              <AnimatedEmptyIcon name="checkbox-outline" size={32} color={colors.success} />
               <Text style={styles.emptyTitle}>No checklists yet</Text>
               <Text style={styles.emptyDesc}>Track OPT, H-1B, and green card steps</Text>
               <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Checklist' })}>
@@ -720,7 +718,7 @@ export const DashboardScreen: React.FC = () => {
           />
           {counters.length === 0 ? (
             <View style={styles.emptyState}>
-              <AppIcon name="timer" size={72} style={{ marginBottom: 4 } as any} />
+              <AnimatedEmptyIcon name="timer-outline" size={32} color={colors.warning} />
               <Text style={styles.emptyTitle}>No timers yet</Text>
               <Text style={styles.emptyDesc}>OPT unemployment, 60-day grace, and more</Text>
               <TouchableOpacity style={styles.emptyBtn} onPress={() => navigation.navigate('Main', { screen: 'Timers' })}>
@@ -782,8 +780,8 @@ export const DashboardScreen: React.FC = () => {
                     onPress={() => handleVisaSelect(item.id, item.docs)}
                     activeOpacity={0.75}
                   >
-                    <View style={[styles.visaIconBox, selectedVisa === item.id && { backgroundColor: 'rgba(59,139,232,0.15)', borderColor: 'rgba(111,175,242,0.35)' }]}>
-                      <AppIcon name={item.icon as any} size={26} />
+                    <View style={[styles.visaIconBox, { backgroundColor: item.tint + '18', borderColor: item.tint + '38' }, selectedVisa === item.id && { backgroundColor: item.tint + '28', borderColor: item.tint + '60' }]}>
+                      <Ionicons name={item.icon} size={20} color={item.tint} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.visaLabel}>{item.label}</Text>
