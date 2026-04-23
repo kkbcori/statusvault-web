@@ -162,6 +162,32 @@ export const TravelScreen: React.FC = () => {
   const canAddAddress = useStore((s) => s.canAddAddress);
   const isPremium     = useStore((s) => s.isPremium);
   const openPaywall   = useStore((s) => s.openPaywall);
+  const isGuestMode   = useStore((s) => s.isGuestMode);
+  const authUser      = useStore((s) => s.authUser);
+  const openAuthModal = useStore((s) => s.openAuthModal);
+
+  // Centralized "guest hits limit → auth, free hits limit → paywall" helper.
+  // Returns true when the user is allowed to proceed; otherwise opens the
+  // appropriate upsell modal and returns false.
+  // Note: activeMember is declared further down; this arrow function closes over
+  // it lexically and reads its current value at call time, so the ordering is fine.
+  const enforceLimit = (kind: 'trip' | 'address'): boolean => {
+    const memberId = activeMember?.id;
+    const allowed = kind === 'trip' ? canAddTrip(memberId) : canAddAddress(memberId);
+    if (allowed) return true;
+    // Limit reached. Decide which CTA to show.
+    if (!authUser || isGuestMode) {
+      openAuthModal(
+        kind === 'trip'
+          ? 'Create a free account to track more trips'
+          : 'Create a free account to track more addresses'
+      );
+    } else {
+      // Free user — upgrade is the path forward
+      openPaywall();
+    }
+    return false;
+  };
 
   // ── Member selector ────────────────────────────────────────
   const familyMembers       = useStore((s) => s.familyMembers);
@@ -245,11 +271,11 @@ export const TravelScreen: React.FC = () => {
       if (activeMember) updateMemberAddress(activeMember.id, editingAddrId, entry);
       else updateAddress(editingAddrId, entry);
     } else {
-      // Tier-limit gate — show paywall if limit reached
-      if (!canAddAddress(activeMember?.id)) {
+      // Defense-in-depth: re-check the limit at save time too.
+      // Routes to auth modal for guests, paywall for free users.
+      if (!enforceLimit('address')) {
         setShowAddrModal(false);
         resetAddrForm();
-        openPaywall();
         return;
       }
       if (activeMember) addMemberAddress(activeMember.id, entry);
@@ -331,7 +357,17 @@ export const TravelScreen: React.FC = () => {
     setEditingId(null); setActivePicker(null); setTripError('');
   };
 
-  const openAdd = () => { resetForm(); setShowModal(true); };
+  const openAdd = () => {
+    if (!enforceLimit('trip')) return;
+    resetForm();
+    setShowModal(true);
+  };
+
+  const openAddAddr = () => {
+    if (!enforceLimit('address')) return;
+    resetAddrForm();
+    setShowAddrModal(true);
+  };
 
   const openEdit = (trip: TravelTrip) => {
     setEditingId(trip.id);
@@ -362,11 +398,12 @@ export const TravelScreen: React.FC = () => {
       if (activeMember) updateMemberTrip(activeMember.id, editingId, entry);
       else updateTrip(editingId, entry);
     } else {
-      // Tier-limit gate — show paywall if limit reached
-      if (!canAddTrip(activeMember?.id)) {
+      // Defense-in-depth: re-check the limit at save time too
+      // (covers any race / programmatic add). Routes to auth modal
+      // for guests, paywall for free users.
+      if (!enforceLimit('trip')) {
         setShowModal(false);
         resetForm();
-        openPaywall();
         return;
       }
       const newTrip = { id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`, createdAt: new Date().toISOString(), ...entry };
@@ -571,7 +608,7 @@ export const TravelScreen: React.FC = () => {
             {/* Add Address button — always full width */}
             <TouchableOpacity
               style={[styles.cardAddBtn, { borderColor: '#67E8F9' }]}
-              onPress={() => { resetAddrForm(); setShowAddrModal(true); }}
+              onPress={openAddAddr}
               activeOpacity={0.85}
             >
               <Ionicons name="add-circle-outline" size={15} color="#0891B2" />
