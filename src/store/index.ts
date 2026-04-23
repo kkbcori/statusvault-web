@@ -173,9 +173,6 @@ interface AppStore {
   setCloudBackupEnabled: (v: boolean) => void;
   showCloudBackupPrompt: boolean;  // shown right after upgrading to premium
   closeCloudBackupPrompt: () => void;
-  themeMode: 'dark' | 'light';     // user-selectable theme; persisted
-  setThemeMode: (mode: 'dark' | 'light') => void;
-  toggleThemeMode: () => void;
   notifications: any[];             // in-app notification center items
   isGuestMode: boolean;       // true = using without account
   showWelcomeModal: boolean;  // first-visit chooser
@@ -288,7 +285,6 @@ export const useStore = create<AppStore>()(
       pendingProfileSetup: false,
       cloudBackupEnabled: false,  // default OFF — user explicitly opts in for premium privacy
       showCloudBackupPrompt: false,
-      themeMode: 'dark',          // default dark; toggleable from topbar
       notifications: [],
       visaProfile: null,
       immigrationProfile: null,
@@ -376,9 +372,6 @@ export const useStore = create<AppStore>()(
         }
       },
       closeCloudBackupPrompt: () => set({ showCloudBackupPrompt: false }),
-      themeMode: 'dark' as const,
-      setThemeMode: (mode) => set({ themeMode: mode }),
-      toggleThemeMode: () => set({ themeMode: get().themeMode === 'dark' ? 'light' : 'dark' }),
       setNotificationEmail: (email) => { set({ notificationEmail: email }); scheduleSync(); },
       setWhatsappPhone: (phone) => { set({ whatsappPhone: phone }); scheduleSync(); },
 

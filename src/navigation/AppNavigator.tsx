@@ -302,8 +302,6 @@ const WebTopBar: React.FC = () => {
   const isSyncing = useStore((s) => s.isSyncing);
   const syncError = useStore((s) => s.syncError);
   const isPremium = useStore((s) => s.isPremium);
-  const themeMode = useStore((s) => s.themeMode ?? 'dark');
-  const toggleThemeMode = useStore((s) => s.toggleThemeMode);
 
   const currentRoute = useNavigationState((state) => {
     const mainRoute = state?.routes?.find((r) => r.name === 'Main');
@@ -320,19 +318,6 @@ const WebTopBar: React.FC = () => {
         <Text style={topBarStyles.title}>{item?.label ?? 'Dashboard'}</Text>
       </View>
       <View style={topBarStyles.right}>
-        {/* Theme toggle — sun/moon beside the search glass */}
-        <TouchableOpacity
-          style={topBarStyles.iconBtn}
-          onPress={toggleThemeMode}
-          activeOpacity={0.8}
-          accessibilityLabel="Toggle theme"
-        >
-          <Ionicons
-            name={themeMode === 'light' ? 'moon-outline' : 'sunny-outline'}
-            size={15}
-            color={colors.text2}
-          />
-        </TouchableOpacity>
         <TouchableOpacity
           style={topBarStyles.iconBtn}
           onPress={() => useStore.getState().openSearch()}
