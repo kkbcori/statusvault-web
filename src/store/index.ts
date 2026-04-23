@@ -171,6 +171,11 @@ interface AppStore {
   pendingProfileSetup: boolean; // true if profile modal should show when MainTabs mounts
   cloudBackupEnabled: boolean;  // premium only — auto-sync to Supabase
   setCloudBackupEnabled: (v: boolean) => void;
+  showCloudBackupPrompt: boolean;  // shown right after upgrading to premium
+  closeCloudBackupPrompt: () => void;
+  themeMode: 'dark' | 'light';     // user-selectable theme; persisted
+  setThemeMode: (mode: 'dark' | 'light') => void;
+  toggleThemeMode: () => void;
   notifications: any[];             // in-app notification center items
   isGuestMode: boolean;       // true = using without account
   showWelcomeModal: boolean;  // first-visit chooser
@@ -281,7 +286,9 @@ export const useStore = create<AppStore>()(
       hasOnboarded: false,
       profileSetupShown: false,
       pendingProfileSetup: false,
-      cloudBackupEnabled: true,  // default on for premium
+      cloudBackupEnabled: false,  // default OFF — user explicitly opts in for premium privacy
+      showCloudBackupPrompt: false,
+      themeMode: 'dark',          // default dark; toggleable from topbar
       notifications: [],
       visaProfile: null,
       immigrationProfile: null,
@@ -360,7 +367,18 @@ export const useStore = create<AppStore>()(
         const { documents, isPremium } = get();
         return isPremium ? 999 : Math.max(0, FREE_DOCUMENT_LIMIT - documents.length);
       },
-      setPremium: (v) => set({ isPremium: v }),
+      setPremium: (v) => {
+        if (v && !get().isPremium) {
+          // First-time premium: keep cloud backup OFF by default and show the opt-in prompt
+          set({ isPremium: true, cloudBackupEnabled: false, showCloudBackupPrompt: true });
+        } else {
+          set({ isPremium: v });
+        }
+      },
+      closeCloudBackupPrompt: () => set({ showCloudBackupPrompt: false }),
+      themeMode: 'dark' as const,
+      setThemeMode: (mode) => set({ themeMode: mode }),
+      toggleThemeMode: () => set({ themeMode: get().themeMode === 'dark' ? 'light' : 'dark' }),
       setNotificationEmail: (email) => { set({ notificationEmail: email }); scheduleSync(); },
       setWhatsappPhone: (phone) => { set({ whatsappPhone: phone }); scheduleSync(); },
 
@@ -726,7 +744,7 @@ export const useStore = create<AppStore>()(
           authUser: null, lastSyncedAt: null, syncError: null,
           emailVerified: false, isGuestMode: false,
           hasOnboarded: false, showWelcomeModal: true,
-          isPremium: false, cloudBackupEnabled: true,
+          isPremium: false, cloudBackupEnabled: false,
           // Clear all user data
           documents:          [],
           checklists:         [],
@@ -909,7 +927,7 @@ export const useStore = create<AppStore>()(
             // Bug 45 fix + privacy fix: clear all user data so it's not visible after logout
             set({
               authUser: null, lastSyncedAt: null, syncError: null,
-              emailVerified: false, isPremium: false, cloudBackupEnabled: true,
+              emailVerified: false, isPremium: false, cloudBackupEnabled: false,
               lastAutoBackupAt: null,
               documents:          [],
               checklists:         [],
