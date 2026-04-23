@@ -10,6 +10,7 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { toLocalDateString } from '../utils/dates';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import { IS_WEB } from '../utils/responsive';
 import { useWindowDimensions } from 'react-native';
@@ -43,7 +44,7 @@ const DateField: React.FC<DateFieldProps> = ({ label, value, onPress, onChange }
     {IS_WEB ? (
       <input
         type="date"
-        value={value.toISOString().split('T')[0]}
+        value={toLocalDateString(value)}
         onChange={(e: any) => {
           if (e.target.value && onChange) onChange(new Date(e.target.value + 'T12:00:00'));
         }}
@@ -229,8 +230,8 @@ export const TravelScreen: React.FC = () => {
       state:            addrState.trim(),
       zipCode:          addrZip.trim(),
       country:          addrCountry.trim() || 'United States',
-      dateFrom:         addrFrom.toISOString().split('T')[0],
-      dateTo:           addrCurrent ? 'present' : addrTo.toISOString().split('T')[0],
+      dateFrom:         toLocalDateString(addrFrom),
+      dateTo:           addrCurrent ? 'present' : toLocalDateString(addrTo),
       isCurrentAddress: addrCurrent,
       createdAt:        editingAddrId
         ? (activeAddressHistory.find((a: AddressEntry) => a.id === editingAddrId)?.createdAt ?? new Date().toISOString())
@@ -302,7 +303,7 @@ export const TravelScreen: React.FC = () => {
       const newer = sortedAddresses[i];
       const older = sortedAddresses[i + 1];
       const newerFrom = newer.dateFrom;
-      const olderTo   = older.isCurrentAddress ? new Date().toISOString().split('T')[0] : older.dateTo;
+      const olderTo   = older.isCurrentAddress ? toLocalDateString(new Date()) : older.dateTo;
       if (olderTo === 'present') continue;
       const gap = daysBetween(olderTo, newerFrom) - 1;
       if (gap > 1) maxGap = Math.max(maxGap, gap);
@@ -341,8 +342,8 @@ export const TravelScreen: React.FC = () => {
       portOfEntry:   portOfEntry.trim(),
       notes:         notes.trim(),
       purpose,
-      departureDate: departure.toISOString().split('T')[0],
-      returnDate:    returnDate.toISOString().split('T')[0],
+      departureDate: toLocalDateString(departure),
+      returnDate:    toLocalDateString(returnDate),
     };
 
     if (editingId) {
@@ -669,7 +670,7 @@ export const TravelScreen: React.FC = () => {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.addrFieldLabel}>Departure *</Text>
                   {IS_WEB ? (
-                    <input type="date" value={departure.toISOString().split('T')[0]}
+                    <input type="date" value={toLocalDateString(departure)}
                       onChange={(e:any) => { if(e.target.value) setDeparture(new Date(e.target.value+'T12:00:00')); }}
                       style={{ width:'100%', padding:'12px 14px', fontSize:'15px', fontFamily:'Inter_400Regular', color:'transparent', border:'1.5px solid #E5E7EB', borderRadius:'10px', backgroundColor:'rgba(255,255,255,0.05)', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
                   ) : (
@@ -681,7 +682,7 @@ export const TravelScreen: React.FC = () => {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.addrFieldLabel}>Return *</Text>
                   {IS_WEB ? (
-                    <input type="date" value={returnDate.toISOString().split('T')[0]}
+                    <input type="date" value={toLocalDateString(returnDate)}
                       onChange={(e:any) => { if(e.target.value) setReturnDate(new Date(e.target.value+'T12:00:00')); }}
                       style={{ width:'100%', padding:'12px 14px', fontSize:'15px', fontFamily:'Inter_400Regular', color:'transparent', border:'1.5px solid #E5E7EB', borderRadius:'10px', backgroundColor:'rgba(255,255,255,0.05)', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
                   ) : (
@@ -725,8 +726,8 @@ export const TravelScreen: React.FC = () => {
                 <View style={styles.durationPreview}>
                   <Ionicons name="timer-outline" size={13} color="#6FAFF2" />
                   <Text style={styles.durationText}>
-                    {getTripDays({ departureDate: departure.toISOString().split('T')[0], returnDate: returnDate.toISOString().split('T')[0] } as TravelTrip)} days outside the US
-                    {getTripDays({ departureDate: departure.toISOString().split('T')[0], returnDate: returnDate.toISOString().split('T')[0] } as TravelTrip) >= 180 ? ' ⚠️ Long absence' : ''}
+                    {getTripDays({ departureDate: toLocalDateString(departure), returnDate: toLocalDateString(returnDate) } as TravelTrip)} days outside the US
+                    {getTripDays({ departureDate: toLocalDateString(departure), returnDate: toLocalDateString(returnDate) } as TravelTrip) >= 180 ? ' ⚠️ Long absence' : ''}
                   </Text>
                 </View>
               )}

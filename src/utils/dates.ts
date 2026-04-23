@@ -8,6 +8,21 @@ import dayjs from 'dayjs';
 import { UrgencyLevel, DeadlineItem, UserDocument } from '../types';
 import { colors } from '../theme';
 
+/**
+ * Format a Date as a local-time YYYY-MM-DD string.
+ * NEVER use date.toISOString().split('T')[0] for storing user-facing dates —
+ * that returns the UTC date, which causes off-by-1-day bugs in any timezone
+ * other than UTC. For example, at 8pm CDT on April 22, the local date is
+ * still April 22 but the UTC date is already April 23. Storing the UTC string
+ * means the user sees their trip "shift" to the next day.
+ */
+export const toLocalDateString = (d: Date): string => {
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth() + 1).padStart(2, '0');
+  const dd   = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 /** Calculate days remaining from today to a target date */
 export const calculateDaysRemaining = (targetDate: string): number => {
   if (!targetDate) return -999;

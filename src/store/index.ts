@@ -188,7 +188,17 @@ interface AppStore {
   importData: (json: string) => boolean;
 }
 
-const today = () => new Date().toISOString().split('T')[0];
+// Local-time date string (YYYY-MM-DD). Using toISOString() returns UTC date,
+// which causes off-by-1-day bugs in any non-UTC timezone — e.g. for a user
+// in UTC-5, at 8pm local on April 22, toISOString() returns "2026-04-23"
+// while their wall clock still says April 22.
+const today = () => {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth() + 1).padStart(2, '0');
+  const dd   = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
 
 export const FREE_LIMIT = FREE_DOCUMENT_LIMIT;
 export const GUEST_LIMIT = GUEST_DOC_LIMIT;
