@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore, FREE_LIMIT } from '../store';
@@ -64,9 +64,13 @@ export const PaywallModal: React.FC<Props> = ({ visible, onClose, onUnlock }) =>
             </TouchableOpacity>
 
             <View style={s.iconWrap}>
-              <LinearGradient colors={['#6FAFF2', '#3B8BE8']} style={s.iconGrad}>
-                <Ionicons name="shield-checkmark" size={26} color="#fff" />
-              </LinearGradient>
+              <View style={s.iconGrad}>
+                <Image
+                  source={require('../../assets/logo-transparent.png')}
+                  style={{ width: 56, height: 56 }}
+                  resizeMode="contain"
+                />
+              </View>
             </View>
 
             <Text style={s.eyebrow}>✦ STATUSVAULT PREMIUM</Text>
@@ -145,11 +149,17 @@ const s = StyleSheet.create({
   card:       { width: '100%', maxWidth: 420, borderRadius: 24, overflow: 'hidden', ...Platform.select({ web: { boxShadow: '0 24px 64px rgba(0,0,0,0.40)' } as any }) } as any,
 
   header:     { padding: 24, alignItems: 'center', overflow: 'hidden', position: 'relative' as any },
-  orb1:       { position: 'absolute' as any, top: -30, right: -30, width: 120, height: 120, borderRadius: 60, backgroundColor: 'rgba(79,70,229,0.15)' },
-  orb2:       { position: 'absolute' as any, bottom: -20, left: -20, width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(124,58,237,0.10)' },
+  orb1:       { position: 'absolute' as any, top: -30, right: -30, width: 120, height: 120, borderRadius: 60, backgroundColor: 'rgba(59,139,232,0.18)' },
+  orb2:       { position: 'absolute' as any, bottom: -20, left: -20, width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(245,192,83,0.10)' },
   closeBtn:   { position: 'absolute' as any, top: 14, right: 14, width: 28, height: 28, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
   iconWrap:   { marginBottom: 12 },
-  iconGrad:   { width: 56, height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  iconGrad:   {
+    width: 76, height: 76, borderRadius: 18,
+    backgroundColor: 'rgba(59,139,232,0.12)',
+    borderWidth: 1, borderColor: 'rgba(111,175,242,0.32)',
+    alignItems: 'center', justifyContent: 'center',
+    ...(Platform.OS === 'web' ? ({ boxShadow: '0 0 32px rgba(59,139,232,0.30)' } as any) : {}),
+  } as any,
   eyebrow:    { fontSize: 10, fontFamily: 'Inter_700Bold', color: '#6FAFF2', letterSpacing: 2, marginBottom: 8 },
   title:      { fontSize: 24, fontFamily: 'Inter_900Black', color: '#F0F4FF', textAlign: 'center', letterSpacing: -0.5, lineHeight: 30, marginBottom: 10 },
   titleUnderline: { width: 40, height: 3, backgroundColor: '#6FAFF2', borderRadius: 2, marginBottom: 10 },
