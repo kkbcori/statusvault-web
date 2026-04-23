@@ -158,6 +158,10 @@ export const TravelScreen: React.FC = () => {
   const addTrip   = useStore((s) => s.addTrip);
   const removeTrip = useStore((s) => s.removeTrip);
   const updateTrip = useStore((s) => s.updateTrip);
+  const canAddTrip    = useStore((s) => s.canAddTrip);
+  const canAddAddress = useStore((s) => s.canAddAddress);
+  const isPremium     = useStore((s) => s.isPremium);
+  const openPaywall   = useStore((s) => s.openPaywall);
 
   // ── Member selector ────────────────────────────────────────
   const familyMembers       = useStore((s) => s.familyMembers);
@@ -241,6 +245,13 @@ export const TravelScreen: React.FC = () => {
       if (activeMember) updateMemberAddress(activeMember.id, editingAddrId, entry);
       else updateAddress(editingAddrId, entry);
     } else {
+      // Tier-limit gate — show paywall if limit reached
+      if (!canAddAddress(activeMember?.id)) {
+        setShowAddrModal(false);
+        resetAddrForm();
+        openPaywall();
+        return;
+      }
       if (activeMember) addMemberAddress(activeMember.id, entry);
       else addAddress(entry);
     }
@@ -264,6 +275,7 @@ export const TravelScreen: React.FC = () => {
   };
 
   const handleExportAddressPdf = () => {
+    if (!isPremium) { openPaywall(); return; }
     if (activeAddressHistory.length === 0) {
       dialog.alert('No Addresses', 'Add at least one address before exporting.');
       return;
@@ -350,6 +362,13 @@ export const TravelScreen: React.FC = () => {
       if (activeMember) updateMemberTrip(activeMember.id, editingId, entry);
       else updateTrip(editingId, entry);
     } else {
+      // Tier-limit gate — show paywall if limit reached
+      if (!canAddTrip(activeMember?.id)) {
+        setShowModal(false);
+        resetForm();
+        openPaywall();
+        return;
+      }
       const newTrip = { id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`, createdAt: new Date().toISOString(), ...entry };
       if (activeMember) addMemberTrip(activeMember.id, newTrip);
       else addTrip(newTrip);
@@ -367,6 +386,7 @@ export const TravelScreen: React.FC = () => {
   };
 
   const handleExport = async () => {
+    if (!isPremium) { openPaywall(); return; }
     if (activeTrips.length === 0) { dialog.alert('No trips', 'Add at least one trip before exporting.'); return; }
     setExporting(true);
     try {

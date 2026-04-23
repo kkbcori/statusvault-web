@@ -23,12 +23,16 @@ const GUEST_DOC_LIMIT = 1;
 const GUEST_CHECKLIST_LIMIT = 1;
 const GUEST_COUNTER_LIMIT = 1;
 const GUEST_FAMILY_LIMIT = 0;       // no family in guest mode
+const GUEST_TRIP_LIMIT = 1;         // 1 trip in guest mode
+const GUEST_ADDR_LIMIT = 1;         // 1 address in guest mode
 // Free account limits
 const FREE_DOCUMENT_LIMIT = 2;
 const FREE_FAMILY_LIMIT_STORE = 1;
 const FREE_FAMILY_DOC_LIMIT = 1;
 const FREE_CHECKLIST_LIMIT = 2;
 const FREE_COUNTER_LIMIT = 2;
+const FREE_TRIP_LIMIT = 2;          // 2 trips per person (user + each family member)
+const FREE_ADDR_LIMIT = 2;          // 2 addresses per person (user + each family member)
 
 // ─── Checklist Instance ──────────────────────────────────────
 export interface ChecklistInstance {
@@ -97,6 +101,8 @@ interface AppStore {
   canAddChecklist: () => boolean;
   canAddCounter: () => boolean;
   canAddFamilyMember: () => boolean;
+  canAddTrip: (memberId?: string) => boolean;     // Per-person: user (no memberId) or specific family member
+  canAddAddress: (memberId?: string) => boolean;  // Per-person: user (no memberId) or specific family member
   forceAddDocument: (doc: UserDocument) => void; // bypasses free limit — for profile setup
   getRemainingFreeSlots: () => number;
   setPremium: (v: boolean) => void;
@@ -124,19 +130,19 @@ interface AppStore {
   toggleCounterTracking: (templateId: string) => void;
   autoIncrementCounters: () => void;
 
-  // Travel / I-94
-  addTrip: (trip: TravelTrip) => void;
-  addAddress: (entry: AddressEntry) => void;
+  // Travel / I-94 — adds return false if blocked by tier limit
+  addTrip: (trip: TravelTrip) => boolean;
+  addAddress: (entry: AddressEntry) => boolean;
   removeAddress: (id: string) => void;
   updateAddress: (id: string, updates: Partial<AddressEntry>) => void;
   removeTrip: (id: string) => void;
   addFamilyMember: (member: FamilyMember) => void;
   removeFamilyMember: (id: string) => void;
   updateFamilyMember: (id: string, updates: Partial<FamilyMember>) => void;
-  addMemberTrip: (memberId: string, trip: TravelTrip) => void;
+  addMemberTrip: (memberId: string, trip: TravelTrip) => boolean;
   removeMemberTrip: (memberId: string, tripId: string) => void;
   updateMemberTrip: (memberId: string, tripId: string, updates: Partial<TravelTrip>) => void;
-  addMemberAddress: (memberId: string, entry: AddressEntry) => void;
+  addMemberAddress: (memberId: string, entry: AddressEntry) => boolean;
   removeMemberAddress: (memberId: string, entryId: string) => void;
   updateMemberAddress: (memberId: string, entryId: string, updates: Partial<AddressEntry>) => void;
   updateTrip: (id: string, updates: Partial<TravelTrip>) => void;
@@ -202,8 +208,8 @@ const today = () => {
 
 export const FREE_LIMIT = FREE_DOCUMENT_LIMIT;
 export const GUEST_LIMIT = GUEST_DOC_LIMIT;
-export { GUEST_CHECKLIST_LIMIT, GUEST_COUNTER_LIMIT, GUEST_FAMILY_LIMIT };
-export { FREE_FAMILY_DOC_LIMIT };
+export { GUEST_CHECKLIST_LIMIT, GUEST_COUNTER_LIMIT, GUEST_FAMILY_LIMIT, GUEST_TRIP_LIMIT, GUEST_ADDR_LIMIT };
+export { FREE_FAMILY_DOC_LIMIT, FREE_TRIP_LIMIT, FREE_ADDR_LIMIT };
 
 // Module-level flag — prevents visibilitychange listener accumulating across
 // multiple initAuth calls (dev hot-reload, StrictMode double-invoke, etc.)
@@ -368,6 +374,30 @@ export const useStore = create<AppStore>()(
         if (!authUser || isGuestMode) return documents.length < GUEST_DOC_LIMIT;
         // Free account: max 2
         return documents.length < FREE_DOCUMENT_LIMIT;
+      },
+      // Trips and addresses are per-person: the user has their own pool, and each
+      // family member has their own pool. memberId selects which pool.
+      canAddTrip: (memberId) => {
+        const { trips, familyMembers, isPremium, authUser, isGuestMode } = get();
+        if (isPremium) return true;
+        const list = memberId
+          ? (familyMembers.find((m) => m.id === memberId)?.trips ?? [])
+          : trips;
+        // Guest or not logged in: max 1
+        if (!authUser || isGuestMode) return list.length < GUEST_TRIP_LIMIT;
+        // Free account: max 2 per person
+        return list.length < FREE_TRIP_LIMIT;
+      },
+      canAddAddress: (memberId) => {
+        const { addressHistory, familyMembers, isPremium, authUser, isGuestMode } = get();
+        if (isPremium) return true;
+        const list = memberId
+          ? (familyMembers.find((m) => m.id === memberId)?.addressHistory ?? [])
+          : addressHistory;
+        // Guest or not logged in: max 1
+        if (!authUser || isGuestMode) return list.length < GUEST_ADDR_LIMIT;
+        // Free account: max 2 per person
+        return list.length < FREE_ADDR_LIMIT;
       },
       getRemainingFreeSlots: () => {
         const { documents, isPremium } = get();
@@ -566,12 +596,16 @@ export const useStore = create<AppStore>()(
 
       // ─── Travel / I-94 ─────────────────────────────────────
       addTrip: (trip) => {
+        if (!get().canAddTrip()) return false;
         set((s) => ({ trips: [...s.trips, trip] }));
         syncNow();
+        return true;
       },
       addAddress: (entry) => {
+        if (!get().canAddAddress()) return false;
         set((s) => ({ addressHistory: [entry, ...s.addressHistory] }));
         syncNow();
+        return true;
       },
       removeAddress: (id) => {
         set((s) => ({ addressHistory: s.addressHistory.filter((a) => a.id !== id) }));
@@ -601,8 +635,10 @@ export const useStore = create<AppStore>()(
       },
 
       addMemberTrip: (memberId, trip) => {
+        if (!get().canAddTrip(memberId)) return false;
         set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, trips: [...(m.trips ?? []), trip] } : m) }));
         syncNow();
+        return true;
       },
       removeMemberTrip: (memberId, tripId) => {
         set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, trips: (m.trips ?? []).filter((t) => t.id !== tripId) } : m) }));
@@ -613,8 +649,10 @@ export const useStore = create<AppStore>()(
         syncNow();
       },
       addMemberAddress: (memberId, entry) => {
+        if (!get().canAddAddress(memberId)) return false;
         set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, addressHistory: [entry, ...(m.addressHistory ?? [])] } : m) }));
         syncNow();
+        return true;
       },
       removeMemberAddress: (memberId, entryId) => {
         set((s) => ({ familyMembers: s.familyMembers.map((m) => m.id === memberId ? { ...m, addressHistory: (m.addressHistory ?? []).filter((a) => a.id !== entryId) } : m) }));

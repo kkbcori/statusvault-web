@@ -73,11 +73,15 @@ const GUEST_DOC_LIMIT       = 1;
 const GUEST_CHECKLIST_LIMIT = 1;
 const GUEST_COUNTER_LIMIT   = 1;
 const GUEST_FAMILY_LIMIT    = 0;
+const GUEST_TRIP_LIMIT      = 1;
+const GUEST_ADDR_LIMIT      = 1;
 const FREE_DOCUMENT_LIMIT   = 2;
 const FREE_CHECKLIST_LIMIT  = 2;
 const FREE_COUNTER_LIMIT    = 2;
 const FREE_FAMILY_LIMIT     = 1;
 const FREE_FAMILY_DOC_LIMIT = 1;
+const FREE_TRIP_LIMIT       = 2;
+const FREE_ADDR_LIMIT       = 2;
 
 // ─── Mirror store logic ───────────────────────────────────────
 const canAddDocument = (s) => {
@@ -100,6 +104,34 @@ const canAddFamilyMember = (s) => {
   if (!s.authUser || s.isGuestMode) return false;
   return s.familyMembers.length < FREE_FAMILY_LIMIT;
 };
+// Trips and addresses are PER-PERSON: user has their own pool; each family
+// member has their own pool. Pass memberId to check that member's pool, or
+// omit memberId to check the user's own.
+const canAddTrip = (s, memberId) => {
+  if (s.isPremium) return true;
+  const list = memberId
+    ? ((s.familyMembers ?? []).find((m) => m.id === memberId)?.trips ?? [])
+    : (s.trips ?? []);
+  if (!s.authUser || s.isGuestMode) return list.length < GUEST_TRIP_LIMIT;
+  return list.length < FREE_TRIP_LIMIT;
+};
+const canAddAddress = (s, memberId) => {
+  if (s.isPremium) return true;
+  const list = memberId
+    ? ((s.familyMembers ?? []).find((m) => m.id === memberId)?.addressHistory ?? [])
+    : (s.addressHistory ?? []);
+  if (!s.authUser || s.isGuestMode) return list.length < GUEST_ADDR_LIMIT;
+  return list.length < FREE_ADDR_LIMIT;
+};
+// Per-member document limit (free tier only — premium = unlimited)
+const canAddFamilyDocument = (s, memberId) => {
+  if (s.isPremium) return true;
+  const member = (s.familyMembers ?? []).find((m) => m.id === memberId);
+  if (!member) return false;
+  return (member.documentIds ?? []).length < FREE_FAMILY_DOC_LIMIT;
+};
+// PDF export is premium-only across the board (Settings, Travel, Addresses)
+const canExportPdf = (s) => !!s.isPremium;
 
 // ─── Mirror date/urgency utilities ───────────────────────────
 const calcDaysRemaining = (expiryDateStr) => {
@@ -426,6 +458,138 @@ describe('Tier Limits — Family Members', () => {
     const m = makeMember('1');
     expect(Array.isArray(m.trips)).toBeTruthy();
     expect(Array.isArray(m.addressHistory)).toBeTruthy();
+  });
+});
+
+
+describe('Tier Limits — Family Member Documents', () => {
+  it('Free: can add first doc to a family member', () => {
+    const m = makeMember('m1');
+    expect(canAddFamilyDocument(freeState({ familyMembers: [m] }), 'm1')).toBeTruthy();
+  });
+  it('Free: blocked after 1 doc on a family member', () => {
+    const m = { ...makeMember('m1'), documentIds: ['d1'] };
+    expect(canAddFamilyDocument(freeState({ familyMembers: [m] }), 'm1')).toBeFalsy();
+  });
+  it('Premium: can add unlimited docs to a family member', () => {
+    const m = { ...makeMember('m1'), documentIds: Array.from({ length: 10 }, (_, i) => `d${i}`) };
+    expect(canAddFamilyDocument(premiumState({ familyMembers: [m] }), 'm1')).toBeTruthy();
+  });
+  it('Returns false for unknown member id', () => {
+    expect(canAddFamilyDocument(freeState({ familyMembers: [] }), 'nonexistent')).toBeFalsy();
+  });
+});
+
+
+describe('Tier Limits — Trips (Travel History)', () => {
+  // ── Guest pool ──
+  it('Guest: can add first trip', () => {
+    expect(canAddTrip(guestState({ trips: [] }))).toBeTruthy();
+  });
+  it('Guest: blocked after 1 trip', () => {
+    expect(canAddTrip(guestState({ trips: [makeTrip('1', daysAgo(60), daysAgo(50))] }))).toBeFalsy();
+  });
+
+  // ── Free user — own pool ──
+  it('Free: can add first trip', () => {
+    expect(canAddTrip(freeState({ trips: [] }))).toBeTruthy();
+  });
+  it('Free: can add second trip', () => {
+    expect(canAddTrip(freeState({ trips: [makeTrip('1', daysAgo(60), daysAgo(50))] }))).toBeTruthy();
+  });
+  it('Free: blocked after 2 trips on own pool', () => {
+    const trips = [makeTrip('1', daysAgo(60), daysAgo(50)), makeTrip('2', daysAgo(40), daysAgo(30))];
+    expect(canAddTrip(freeState({ trips }))).toBeFalsy();
+  });
+
+  // ── Free user — per-family-member pool ──
+  it('Free: family member trip pool is INDEPENDENT of user pool', () => {
+    // User has hit 2-trip limit, but family member has 0 trips → can still add to member
+    const userTrips = [makeTrip('a', daysAgo(60), daysAgo(50)), makeTrip('b', daysAgo(40), daysAgo(30))];
+    const member    = { ...makeMember('m1'), trips: [] };
+    const s         = freeState({ trips: userTrips, familyMembers: [member] });
+    expect(canAddTrip(s, 'm1')).toBeTruthy();
+    expect(canAddTrip(s)).toBeFalsy();  // user is still capped
+  });
+  it('Free: blocked after 2 trips on a family member', () => {
+    const trips = [makeTrip('a', daysAgo(60), daysAgo(50)), makeTrip('b', daysAgo(40), daysAgo(30))];
+    const member = { ...makeMember('m1'), trips };
+    expect(canAddTrip(freeState({ familyMembers: [member] }), 'm1')).toBeFalsy();
+  });
+
+  // ── Premium ──
+  it('Premium: unlimited trips for user', () => {
+    const trips = Array.from({ length: 50 }, (_, i) => makeTrip(String(i), daysAgo(i + 100), daysAgo(i + 90)));
+    expect(canAddTrip(premiumState({ trips }))).toBeTruthy();
+  });
+  it('Premium: unlimited trips for family member', () => {
+    const trips  = Array.from({ length: 50 }, (_, i) => makeTrip(String(i), daysAgo(i + 100), daysAgo(i + 90)));
+    const member = { ...makeMember('m1'), trips };
+    expect(canAddTrip(premiumState({ familyMembers: [member] }), 'm1')).toBeTruthy();
+  });
+});
+
+
+describe('Tier Limits — Address History', () => {
+  // ── Guest pool ──
+  it('Guest: can add first address', () => {
+    expect(canAddAddress(guestState({ addressHistory: [] }))).toBeTruthy();
+  });
+  it('Guest: blocked after 1 address', () => {
+    expect(canAddAddress(guestState({ addressHistory: [makeAddress('1', daysAgo(100))] }))).toBeFalsy();
+  });
+
+  // ── Free user — own pool ──
+  it('Free: can add up to 2 addresses', () => {
+    expect(canAddAddress(freeState({ addressHistory: [] }))).toBeTruthy();
+    expect(canAddAddress(freeState({ addressHistory: [makeAddress('1', daysAgo(100))] }))).toBeTruthy();
+  });
+  it('Free: blocked after 2 addresses on own pool', () => {
+    const addrs = [makeAddress('1', daysAgo(200)), makeAddress('2', daysAgo(100))];
+    expect(canAddAddress(freeState({ addressHistory: addrs }))).toBeFalsy();
+  });
+
+  // ── Free user — per-family-member pool ──
+  it('Free: family member address pool is INDEPENDENT of user pool', () => {
+    const userAddrs = [makeAddress('a', daysAgo(200)), makeAddress('b', daysAgo(100))];
+    const member    = { ...makeMember('m1'), addressHistory: [] };
+    const s         = freeState({ addressHistory: userAddrs, familyMembers: [member] });
+    expect(canAddAddress(s, 'm1')).toBeTruthy();
+    expect(canAddAddress(s)).toBeFalsy();
+  });
+  it('Free: blocked after 2 addresses on a family member', () => {
+    const addrs = [makeAddress('a', daysAgo(200)), makeAddress('b', daysAgo(100))];
+    const member = { ...makeMember('m1'), addressHistory: addrs };
+    expect(canAddAddress(freeState({ familyMembers: [member] }), 'm1')).toBeFalsy();
+  });
+
+  // ── Premium ──
+  it('Premium: unlimited addresses for user', () => {
+    const addrs = Array.from({ length: 30 }, (_, i) => makeAddress(String(i), daysAgo(i * 30 + 100)));
+    expect(canAddAddress(premiumState({ addressHistory: addrs }))).toBeTruthy();
+  });
+  it('Premium: unlimited addresses for family member', () => {
+    const addrs = Array.from({ length: 30 }, (_, i) => makeAddress(String(i), daysAgo(i * 30 + 100)));
+    const member = { ...makeMember('m1'), addressHistory: addrs };
+    expect(canAddAddress(premiumState({ familyMembers: [member] }), 'm1')).toBeTruthy();
+  });
+});
+
+
+describe('Premium-Only — PDF Export Gating', () => {
+  it('Guest: PDF export blocked', () => {
+    expect(canExportPdf(guestState({}))).toBeFalsy();
+  });
+  it('Free user: PDF export blocked', () => {
+    expect(canExportPdf(freeState({}))).toBeFalsy();
+  });
+  it('Premium: PDF export allowed', () => {
+    expect(canExportPdf(premiumState({}))).toBeTruthy();
+  });
+  it('Gate is independent of cloud backup setting', () => {
+    // Premium can export PDF whether or not cloud backup is on
+    expect(canExportPdf(premiumState({ cloudBackupEnabled: false }))).toBeTruthy();
+    expect(canExportPdf(premiumState({ cloudBackupEnabled: true }))).toBeTruthy();
   });
 });
 
