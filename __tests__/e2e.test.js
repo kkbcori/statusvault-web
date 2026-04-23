@@ -740,7 +740,7 @@ describe('Counter Auto-Increment', () => {
     expect(autoIncrementCounter(c).daysUsed).toBe(10);
   });
   it('Same day: no increment (diff=0)', () => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateStr(new Date());
     const c = makeCounter('1', 'opt-unemployment', 10, 90, true, today);
     expect(autoIncrementCounter(c).daysUsed).toBe(10);
   });
@@ -749,7 +749,10 @@ describe('Counter Auto-Increment', () => {
     const c = makeCounter('1', 'opt-unemployment', 10, 90, true, yesterday);
     const result = autoIncrementCounter(c);
     expect(result.daysUsed).toBe(11);
-    expect(result.lastIncrementDate).toBe(new Date().toISOString().split('T')[0]);
+    // Use localDateStr (not toISOString) — production code stores local-date strings.
+    // toISOString().split('T')[0] returns the UTC date which differs from local date
+    // late in the day for any non-UTC timezone (e.g. UTC-5 after 7pm).
+    expect(result.lastIncrementDate).toBe(localDateStr(new Date()));
   });
   it('5 days later: increments by 5', () => {
     const c = makeCounter('1', 'opt-unemployment', 20, 90, true, daysAgo(5));
@@ -768,7 +771,7 @@ describe('Counter Auto-Increment', () => {
     expect(c.maxDays).toBe(150);
   });
   it('Called twice same day: idempotent (no double-increment)', () => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateStr(new Date());
     const c = makeCounter('1', 'opt-unemployment', 10, 90, true, today);
     const r1 = autoIncrementCounter(c);
     const r2 = autoIncrementCounter(r1);
@@ -1659,10 +1662,7 @@ describe('addDocument — return value and limit enforcement', () => {
 // SUITE 32 — autoIncrementCounters LOGIC
 // ═══════════════════════════════════════════════════════════════
 describe('autoIncrementCounters — daily tracking logic', () => {
-  const today = () => {
-    const d = new Date(); d.setHours(0,0,0,0);
-    return d.toISOString().split('T')[0];
-  };
+  const today = () => localDateStr(new Date());
 
   const autoIncrement = (counters, overrideToday = null) => {
     const now = overrideToday ? new Date(overrideToday) : new Date();
@@ -1736,7 +1736,7 @@ describe('resetCounter and setCounterTracking', () => {
   });
 
   it('setCounterTracking(true) sets startDate if not already set', () => {
-    const today = () => new Date().toISOString().split('T')[0];
+    const today = () => localDateStr(new Date());
     const setTracking = (c, isTracking) => ({
       ...c, isTracking,
       startDate: isTracking ? today() : c.startDate,
@@ -1750,7 +1750,7 @@ describe('resetCounter and setCounterTracking', () => {
   });
 
   it('setCounterTracking(true) preserves existing startDate', () => {
-    const today = () => new Date().toISOString().split('T')[0];
+    const today = () => localDateStr(new Date());
     const setTracking = (c, isTracking) => ({
       ...c, isTracking,
       startDate: isTracking ? (c.startDate || today()) : c.startDate,

@@ -51,7 +51,7 @@ const DateField: React.FC<DateFieldProps> = ({ label, value, onPress, onChange }
         style={{
           width: '100%', padding: '10px 14px', fontSize: '14px',
           fontFamily: 'Inter_400Regular', color: '#F0F4FF',
-          border: '1.5px solid #E5E7EB', borderRadius: '10px',
+          border: '1px solid rgba(255,255,255,0.14)', borderRadius: '10px',
           backgroundColor: 'rgba(255,255,255,0.05)', outline: 'none', cursor: 'pointer',
           boxSizing: 'border-box',
         } as any}
@@ -672,7 +672,7 @@ export const TravelScreen: React.FC = () => {
                   {IS_WEB ? (
                     <input type="date" value={toLocalDateString(departure)}
                       onChange={(e:any) => { if(e.target.value) setDeparture(new Date(e.target.value+'T12:00:00')); }}
-                      style={{ width:'100%', padding:'12px 14px', fontSize:'15px', fontFamily:'Inter_400Regular', color:'transparent', border:'1.5px solid #E5E7EB', borderRadius:'10px', backgroundColor:'rgba(255,255,255,0.05)', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
+                      style={{ width:'100%', padding:'12px 14px', fontSize:'15px', fontFamily:'Inter_400Regular', color:'#F0F4FF', border:'1px solid rgba(255,255,255,0.14)', borderRadius:'10px', backgroundColor:'rgba(255,255,255,0.05)', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
                   ) : (
                     <TouchableOpacity style={styles.dateButton} onPress={() => setActivePicker('departure')}>
                       <Text style={styles.dateButtonText}>{departure.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</Text>
@@ -684,7 +684,7 @@ export const TravelScreen: React.FC = () => {
                   {IS_WEB ? (
                     <input type="date" value={toLocalDateString(returnDate)}
                       onChange={(e:any) => { if(e.target.value) setReturnDate(new Date(e.target.value+'T12:00:00')); }}
-                      style={{ width:'100%', padding:'12px 14px', fontSize:'15px', fontFamily:'Inter_400Regular', color:'transparent', border:'1.5px solid #E5E7EB', borderRadius:'10px', backgroundColor:'rgba(255,255,255,0.05)', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
+                      style={{ width:'100%', padding:'12px 14px', fontSize:'15px', fontFamily:'Inter_400Regular', color:'#F0F4FF', border:'1px solid rgba(255,255,255,0.14)', borderRadius:'10px', backgroundColor:'rgba(255,255,255,0.05)', outline:'none', cursor:'pointer', boxSizing:'border-box' } as any} />
                   ) : (
                     <TouchableOpacity style={styles.dateButton} onPress={() => setActivePicker('return')}>
                       <Text style={styles.dateButtonText}>{returnDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</Text>

@@ -74,7 +74,7 @@ const DateInput = ({ value, onChange, placeholder }: { value: string; onChange: 
   IS_WEB ? (
     <input type="date" value={value} onChange={(e: any) => onChange(e.target.value)} style={{
       width: '100%', padding: '12px 14px', fontSize: '15px', fontFamily: 'Inter_400Regular',
-      border: '1.5px solid #E5E7EB', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)',
+      border: '1px solid rgba(255,255,255,0.14)', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)',
       outline: 'none', cursor: 'pointer', boxSizing: 'border-box', color: '#F0F4FF',
     } as any} />
   ) : (

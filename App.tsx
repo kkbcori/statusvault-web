@@ -61,6 +61,79 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       -webkit-text-fill-color: #F0F4FF !important;
       caret-color: #6FAFF2 !important;
     }
+    /* Date / time / datetime-local inputs — force dark color-scheme so the
+       browser's calendar popup shows dark text on a dark background, and
+       the input's own digits stay readable. */
+    input[type="date"], input[type="time"], input[type="datetime-local"], input[type="month"], input[type="week"] {
+      color-scheme: dark !important;
+      color: #F0F4FF !important;
+      background-color: rgba(255,255,255,0.05) !important;
+    }
+    /* The little calendar icon at the right edge of date inputs — Chromium
+       renders it as a black raster glyph by default, invisible on dark bg.
+       Force it bright via brightness/invert filters, then tint it blue. */
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator,
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+    input[type="month"]::-webkit-calendar-picker-indicator,
+    input[type="week"]::-webkit-calendar-picker-indicator {
+      filter: invert(70%) sepia(34%) saturate(1287%) hue-rotate(180deg) brightness(105%) contrast(98%);
+      cursor: pointer;
+      opacity: 0.85;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator:hover,
+    input[type="time"]::-webkit-calendar-picker-indicator:hover,
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+      opacity: 1;
+    }
+    /* Date editing field-text segments inside the input (mm/dd/yyyy spinners) */
+    input[type="date"]::-webkit-datetime-edit,
+    input[type="time"]::-webkit-datetime-edit,
+    input[type="datetime-local"]::-webkit-datetime-edit {
+      color: #F0F4FF;
+    }
+    input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+    input[type="time"]::-webkit-datetime-edit-fields-wrapper,
+    input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+      color: #F0F4FF;
+    }
+    input[type="date"]::-webkit-datetime-edit-text,
+    input[type="time"]::-webkit-datetime-edit-text,
+    input[type="datetime-local"]::-webkit-datetime-edit-text {
+      color: rgba(240,244,255,0.55); /* the slashes / colons separators */
+      padding: 0 2px;
+    }
+    input[type="date"]::-webkit-datetime-edit-month-field,
+    input[type="date"]::-webkit-datetime-edit-day-field,
+    input[type="date"]::-webkit-datetime-edit-year-field,
+    input[type="time"]::-webkit-datetime-edit-hour-field,
+    input[type="time"]::-webkit-datetime-edit-minute-field,
+    input[type="time"]::-webkit-datetime-edit-second-field,
+    input[type="time"]::-webkit-datetime-edit-ampm-field,
+    input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+    input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+    input[type="datetime-local"]::-webkit-datetime-edit-year-field {
+      color: #F0F4FF;
+      caret-color: #6FAFF2;
+    }
+    /* Selected/focused date segment — show with a brand-blue tint */
+    input[type="date"]::-webkit-datetime-edit-month-field:focus,
+    input[type="date"]::-webkit-datetime-edit-day-field:focus,
+    input[type="date"]::-webkit-datetime-edit-year-field:focus,
+    input[type="time"]::-webkit-datetime-edit-hour-field:focus,
+    input[type="time"]::-webkit-datetime-edit-minute-field:focus,
+    input[type="datetime-local"]::-webkit-datetime-edit-month-field:focus,
+    input[type="datetime-local"]::-webkit-datetime-edit-day-field:focus,
+    input[type="datetime-local"]::-webkit-datetime-edit-year-field:focus {
+      background-color: rgba(59,139,232,0.30);
+      color: #fff;
+      border-radius: 3px;
+    }
+    /* Empty placeholder when no date selected — make sure visible on dark */
+    input[type="date"]:not(:focus):invalid,
+    input[type="datetime-local"]:not(:focus):invalid {
+      color: rgba(240,244,255,0.45);
+    }
   `;
   document.head.appendChild(s);
 }
