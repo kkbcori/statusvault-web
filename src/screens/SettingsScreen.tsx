@@ -48,6 +48,7 @@ export const SettingsScreen: React.FC = () => {
   const section5    = useEntrance(300);
   const navigation  = useNavigation<any>();
   const authUser    = useStore((s) => s.authUser);
+  const isGuestMode = useStore((s) => s.isGuestMode);
   const signOut              = useStore((s) => s.signOut);
   const deleteAccount        = useStore((s) => s.deleteAccount);
   const isPremiumUser        = useStore((s) => s.isPremium);
@@ -440,7 +441,13 @@ export const SettingsScreen: React.FC = () => {
               </Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.upgradeBtn} onPress={() => useStore.getState().openPaywall()}>
+          <TouchableOpacity style={styles.upgradeBtn} onPress={() => {
+            if (!authUser || isGuestMode) {
+              useStore.getState().openAuthModal('Create a free account, then upgrade to Premium');
+            } else {
+              useStore.getState().openPaywall();
+            }
+          }}>
             <Text style={styles.upgradeBtnText}>⭐ Upgrade to Premium</Text>
           </TouchableOpacity>
         </View>
@@ -561,7 +568,13 @@ export const SettingsScreen: React.FC = () => {
               <Text style={styles.premiumAlertDesc}>Export all your documents, checklists, and family member docs as a PDF. Available for Premium subscribers.</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.upgradeBtn} onPress={() => useStore.getState().openPaywall()}>
+          <TouchableOpacity style={styles.upgradeBtn} onPress={() => {
+            if (!authUser || isGuestMode) {
+              useStore.getState().openAuthModal('Create a free account, then upgrade to Premium');
+            } else {
+              useStore.getState().openPaywall();
+            }
+          }}>
             <Text style={styles.upgradeBtnText}>⭐ Upgrade to Premium</Text>
           </TouchableOpacity>
         </View>

@@ -301,7 +301,15 @@ export const TravelScreen: React.FC = () => {
   };
 
   const handleExportAddressPdf = () => {
-    if (!isPremium) { openPaywall(); return; }
+    if (!isPremium) {
+      // Guests need account first; free users get paywall
+      if (!authUser || isGuestMode) {
+        useStore.getState().openAuthModal('Create a free account, then upgrade to export PDFs');
+      } else {
+        openPaywall();
+      }
+      return;
+    }
     if (activeAddressHistory.length === 0) {
       dialog.alert('No Addresses', 'Add at least one address before exporting.');
       return;
@@ -423,7 +431,14 @@ export const TravelScreen: React.FC = () => {
   };
 
   const handleExport = async () => {
-    if (!isPremium) { openPaywall(); return; }
+    if (!isPremium) {
+      if (!authUser || isGuestMode) {
+        useStore.getState().openAuthModal('Create a free account, then upgrade to export PDFs');
+      } else {
+        openPaywall();
+      }
+      return;
+    }
     if (activeTrips.length === 0) { dialog.alert('No trips', 'Add at least one trip before exporting.'); return; }
     setExporting(true);
     try {

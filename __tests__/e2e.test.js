@@ -594,6 +594,123 @@ describe('Premium-Only — PDF Export Gating', () => {
 });
 
 
+describe('Tier Transitions — Spec Compliance', () => {
+  // ── GUEST → FREE (sign-up flow) ──
+  it('Guest hits doc limit → after sign-up, can add 2nd doc', () => {
+    const guestAtLimit = guestState({ documents: [makeDoc('1', daysFromNow(100))] });
+    expect(canAddDocument(guestAtLimit)).toBeFalsy();
+    // Simulate sign-up: clear isGuestMode, set authUser
+    const freeAfterSignup = { ...guestAtLimit, authUser: { id: 'u1' }, isGuestMode: false };
+    expect(canAddDocument(freeAfterSignup)).toBeTruthy();
+  });
+
+  it('Guest hits checklist limit → after sign-up, can add 2nd checklist', () => {
+    const guestAtLimit = guestState({ checklists: [{ id: '1' }] });
+    expect(canAddChecklist(guestAtLimit)).toBeFalsy();
+    const freeAfterSignup = { ...guestAtLimit, authUser: { id: 'u1' }, isGuestMode: false };
+    expect(canAddChecklist(freeAfterSignup)).toBeTruthy();
+  });
+
+  it('Guest hits trip limit → after sign-up, can add 2nd trip', () => {
+    const guestAtLimit = guestState({ trips: [makeTrip('1', daysAgo(60), daysAgo(50))] });
+    expect(canAddTrip(guestAtLimit)).toBeFalsy();
+    const freeAfterSignup = { ...guestAtLimit, authUser: { id: 'u1' }, isGuestMode: false };
+    expect(canAddTrip(freeAfterSignup)).toBeTruthy();
+  });
+
+  it('Guest hits address limit → after sign-up, can add 2nd address', () => {
+    const guestAtLimit = guestState({ addressHistory: [makeAddress('1', daysAgo(100))] });
+    expect(canAddAddress(guestAtLimit)).toBeFalsy();
+    const freeAfterSignup = { ...guestAtLimit, authUser: { id: 'u1' }, isGuestMode: false };
+    expect(canAddAddress(freeAfterSignup)).toBeTruthy();
+  });
+
+  it('Guest cannot add family → after sign-up, can add 1 family member', () => {
+    const guest = guestState({ familyMembers: [] });
+    expect(canAddFamilyMember(guest)).toBeFalsy();
+    const freeAfterSignup = { ...guest, authUser: { id: 'u1' }, isGuestMode: false };
+    expect(canAddFamilyMember(freeAfterSignup)).toBeTruthy();
+  });
+
+  // ── FREE → PREMIUM (subscription flow) ──
+  it('Free user at all limits → premium upgrade unlocks everything', () => {
+    const docs       = [makeDoc('1', daysFromNow(100)), makeDoc('2', daysFromNow(200))];
+    const trips      = [makeTrip('1', daysAgo(60), daysAgo(50)), makeTrip('2', daysAgo(40), daysAgo(30))];
+    const addrs      = [makeAddress('1', daysAgo(200)), makeAddress('2', daysAgo(100))];
+    const checklists = [{ id: 'c1' }, { id: 'c2' }];
+    const counters   = [{ id: 'co1' }, { id: 'co2' }];
+    const family     = [makeMember('m1')];
+    const freeAtLimit = freeState({ documents: docs, trips, addressHistory: addrs, checklists, counters, familyMembers: family });
+
+    expect(canAddDocument(freeAtLimit)).toBeFalsy();
+    expect(canAddTrip(freeAtLimit)).toBeFalsy();
+    expect(canAddAddress(freeAtLimit)).toBeFalsy();
+    expect(canAddChecklist(freeAtLimit)).toBeFalsy();
+    expect(canAddCounter(freeAtLimit)).toBeFalsy();
+    expect(canAddFamilyMember(freeAtLimit)).toBeFalsy();
+    expect(canExportPdf(freeAtLimit)).toBeFalsy();
+
+    // Subscribe to premium
+    const premium = { ...freeAtLimit, isPremium: true };
+
+    expect(canAddDocument(premium)).toBeTruthy();
+    expect(canAddTrip(premium)).toBeTruthy();
+    expect(canAddAddress(premium)).toBeTruthy();
+    expect(canAddChecklist(premium)).toBeTruthy();
+    expect(canAddCounter(premium)).toBeTruthy();
+    expect(canAddFamilyMember(premium)).toBeTruthy();
+    expect(canExportPdf(premium)).toBeTruthy();
+  });
+
+  it('Premium user can add 100+ docs (truly unlimited)', () => {
+    const docs = Array.from({ length: 100 }, (_, i) => makeDoc(String(i), daysFromNow(i + 100)));
+    expect(canAddDocument(premiumState({ documents: docs }))).toBeTruthy();
+  });
+
+  // ── PREMIUM → DOWNGRADE (subscription expires or user signs out) ──
+  // Note: the production behavior is that signing out clears isPremium and
+  // cloudBackupEnabled (see store.signOut). The next user on the same device
+  // must NOT inherit premium status.
+  it('Premium → free downgrade re-enforces all limits', () => {
+    const docs = Array.from({ length: 5 }, (_, i) => makeDoc(String(i), daysFromNow(i + 100)));
+    const premiumWithMany = premiumState({ documents: docs });
+    expect(canAddDocument(premiumWithMany)).toBeTruthy();
+
+    // Subscription ends (or sign-out then sign-in as different user)
+    const downgraded = { ...premiumWithMany, isPremium: false };
+    expect(canAddDocument(downgraded)).toBeFalsy(); // 5 > FREE_DOCUMENT_LIMIT (2)
+    expect(canExportPdf(downgraded)).toBeFalsy();
+  });
+
+  it('Premium → guest mode (sign-out) re-enforces guest limits', () => {
+    const docs = [makeDoc('1', daysFromNow(100))];
+    const premiumOneDoc = premiumState({ documents: docs });
+    expect(canAddDocument(premiumOneDoc)).toBeTruthy();
+
+    // Sign-out: isPremium=false, isGuestMode=false but authUser=null
+    // signOut also clears all data per store.signOut, but for this gate-test
+    // we verify the gate-logic alone with 1 doc remaining.
+    const guestWithStaleData = { ...premiumOneDoc, isPremium: false, authUser: null, isGuestMode: false };
+    // Without authUser, treated as guest → 1-doc limit, already at limit
+    expect(canAddDocument(guestWithStaleData)).toBeFalsy();
+  });
+
+  // ── EDGE: Family member trip pool is independent across tier changes ──
+  it('Free user maxed own trips can still add to family member; premium upgrade unlocks both', () => {
+    const ownTrips = [makeTrip('a', daysAgo(60), daysAgo(50)), makeTrip('b', daysAgo(40), daysAgo(30))];
+    const member = { ...makeMember('m1'), trips: [] };
+    const free = freeState({ trips: ownTrips, familyMembers: [member] });
+
+    expect(canAddTrip(free)).toBeFalsy();          // user maxed
+    expect(canAddTrip(free, 'm1')).toBeTruthy();   // member fresh
+
+    const premium = { ...free, isPremium: true };
+    expect(canAddTrip(premium)).toBeTruthy();
+    expect(canAddTrip(premium, 'm1')).toBeTruthy();
+  });
+});
+
+
 // ═══════════════════════════════════════════════════════════════
 // SUITE 2 — DOCUMENT EXPIRY & URGENCY
 // ═══════════════════════════════════════════════════════════════

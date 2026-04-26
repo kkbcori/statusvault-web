@@ -101,7 +101,14 @@ export const FamilyScreen: React.FC = () => {
       setNameError(false);
       setShowAddMember(false);
       setAnyModalOpen(false);
-      useStore.getState().openPaywall();
+      // Route to correct CTA based on tier (defense-in-depth — button click already
+      // gates this, but if anything calls handleAddMember programmatically, route
+      // guests to auth modal and free users to paywall).
+      if (!authUser || isGuestMode) {
+        useStore.getState().openAuthModal('Create a free account to add family members');
+      } else {
+        useStore.getState().openPaywall();
+      }
       return;
     }
     setNameError(false);
