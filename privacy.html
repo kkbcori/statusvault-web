@@ -4,104 +4,181 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Privacy Policy | StatusVault</title>
-<meta name="description" content="StatusVault Privacy Policy — how we protect your immigration data with AES-256 encryption and on-device storage.">
+<meta name="description" content="StatusVault Privacy Policy — how we handle Google and Apple Sign-In data, AES-256 encryption, on-device storage, and your rights.">
 <link rel="canonical" href="https://www.statusvault.org/privacy">
+<link rel="icon" type="image/png" href="/favicon.png">
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#F8FAFF;color:#334155;line-height:1.8;}
+body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:#F8FAFF;color:#334155;line-height:1.75;}
 nav{background:#0F172A;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;}
-.logo{color:#fff;font-size:1.1rem;font-weight:700;text-decoration:none;letter-spacing:-.2px;}
+.logo{display:flex;align-items:center;gap:10px;color:#fff;font-size:1.05rem;font-weight:700;}
+.logo img{width:26px;height:26px;border-radius:6px;}
 .logo span{color:#A5B4FC;}
 .nav-btn{background:#4F46E5;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;font-size:.85rem;text-decoration:none;}
 .header{background:linear-gradient(135deg,#0F172A,#1E1B4B);color:#fff;padding:56px 32px;text-align:center;}
 .header h1{font-size:2rem;font-weight:800;margin-bottom:8px;letter-spacing:-.5px;}
-.header p{color:rgba(203,213,225,.65);font-size:.95rem;}
-.content{max-width:740px;margin:0 auto;padding:52px 32px 80px;}
+.header p{color:rgba(203,213,225,.7);font-size:.95rem;}
+.content{max-width:760px;margin:0 auto;padding:52px 32px 80px;}
 h2{font-size:1.2rem;font-weight:700;color:#0F172A;margin:36px 0 10px;padding-bottom:8px;border-bottom:2px solid #E2E8F0;}
 h3{font-size:1rem;font-weight:600;color:#1E293B;margin:22px 0 6px;}
 p,li{color:#475569;font-size:.95rem;margin-bottom:10px;}
-ul{padding-left:20px;margin-bottom:14px;}
+ul{padding-left:22px;margin-bottom:14px;}
 .callout{border-left:4px solid #4F46E5;background:#EEF2FF;padding:16px 20px;border-radius:0 10px 10px 0;margin:20px 0;}
-.callout.warn{border-color:#DC2626;background:#FEF2F2;}
+.callout.warn{border-left-color:#DC2626;background:#FEF2F2;}
 .callout strong{color:#3730A3;}
 .callout.warn strong{color:#991B1B;}
-footer{background:#0F172A;color:rgba(203,213,225,.45);text-align:center;padding:24px;font-size:.82rem;}
-footer a{color:rgba(165,180,252,.7);text-decoration:none;}
+.callout.limited{border-left-color:#0F766E;background:#F0FDFA;}
+.callout.limited strong{color:#134E4A;}
+table{width:100%;border-collapse:collapse;margin:14px 0 18px;font-size:.9rem;}
+th,td{padding:10px 12px;text-align:left;border:1px solid #E2E8F0;}
+th{background:#F1F5F9;color:#0F172A;font-weight:600;}
+footer{background:#0F172A;color:rgba(203,213,225,.55);text-align:center;padding:28px;font-size:.82rem;}
+footer a{color:rgba(165,180,252,.75);text-decoration:none;}
 footer a:hover{color:#A5B4FC;}
 </style>
-
 </head>
 <body>
+
 <nav>
-  <a class="logo" href="/">&#x1F6E1;&#xFE0F; Status<span>Vault</span></a>
-  <a class="nav-btn" href="/">Open App &rarr;</a>
+  <a class="logo" href="/">
+    <img src="/favicon.png" alt="StatusVault logo">
+    Status<span>Vault</span>
+  </a>
+  <a class="nav-btn" href="/">Open App →</a>
 </nav>
+
 <div class="header">
   <h1>Privacy Policy</h1>
-  <p>Last updated: April 14, 2025 &nbsp;&middot;&nbsp; Effective immediately</p>
+  <p>Last updated: May 9, 2026 &nbsp;·&nbsp; Effective immediately</p>
 </div>
+
 <div class="content">
+
   <div class="callout">
-    <strong>&#x1F512; TL;DR:</strong> Your immigration data is stored on your device, encrypted with AES-256. We do not sell, share, or access your personal documents. Premium users&rsquo; encrypted backup is stored in Supabase and cannot be read by us.
+    <strong>🔒 TL;DR:</strong> Your immigration data lives on your device, encrypted with AES-256. We do not sell, share, or analyze your documents. If you opt into encrypted cloud backup, we still can't read it. We use Google and Apple Sign-In only to authenticate you — nothing else.
   </div>
 
   <h2>1. Who We Are</h2>
-  <p>StatusVault is an immigration document tracking application available at <a href="https://www.statusvault.org">www.statusvault.org</a>. We are not affiliated with USCIS, the US Department of State, or any government agency.</p>
+  <p>StatusVault is published by <strong>KKB Tech</strong> ("we", "us"), an independent software publisher. The StatusVault iOS app and the website at <a href="https://www.statusvault.org">www.statusvault.org</a> are operated by KKB Tech. We are not affiliated with USCIS, the US Department of State, or any government agency.</p>
+  <p>Contact: <a href="mailto:kkb.cori@gmail.com">kkb.cori@gmail.com</a></p>
 
-  <h2>2. Information We Collect</h2>
-  <h3>2.1 Information You Enter</h3>
-  <p>When you use StatusVault you may enter document types and expiry dates, personal names for you and family members, document numbers (optional), notes related to your immigration documents, and travel history dates.</p>
-  <p><strong>All of this data is stored locally on your device</strong> using your browser&rsquo;s localStorage. It is not transmitted to our servers unless you are a Premium user with cloud backup enabled.</p>
+  <h2>2. Scope of This Policy</h2>
+  <p>This policy covers both the <strong>StatusVault iOS app</strong> (distributed via the Apple App Store) and the <strong>web app</strong> at www.statusvault.org. Where behaviour differs between platforms, we call it out below.</p>
 
-  <h3>2.2 Authentication Data</h3>
-  <p>If you create an account we use <strong>Supabase</strong> to manage authentication. We collect your email address for login purposes. We support magic link (passwordless) and Google OAuth sign-in.</p>
+  <h2>3. Information We Collect</h2>
 
-  <h3>2.3 Premium Cloud Backup</h3>
-  <p>Premium subscribers may enable encrypted cloud backup. When enabled, your data is encrypted on your device using AES-256 with a key derived from your user ID and email before being uploaded to Supabase. <strong>We cannot read your encrypted backup data.</strong></p>
+  <h3>3.1 Information you enter</h3>
+  <p>You may enter document types and expiry dates, names of yourself and family members, document numbers (optional), notes, and travel history. <strong>By default, all of this is stored only on your device</strong> — in iOS using AsyncStorage, in the web app using your browser's localStorage. It is not transmitted to our servers unless you explicitly enable encrypted cloud backup as a Premium subscriber.</p>
 
-  <h3>2.4 Analytics</h3>
-  <p>We do not use Google Analytics, Facebook Pixel, or any advertising trackers. No third-party analytics are embedded in the app.</p>
+  <h3>3.2 Account &amp; authentication data</h3>
+  <p>When you create an account we use <strong>Supabase</strong> as our authentication provider. We collect your email address and a salted password hash (never your plaintext password). You can also sign in with <strong>Google</strong> or <strong>Apple</strong> — see Section 4 below for the specific data those flows return.</p>
 
-  <h2>3. How We Use Your Information</h2>
+  <h3>3.3 Premium cloud backup</h3>
+  <p>Premium subscribers may enable encrypted cloud backup. When enabled, we encrypt your documents on your device with AES-256 before upload. The encryption key is derived from credentials only you control. <strong>Ciphertext is all our backend ever sees</strong> — we cannot read your immigration documents, and neither can our hosting provider.</p>
+
+  <h3>3.4 Subscription &amp; billing data</h3>
+  <p>If you subscribe to StatusVault Premium, your purchase is processed by <strong>Apple</strong> (in-app purchase) and managed by <strong>RevenueCat</strong>. We receive only the entitlement status (active / inactive) and an opaque user ID — no card numbers, no Apple ID details.</p>
+
+  <h3>3.5 Device &amp; diagnostic data</h3>
+  <p>We do not embed Google Analytics, Facebook Pixel, or any advertising trackers. We do not maintain server-side request logs that retain personal data beyond 30 days. iOS may send anonymized crash reports to Apple by default — you can opt out in iOS Settings → Privacy &amp; Security → Analytics.</p>
+
+  <h2>4. Google &amp; Apple Sign-In</h2>
+
+  <h3>4.1 Google Sign-In</h3>
+  <p>If you choose "Continue with Google", you are taken to Google's standard OAuth consent screen. With your consent, Google returns the following profile fields to StatusVault via the <code>email</code>, <code>profile</code>, and <code>openid</code> scopes:</p>
+
+  <table>
+    <thead><tr><th>Field</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td>Email address (<code>email</code>)</td><td>Identifying your account, account recovery, optional notification emails (you choose).</td></tr>
+      <tr><td>Email verification status (<code>email_verified</code>)</td><td>Confirming the email is real before account creation.</td></tr>
+      <tr><td>Google account ID (<code>sub</code>)</td><td>A stable, opaque identifier so we can recognize you on subsequent sign-ins without storing your password.</td></tr>
+      <tr><td>Display name (<code>name</code>)</td><td>Personalizing the in-app greeting. Optional — never required.</td></tr>
+      <tr><td>Profile picture URL (<code>picture</code>)</td><td>Displaying your avatar in the app's account header. Optional — never stored on our servers.</td></tr>
+    </tbody>
+  </table>
+
+  <p>We do <strong>not</strong> request access to Gmail, Google Drive, Google Contacts, Calendar, or any other Google service. We do not read, write, or scan any Google data beyond the basic profile fields above.</p>
+
+  <div class="callout limited">
+    <strong>📜 Limited Use disclosure (required by Google):</strong> StatusVault's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements.
+    <br><br>
+    Specifically, we do not (a) use Google user data to serve advertising; (b) transfer Google user data to third parties except as necessary to provide or improve StatusVault, or as required by law; (c) allow humans to read Google user data, except (i) with your explicit consent for specific messages, (ii) for security investigations, or (iii) to comply with applicable law.
+  </div>
+
+  <h3>4.2 Apple Sign-In</h3>
+  <p>If you choose "Continue with Apple", iOS shows Apple's system Sign In with Apple sheet. With your consent, Apple returns:</p>
   <ul>
-    <li>To provide document expiry tracking and reminders within the app</li>
-    <li>To authenticate your account via email magic link or Google OAuth</li>
-    <li>To sync your encrypted data across devices (Premium only)</li>
-    <li>To send email notifications about expiring documents (only if you enable this)</li>
+    <li>A stable, opaque user identifier — used to recognize you on subsequent sign-ins.</li>
+    <li>Your name (only on first sign-in, only if you choose to share it).</li>
+    <li>Your email address — either your real address or Apple's private relay address, whichever you select. Both are treated identically by us.</li>
+  </ul>
+  <p>Apple does not give us access to anything else on your device. We honour Apple's <a href="https://developer.apple.com/sign-in-with-apple/" target="_blank" rel="noopener">Sign in with Apple</a> guidelines.</p>
+
+  <h2>5. How We Use Your Information</h2>
+  <ul>
+    <li>To provide document expiry tracking and reminders within the app.</li>
+    <li>To authenticate your account via email + password, Google Sign-In, or Apple Sign-In.</li>
+    <li>To sync your encrypted data across your devices (Premium subscribers, only with your opt-in).</li>
+    <li>To send notifications about expiring documents (you can disable these at any time).</li>
+    <li>To process Premium subscriptions through Apple and RevenueCat.</li>
+  </ul>
+  <p>We do not use your information to build advertising profiles, sell to data brokers, or train machine learning models.</p>
+
+  <h2>6. Data Retention</h2>
+  <table>
+    <thead><tr><th>Data</th><th>Retention</th></tr></thead>
+    <tbody>
+      <tr><td>Documents on device</td><td>Until you delete them or uninstall the app.</td></tr>
+      <tr><td>Encrypted cloud backup (Premium)</td><td>Until you disable cloud backup or delete your account, then deleted within 30 days.</td></tr>
+      <tr><td>Account email + auth records</td><td>Until you delete your account, then deleted within 30 days.</td></tr>
+      <tr><td>Server request logs</td><td>30 days, then automatically purged.</td></tr>
+      <tr><td>Subscription / billing records</td><td>Retained for 7 years to comply with tax law.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. Data Sharing</h2>
+  <p>We do not sell, rent, or share your personal information with third parties for marketing. We do not show advertisements. Your immigration data is never shared with government agencies, employers, or any other third party.</p>
+  <p>The third-party processors we rely on:</p>
+  <ul>
+    <li><strong>Supabase</strong> — authentication and encrypted Premium backup storage. SOC 2 Type II compliant, hosted on AWS.</li>
+    <li><strong>Google</strong> — only when you choose Google Sign-In (see Section 4.1).</li>
+    <li><strong>Apple</strong> — only when you choose Apple Sign-In or subscribe to Premium via in-app purchase (see Section 4.2).</li>
+    <li><strong>RevenueCat</strong> — subscription entitlement state for Premium.</li>
+    <li><strong>Resend</strong> — transactional email delivery for password reset and (optional) deadline alerts.</li>
+  </ul>
+  <p>We may disclose information if required by law (subpoena, court order) — but we cannot disclose what we cannot read, and your encrypted documents fall in that category.</p>
+
+  <h2>8. Your Rights</h2>
+  <ul>
+    <li><strong>Access</strong> — Export all your data as JSON via Settings → Export Data.</li>
+    <li><strong>Delete</strong> — Wipe all local data via Settings → Reset All Data.</li>
+    <li><strong>Account deletion</strong> — Permanently delete your account and all cloud data via Settings → Delete Account. We complete deletion within 30 days.</li>
+    <li><strong>Portability</strong> — The JSON export imports cleanly on any device.</li>
+    <li><strong>Revoke OAuth access</strong> — You can revoke Google's permission grant at <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">myaccount.google.com/permissions</a> and Apple's at iOS Settings → Apple ID → Sign in with Apple.</li>
   </ul>
 
-  <h2>4. Data Storage &amp; Security</h2>
-  <p>All personal data is stored locally in your browser by default. We use AES-256 encryption for any data that leaves your device. Your encryption key is derived from your account credentials and is never stored on our servers.</p>
-  <p>For cloud backup (Premium), we use <strong>Supabase</strong> as our backend provider, which is SOC 2 Type II compliant and hosted on AWS infrastructure.</p>
+  <h2>9. Children's Privacy</h2>
+  <p>StatusVault is not directed at children under 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us data, contact us and we will delete it.</p>
 
-  <h2>5. Data Sharing</h2>
-  <p>We do not sell, rent, or share your personal information with third parties for marketing purposes. We do not display advertisements. Your immigration data is never shared with government agencies, employers, or any other third parties.</p>
-  <p>Third-party services we use: <strong>Supabase</strong> (authentication and Premium backup), <strong>Google OAuth</strong> (optional sign-in), and <strong>Resend</strong> (optional email notifications).</p>
+  <h2>10. International Users</h2>
+  <p>StatusVault is operated from the United States. If you use the app from outside the US, your data is processed on US servers. By using the app you consent to this transfer.</p>
 
-  <h2>6. Your Rights</h2>
-  <ul>
-    <li><strong>Access</strong> &mdash; Export all your data as JSON at any time via Settings &rarr; Export Data</li>
-    <li><strong>Delete</strong> &mdash; Delete all local data via Settings &rarr; Reset All Data</li>
-    <li><strong>Account deletion</strong> &mdash; Delete your account and all cloud data via Settings &rarr; Delete Account</li>
-    <li><strong>Portability</strong> &mdash; Import your data on any new device using the JSON export</li>
-  </ul>
+  <h2>11. Changes to This Policy</h2>
+  <p>We may update this policy from time to time. Material changes will be reflected in the "Last updated" date at the top of this page. For significant changes affecting Google or Apple OAuth handling, we will notify signed-in users by email.</p>
 
-  <h2>7. Children&rsquo;s Privacy</h2>
-  <p>StatusVault is not directed at children under 13. We do not knowingly collect personal information from children under 13 years of age.</p>
-
-  <h2>8. Changes to This Policy</h2>
-  <p>We may update this Privacy Policy from time to time. We will notify users of significant changes by updating the &ldquo;Last updated&rdquo; date at the top of this page.</p>
-
-  <h2>9. Contact</h2>
-  <p>Questions about this Privacy Policy? Contact us through our app at <a href="https://www.statusvault.org">www.statusvault.org</a> or via <a href="mailto:statusvault@kkbcori.com">statusvault@kkbcori.com</a>.</p>
+  <h2>12. Contact</h2>
+  <p>Questions about this Privacy Policy? Email <a href="mailto:kkb.cori@gmail.com">kkb.cori@gmail.com</a> or write to KKB Tech via the contact form on <a href="https://www.statusvault.org">www.statusvault.org</a>.</p>
 
   <div class="callout warn" style="margin-top:40px;">
-    <strong>Not Legal Advice:</strong> StatusVault is an informational tool only. Always consult a licensed immigration attorney for official immigration guidance.
+    <strong>Not legal advice:</strong> StatusVault is an informational tool only. Always consult a licensed immigration attorney for official immigration guidance.
   </div>
 </div>
+
 <footer>
-  <p>&copy; 2025 StatusVault &nbsp;&middot;&nbsp; <a href="/privacy">Privacy Policy</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms of Service</a> &nbsp;&middot;&nbsp; <a href="/">statusvault.org</a></p>
+  <p>© 2026 KKB Tech &nbsp;·&nbsp; <a href="/privacy">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms">Terms of Service</a> &nbsp;·&nbsp; <a href="/">statusvault.org</a></p>
 </footer>
+
 </body>
 </html>
